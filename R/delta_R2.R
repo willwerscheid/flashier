@@ -33,15 +33,17 @@ calc.delta.R2 <- function(factor, flash) {
     delta.mat2 <- lowranks.combine(EF2.delta.mat,
                                    lowrank.sc.mult(EFs.delta.mat, -2))
   } else {
-    EF.minus.k <- lowrank.drop.k(as.lowrank(get.EF(flash)))
-    EFk.mat <- lowranks.prod(new.EF, EF.minus.k)
+    EF.less.k <- get.EF(flash)
+    if (!is.null(k))
+      EF.less.k <- lowrank.drop.k(EF.less.k, k)
+    EFk.mat <- lowranks.prod(new.EF, EF.less.k)
     if (is.null(k)) {
       delta.mat2 <- lowranks.combine(new.EF2,
                                      lowrank.sc.mult(EFk.mat, -2))
     } else {
       EF2.delta.mat <- lowrank.delta.mat(new.EF2, old.EF2)
       EFk.delta.mat <- lowrank.delta.mat(EFk.mat,
-                                         lowranks.prod(old.EF, EF.minus.k))
+                                         lowranks.prod(old.EF, EF.less.k))
       delta.mat2 <- lowranks.combine(EF2.delta.mat,
                                      lowrank.sc.mult(EFk.delta.mat, -2))
     }

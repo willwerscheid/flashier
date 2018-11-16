@@ -16,11 +16,10 @@ add.greedy <- function(flash, tol = 1e-2) {
 }
 
 add.new.factor.to.flash <- function(factor, flash) {
-  flash <- set.EF(flash, mapply(cbind, get.EF(flash), get.EF(factor)))
-  flash <- set.EF2(flash, mapply(cbind, get.EF2(flash), get.EF2(factor)))
-  flash <- set.KL(flash,
-                  mapply(c, get.KL(flash), get.KL(factor), SIMPLIFY = FALSE))
-  flash <- set.g(flash, c(get.g(flash), list(get.g(factor))))
+  flash <- add.factor.to.EF(flash, get.EF(factor))
+  flash <- add.factor.to.EF2(flash, get.EF2(factor))
+  flash <- add.factor.to.KL(flash, get.KL(factor))
+  flash <- add.factor.to.g(flash, get.g(factor))
   flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
   flash <- set.est.tau(flash, get.est.tau(factor))
   flash <- set.obj(flash, get.obj(factor))

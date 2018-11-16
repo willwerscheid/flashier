@@ -1,8 +1,6 @@
 get.R            <- function(f) f[["R"]]
 get.Y            <- function(f) f[["Y"]]
 get.nonmissing   <- function(f) f[["Z"]]
-get.EF           <- function(f) f[["EF"]]
-get.EF2          <- function(f) f[["EF2"]]
 get.g            <- function(f) f[["g"]]
 get.KL           <- function(f) f[["KL"]]
 get.tau.dim      <- function(f) f[["tau.dim"]]
@@ -15,6 +13,19 @@ get.ebnm.fn      <- function(f) f[["ebnm.fn"]]
 get.ebnm.param   <- function(f) f[["ebnm.param"]]
 get.k            <- function(f) f[["k"]]
 get.delta.R2     <- function(f) f[["delta.R2"]]
+
+get.EF <- function(f) {
+  EF <- f[["EF"]]
+  if (is.null(EF[[1]]))
+    return(NULL)
+  return(EF)
+}
+get.EF2 <- function(f) {
+  EF2 <- f[["EF2"]]
+  if (is.null(EF2[[1]]))
+    return(NULL)
+  return(EF2)
+}
 
 uses.R <- function(f) !is.null(f[["R"]])
 
@@ -128,6 +139,35 @@ set.to.zero <- function(f, k = NULL) {
   } else {
     f[["is.zero"]][k] <- TRUE
   }
+  return(f)
+}
+
+add.factor.to.EF <- function(f, new.EF) {
+  if (is.null(f[["EF"]])) {
+    f[["EF"]] <- as.lowrank(new.EF)
+  } else {
+    f[["EF"]] <- mapply(cbind, f[["EF"]], new.EF)
+  }
+  return(f)
+}
+add.factor.to.EF2 <- function(f, new.EF2) {
+  if (is.null(f[["EF2"]])) {
+    f[["EF2"]] <- as.lowrank(new.EF2)
+  } else {
+    f[["EF2"]] <- mapply(cbind, f[["EF2"]], new.EF2)
+  }
+  return(f)
+}
+add.factor.to.KL <- function(f, new.KL) {
+  if (is.null(f[["KL"]])) {
+    f[["KL"]] <- as.list(new.KL)
+  } else {
+    f[["KL"]] <- mapply(c, get.KL(f), new.KL, SIMPLIFY = FALSE)
+  }
+  return(f)
+}
+add.factor.to.g <- function(f, new.g) {
+  f[["g"]] <- c(f[["g"]], list(new.g))
   return(f)
 }
 

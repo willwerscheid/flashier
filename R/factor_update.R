@@ -72,9 +72,9 @@ calc.x <- function(factor, n, flash, s2) {
                              factor.EF[-n], n)
     x <- s2 * x
   } else {
-    flash.EF.tau <- lowranks.prod(flash.EF, tau)
+    flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)
     if (!is.null(k))
-      flash.EF.tau <- lowrank.drop.k(flash.EF.tau)
+      flash.EF.tau <- lowrank.drop.k(flash.EF.tau, k)
     x <- s2 * (premult.nmode.prod.r1(Y, tau, factor.EF[-n], n)
                - premult.nmode.prod.r1(Z, flash.EF.tau, factor.EF[-n], n))
   }

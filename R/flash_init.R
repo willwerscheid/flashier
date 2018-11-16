@@ -24,10 +24,6 @@ init.flash <- function(Y,
     flash$EF  <- F.init
     flash$EF2 <- lowrank.square(F.init)
     # TODO: calc KL, g
-  } else {
-    flash$EF  <- rep(list(NULL), get.dim(flash))
-    flash$EF2 <- rep(list(NULL), get.dim(flash))
-    flash$KL  <- rep(list(NULL), get.dim(flash))
   }
 
   flash$tau.dim      <- tau.dim

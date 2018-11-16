@@ -144,8 +144,12 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
 }
 
 premult.nmode.prod.r1 <- function(Z, X, r1, n) {
+  if (is.null(X))
+    return(0)
+
   if (is(X, "lowrank"))
     return(premult.lowrank.nmode.prod.r1(Z, X, r1, n))
+
   return(fullrank.nmode.prod.r1(Z * X, r1, n))
 }
 
@@ -155,6 +159,7 @@ premult.nmode.prod.r1 <- function(Z, X, r1, n) {
 # r1 objects are simply lists of vectors. For example, r1 = list(u, v, w)
 #   describes a tensor with ijk-entry equal to u_i v_j w_k.
 #
+# TODO rewrite this one
 r1.expand <- function(r1) {
   tmp <- r1[[1]]
   for (i in 2:length(r1)) {
@@ -192,37 +197,50 @@ r1.random <- function(dim) {
 #   lowrank = list(U, V, W) describes a tensor whose ijk-entry is equal to
 #   \sum_{\ell} U_{i \ell} V_{j \ell} W_{k \ell}.
 
-# TODO: maybe rewrite, but this shouldn't be used anyway.
+# TODO: maybe rewrite, but this is only used rarely.
 lowrank.expand <- function(lowrank) {
-  r1s <- list()
-  for (i in 1:ncol(lowrank[[1]])) {
-    r1s[[i]] <- lapply(lowrank, function(M) {M[, i]})
-  }
-  return(Reduce(`+`, lapply(r1s, r1.expand)))
-}
+  if (is.null(lowrank))
+    return(0)
+  if (is.matrix(lowrank) || is(lowrank, "Matrix"))
+    return(tcrossprod(lowrank[[1]], lowrank[[2]]))
 
-lowrank.sum <- function(lowrank) {
-  return(sum(apply(sapply(lowrank, colSums), 1, prod)))
+  r1s <- list()
+  for (k in 1:ncol(lowrank[[1]])) {
+    r1s[[k]] <- lapply(lowrank, function(M) {M[, k]})
+  }
+  res <- r1.expand(r1s[[1]])
+  if (length(r1s) > 1)
+    for (k in 2:length(r1s))
+      res <- res + r1.expand(r1s[[k]])
+  return(res)
 }
 
 lowrank.square <- function(lowrank) {
+  if (is.null(lowrank))
+    return(NULL)
   lowrank2 <- lapply(lowrank, function(M) {M^2})
   class(lowrank2) <- "lowrank"
   return(lowrank2)
 }
 
 lowrank.sc.mult <- function(lowrank, x) {
+  if (is.null(lowrank))
+    return(0)
   lowrank[[1]] <- x * lowrank[[1]]
   return(lowrank)
 }
 
-lowrank.drop.k <- function(lowrank) {
+lowrank.drop.k <- function(lowrank, k) {
+  if (is.null(lowrank))
+    return(NULL)
   lowrank <- lapply(lowrank, function(X) X[, -k, drop = FALSE])
   class(lowrank) <- "lowrank"
   return(lowrank)
 }
 
 as.lowrank <- function(r1) {
+  if (is.null(r1))
+    return(NULL)
   if (is(r1, "r1")) {
     lowrank <- lapply(r1, function(n) {matrix(n, ncol = 1)})
     class(lowrank) <- "lowrank"
@@ -232,13 +250,21 @@ as.lowrank <- function(r1) {
   }
 }
 
-lowranks.prod <- function(lr1, lr2) {
-  diff <- mapply(`*`, lr1, lr2)
-  class(diff) <- "lowrank"
-  return(diff)
+lowranks.prod <- function(lr1, lr2, broadcast = FALSE) {
+  if (is.null(lr1) || is.null(lr2))
+    return(NULL)
+  if (broadcast)
+    lr1 <- lapply(lr1, as.vector)
+  prod <- mapply(`*`, lr1, lr2)
+  class(prod) <- "lowrank"
+  return(prod)
 }
 
 lowranks.combine <- function(lr1, lr2) {
+  if (is.null(lr1))
+    return(lr2)
+  if (is.null(lr2))
+    return(lr1)
   lowrank <- mapply(cbind, lr1, lr2)
   class(lowrank) <- "lowrank"
   return(lowrank)
