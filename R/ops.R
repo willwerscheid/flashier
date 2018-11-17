@@ -5,6 +5,32 @@
 basic.ops.error <- paste("Basic operations not yet implemented for objects",
                          "of this class and dimension.")
 
+fullrank.subset <- function(X, n, subset) {
+  if(is.null(X))
+    return(NULL)
+
+  if(identical(X, 1))
+    return(1)
+
+  if (is.matrix(X) || is(X, "Matrix")) {
+    if (n == 1)
+      return(X[subset, ])
+    if (n == 2)
+      return(X[, subset])
+  }
+
+  if (is.array(X) && length(dim(X) == 3)) {
+    if (n == 1)
+      return(X[subset, , ])
+    if (n == 2)
+      return(X[, subset, ])
+    if (n == 3)
+      return(X[, , subset])
+  }
+
+  stop(basic.ops.error)
+}
+
 # N-mode products -------------------------------------------------------------
 
 # X is a m_1 x m_2 (x m_3) matrix (array) and v is an m_n-vector. The n-mode
@@ -187,8 +213,11 @@ r1.ones <- function(flash) {
   return(r1)
 }
 
-r1.random <- function(dim) {
-  r1 <- lapply(dim, function(d) {rnorm(d) / sqrt(d)})
+r1.random <- function(dims, nonneg.dims = NULL) {
+  r1 <- lapply(dims, function(dim) {rnorm(dim) / sqrt(dim)})
+  if (!is.null(nonneg.dims))
+    for (n in nonneg.dims)
+      r1[[n]] <- abs(r1[[n]])
   class(r1) <- "r1"
   return(r1)
 }
@@ -230,6 +259,13 @@ lowrank.sc.mult <- function(lowrank, x) {
   if (is.null(lowrank))
     return(0)
   lowrank[[1]] <- x * lowrank[[1]]
+  return(lowrank)
+}
+
+lowrank.subset <- function(lowrank, n, subset) {
+  if (is.null(lowrank))
+    return(NULL)
+  lowrank[[n]] <- lowrank[[n]][subset, ]
   return(lowrank)
 }
 

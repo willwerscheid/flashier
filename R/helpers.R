@@ -55,6 +55,31 @@ get.EF2k <- function(f, k) {
 }
 get.KLk <- function(f, k) sapply(f[["KL"]], getElement, k)
 
+get.next.fix.dim <- function(f) {
+  if (is.null(f[["fix.dim"]]))
+    return(NULL)
+  next.n <- get.n.factors(f) + 1
+  return(f[["fix.dim"]][[next.n]])
+}
+get.next.fix.idx <- function(f) {
+  if (is.null(f[["fix.idx"]]))
+    return(NULL)
+  next.n <- get.n.factors(f) + 1
+  return(f[["fix.idx"]][[next.n]])
+}
+get.next.fix.vals <- function(f) {
+  if (is.null(f[["fix.vals"]]))
+    return(NULL)
+  next.n <- get.n.factors(f) + 1
+  return(f[["fix.vals"]][[next.n]])
+}
+get.next.nonneg.dims <- function(f) {
+  if (is.null(f[["nonneg.dims"]]))
+    return(NULL)
+  next.n <- get.n.factors(f) + 1
+  return(f[["nonneg.dims"]][[next.n]])
+}
+
 set.R <- function(f, R) {
   f[["R"]] <- R
   return(f)

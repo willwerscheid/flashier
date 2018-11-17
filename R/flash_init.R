@@ -1,8 +1,12 @@
 init.flash <- function(Y,
                        nonmissing = NULL,
                        F.init = NULL,
+                       fix.dim = NULL,
+                       fix.idx = NULL,
+                       fix.vals = NULL,
                        tau.dim = 0,
                        tau.n = 1,
+                       nonneg.dims = NULL,
                        ebnm.fn = flashr:::ebnm_pn,
                        ebnm.param = list(),
                        use.R = TRUE) {
@@ -24,8 +28,16 @@ init.flash <- function(Y,
     # TODO: calc KL, g
   }
 
-  flash$tau.dim      <- tau.dim
-  flash$tau.n        <- tau.n
+  if (!is.null(fix.dim))
+    flash$fix.dim <- lapply(fix.dim, as.integer)
+  if (!is.null(tau.dim))
+    flash$tau.dim <- lapply(tau.dim, as.integer)
+  if (!is.null(nonneg.dims))
+    flash$nonneg.dims <- lapply(nonneg.dims, as.integer)
+
+  flash$fix.idx      <- fix.idx
+  flash$fix.vals     <- fix.vals
+  flash$tau.n        <- as.integer(tau.n)
   flash$n.nonmissing <- init.n.nonmissing(flash)
   flash$R2           <- init.R2(flash)
   flash$est.tau      <- calc.est.tau(flash)

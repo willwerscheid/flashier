@@ -7,7 +7,7 @@ optimize.it <- function(x, update.fn, update.args = NULL, obj.fn, obj.args = NUL
     obj     <- do.call(obj.fn, c(list(old.x, x), obj.args))
     # TODO: verbose output here
     # TODO: handle obj decreases
-    # message(obj)
+    message(obj)
   }
 
   return(x)

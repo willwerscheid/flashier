@@ -70,3 +70,54 @@ test_that("tensor factor initialization is correct for Y with missing data", {
   g.init <- init.r1(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
+
+M <- outer(1:4, 1:6) + 0.1 * rnorm(24)
+
+test_that("fixed factor initialization works as expected", {
+  f <- init.flash(M,
+                  fix.dim = list(1),
+                  fix.idx = list(1:4),
+                  fix.vals = list(1:4))
+  f.init <- init.r1(f)
+  expect_equal(f.init[[1]], 1:4)
+
+  f <- init.flash(M,
+                  fix.dim = list(2),
+                  fix.idx = list(1:3),
+                  fix.vals = list(1:3))
+  f.init <- init.r1(f)
+  expect_equal(f.init[[2]][1:3], 1:3)
+
+  f <- init.flash(M,
+                  fix.dim = list(1),
+                  fix.idx = list(1),
+                  fix.vals = list(0),
+                  use.R = FALSE)
+  f.init <- init.r1(f)
+  expect_equal(f.init[[1]][1], 0)
+  expect_false(any(f.init[[1]][2:4] == 0))
+})
+
+M <- outer(-1:3, -2:6)
+M <- M + 0.1 * rnorm(length(M))
+
+test_that("nonnegative factor initialization works as expected", {
+  f <- init.flash(M, nonneg.dims = list(1))
+  f.init <- init.r1(f)
+  expect_true(all(f.init[[1]] >= 0))
+  expect_true(any(f.init[[2]] < 0))
+
+  f <- init.flash(M, nonneg.dims = list(1:2))
+  f.init <- init.r1(f)
+  expect_true(all(f.init[[1]] >= 0))
+  expect_true(all(f.init[[2]] >= 0))
+
+  f <- init.flash(M, nonneg.dims = list(2),
+                  fix.dim = list(2),
+                  fix.idx = list(4:5),
+                  fix.vals = list(rep(0, 2)))
+  f.init <- init.r1(f)
+  expect_true(all(f.init[[2]] >= 0))
+  expect_true(any(f.init[[1]] < 0))
+  expect_true(all(f.init[[2]][4:5] == 0))
+})
