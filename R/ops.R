@@ -17,11 +17,11 @@ nmode.prod.vec <- function(X, v, n) {
   # Matrices and sparse matrices:
   if (is.matrix(X) || is(X, "Matrix")) {
     if (n == 1 && identical(v, 1))
-      return(colSums(X))
+      return(Matrix::colSums(X))
     if (n == 1)
       return(as.vector(v %*% X))
     if (n == 2 && identical(v, 1))
-      return(rowSums(X))
+      return(Matrix::rowSums(X))
     if (n == 2)
       return(as.vector(X %*% v))
   }
@@ -29,15 +29,15 @@ nmode.prod.vec <- function(X, v, n) {
   # 3-dimensional tensors:
   if (is.array(X) && length(dim(X) == 3)) {
     if (n == 1 && identical(v, 1))
-      return(apply(X, 3, colSums))
+      return(apply(X, 3, Matrix::colSums))
     if (n == 1)
       return(apply(X, 3, FUN = function(M) {t(v) %*% M}))
     if (n == 2 && identical(v, 1))
-      return(apply(X, 3, rowSums))
+      return(apply(X, 3, Matrix::rowSums))
     if (n == 2)
       return(apply(X, 3, FUN = function(M) {M %*% v}))
     if (n == 3 && identical(v, 1))
-      return(apply(X, 2, rowSums))
+      return(apply(X, 2, Matrix::rowSums))
     if (n == 3)
       return(apply(X, 2, FUN = function(M) {M %*% v}))
   }
@@ -115,9 +115,11 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
   # Matrices and sparse matrices:
   if (length(lowrank) == 2) {
     if (n == 1)
-      return(rowSums(lowrank[[1]] * (Z %*% (unlist(r1) * lowrank[[2]]))))
+      return(Matrix::rowSums(lowrank[[1]]
+                             * (Z %*% (unlist(r1) * lowrank[[2]]))))
     if (n == 2)
-      return(colSums(t(lowrank[[2]]) * (t(unlist(r1) * lowrank[[1]]) %*% Z)))
+      return(Matrix::colSums(t(lowrank[[2]])
+                             * (t(unlist(r1) * lowrank[[1]]) %*% Z)))
   }
 
   if (length(lowrank) == 3) {
@@ -129,14 +131,15 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     #   m_ index.
     if (ns[[1]] == 1) {
       tmp <- tmp * as.vector(lowrank[[1]] * r1[[1]])
-      tmp <- colSums(matrix(tmp, nrow = dim(Z)[1]))
+      tmp <- Matrix::colSums(matrix(tmp, nrow = dim(Z)[1]))
       # Have m_n k vectors concatenated one after another:
-      return(rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n], byrow = TRUE)))
+      return(Matrix::rowSums(lowrank[[n]]
+                             * matrix(tmp, nrow = dim(Z)[n], byrow = TRUE)))
     } else { # ns[[1]] == 2
       tmp <- tmp * rep(t(lowrank[[2]] * r1[[1]]), each = dim(Z)[1])
-      tmp <- rowSums(tmp)
+      tmp <- Matrix::rowSums(tmp)
       # Have k m_n vectors concatenated one after another:
-      return(rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n])))
+      return(Matrix::rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n])))
     }
   }
 

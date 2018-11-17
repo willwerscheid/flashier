@@ -8,9 +8,7 @@ init.flash <- function(Y,
                        use.R = TRUE) {
   flash <- list()
 
-  if (use.R && is.null(F.init)) {
-    flash$R <- Y
-  } else if (use.R) {
+  if (use.R) {
     flash$R <- Y - lowrank.expand(F.init)
   } else {
     flash$Y <- Y

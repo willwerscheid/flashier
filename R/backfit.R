@@ -51,7 +51,7 @@ alter.existing.factor <- function(flash, factor) {
     new.EF <- as.lowrank(get.EF(factor))
     old.EF <- as.lowrank(get.EFk(flash, k))
     EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
-    flash$R <- flash$R - lowrank.expand(EF.delta.mat)
+    flash$R <- flash$R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
   }
 
   flash <- set.EFk(flash, k, get.EF(factor))

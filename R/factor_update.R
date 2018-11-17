@@ -67,9 +67,10 @@ calc.x <- function(factor, n, flash, s2) {
 
   if (uses.R(flash)) {
     x <- premult.nmode.prod.r1(R, tau, factor.EF[-n], n)
-    if (!is.null(k))
-      x <- x + nmode.prod.r1(elemwise.prod.lowrank.r1(tau, get.EFk(flash, k)),
-                             factor.EF[-n], n)
+    if (!is.null(k)) {
+      EFk.tau <- elemwise.prod.lowrank.r1(tau, get.EFk(flash, k))
+      x <- x + premult.nmode.prod.r1(Z, EFk.tau, factor.EF[-n], n)
+    }
     x <- s2 * x
   } else {
     flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)

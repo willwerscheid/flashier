@@ -25,8 +25,10 @@ add.new.factor.to.flash <- function(factor, flash) {
   flash <- set.obj(flash, get.obj(factor))
   flash <- set.is.zero(flash, c(is.zero(flash), FALSE))
 
-  if (uses.R(flash))
-    flash <- set.R(flash, get.R(flash) - r1.expand(get.EF(factor)))
+  if (uses.R(flash)) {
+    R <- get.R(flash) - r1.expand(get.EF(factor)) * get.nonmissing(flash)
+    flash <- set.R(flash, R)
+  }
 
   return(flash)
 }

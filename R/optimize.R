@@ -14,9 +14,18 @@ optimize.it <- function(x, update.fn, update.args = NULL, obj.fn, obj.args = NUL
 }
 
 calc.max.chg.r1 <- function(old, new) {
-  return(max(abs(1 - unlist(new) / unlist(old))))
+  old <- lapply(old, l2.normalize)
+  new <- lapply(new, l2.normalize)
+  return(max(abs(unlist(new) - unlist(old))))
 }
 
 calc.obj.diff <- function(old, new) {
   return(get.obj(new) - get.obj(old))
+}
+
+l2.normalize <- function(x) {
+  norm <- sum(x^2)
+  if (norm == 0)
+    return(x)
+  return(x / sum(x^2))
 }
