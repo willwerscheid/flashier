@@ -21,7 +21,9 @@ get.EF2.subset   <- function(f) f[["subset.data"]][["EF2.subset"]]
 is.fixed         <- function(f) f[["is.fixed"]]
 is.valid         <- function(f) f[["is.valid"]]
 
-incl.fixed.in.prior.est <- function(f) f[["incl.fixed.in.prior.est"]]
+is.new             <- function(f) is.null(f[["k"]])
+store.R2.as.scalar <- function(f) get.tau.dim(f) < 1
+use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
@@ -99,37 +101,54 @@ get.fix.vals <- function(f, k = NULL) {
   return(f[["fix.vals"]][[k]])
 }
 
+is.next.fixed <- function(f) {
+  return(!is.null(get.next.fix.dim(f)))
+}
 get.next.fix.dim <- function(f) {
   if (is.null(f[["fix.dim"]]))
     return(NULL)
-  next.n <- get.n.factors(f) + 1
-  return(f[["fix.dim"]][[next.n]])
+  next.k <- get.n.factors(f) + 1
+  return(f[["fix.dim"]][[next.k]])
 }
 get.next.fix.idx <- function(f) {
   if (is.null(f[["fix.idx"]]))
     return(NULL)
-  next.n <- get.n.factors(f) + 1
-  return(f[["fix.idx"]][[next.n]])
+  next.k <- get.n.factors(f) + 1
+  return(f[["fix.idx"]][[next.k]])
 }
 get.next.fix.vals <- function(f) {
   if (is.null(f[["fix.vals"]]))
     return(NULL)
-  next.n <- get.n.factors(f) + 1
-  return(f[["fix.vals"]][[next.n]])
+  next.k <- get.n.factors(f) + 1
+  return(f[["fix.vals"]][[next.k]])
 }
 get.next.nonneg.dims <- function(f) {
   if (is.null(f[["nonneg.dims"]]))
     return(NULL)
-  next.n <- get.n.factors(f) + 1
-  return(f[["nonneg.dims"]][[next.n]])
+  next.k <- get.n.factors(f) + 1
+  return(f[["nonneg.dims"]][[next.k]])
 }
 
-are.all.fixed <- function(f, n) {
+get.next.unfixed.idx <- function(f) {
+  next.k <- get.n.factors(f) + 1
+  return(get.unfixed.idx(f, next.k))
+}
+get.unfixed.idx <- function(f, k) {
+  fix.dim <- get.fix.dim(f, k)
+  fix.idx <- get.fix.idx(f, k)
+  return(setdiff(1:(get.dims(f)[[fix.dim]]), fix.idx))
+}
+all.fixed <- function(f, n) {
   fix.dim <- as.integer(get.fix.dim(f))
   idx.subset <- get.idx.subset(f)
   return(identical(fix.dim, n) && length(idx.subset) == 0)
 }
 
+add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
+  factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
+  factor[["idx.subset"]]  <- NULL
+  return(factor)
+}
 get.subset.data <- function(f, fix.dim, idx.subset) {
   if (length(idx.subset) < 1)
     return(NULL)
@@ -139,10 +158,6 @@ get.subset.data <- function(f, fix.dim, idx.subset) {
   subset.data$Z.subset  <- fullrank.subset(f[["Z"]], fix.dim, idx.subset)
   subset.data$EF.subset <- lowrank.subset(f[["EF"]], fix.dim, idx.subset)
   return(subset.data)
-}
-add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
-  factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
-  return(factor)
 }
 get.idx.subset   <- function(f) {
   if (!is.null(f[["subset.data"]]))
@@ -228,6 +243,10 @@ set.is.zero <- function(f, is.zero) {
   f[["is.zero"]] <- is.zero
   return(f)
 }
+add.is.zero <- function(f, is.zero) {
+  f[["is.zero"]] <- c(f[["is.zero"]], is.zero)
+  return(f)
+}
 set.to.zero <- function(f, k = NULL) {
   if (is.null(k)) {
     f[["is.zero"]] <- TRUE
@@ -238,6 +257,10 @@ set.to.zero <- function(f, k = NULL) {
 }
 set.is.valid <- function(f, is.valid) {
   f[["is.valid"]] <- is.valid
+  return(f)
+}
+add.is.valid <- function(f, is.valid) {
+  f[["is.valid"]] <- c(f[["is.valid"]], is.valid)
   return(f)
 }
 set.to.valid <- function(f, k = NULL) {

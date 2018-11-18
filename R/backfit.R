@@ -1,5 +1,4 @@
-# TODO: delete backfit and backfit.once
-
+# TODO: can delete backfit and backfit.once after interface is complete
 backfit <- function(flash, kset, shuffle.kset = FALSE, tol = 1e-2) {
   flash <- optimize.it(flash,
                        update.fn = backfit.once,
@@ -35,17 +34,16 @@ update.kth.factor <- function(flash, k) {
 
 extract.factor <- function(flash, k) {
   factor         <- list()
+  factor$k       <- k
   factor$EF      <- get.EFk(flash, k)
   factor$EF2     <- get.EF2k(flash, k)
   factor$KL      <- get.KLk(flash, k)
   factor$est.tau <- get.est.tau(flash)
   factor$is.zero <- is.zero(flash, k)
-  factor$k       <- k
 
   factor$fix.dim <- get.fix.dim(flash, k)
   if (!is.null(factor$fix.dim))
-    factor$idx.subset <- setdiff(1:get.dims(flash)[[factor$fix.dim]],
-                                 get.fix.idx(flash, k))
+    factor$idx.subset <- get.unfixed.idx(flash, k)
 
   return(factor)
 }
@@ -54,10 +52,12 @@ alter.existing.factor <- function(flash, factor) {
   k <- get.k(factor)
 
   if (uses.R(flash)) {
-    new.EF <- as.lowrank(get.EF(factor))
-    old.EF <- as.lowrank(get.EFk(flash, k))
+    new.EF       <- as.lowrank(get.EF(factor))
+    old.EF       <- as.lowrank(get.EFk(flash, k))
     EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
-    flash$R <- flash$R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
+
+    R <- get.R(flash) - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
+    flash <- set.R(flash, R)
   }
 
   flash <- set.EFk(flash, k, get.EF(factor))

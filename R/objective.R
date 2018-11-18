@@ -5,16 +5,15 @@ calc.obj <- function(flash, factor = NULL) {
   KL <- sum(unlist(get.KL(flash)))
   if (!is.null(factor)) {
     KL <- KL + sum(unlist(get.KL(factor)))
-    # During backfitting, the old KL values need to be subtracted:
-    if (!is.null(get.k(factor)))
+    if (!is.new(factor))
       KL <- KL - sum(get.KLk(flash, k))
     est.tau <- get.est.tau(factor)
   } else {
     est.tau <- get.est.tau(flash)
   }
 
-  return(KL - 0.5 * sum(n.nonmissing * (log(2 * pi / est.tau) + 1)))
   # TODO: fixed S
+  return(KL - 0.5 * sum(n.nonmissing * (log(2 * pi / est.tau) + 1)))
 }
 
 normal.means.loglik <- function(x, s, Et, Et2) {

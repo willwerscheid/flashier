@@ -3,15 +3,14 @@ update.factor <- function(factor, flash) {
     return(factor)
 
   for (n in 1:get.dim(flash))
-    if (!is.zero(factor) && !are.all.fixed(factor, n))
+    if (!is.zero(factor) && !all.fixed(factor, n))
       factor <- update.factor.one.n(factor, n, flash)
 
   delta.R2 <- calc.delta.R2(factor, flash)
-
-  factor <- set.delta.R2(factor, delta.R2)
-  factor <- set.est.tau(factor, calc.est.tau(flash, delta.R2))
-  factor <- set.obj(factor, calc.obj(flash, factor))
-  factor <- set.to.valid(factor)
+  factor   <- set.delta.R2(factor, delta.R2)
+  factor   <- set.est.tau(factor, calc.est.tau(flash, delta.R2))
+  factor   <- set.obj(factor, calc.obj(flash, factor))
+  factor   <- set.to.valid(factor)
 
   return(factor)
 }
@@ -19,11 +18,12 @@ update.factor <- function(factor, flash) {
 update.factor.one.n <- function(factor, n, flash) {
   ebnm.res <- solve.ebnm(factor, n, flash)
 
-  if (identical(get.fix.dim(factor), n) && !incl.fixed.in.prior.est(flash)) {
-    new.EF  <- get.EF(factor, n)
-    new.EF2 <- get.EF2(factor, n)
-    new.EF[get.idx.subset(factor)]  <- ebnm.res$postmean
-    new.EF2[get.idx.subset(factor)] <- ebnm.res$postmean2
+  if (only.update.subset(factor, n, flash)) {
+    idx.subset          <- get.idx.subset(factor)
+    new.EF              <- get.EF(factor, n)
+    new.EF[idx.subset]  <- ebnm.res$postmean
+    new.EF2             <- get.EF2(factor, n)
+    new.EF2[idx.subset] <- ebnm.res$postmean2
   } else {
     new.EF  <- ebnm.res$postmean
     new.EF2 <- ebnm.res$postmean2
@@ -34,7 +34,7 @@ update.factor.one.n <- function(factor, n, flash) {
   factor <- set.KL(factor, ebnm.res$KL, n)
   factor <- set.g(factor, ebnm.res$fitted_g, n)
 
-  if (all(ebnm.res$postmean == 0))
+  if (all(new.EF == 0))
     factor <- set.to.zero(factor)
 
   return(factor)
@@ -42,7 +42,7 @@ update.factor.one.n <- function(factor, n, flash) {
 
 solve.ebnm <- function(factor, n, flash) {
   fix.dim <- get.fix.dim(factor)
-  if (identical(fix.dim, n) && !are.all.fixed(factor, n))
+  if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
   ebnm.args   <- calc.ebnm.args(factor, n, flash)
@@ -58,20 +58,22 @@ calc.ebnm.args <- function(factor, n, flash) {
   s2 <- calc.s2(factor, n, flash)
   x  <- calc.x(factor, n, flash, s2)
 
-  if (identical(get.fix.dim(factor), n) && incl.fixed.in.prior.est(flash)) {
-    all.x <- get.EF(factor)[[n]]
-    all.x[get.idx.subset(factor)] <- x
-    x <- all.x
-    all.s2 <- rep(0, length(all.x))
-    all.s2[get.idx.subset(factor)] <- s2
-    s <- all.s2
+  if (add.fixed.to.ebnm.args(factor, n, flash)) {
+    idx.subset         <- get.idx.subset(factor)
+    all.x              <- get.EF(factor, n)
+    all.x[idx.subset]  <- x
+    all.s2             <- rep(0, length(all.x))
+    all.s2[idx.subset] <- s2
+  } else {
+    all.x  <- x
+    all.s2 <- s2
   }
 
-  return(list(x = x, s = sqrt(s2)))
+  return(list(x = all.x, s = sqrt(all.s2)))
 }
 
 calc.s2 <- function(factor, n, flash) {
-  if (identical(get.fix.dim(factor), n) && !are.all.fixed(factor, n)) {
+  if (use.subsetted.flash.data(factor, n)) {
     Z <- get.Z.subset(factor)
   } else {
     Z <- get.nonmissing(flash)
@@ -79,9 +81,10 @@ calc.s2 <- function(factor, n, flash) {
 
   factor.EF2 <- get.EF2(factor)
   tau        <- get.tau.lowrank(flash, est.tau = get.est.tau(factor))
-  if (identical(get.fix.dim(factor), n)) {
-    factor.EF2 <- r1.subset(factor.EF2, n, get.idx.subset(factor))
-    tau        <- lowrank.subset(tau, n, get.idx.subset(factor))
+  if (n %in% get.fix.dim(factor)) {
+    idx.subset <- get.idx.subset(factor)
+    factor.EF2 <- r1.subset(factor.EF2, n, idx.subset)
+    tau        <- lowrank.subset(tau, n, idx.subset)
   }
 
   s2 <- 1 / premult.nmode.prod.r1(Z, tau, factor.EF2[-n], n)
@@ -90,47 +93,59 @@ calc.s2 <- function(factor, n, flash) {
 }
 
 calc.x <- function(factor, n, flash, s2) {
-  k <- get.k(factor) # set during backfitting
-
-  if (identical(get.fix.dim(factor), n) && !are.all.fixed(factor, n)) {
+  if (use.subsetted.flash.data(factor, n)) {
     R        <- get.R.subset(factor)
     Y        <- get.Y.subset(factor)
     Z        <- get.Z.subset(factor)
     flash.EF <- get.EF.subset(factor)
-    if (uses.R(flash) && !is.null(k)) {
-      flash.EFk <- get.EFk(flash, k)
-      flash.EFk <- r1.subset(flash.EFk, n, get.idx.subset(factor))
-    }
   } else {
     R        <- get.R(flash)
     Y        <- get.Y(flash)
     Z        <- get.nonmissing(flash)
     flash.EF <- get.EF(flash)
-    if (uses.R(flash) && !is.null(k))
-      flash.EFk <- get.EFk(flash, k)
+  }
+
+  k <- get.k(factor)
+  if (uses.R(flash) && !is.new(factor)) {
+    flash.EFk <- get.EFk(flash, k)
+    if (use.subsetted.flash.data(factor, n))
+      flash.EFk <- r1.subset(flash.EFk, n, get.idx.subset(factor))
   }
 
   factor.EF <- get.EF(factor)
   tau       <- get.tau.lowrank(flash, est.tau = get.est.tau(factor))
-  if (identical(get.fix.dim(factor), n)) {
-    factor.EF <- r1.subset(factor.EF, n, get.idx.subset(factor))
-    tau       <- lowrank.subset(tau, n, get.idx.subset(factor))
+  if (n %in% get.fix.dim(factor)) {
+    idx.subset <- get.idx.subset(factor)
+    factor.EF  <- r1.subset(factor.EF, n, idx.subset)
+    tau        <- lowrank.subset(tau, n, idx.subset)
   }
 
   if (uses.R(flash)) {
     x <- premult.nmode.prod.r1(R, tau, factor.EF[-n], n)
-    if (!is.null(k)) {
+    if (!is.new(factor)) {
       EFk.tau <- elemwise.prod.lowrank.r1(tau, flash.EFk)
       x <- x + premult.nmode.prod.r1(Z, EFk.tau, factor.EF[-n], n)
     }
-    x <- s2 * x
   } else {
+    x <- premult.nmode.prod.r1(Y, tau, factor.EF[-n], n)
     flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)
-    if (!is.null(k))
+    if (!is.new(factor))
       flash.EF.tau <- lowrank.drop.k(flash.EF.tau, k)
-    x <- s2 * (premult.nmode.prod.r1(Y, tau, factor.EF[-n], n)
-               - premult.nmode.prod.r1(Z, flash.EF.tau, factor.EF[-n], n))
+    x <- x - premult.nmode.prod.r1(Z, flash.EF.tau, factor.EF[-n], n)
   }
+  x <- s2 * x
 
   return(x)
+}
+
+only.update.subset <- function(factor, n, flash) {
+  return((n %in% get.fix.dim(factor)) && !use.fixed.to.est.g(flash))
+}
+
+use.subsetted.flash.data <- function(factor, n) {
+  return((n %in% get.fix.dim(factor)) && !all.fixed(factor, n))
+}
+
+add.fixed.to.ebnm.args <- function(factor, n, flash) {
+  return((n %in% get.fix.dim(factor)) && use.fixed.to.est.g(flash))
 }
