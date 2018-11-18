@@ -129,3 +129,14 @@ test_that("the objective after adding fixed factors approximately agrees with fl
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
                f.b$obj, tol = 0.1, scale = 1)
 })
+
+f2 <- init.flash(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
+                fix.vals = list(rep(1, n), LL[1:5]),
+                use.fixed.to.est.g = TRUE)
+f2 <- add.next.factor(f2)
+f2 <- add.next.factor(f2)
+f2.b <- backfit(f2, 1:2)
+
+test_that("results are different if fixed elements are included in priors", {
+  expect_false(f.b$obj == f2.b$obj)
+})
