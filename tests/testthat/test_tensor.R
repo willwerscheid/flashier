@@ -12,8 +12,8 @@ LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(m * n * p)
 
 f <- init.flash(M)
-f <- add.greedy(f)
-f <- add.greedy(f)
+f <- add.next.factor(f)
+f <- add.next.factor(f)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(get.n.factors(f), 2)
@@ -39,8 +39,8 @@ Z <- array(1, dim = dim(M))
 Z[missing_idx] <- 0
 
 f <- init.flash(M.missing, nonmissing = Z, use.R = FALSE)
-f <- add.greedy(f)
-f <- add.greedy(f)
+f <- add.next.factor(f)
+f <- add.next.factor(f)
 
 test_that("matrix factor initialization is correct (using Y, with missing)", {
   expect_equal(get.n.factors(f), 2)

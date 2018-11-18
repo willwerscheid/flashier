@@ -9,7 +9,8 @@ init.flash <- function(Y,
                        nonneg.dims = NULL,
                        ebnm.fn = flashr:::ebnm_pn,
                        ebnm.param = list(),
-                       use.R = TRUE) {
+                       use.R = TRUE,
+                       incl.fixed.in.prior.est = FALSE) {
   flash <- list()
 
   if (use.R) {
@@ -45,6 +46,8 @@ init.flash <- function(Y,
 
   flash$ebnm.fn    <- ebnm.fn
   flash$ebnm.param <- ebnm.param
+
+  flash$incl.fixed.in.prior.est <- incl.fixed.in.prior.est
 
   return(flash)
 }

@@ -25,7 +25,7 @@ update.kth.factor <- function(flash, k) {
 
   if (!is.zero(factor)) {
     factor <- update.factor(factor, flash)
-    if (get.obj(factor) > get.obj(flash))
+    if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor))
       flash <- alter.existing.factor(flash, factor)
     # TODO: what if objective decreases?
   }
@@ -37,9 +37,15 @@ extract.factor <- function(flash, k) {
   factor         <- list()
   factor$EF      <- get.EFk(flash, k)
   factor$EF2     <- get.EF2k(flash, k)
+  factor$KL      <- get.KLk(flash, k)
   factor$est.tau <- get.est.tau(flash)
   factor$is.zero <- is.zero(flash, k)
   factor$k       <- k
+
+  factor$fix.dim <- get.fix.dim(flash, k)
+  if (!is.null(factor$fix.dim))
+    factor$idx.subset <- setdiff(1:get.dims(flash)[[factor$fix.dim]],
+                                 get.fix.idx(flash, k))
 
   return(factor)
 }
@@ -64,6 +70,8 @@ alter.existing.factor <- function(flash, factor) {
 
   if (is.zero(factor))
     flash <- set.to.zero(flash, k)
+  if (is.valid(factor))
+    flash <- set.to.valid(flash, k)
 
   return(flash)
 }

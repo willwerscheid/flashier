@@ -22,8 +22,8 @@ flash.data[missing_idx] <- NA
 flash.data <- flash_set_data(flash.data)
 
 f <- init.flash(M, nonmissing = Z)
-f <- add.greedy(f)
-f <- add.greedy(f)
+f <- add.next.factor(f)
+f <- add.next.factor(f)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(get.n.factors(f), 2)
@@ -66,8 +66,8 @@ test_that ("the final backfit objective approximately agrees with flashr (using 
 })
 
 f.sprs <- init.flash(Matrix(M), nonmissing = Matrix(Z), use.R = FALSE)
-f.sprs <- add.greedy(f.sprs)
-f.sprs <- add.greedy(f.sprs)
+f.sprs <- add.next.factor(f.sprs)
+f.sprs <- add.next.factor(f.sprs)
 
 test_that("matrix factor initialization is correct (sparse, using Y)", {
   expect_equal(get.n.factors(f.sprs), 2)

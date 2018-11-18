@@ -8,6 +8,9 @@ flash <- function() {
 flash.workhorse <- function(Y,
                             nonmissing = NULL,
                             F.init = NULL,
+                            fix.dim = NULL,
+                            fix.idx = NULL,
+                            fix.vals = NULL,
                             tau.dim = 0,
                             tau.n = 1,
                             ebnm.fn = flashr:::ebnm_pn,
@@ -57,9 +60,9 @@ flash.workhorse <- function(Y,
 
     greedy.complete <- (total.factors.added >= max.factors.to.add)
     if (!greedy.complete) {
-      # TODO: respect greedy.maxiter, allow fixed
+      # TODO: respect greedy.maxiter, verify works for fixed
       announce.greedy(verbose)
-      flash <- add.greedy(flash, r1.tol)
+      flash <- add.next.factor(flash, r1.tol)
 
       if (greedy.failed(flash)) {
         greedy.complete <- TRUE

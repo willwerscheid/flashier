@@ -13,17 +13,30 @@ get.ebnm.fn      <- function(f) f[["ebnm.fn"]]
 get.ebnm.param   <- function(f) f[["ebnm.param"]]
 get.k            <- function(f) f[["k"]]
 get.delta.R2     <- function(f) f[["delta.R2"]]
+get.R.subset     <- function(f) f[["subset.data"]][["R.subset"]]
+get.Y.subset     <- function(f) f[["subset.data"]][["Y.subset"]]
+get.Z.subset     <- function(f) f[["subset.data"]][["Z.subset"]]
+get.EF.subset    <- function(f) f[["subset.data"]][["EF.subset"]]
+get.EF2.subset   <- function(f) f[["subset.data"]][["EF2.subset"]]
+is.fixed         <- function(f) f[["is.fixed"]]
+is.valid         <- function(f) f[["is.valid"]]
 
-get.EF <- function(f) {
+incl.fixed.in.prior.est <- function(f) f[["incl.fixed.in.prior.est"]]
+
+get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
   if (is.null(EF[[1]]))
     return(NULL)
+  if (!is.null(n))
+    return(EF[[n]])
   return(EF)
 }
-get.EF2 <- function(f) {
+get.EF2 <- function(f, n = NULL) {
   EF2 <- f[["EF2"]]
   if (is.null(EF2[[1]]))
     return(NULL)
+  if (!is.null(n))
+    return(EF2[[n]])
   return(EF2)
 }
 
@@ -33,6 +46,13 @@ is.zero <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.zero"]])
   return(f[["is.zero"]][k])
+}
+
+is.obj.valid <- function(flash, factor = NULL) {
+  valid <- c(flash[["is.valid"]])
+  if (!is.null(factor))
+    valid <- c(valid, factor[["is.valid"]])
+  return(all(valid))
 }
 
 get.n.factors <- function(f) max(0, ncol(f$EF[[1]]))
@@ -54,6 +74,30 @@ get.EF2k <- function(f, k) {
   return(EF2k)
 }
 get.KLk <- function(f, k) sapply(f[["KL"]], getElement, k)
+
+get.n.fixed <- function(f)
+  return(length(f[["fix.dim"]]))
+get.fix.dim <- function(f, k = NULL) {
+  if (is.null(f[["fix.dim"]]))
+    return(NULL)
+  if (is.null(k))
+    return(f[["fix.dim"]])
+  return(f[["fix.dim"]][[k]])
+}
+get.fix.idx <- function(f, k = NULL) {
+  if (is.null(f[["fix.idx"]]))
+    return(NULL)
+  if (is.null(k))
+    return(f[["fix.idx"]])
+  return(f[["fix.idx"]][[k]])
+}
+get.fix.vals <- function(f, k = NULL) {
+  if (is.null(f[["fix.vals"]]))
+    return(NULL)
+  if (is.null(k))
+    return(f[["fix.vals"]])
+  return(f[["fix.vals"]][[k]])
+}
 
 get.next.fix.dim <- function(f) {
   if (is.null(f[["fix.dim"]]))
@@ -78,6 +122,32 @@ get.next.nonneg.dims <- function(f) {
     return(NULL)
   next.n <- get.n.factors(f) + 1
   return(f[["nonneg.dims"]][[next.n]])
+}
+
+are.all.fixed <- function(f, n) {
+  fix.dim <- as.integer(get.fix.dim(f))
+  idx.subset <- get.idx.subset(f)
+  return(identical(fix.dim, n) && length(idx.subset) == 0)
+}
+
+get.subset.data <- function(f, fix.dim, idx.subset) {
+  if (length(idx.subset) < 1)
+    return(NULL)
+  subset.data <- list(idx.subset = idx.subset)
+  subset.data$R.subset  <- fullrank.subset(f[["R"]], fix.dim, idx.subset)
+  subset.data$Y.subset  <- fullrank.subset(f[["Y"]], fix.dim, idx.subset)
+  subset.data$Z.subset  <- fullrank.subset(f[["Z"]], fix.dim, idx.subset)
+  subset.data$EF.subset <- lowrank.subset(f[["EF"]], fix.dim, idx.subset)
+  return(subset.data)
+}
+add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
+  factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
+  return(factor)
+}
+get.idx.subset   <- function(f) {
+  if (!is.null(f[["subset.data"]]))
+    return(f[["subset.data"]][["idx.subset"]])
+  return(f[["idx.subset"]])
 }
 
 set.R <- function(f, R) {
@@ -166,6 +236,18 @@ set.to.zero <- function(f, k = NULL) {
   }
   return(f)
 }
+set.is.valid <- function(f, is.valid) {
+  f[["is.valid"]] <- is.valid
+  return(f)
+}
+set.to.valid <- function(f, k = NULL) {
+  if (is.null(k)) {
+    f[["is.valid"]] <- TRUE
+  } else {
+    f[["is.valid"]][k] <- TRUE
+  }
+  return(f)
+}
 
 add.factor.to.EF <- function(f, new.EF) {
   if (is.null(f[["EF"]])) {
@@ -220,5 +302,17 @@ to.flashr <- function(f) {
   flash$KL_f   <- as.list(f$KL[[2]])
   flash$tau    <- f$est.tau
   class(flash) <- "flash_fit"
+
+  if (!is.null(f$fix.dim)) {
+    for (k in 1:get.n.factors(f)) {
+      if (f$fix.dim[[k]] == 1) {
+        flash$fixl[f$fix.idx[[k]], k] <- TRUE
+      }
+      if (f$fix.dim[[k]] == 2) {
+        flash$fixf[f$fix.idx[[k]], k] <- TRUE
+      }
+    }
+  }
+
   return(flash)
 }

@@ -207,6 +207,11 @@ r1.square <- function(r1) {
   return(r12)
 }
 
+r1.subset <- function(r1, n, subset) {
+  r1[[n]] <- r1[[n]][subset]
+  return(r1)
+}
+
 r1.ones <- function(flash) {
   r1 <- as.list(rep(1, get.dim(flash) - 1))
   class(r1) <- "r1"
@@ -265,7 +270,7 @@ lowrank.sc.mult <- function(lowrank, x) {
 lowrank.subset <- function(lowrank, n, subset) {
   if (is.null(lowrank))
     return(NULL)
-  lowrank[[n]] <- lowrank[[n]][subset, ]
+  lowrank[[n]] <- lowrank[[n]][subset, , drop = FALSE]
   return(lowrank)
 }
 
