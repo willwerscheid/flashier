@@ -19,7 +19,6 @@ get.Z.subset     <- function(f) f[["subset.data"]][["Z.subset"]]
 get.EF.subset    <- function(f) f[["subset.data"]][["EF.subset"]]
 get.EF2.subset   <- function(f) f[["subset.data"]][["EF2.subset"]]
 is.fixed         <- function(f) f[["is.fixed"]]
-is.valid         <- function(f) f[["is.valid"]]
 
 is.new             <- function(f) is.null(f[["k"]])
 store.R2.as.scalar <- function(f) get.tau.dim(f) < 1
@@ -48,6 +47,11 @@ is.zero <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.zero"]])
   return(f[["is.zero"]][k])
+}
+is.valid <- function(f, k = NULL) {
+  if (is.null(k))
+    return(f[["is.valid"]])
+  return(f[["is.valid"]][k])
 }
 
 is.obj.valid <- function(flash, factor = NULL) {
@@ -301,6 +305,12 @@ add.factor.to.g <- function(f, new.g) {
   return(f)
 }
 
+clear.flags <- function(f) {
+  f <- clear.greedy.fail.flag(f)
+  f <- clear.nullchk.fail.flag(f)
+  return(f)
+}
+
 set.greedy.fail.flag <- function(f) {
   f[["greedy.fail"]] <- TRUE
   return(f)
@@ -311,6 +321,18 @@ clear.greedy.fail.flag <- function(f) {
 }
 greedy.failed <- function(f) {
   return(identical(f[["greedy.fail"]], TRUE))
+}
+
+set.nullchk.fail.flag <- function(f) {
+  f[["nullchk.fail"]] <- TRUE
+  return(f)
+}
+clear.nullchk.fail.flag <- function(f) {
+  f[["nullchk.fail"]] <- NULL
+  return(f)
+}
+nullchk.failed <- function(f) {
+  return(identical(f[["nullchk.fail"]], TRUE))
 }
 
 to.flashr <- function(f) {

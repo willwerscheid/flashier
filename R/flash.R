@@ -57,6 +57,7 @@ flash.workhorse <- function(Y,
 
   while (something.changed) {
     something.changed <- FALSE
+    flash <- clear.flags(flash)
 
     greedy.complete <- (total.factors.added >= max.factors.to.add)
     if (!greedy.complete) {
@@ -111,12 +112,13 @@ flash.workhorse <- function(Y,
       }
     }
 
-    # if (do.nullchk)
-    #   announce.nullcheck(verbose)
-    #   for (k in get.kset(flash))
-    #     flash <- nullchk.kth.factor(flash)
-    #
-    # if fails, then set something.changed
+    if (do.nullchk) {
+      announce.nullcheck(verbose)
+      for (k in get.kset(flash))
+        flash <- nullchk.kth.factor(flash)
+      if (nullchk.failed(flash))
+        something.changed <- TRUE
+    }
   }
 
   # remove R and then return results

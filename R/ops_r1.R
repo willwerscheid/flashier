@@ -31,6 +31,12 @@ r1.sum <- function(r1) {
   return(prod(sapply(r1, sum)))
 }
 
+r1.zeros <- function(flash) {
+  r1 <- lapply(get.dims(flash), function(dim) rep(0, dim))
+  class(r1) <- "r1"
+  return(r1)
+}
+
 r1.ones <- function(flash) {
   r1 <- as.list(rep(1, get.dim(flash) - 1))
   class(r1) <- "r1"

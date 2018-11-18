@@ -140,3 +140,20 @@ f2.b <- backfit(f2, 1:2)
 test_that("results are different if fixed elements are included in priors", {
   expect_false(f.b$obj == f2.b$obj)
 })
+
+f <- init.flash(M, fix.dim = list(1, 1, 1), fix.idx = list(1:n, 1:5, 1:n),
+                fix.vals = list(rep(1, n), LL[1:5], 1:n))
+f <- add.next.factor(f)
+f <- add.next.factor(f)
+f <- add.next.factor(f)
+f.b <- backfit(f, 1:3)
+
+test_that("nullcheck works as expected", {
+  f.n1 <- nullcheck.kth.factor(f.b, 1)
+  expect_identical(f.b, f.n1)
+  f.n2 <- nullcheck.kth.factor(f.b, 2)
+  expect_identical(f.b, f.n2)
+  f.n3 <- nullcheck.kth.factor(f.b, 3)
+  expect_false(identical(f.n3, f.b))
+  expect_true(f.n3$is.zero[3])
+})

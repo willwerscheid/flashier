@@ -6,7 +6,7 @@ init.factor <- function(flash, tol = 1e-2) {
   factor$KL          <- rep(0, get.dim(flash))
   factor$delta.R2    <- calc.delta.R2(factor, flash)
   factor$est.tau     <- calc.est.tau(flash, factor$delta.R2)
-  factor$obj         <- -Inf
+  factor$obj         <- calc.obj(flash, factor)
   factor$is.valid    <- FALSE
   factor$is.zero     <- FALSE
 

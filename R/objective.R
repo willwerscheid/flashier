@@ -1,3 +1,13 @@
+update.R2.tau.and.obj <- function(factor, flash) {
+  delta.R2 <- calc.delta.R2(factor, flash)
+  factor   <- set.delta.R2(factor, delta.R2)
+  factor   <- set.est.tau(factor, calc.est.tau(flash, delta.R2))
+  factor   <- set.obj(factor, calc.obj(flash, factor))
+  factor   <- set.to.valid(factor)
+
+  return(factor)
+}
+
 calc.obj <- function(flash, factor = NULL) {
   n.nonmissing <- get.n.nonmissing(flash)
   k            <- get.k(factor)

@@ -38,7 +38,6 @@ extract.factor <- function(flash, k) {
   factor$EF      <- get.EFk(flash, k)
   factor$EF2     <- get.EF2k(flash, k)
   factor$KL      <- get.KLk(flash, k)
-  factor$est.tau <- get.est.tau(flash)
   factor$is.zero <- is.zero(flash, k)
 
   factor$fix.dim <- get.fix.dim(flash, k)

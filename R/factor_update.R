@@ -6,11 +6,7 @@ update.factor <- function(factor, flash) {
     if (!is.zero(factor) && !all.fixed(factor, n))
       factor <- update.factor.one.n(factor, n, flash)
 
-  delta.R2 <- calc.delta.R2(factor, flash)
-  factor   <- set.delta.R2(factor, delta.R2)
-  factor   <- set.est.tau(factor, calc.est.tau(flash, delta.R2))
-  factor   <- set.obj(factor, calc.obj(flash, factor))
-  factor   <- set.to.valid(factor)
+  factor <- update.R2.tau.and.obj(factor, flash)
 
   return(factor)
 }
