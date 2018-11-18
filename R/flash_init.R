@@ -7,8 +7,10 @@ init.flash <- function(Y,
                        tau.dim = 0,
                        tau.n = 1,
                        dim.signs = NULL,
-                       ebnm.fn = flashr:::ebnm_pn,
-                       ebnm.param = list(),
+                       greedy.ebnm.fn = flashr:::ebnm_pn,
+                       greedy.ebnm.param = list(),
+                       fix.ebnm.fn = NULL,
+                       fix.ebnm.param = NULL,
                        use.R = TRUE,
                        use.fixed.to.est.g = FALSE) {
   flash <- list()
@@ -42,8 +44,19 @@ init.flash <- function(Y,
   flash$est.tau      <- calc.est.tau(flash)
   flash$obj          <- calc.obj(flash)
 
-  flash$ebnm.fn    <- ebnm.fn
-  flash$ebnm.param <- ebnm.param
+  flash$greedy.ebnm.fn    <- greedy.ebnm.fn
+  flash$greedy.ebnm.param <- greedy.ebnm.param
+  flash$fix.ebnm.fn       <- fix.ebnm.fn
+  flash$fix.ebnm.param    <- fix.ebnm.param
+  if (is.null(flash$fix.ebnm.fn)) {
+    flash$fix.ebnm.fn    <- list()
+    flash$fix.ebnm.param <- list()
+    for (k in which.k.fixed(flash)) {
+      flash$fix.ebnm.fn[[k]]    <- greedy.ebnm.fn
+      flash$fix.ebnm.param[[k]] <- greedy.ebnm.param
+    }
+  }
+
   flash$dim.signs  <- dim.signs
 
   flash$use.fixed.to.est.g <- use.fixed.to.est.g

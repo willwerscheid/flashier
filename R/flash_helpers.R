@@ -9,8 +9,6 @@ get.est.tau      <- function(f) f[["est.tau"]]
 get.R2           <- function(f) f[["R2"]]
 get.n.nonmissing <- function(f) f[["n.nonmissing"]]
 get.obj          <- function(f) f[["obj"]]
-get.ebnm.fn      <- function(f) f[["ebnm.fn"]]
-get.ebnm.param   <- function(f) f[["ebnm.param"]]
 get.k            <- function(f) f[["k"]]
 get.delta.R2     <- function(f) f[["delta.R2"]]
 get.R.subset     <- function(f) f[["subset.data"]][["R.subset"]]
@@ -23,6 +21,36 @@ is.fixed         <- function(f) f[["is.fixed"]]
 is.new             <- function(f) is.null(f[["k"]])
 store.R2.as.scalar <- function(f) get.tau.dim(f) < 1
 use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
+
+get.ebnm.fn <- function(flash, factor) {
+  if (is.new(factor))
+    return(get.next.ebnm.fn(flash))
+  return(get.ebnm.fn.k(flash, get.k(factor)))
+}
+get.next.ebnm.fn <- function(f) {
+  next.k <- get.n.factors(f) + 1
+  return(get.ebnm.fn.k(f, next.k))
+}
+get.ebnm.fn.k <- function(f, k) {
+  if (is.null(get.fix.dim(f, k)))
+    return(f[["greedy.ebnm.fn"]])
+  return(f[["fix.ebnm.fn"]][[k]])
+}
+
+get.ebnm.param <- function(flash, factor) {
+  if (is.new(factor))
+    return(get.next.ebnm.param(flash))
+  return(get.ebnm.param.k(flash, get.k(factor)))
+}
+get.next.ebnm.param <- function(f) {
+  next.k <- get.n.factors(f) + 1
+  return(get.ebnm.param.k(f, next.k))
+}
+get.ebnm.param.k <- function(f, k) {
+  if (is.null(get.fix.dim(f, k)))
+    return(f[["greedy.ebnm.param"]])
+  return(f[["fix.ebnm.param"]][[k]])
+}
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
