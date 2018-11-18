@@ -1,37 +1,39 @@
 init.factor <- function(flash, tol = 1e-2) {
-  factor             <- list()
-  factor$is.fixed    <- is.next.fixed(flash)
-  factor$EF          <- init.next.EF(flash, tol)
-  factor$EF2         <- r1.square(factor$EF)
-  factor$KL          <- rep(0, get.dim(flash))
-  factor$delta.R2    <- calc.delta.R2(factor, flash)
-  factor$est.tau     <- calc.est.tau(flash, factor$delta.R2)
-  factor$obj         <- calc.obj(flash, factor)
-  factor$is.valid    <- FALSE
-  factor$is.zero     <- FALSE
+  factor          <- list()
+  factor$is.fixed <- is.next.fixed(flash)
+  factor$EF       <- init.next.EF(flash, tol)
+  factor$EF2      <- r1.square(factor$EF)
+  factor$KL       <- rep(0, get.dim(flash))
+  factor$delta.R2 <- calc.delta.R2(factor, flash)
+  factor$est.tau  <- calc.est.tau(flash, factor$delta.R2)
+  factor$obj      <- calc.obj(flash, factor)
+  factor$is.valid <- FALSE
+  factor$is.zero  <- FALSE
 
   return(factor)
 }
 
 init.next.EF <- function(flash, tol = 1e-2) {
-  fix.dim     <- get.next.fix.dim(flash)
-  fix.idx     <- get.next.fix.idx(flash)
-  fix.vals    <- get.next.fix.vals(flash)
-  nonneg.dims <- get.next.nonneg.dims(flash)
+  fix.dim   <- get.next.fix.dim(flash)
+  fix.idx   <- get.next.fix.idx(flash)
+  fix.vals  <- get.next.fix.vals(flash)
+  dim.signs <- get.next.dim.signs(flash)
 
-  EF <- r1.random(get.dims(flash), nonneg.dims)
+  EF <- r1.random(get.dims(flash), dim.signs)
   if (!is.null(fix.dim)) {
     EF[[fix.dim]][fix.idx] <- fix.vals
     # The non-fixed values should be similar in magnitude to the fixed ones:
-    if (mean(fix.vals) != 0)
-      EF[[fix.dim]][-fix.idx] <- mean(fix.vals) * EF[[fix.dim]][-fix.idx]
+    mean.fix2 <- mean(fix.vals^2)
+    if (mean.fix2 != 0)
+      EF[[fix.dim]][-fix.idx] <- sqrt(mean.fix2) * EF[[fix.dim]][-fix.idx]
   }
 
   update.order <- 1:get.dim(flash)
-  # Nonnegative dimensions are updated later so that they stay nonnegative:
-  if (!is.null(nonneg.dims)) {
-    which.nonneg <- which(update.order %in% nonneg.dims)
-    update.order <- c(update.order[-which.nonneg], update.order[which.nonneg])
+  # Nonnegative/nonpositive dimensions are updated later:
+  signed.dims <- which(dim.signs %in% c(-1, 1))
+  if (length(signed.dims) > 0) {
+    which.signed <- which(update.order %in% signed.dims)
+    update.order <- c(update.order[-which.signed], update.order[which.signed])
   }
   # And fixed dimensions are updated last:
   if (!is.null(fix.dim)) {
@@ -56,7 +58,7 @@ init.next.EF <- function(flash, tol = 1e-2) {
                     update.args = list(flash = flash,
                                        update.order = update.order,
                                        fix.dim = fix.dim,
-                                       nonneg.dims = nonneg.dims,
+                                       dim.signs = dim.signs,
                                        subset.data = subset.data),
                     obj.fn = calc.max.chg.r1,
                     tol = tol)
@@ -64,19 +66,21 @@ init.next.EF <- function(flash, tol = 1e-2) {
   return(EF)
 }
 
-update.init.EF <- function(EF, flash, update.order, fix.dim, nonneg.dims,
+update.init.EF <- function(EF, flash, update.order, fix.dim, dim.signs,
                            subset.data) {
+  if (is.null(dim.signs))
+    dim.signs <- rep(0, get.dim(flash))
+
   for (n in update.order) {
-    is.fixed  <- n %in% fix.dim
-    is.nonneg <- n %in% nonneg.dims
-    EF <- update.init.EF.one.n(EF, n, flash, is.fixed, is.nonneg, subset.data)
+    is.fixed <- n %in% fix.dim
+    sign     <- dim.signs[n]
+    EF <- update.init.EF.one.n(EF, n, flash, is.fixed, sign, subset.data)
   }
 
   return(EF)
 }
 
-update.init.EF.one.n <- function(EF, n, flash, is.fixed, is.nonneg,
-                                 subset.data) {
+update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
   if (is.fixed) {
     R        <- subset.data$R.subset
     Y        <- subset.data$Y.subset
@@ -98,8 +102,10 @@ update.init.EF.one.n <- function(EF, n, flash, is.fixed, is.nonneg,
                  / nmode.prod.r1(Z, r1.square(EF[-n]), n))
   }
 
-  if (is.nonneg)
+  if (sign == 1)
     new.vals <- pmax(new.vals, 0)
+  if (sign == -1)
+    new.vals <- pmin(new.vals, 0)
 
   if (is.fixed) {
     EF[[n]][subset.data$idx.subset] <- new.vals

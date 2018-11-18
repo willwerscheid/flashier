@@ -133,11 +133,11 @@ get.next.fix.vals <- function(f) {
   next.k <- get.n.factors(f) + 1
   return(f[["fix.vals"]][[next.k]])
 }
-get.next.nonneg.dims <- function(f) {
-  if (is.null(f[["nonneg.dims"]]))
+get.next.dim.signs <- function(f) {
+  if (is.null(f[["dim.signs"]]))
     return(NULL)
   next.k <- get.n.factors(f) + 1
-  return(f[["nonneg.dims"]][[next.k]])
+  return(f[["dim.signs"]][[next.k]])
 }
 
 get.next.unfixed.idx <- function(f) {

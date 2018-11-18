@@ -102,17 +102,17 @@ M <- outer(-1:3, -2:6)
 M <- M + 0.1 * rnorm(length(M))
 
 test_that("nonnegative factor initialization works as expected", {
-  f <- init.flash(M, nonneg.dims = list(1))
+  f <- init.flash(M, dim.signs = list(c(1, 0)))
   f.init <- init.next.EF(f)
   expect_true(all(f.init[[1]] >= 0))
   expect_true(any(f.init[[2]] < 0))
 
-  f <- init.flash(M, nonneg.dims = list(1:2))
+  f <- init.flash(M, dim.signs = list(c(1, -1)))
   f.init <- init.next.EF(f)
   expect_true(all(f.init[[1]] >= 0))
-  expect_true(all(f.init[[2]] >= 0))
+  expect_true(all(f.init[[2]] <= 0))
 
-  f <- init.flash(M, nonneg.dims = list(2),
+  f <- init.flash(M, dim.signs = list(c(0, 1)),
                   fix.dim = list(2),
                   fix.idx = list(4:5),
                   fix.vals = list(rep(0, 2)))

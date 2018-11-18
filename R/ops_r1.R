@@ -43,10 +43,13 @@ r1.ones <- function(flash) {
   return(r1)
 }
 
-r1.random <- function(dims, nonneg.dims = NULL) {
+r1.random <- function(dims, dim.signs = NULL) {
   r1 <- lapply(dims, function(dim) {rnorm(dim) / sqrt(dim)})
-  for (n in nonneg.dims) {
+  for (n in which(dim.signs == 1)) {
     r1[[n]] <- abs(r1[[n]])
+  }
+  for (n in which(dim.signs == -1)) {
+    r1[[n]] <- -abs(r1[[n]])
   }
   class(r1) <- "r1"
   return(r1)
