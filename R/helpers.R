@@ -105,6 +105,13 @@ get.fix.vals <- function(f, k = NULL) {
   return(f[["fix.vals"]][[k]])
 }
 
+which.k.fixed <- function(f) {
+  if (is.null(f[["fix.dim"]]))
+    return(NULL)
+  not.fixed <- sapply(f[["fix.dim"]], is.null)
+  return(which(!not.fixed))
+}
+
 is.next.fixed <- function(f) {
   return(!is.null(get.next.fix.dim(f)))
 }

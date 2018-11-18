@@ -18,6 +18,7 @@ flash.workhorse <- function(Y,
                             use.R = TRUE,
                             greedy.Kmax = 100,
                             backfit.order = c("sequential", "random"),
+                            nullchk.fixed = FALSE,
                             backfit.after = NULL,
                             backfit.every = NULL,
                             nullchk.after = backfit.after,
@@ -114,7 +115,10 @@ flash.workhorse <- function(Y,
 
     if (do.nullchk) {
       announce.nullcheck(verbose)
-      for (k in get.kset(flash))
+      nullchk.kset <- 1:get.n.factors(flash)
+      if (!nullchk.fixed)
+        nullchk.kset <- setdiff(nullchk.set, which.k.fixed(flash))
+      for (k in nullchk.kset)
         flash <- nullchk.kth.factor(flash)
       if (nullchk.failed(flash))
         something.changed <- TRUE
