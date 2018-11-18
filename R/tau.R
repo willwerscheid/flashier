@@ -1,7 +1,3 @@
-calc.est.tau <- function(flash, delta.R2 = 0) {
-  return(get.n.nonmissing(flash) / (get.R2(flash) + delta.R2))
-}
-
 get.tau.lowrank <- function(flash, est.tau = NULL) {
   if (is.null(est.tau))
     est.tau <- get.est.tau(flash)
