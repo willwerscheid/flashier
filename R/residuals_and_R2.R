@@ -77,10 +77,15 @@ calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
 }
 
 calc.sum.tau.R2 <- function(flash, factor) {
-  R   <- get.R(factor)
-  tau <- get.tau(factor)
+  if (is.null(factor)) {
+    R   <- get.R(flash)
+    tau <- get.tau(flash)
+  } else {
+    R   <- get.R(factor)
+    tau <- get.tau(factor)
+    k   <- get.k(factor)
+  }
   n   <- get.R2.n(flash)
-  k   <- get.k(factor)
 
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
@@ -88,12 +93,12 @@ calc.sum.tau.R2 <- function(flash, factor) {
     EF  <- lowrank.drop.k(EF, k)
     EF2 <- lowrank.drop.k(EF2, k)
   }
-  EF  <- lowrank.combine(EF, as.lowrank(get.EF(factor)))
-  EF2 <- lowrank.combine(EF2, as.lowrank(get.EF2(factor)))
+  EF  <- lowranks.combine(EF, as.lowrank(get.EF(factor)))
+  EF2 <- lowranks.combine(EF2, as.lowrank(get.EF2(factor)))
 
   EFsquared <- lowrank.square(EF)
 
   return(sum(tau * R^2)
-         + sum(premult.nmode.prod.r1(tau, EF, r1.ones(flash), n)
+         + sum(premult.nmode.prod.r1(tau, EF2, r1.ones(flash), n)
                - premult.nmode.prod.r1(tau, EFsquared, r1.ones(flash), n)))
 }

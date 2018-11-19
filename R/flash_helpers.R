@@ -4,6 +4,7 @@ get.nonmissing     <- function(f) f[["Z"]]
 get.g              <- function(f) f[["g"]]
 get.KL             <- function(f) f[["KL"]]
 get.given.tau      <- function(f) f[["given.tau"]]
+get.given.tau.dim  <- function(f) f[["given.tau.dim"]]
 get.est.tau        <- function(f) f[["est.tau"]]
 get.est.tau.dim    <- function(f) f[["est.tau.dim"]]
 get.tau            <- function(f) f[["tau"]]
@@ -23,18 +24,32 @@ use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
 is.new             <- function(f) is.null(get.k(f))
 store.R2.as.scalar <- function(f) is.tau.constant(f)
 
+get.R.from.factor.or.flash <- function(factor, flash) {
+  if (!is.null(factor[["R"]]))
+    return(factor[["R"]])
+  return(flash[["R"]])
+}
+
 is.tau.lowrank <- function(f) {
   given.tau <- get.given.tau(f)
   return(is.null(given.tau) || is.vector(given.tau))
+}
+is.tau.zero <- function(f) {
+  return(is.null(get.est.tau.dim(f)))
 }
 is.tau.constant <- function(f) {
   est.tau.dim <- get.est.tau.dim(f)
   return(!is.null(est.tau.dim) && est.tau.dim == 0)
 }
+is.given.tau.constant <- function(f) {
+  given.tau.dim <- get.given.tau.dim(f)
+  return(!is.null(given.tau.dim) && given.tau.dim == 0)
+}
 get.R2.n <- function(f) {
-  if (is.tau.constant(f))
-    return(which.min(get.dims(f)))
-  return(get.est.tau.dim(f))
+  n <- max(get.est.tau.dim(f), get.est.tau.dim(f), 0)
+  if (n == 0)
+    n <- which.min(get.dims(f))
+  return(n)
 }
 
 get.ebnm.fn <- function(flash, factor) {

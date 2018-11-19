@@ -6,6 +6,7 @@ init.flash <- function(Y,
                        fix.vals = NULL,
                        est.tau.dim = 0,
                        given.tau = NULL,
+                       given.tau.dim = NULL,
                        dim.signs = NULL,
                        greedy.ebnm.fn = flashr:::ebnm_pn,
                        greedy.ebnm.param = list(),
@@ -37,9 +38,10 @@ init.flash <- function(Y,
   flash$fix.idx      <- fix.idx
   flash$fix.vals     <- fix.vals
 
-  flash$est.tau.dim <- est.tau.dim
-  flash$given.tau   <- given.tau
-  if (!is.null(est.tau.dim)) {
+  flash$est.tau.dim   <- est.tau.dim
+  flash$given.tau     <- given.tau
+  flash$given.tau.dim <- given.tau.dim
+  if (is.tau.lowrank(flash)) {
     flash$n.nonmissing <- init.n.nonmissing(flash)
     flash$R2           <- init.R2(flash)
     flash$est.tau      <- estimate.lowrank.tau(flash)

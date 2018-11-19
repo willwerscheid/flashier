@@ -55,9 +55,12 @@ alter.existing.factor <- function(flash, factor) {
   flash <- set.EF2k(flash, k, get.EF2(factor))
   flash <- set.KLk(flash, k, get.KL(factor))
   flash <- set.gk(flash, k, get.g(factor))
-  flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
   flash <- set.tau(flash, get.tau(factor))
   flash <- set.obj(flash, get.obj(factor))
+  if (is.tau.lowrank(flash)) {
+    flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
+    flash <- set.est.tau(flash, get.est.tau(factor))
+  }
 
   if (is.zero(factor))
     flash <- set.to.zero(flash, k)

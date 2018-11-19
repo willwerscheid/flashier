@@ -6,6 +6,12 @@ fullrank.ops.error <- function(fn.name, object) {
         "dimension as object", deparse(substitute(object)))
 }
 
+full.or.lowrank.subset <- function(X, n, subset) {
+  if (is(X, "lowrank"))
+    return(lowrank.subset(X, n, subset))
+  return(fullrank.subset(X, n, subset))
+}
+
 fullrank.subset <- function(X, n, subset) {
   if(is.null(X))
     return(NULL)
@@ -30,4 +36,8 @@ fullrank.subset <- function(X, n, subset) {
   }
 
   stop(fullrank.ops.error("fullrank.subset", X))
+}
+
+elemwise.prod.fullrank.r1 <- function(X, r1) {
+  return(X * r1.expand(r1))
 }

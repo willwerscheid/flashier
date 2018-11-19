@@ -58,8 +58,12 @@ solve.ebnm <- function(factor, n, flash) {
 }
 
 calc.ebnm.args <- function(factor, n, flash) {
-  s2 <- calc.s2(factor, n, flash)
-  x  <- calc.x(factor, n, flash, s2)
+  tau <- get.tau.for.ebnm.calc(flash, tau = get.tau(factor))
+  if (n %in% get.fix.dim(factor))
+    tau <- full.or.lowrank.subset(tau, n, get.idx.subset(factor))
+
+  s2 <- calc.s2(factor, n, flash, tau)
+  x  <- calc.x(factor, n, flash, s2, tau)
 
   if (add.fixed.to.ebnm.args(factor, n, flash)) {
     idx.subset         <- get.idx.subset(factor)
@@ -75,7 +79,7 @@ calc.ebnm.args <- function(factor, n, flash) {
   return(list(x = all.x, s = sqrt(all.s2)))
 }
 
-calc.s2 <- function(factor, n, flash) {
+calc.s2 <- function(factor, n, flash, tau) {
   if (use.subsetted.flash.data(factor, n)) {
     Z <- get.Z.subset(factor)
   } else {
@@ -83,19 +87,20 @@ calc.s2 <- function(factor, n, flash) {
   }
 
   factor.EF2 <- get.EF2(factor)
-  tau        <- get.tau.lowrank(flash, tau = get.tau(factor))
-  if (n %in% get.fix.dim(factor)) {
-    idx.subset <- get.idx.subset(factor)
-    factor.EF2 <- r1.subset(factor.EF2, n, idx.subset)
-    tau        <- lowrank.subset(tau, n, idx.subset)
-  }
+  if (n %in% get.fix.dim(factor))
+    factor.EF2 <- r1.subset(factor.EF2, n,  get.idx.subset(factor))
 
-  s2 <- 1 / premult.nmode.prod.r1(Z, tau, factor.EF2[-n], n)
+  if (is.tau.lowrank(flash)) {
+    s2 <- 1 / premult.nmode.prod.r1(Z, tau, factor.EF2[-n], n)
+  } else {
+    # If tau is full-rank, then it has already been multiplied by Z:
+    s2 <- 1 / nmode.prod.r1(tau, factor.EF2[-n], n)
+  }
 
   return(pmax(s2, 0))
 }
 
-calc.x <- function(factor, n, flash, s2) {
+calc.x <- function(factor, n, flash, s2, tau) {
   if (use.subsetted.flash.data(factor, n)) {
     R        <- get.R.subset(factor)
     Y        <- get.Y.subset(factor)
@@ -116,21 +121,23 @@ calc.x <- function(factor, n, flash, s2) {
   }
 
   factor.EF <- get.EF(factor)
-  tau       <- get.tau.lowrank(flash, tau = get.tau(factor))
-  if (n %in% get.fix.dim(factor)) {
-    idx.subset <- get.idx.subset(factor)
-    factor.EF  <- r1.subset(factor.EF, n, idx.subset)
-    tau        <- lowrank.subset(tau, n, idx.subset)
-  }
+  if (n %in% get.fix.dim(factor))
+    factor.EF  <- r1.subset(factor.EF, n, get.idx.subset(factor))
 
   if (uses.R(flash)) {
     x <- premult.nmode.prod.r1(R, tau, factor.EF[-n], n)
     if (!is.new(factor)) {
-      EFk.tau <- elemwise.prod.lowrank.r1(tau, flash.EFk)
-      x <- x + premult.nmode.prod.r1(Z, EFk.tau, factor.EF[-n], n)
+      if (is.tau.lowrank(flash)) {
+        EFk.tau <- elemwise.prod.lowrank.r1(tau, flash.EFk)
+        x <- x + premult.nmode.prod.r1(Z, EFk.tau, factor.EF[-n], n)
+      } else {
+        EFk.tau <- elemwise.prod.fullrank.r1(tau, flash.EFk)
+        x <- x + nmode.prod.r1(EFk.tau, factor.EF[-n], n)
+      }
     }
   } else {
     x <- premult.nmode.prod.r1(Y, tau, factor.EF[-n], n)
+    # Note that whenever Y is used, tau is low-rank.
     flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)
     if (!is.new(factor))
       flash.EF.tau <- lowrank.drop.k(flash.EF.tau, k)

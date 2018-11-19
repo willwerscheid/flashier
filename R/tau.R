@@ -19,9 +19,9 @@ update.lowrank.tau <- function(factor, flash) {
 }
 
 update.fullrank.tau <- function(factor, flash) {
-  factor     <- set.R(calc.residuals(flash, factor))
-  tau        <- estimate.fullrank.tau(flash, factor)
-  factor     <- set.tau(factor, tau)
+  factor <- set.R(factor, calc.residuals(flash, factor))
+  tau    <- estimate.fullrank.tau(flash, factor)
+  factor <- set.tau(factor, tau)
 
   return(factor)
 }
@@ -36,24 +36,34 @@ reconcile.given.and.est.tau <- function(flash, est.tau = NULL) {
     est.tau <- get.est.tau(flash)
 
   # All variance is pre-specified ("zero" variance type):
-  if (is.null(est.tau))
-    return(given.tau)
+  if (is.tau.zero(flash)) {
+    tau <- given.tau
   # All variance is estimated:
-  if (is.null(given.tau))
-    return(est.tau)
+  } else if (is.null(given.tau)) {
+    tau <- est.tau
   # Otherwise both types of variance are used. In the low-rank case here, the
   #   total variance is estimated and the pre-specified variance functions
   #   as a minimum:
-  return(pmin(given.tau, est.tau))
+  } else {
+    tau <- pmin(given.tau, est.tau)
+  }
+
+  return(tau)
 }
 
-estimate.fullrank.tau <- function(factor, flash) {
-  # TODO
+estimate.fullrank.tau <- function(flash, factor = NULL) {
+  if (is.tau.zero(flash))
+    return(get.given.tau(flash))
+
+  # TODO: estimation when est.tau.dim is not NULL
 }
 
-get.tau.lowrank <- function(flash, tau = NULL) {
+get.tau.for.ebnm.calc <- function(flash, tau = NULL) {
   if (is.null(tau))
     tau <- get.tau(flash)
+  if (!is.tau.lowrank(flash))
+    return(tau)
+
   n <- get.R2.n(flash)
 
   tau.lowrank <- lapply(as.list(get.dims(flash)),

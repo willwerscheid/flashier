@@ -16,7 +16,7 @@ calc.obj <- function(flash, factor = NULL) {
     n.nonmissing <- get.n.nonmissing(flash)
     obj <- KL - 0.5 * sum(n.nonmissing * (log(2 * pi / tau) + tau / est.tau))
   } else {
-    obj <- KL - 0.5 * sum(log(2 * pi / tau) + calc.sum.tau.R2(flash, factor))
+    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + calc.sum.tau.R2(flash, factor))
   }
   return(obj)
 }
