@@ -1,4 +1,4 @@
-nullcheck.kth.factor <- function(flash, k) {
+nullchk.kth.factor <- function(flash, k) {
   if (!is.valid(flash, k))
     return(flash)
 

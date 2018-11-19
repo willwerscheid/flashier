@@ -1,7 +1,3 @@
-flash <- function() {
-  # abstract some parameters
-}
-
 # Since updating a factor also updates the matrix of residuals,
 #   update.kth.factor needs to be called from within the main loop.
 
@@ -16,8 +12,8 @@ flash.workhorse <- function(Y,
                             est.tau.dim = 0,
                             greedy.ebnm.fn = flashr:::ebnm_pn,
                             greedy.ebnm.param = list(),
-                            fixed.ebnm.fn = NULL,
-                            fixed.ebnm.param = NULL,
+                            fix.ebnm.fn = NULL,
+                            fix.ebnm.param = NULL,
                             use.R = TRUE,
                             greedy.Kmax = 100,
                             backfit.order = c("sequential", "random"),
@@ -36,9 +32,9 @@ flash.workhorse <- function(Y,
                             backfit.tol = greedy.tol,
                             final.backfit.maxiter = backfit.maxiter,
                             final.backfit.tol = backfit.tol,
-                            verbose = TRUE) {
+                            verbose.lvl = 1) {
 
-  announce.flash.init(verbose)
+  announce.flash.init(verbose.lvl)
   flash <- init.flash(Y = Y,
                       nonmissing = nonmissing,
                       F.init = F.init,
@@ -71,7 +67,7 @@ flash.workhorse <- function(Y,
     greedy.complete <- (total.factors.added >= max.factors.to.add)
     if (!greedy.complete) {
       # TODO: verify works for fixed
-      announce.greedy(verbose)
+      announce.greedy(verbose.lvl, k = get.n.factors(flash) + 1)
       flash <- add.next.factor(flash,
                                greedy.tol, greedy.maxiter,
                                init.tol, init.maxiter)
@@ -83,6 +79,8 @@ flash.workhorse <- function(Y,
         total.factors.added    <- total.factors.added + 1
         curr.rnd.factors.added <- curr.rnd.factors.added + 1
       }
+
+      report.greedy.result(verbose.lvl, failure = greedy.complete)
     }
 
     if (greedy.complete) {
@@ -99,7 +97,7 @@ flash.workhorse <- function(Y,
     }
 
     if (do.backfit) {
-      announce.backfit(verbose)
+      announce.backfit(verbose.lvl, n.factors = get.n.factors(flash))
 
       iter <- 0
       obj.diff <- Inf
@@ -124,18 +122,24 @@ flash.workhorse <- function(Y,
     }
 
     if (do.nullchk) {
-      announce.nullcheck(verbose)
       nullchk.kset <- 1:get.n.factors(flash)
       if (!nullchk.fixed)
-        nullchk.kset <- setdiff(nullchk.set, which.k.fixed(flash))
+        nullchk.kset <- setdiff(nullchk.kset, which.k.fixed(flash))
+
+      announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
+
       for (k in nullchk.kset)
-        flash <- nullchk.kth.factor(flash)
+        flash <- nullchk.kth.factor(flash, k)
       if (nullchk.failed(flash))
         something.changed <- TRUE
     }
   }
 
+  announce.wrapup(verbose.lvl)
   # remove R and then return results
+
+  report.completion(verbose.lvl)
+
   return(flash)
 }
 

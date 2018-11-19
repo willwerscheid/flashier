@@ -27,6 +27,8 @@ update.fullrank.tau <- function(factor, flash) {
 }
 
 estimate.lowrank.tau <- function(flash, delta.R2 = 0) {
+  # TODO: alternating algorithm for "Kronecker" variance type
+
   return(get.n.nonmissing(flash) / (get.R2(flash) + delta.R2))
 }
 

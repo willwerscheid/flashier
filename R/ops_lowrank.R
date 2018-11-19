@@ -68,7 +68,7 @@ lowranks.prod <- function(lr1, lr2, broadcast = FALSE) {
     return(NULL)
   if (broadcast)
     lr1 <- lapply(lr1, as.vector)
-  product <- mapply(`*`, lr1, lr2)
+  product <- mapply(`*`, lr1, lr2, SIMPLIFY = FALSE)
   class(product) <- "lowrank"
   return(product)
 }
@@ -78,21 +78,21 @@ lowranks.combine <- function(lr1, lr2) {
     return(lr2)
   if (is.null(lr2))
     return(lr1)
-  lowrank <- mapply(cbind, lr1, lr2)
+  lowrank <- mapply(cbind, lr1, lr2, SIMPLIFY = FALSE)
   class(lowrank) <- "lowrank"
   return(lowrank)
 }
 
 lowrank.delta.mat <- function(new.lr, old.lr) {
   k <- ncol(new.lr[[1]])
-  lowrank <- mapply(cbind, new.lr, old.lr)
+  lowrank <- mapply(cbind, new.lr, old.lr, SIMPLIFY = FALSE)
   lowrank[[1]][, (k + 1):(2 * k)] <- -lowrank[[1]][, (k + 1):(2 * k)]
   class(lowrank) <- "lowrank"
   return(lowrank)
 }
 
 elemwise.prod.lowrank.r1 <- function(lowrank, r1) {
-  lr.prod <- mapply(`*`, lowrank, r1)
+  lr.prod <- mapply(`*`, lowrank, r1, SIMPLIFY = FALSE)
   class(lr.prod) <- "lowrank"
   return(lr.prod)
 }

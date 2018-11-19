@@ -3,7 +3,7 @@ context("flashr comparison (no missing data)")
 library(flashr)
 set.seed(666)
 
-n <- 20
+n <- 100
 p <- 100
 
 LF1 <- outer(rep(1, n), rep(1, p))

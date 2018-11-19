@@ -7,7 +7,6 @@ optimize.it <- function(x,
                         maxiter = 100) {
   obj <- Inf
   iter <- 0
-  # TODO: there's no guarantee that this loop will terminate.
   while (obj > tol && iter < maxiter) {
     iter    <- iter + 1
     old.x   <- x
@@ -15,7 +14,7 @@ optimize.it <- function(x,
     obj     <- do.call(obj.fn, c(list(old.x, x), obj.args))
     # TODO: verbose output here
     # TODO: handle obj decreases
-    message(obj)
+    # message(obj)
   }
 
   return(x)

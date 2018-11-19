@@ -349,7 +349,7 @@ add.factor.to.EF <- function(f, new.EF) {
   if (is.null(f[["EF"]])) {
     f[["EF"]] <- as.lowrank(new.EF)
   } else {
-    f[["EF"]] <- mapply(cbind, f[["EF"]], new.EF)
+    f[["EF"]] <- mapply(cbind, f[["EF"]], new.EF, SIMPLIFY = FALSE)
   }
   return(f)
 }
@@ -357,7 +357,7 @@ add.factor.to.EF2 <- function(f, new.EF2) {
   if (is.null(f[["EF2"]])) {
     f[["EF2"]] <- as.lowrank(new.EF2)
   } else {
-    f[["EF2"]] <- mapply(cbind, f[["EF2"]], new.EF2)
+    f[["EF2"]] <- mapply(cbind, f[["EF2"]], new.EF2, SIMPLIFY = FALSE)
   }
   return(f)
 }
