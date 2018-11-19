@@ -4,8 +4,8 @@ init.flash <- function(Y,
                        fix.dim = NULL,
                        fix.idx = NULL,
                        fix.vals = NULL,
-                       tau.dim = 0,
-                       tau.n = 1,
+                       est.tau.dim = 0,
+                       given.tau = NULL,
                        dim.signs = NULL,
                        greedy.ebnm.fn = flashr:::ebnm_pn,
                        greedy.ebnm.param = list(),
@@ -33,16 +33,21 @@ init.flash <- function(Y,
 
   if (!is.null(fix.dim))
     flash$fix.dim <- lapply(fix.dim, as.integer)
-  if (!is.null(tau.dim))
-    flash$tau.dim <- lapply(tau.dim, as.integer)
 
   flash$fix.idx      <- fix.idx
   flash$fix.vals     <- fix.vals
-  flash$tau.n        <- as.integer(tau.n)
-  flash$n.nonmissing <- init.n.nonmissing(flash)
-  flash$R2           <- init.R2(flash)
-  flash$est.tau      <- calc.est.tau(flash)
-  flash$obj          <- calc.obj(flash)
+
+  flash$est.tau.dim <- est.tau.dim
+  flash$given.tau   <- given.tau
+  if (!is.null(est.tau.dim)) {
+    flash$n.nonmissing <- init.n.nonmissing(flash)
+    flash$R2           <- init.R2(flash)
+    flash$est.tau      <- estimate.lowrank.tau(flash)
+    flash$tau          <- reconcile.given.and.est.tau(flash)
+  } else {
+    flash$tau          <- estimate.fullrank.tau(flash)
+  }
+  flash$obj <- calc.obj(flash)
 
   flash$greedy.ebnm.fn    <- greedy.ebnm.fn
   flash$greedy.ebnm.param <- greedy.ebnm.param
@@ -67,7 +72,7 @@ init.flash <- function(Y,
 init.n.nonmissing <- function(flash) {
   Z     <- get.nonmissing(flash)
   dims  <- get.dims(flash)
-  n     <- get.tau.n(flash)
+  n     <- get.R2.n(flash)
 
   if (identical(Z, 1)) {
     n.nonmissing <- rep(prod(dims[-n]), dims[n])
@@ -75,8 +80,7 @@ init.n.nonmissing <- function(flash) {
     n.nonmissing <- nmode.prod.r1(Z, r1.ones(flash), n)
   }
 
-  # If tau is constant or zero:
-  if (get.tau.dim(flash) < 1)
+  if (store.R2.as.scalar(flash))
     n.nonmissing <- sum(n.nonmissing)
 
   return(n.nonmissing)
@@ -88,7 +92,7 @@ init.R2 <- function(flash) {
   Z   <- get.nonmissing(flash)
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
-  n   <- get.tau.n(flash)
+  n   <- get.R2.n(flash)
 
   if (!uses.R(flash))
     R <- Y - lowrank.expand(EF)
@@ -98,8 +102,7 @@ init.R2 <- function(flash) {
     R2 <- (R2 + premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
            - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n))
 
-  # If tau is constant or zero:
-  if (get.tau.dim(flash) < 1)
+  if (store.R2.as.scalar(flash))
     R2 <- sum(R2)
 
   return(R2)

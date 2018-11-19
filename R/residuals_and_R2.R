@@ -1,18 +1,34 @@
-update.R2.tau.and.obj <- function(factor, flash) {
-  delta.R2 <- calc.delta.R2(factor, flash)
-  factor   <- set.delta.R2(factor, delta.R2)
-  factor   <- set.est.tau(factor, calc.est.tau(flash, delta.R2))
-  factor   <- set.obj(factor, calc.obj(flash, factor))
-  factor   <- set.to.valid(factor)
+update.residuals <- function(flash, factor) {
+  if (uses.R(flash)) {
+    R <- get.R(factor)
+    if (is.null(R))
+      R <- calc.residuals(flash, factor)
+    flash <- set.R(flash, R)
+  }
 
-  return(factor)
+  return(flash)
 }
 
-calc.delta.R2 <- function(factor, flash) {
+calc.residuals <- function(flash, factor) {
+  old.R <- get.R(flash)
+
+  if (!is.new(factor)) {
+    new.EF       <- as.lowrank(get.EF(factor))
+    old.EF       <- as.lowrank(get.EFk(flash, get.k(factor)))
+    EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
+    new.R <- old.R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
+  } else {
+    new.R <- old.R - get.nonmissing(flash) * r1.expand(get.EF(factor))
+  }
+
+  return(new.R)
+}
+
+calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
   R <- get.R(flash)
   Y <- get.Y(flash)
   Z <- get.nonmissing(flash)
-  n <- get.tau.n(flash)
+  n <- get.R2.n(flash)
   k <- get.k(factor)
 
   is.new.factor <- is.new(factor)
@@ -60,33 +76,24 @@ calc.delta.R2 <- function(factor, flash) {
   return(delta.R2)
 }
 
-calc.est.tau <- function(flash, delta.R2 = 0) {
-  return(get.n.nonmissing(flash) / (get.R2(flash) + delta.R2))
-}
+calc.sum.tau.R2 <- function(flash, factor) {
+  R   <- get.R(factor)
+  tau <- get.tau(factor)
+  n   <- get.R2.n(flash)
+  k   <- get.k(factor)
 
-calc.obj <- function(flash, factor = NULL) {
-  n.nonmissing <- get.n.nonmissing(flash)
-  k            <- get.k(factor)
-
-  KL <- sum(unlist(get.KL(flash)))
-  if (!is.null(factor)) {
-    KL <- KL + sum(unlist(get.KL(factor)))
-    if (!is.new(factor))
-      KL <- KL - sum(get.KLk(flash, k))
-    est.tau <- get.est.tau(factor)
-  } else {
-    est.tau <- get.est.tau(flash)
+  EF  <- get.EF(flash)
+  EF2 <- get.EF2(flash)
+  if (!is.new(factor)) {
+    EF  <- lowrank.drop.k(EF, k)
+    EF2 <- lowrank.drop.k(EF2, k)
   }
+  EF  <- lowrank.combine(EF, as.lowrank(get.EF(factor)))
+  EF2 <- lowrank.combine(EF2, as.lowrank(get.EF2(factor)))
 
-  # TODO: fixed S
-  return(KL - 0.5 * sum(n.nonmissing * (log(2 * pi / est.tau) + 1)))
-}
+  EFsquared <- lowrank.square(EF)
 
-normal.means.loglik <- function(x, s, Et, Et2) {
-  idx <- is.finite(s) && s > 0
-  x   <- x[idx]
-  s   <- s[idx]
-  Et  <- Et[idx]
-  Et2 <- Et2[idx]
-  return(-0.5 * sum(log(2 * pi * s^2) + (1 / s^2) * (Et2 - 2 * x * Et + x^2)))
+  return(sum(tau * R^2)
+         + sum(premult.nmode.prod.r1(tau, EF, r1.ones(flash), n)
+               - premult.nmode.prod.r1(tau, EFsquared, r1.ones(flash), n)))
 }

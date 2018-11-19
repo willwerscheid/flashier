@@ -36,6 +36,13 @@ update.factor.one.n <- function(factor, n, flash) {
   return(factor)
 }
 
+update.R2.tau.and.obj <- function(factor, flash) {
+  factor <- update.tau(factor, flash)
+  factor <- set.obj(factor, calc.obj(flash, factor))
+  factor <- set.to.valid(factor)
+  return(factor)
+}
+
 solve.ebnm <- function(factor, n, flash) {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))
@@ -76,7 +83,7 @@ calc.s2 <- function(factor, n, flash) {
   }
 
   factor.EF2 <- get.EF2(factor)
-  tau        <- get.tau.lowrank(flash, est.tau = get.est.tau(factor))
+  tau        <- get.tau.lowrank(flash, tau = get.tau(factor))
   if (n %in% get.fix.dim(factor)) {
     idx.subset <- get.idx.subset(factor)
     factor.EF2 <- r1.subset(factor.EF2, n, idx.subset)
@@ -109,7 +116,7 @@ calc.x <- function(factor, n, flash, s2) {
   }
 
   factor.EF <- get.EF(factor)
-  tau       <- get.tau.lowrank(flash, est.tau = get.est.tau(factor))
+  tau       <- get.tau.lowrank(flash, tau = get.tau(factor))
   if (n %in% get.fix.dim(factor)) {
     idx.subset <- get.idx.subset(factor)
     factor.EF  <- r1.subset(factor.EF, n, idx.subset)

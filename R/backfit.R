@@ -50,21 +50,13 @@ extract.factor <- function(flash, k) {
 alter.existing.factor <- function(flash, factor) {
   k <- get.k(factor)
 
-  if (uses.R(flash)) {
-    new.EF       <- as.lowrank(get.EF(factor))
-    old.EF       <- as.lowrank(get.EFk(flash, k))
-    EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
-
-    R <- get.R(flash) - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
-    flash <- set.R(flash, R)
-  }
-
+  flash <- update.residuals(flash, factor)
   flash <- set.EFk(flash, k, get.EF(factor))
   flash <- set.EF2k(flash, k, get.EF2(factor))
   flash <- set.KLk(flash, k, get.KL(factor))
   flash <- set.gk(flash, k, get.g(factor))
   flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
-  flash <- set.est.tau(flash, get.est.tau(factor))
+  flash <- set.tau(flash, get.tau(factor))
   flash <- set.obj(flash, get.obj(factor))
 
   if (is.zero(factor))

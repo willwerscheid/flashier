@@ -1,26 +1,41 @@
-get.R            <- function(f) f[["R"]]
-get.Y            <- function(f) f[["Y"]]
-get.nonmissing   <- function(f) f[["Z"]]
-get.g            <- function(f) f[["g"]]
-get.KL           <- function(f) f[["KL"]]
-get.tau.dim      <- function(f) f[["tau.dim"]]
-get.tau.n        <- function(f) f[["tau.n"]]
-get.est.tau      <- function(f) f[["est.tau"]]
-get.R2           <- function(f) f[["R2"]]
-get.n.nonmissing <- function(f) f[["n.nonmissing"]]
-get.obj          <- function(f) f[["obj"]]
-get.k            <- function(f) f[["k"]]
-get.delta.R2     <- function(f) f[["delta.R2"]]
-get.R.subset     <- function(f) f[["subset.data"]][["R.subset"]]
-get.Y.subset     <- function(f) f[["subset.data"]][["Y.subset"]]
-get.Z.subset     <- function(f) f[["subset.data"]][["Z.subset"]]
-get.EF.subset    <- function(f) f[["subset.data"]][["EF.subset"]]
-get.EF2.subset   <- function(f) f[["subset.data"]][["EF2.subset"]]
-is.fixed         <- function(f) f[["is.fixed"]]
-
-is.new             <- function(f) is.null(f[["k"]])
-store.R2.as.scalar <- function(f) get.tau.dim(f) < 1
+get.R              <- function(f) f[["R"]]
+get.Y              <- function(f) f[["Y"]]
+get.nonmissing     <- function(f) f[["Z"]]
+get.g              <- function(f) f[["g"]]
+get.KL             <- function(f) f[["KL"]]
+get.given.tau      <- function(f) f[["given.tau"]]
+get.est.tau        <- function(f) f[["est.tau"]]
+get.est.tau.dim    <- function(f) f[["est.tau.dim"]]
+get.tau            <- function(f) f[["tau"]]
+get.R2             <- function(f) f[["R2"]]
+get.n.nonmissing   <- function(f) f[["n.nonmissing"]]
+get.obj            <- function(f) f[["obj"]]
+get.k              <- function(f) f[["k"]]
+get.delta.R2       <- function(f) f[["delta.R2"]]
+get.R.subset       <- function(f) f[["subset.data"]][["R.subset"]]
+get.Y.subset       <- function(f) f[["subset.data"]][["Y.subset"]]
+get.Z.subset       <- function(f) f[["subset.data"]][["Z.subset"]]
+get.EF.subset      <- function(f) f[["subset.data"]][["EF.subset"]]
+get.EF2.subset     <- function(f) f[["subset.data"]][["EF2.subset"]]
+is.fixed           <- function(f) f[["is.fixed"]]
 use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
+
+is.new             <- function(f) is.null(get.k(f))
+store.R2.as.scalar <- function(f) is.tau.constant(f)
+
+is.tau.lowrank <- function(f) {
+  given.tau <- get.given.tau(f)
+  return(is.null(given.tau) || is.vector(given.tau))
+}
+is.tau.constant <- function(f) {
+  est.tau.dim <- get.est.tau.dim(f)
+  return(!is.null(est.tau.dim) && est.tau.dim == 0)
+}
+get.R2.n <- function(f) {
+  if (is.tau.constant(f))
+    return(which.min(get.dims(f)))
+  return(get.est.tau.dim(f))
+}
 
 get.ebnm.fn <- function(flash, factor) {
   if (is.new(factor))
@@ -266,6 +281,10 @@ set.est.tau <- function(f, est.tau) {
   f[["est.tau"]] <- est.tau
   return(f)
 }
+set.tau <- function(f, tau) {
+  f[["tau"]] <- tau
+  return(f)
+}
 set.R2 <- function(f, R2) {
   f[["R2"]] <- R2
   return(f)
@@ -380,7 +399,7 @@ to.flashr <- function(f) {
   flash$fixf   <- matrix(FALSE, nrow = nrow(flash$EF), ncol = ncol(flash$EF))
   flash$KL_l   <- as.list(f$KL[[1]])
   flash$KL_f   <- as.list(f$KL[[2]])
-  flash$tau    <- f$est.tau
+  flash$tau    <- f$tau
   class(flash) <- "flash_fit"
 
   if (!is.null(f$fix.dim)) {
