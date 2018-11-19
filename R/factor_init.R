@@ -1,7 +1,7 @@
-init.factor <- function(flash, tol = 1e-2) {
+init.factor <- function(flash, tol, maxiter) {
   factor          <- list()
   factor$is.fixed <- is.next.fixed(flash)
-  factor$EF       <- init.next.EF(flash, tol)
+  factor$EF       <- init.next.EF(flash, tol, maxiter)
   factor$EF2      <- r1.square(factor$EF)
   factor$KL       <- rep(0, get.dim(flash))
   factor          <- update.tau(factor, flash)
@@ -12,7 +12,8 @@ init.factor <- function(flash, tol = 1e-2) {
   return(factor)
 }
 
-init.next.EF <- function(flash, tol = 1e-2) {
+# TODO: remove default tol and maxiter after tests are removed
+init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
   fix.dim   <- get.next.fix.dim(flash)
   fix.idx   <- get.next.fix.idx(flash)
   fix.vals  <- get.next.fix.vals(flash)
@@ -60,7 +61,8 @@ init.next.EF <- function(flash, tol = 1e-2) {
                                        dim.signs = dim.signs,
                                        subset.data = subset.data),
                     obj.fn = calc.max.chg.r1,
-                    tol = tol)
+                    tol = tol,
+                    maxiter = maxiter)
 
   return(EF)
 }

@@ -1,19 +1,25 @@
-add.next.factor <- function(flash, tol = 1e-2) {
-  factor <- init.factor(flash)
+# TODO remove default tol and maxiter after tests are removed
+add.next.factor <- function(flash,
+                            greedy.tol = 1e-2,
+                            greedy.maxiter = 200,
+                            init.tol = 1e-2,
+                            init.maxiter = 100) {
+  factor <- init.factor(flash, init.tol, init.maxiter)
   if (is.fixed(factor)) {
     flash <- add.new.factor.to.flash(factor, flash)
   } else {
-    flash <- add.greedy(factor, flash, tol)
+    flash <- add.greedy(factor, flash, greedy.tol, greedy.maxiter)
   }
   return(flash)
 }
 
-add.greedy <- function(factor, flash, tol = 1e-2) {
+add.greedy <- function(factor, flash, tol, maxiter) {
   factor <- optimize.it(factor,
                         update.fn = update.factor,
                         update.args = list(flash = flash),
                         obj.fn = calc.obj.diff,
-                        tol = tol)
+                        tol = tol,
+                        maxiter = maxiter)
   if (ok.to.add.factor(factor, flash)) {
     flash <- add.new.factor.to.flash(factor, flash)
   } else {

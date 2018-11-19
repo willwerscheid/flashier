@@ -27,10 +27,12 @@ flash.workhorse <- function(Y,
                             nullchk.every = backfit.every,
                             do.final.backfit = FALSE,
                             do.final.nullchk = TRUE,
-                            r1.maxiter = 500,
-                            r1.tol = 1e-2,
+                            init.maxiter = 100,
+                            init.tol = 1e-2,
+                            greedy.maxiter = 500,
+                            greedy.tol = 1e-2,
                             backfit.maxiter = 100,
-                            backfit.tol = r1.tol,
+                            backfit.tol = greedy.tol,
                             final.backfit.maxiter = backfit.maxiter,
                             final.backfit.tol = backfit.tol,
                             verbose = TRUE) {
@@ -66,9 +68,11 @@ flash.workhorse <- function(Y,
 
     greedy.complete <- (total.factors.added >= max.factors.to.add)
     if (!greedy.complete) {
-      # TODO: respect greedy.maxiter, verify works for fixed
+      # TODO: verify works for fixed
       announce.greedy(verbose)
-      flash <- add.next.factor(flash, r1.tol)
+      flash <- add.next.factor(flash,
+                               greedy.tol, greedy.maxiter,
+                               init.tol, init.maxiter)
 
       if (greedy.failed(flash)) {
         greedy.complete <- TRUE

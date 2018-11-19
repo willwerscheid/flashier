@@ -1,7 +1,10 @@
 optimize.it <- function(x,
-                        update.fn, update.args = NULL,
-                        obj.fn, obj.args = NULL,
-                        tol, maxiter = 100) {
+                        update.fn,
+                        update.args = NULL,
+                        obj.fn,
+                        obj.args = NULL,
+                        tol,
+                        maxiter = 100) {
   obj <- Inf
   iter <- 0
   # TODO: there's no guarantee that this loop will terminate.
