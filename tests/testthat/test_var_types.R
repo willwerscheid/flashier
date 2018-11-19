@@ -1,4 +1,4 @@
-context("flashr comparison (variance types)")
+context("variance types")
 
 library(flashr)
 set.seed(666)
@@ -60,4 +60,22 @@ test_that("zero variance type (with S a matrix) produces same fit as flashr", {
                               var_type = "zero", nullcheck = FALSE)
   expect_equal(f$obj, flashr.res$objective)
   expect_true(max(abs(flashr.res$fitted_values - lowrank.expand(f$EF))) < 1e-6)
+})
+
+test_that("constant S + constant estimation works", {
+  f <- init.flash(M, est.tau.dim = 0, given.tau = 80, given.tau.dim = 0)
+  f <- add.next.factor(f)
+  expect_equal(f$tau, f$given.tau)
+
+  f <- init.flash(M, est.tau.dim = 0, given.tau = 120, given.tau.dim = 0)
+  f <- add.next.factor(f)
+  expect_equal(f$tau, f$est.tau)
+})
+
+test_that("by column S + by column estimation works", {
+  tau = c(rep(50, 10), rep(250, p - 10))
+  f <- init.flash(M, est.tau.dim = 2, given.tau = tau, given.tau.dim = 2)
+  f <- add.next.factor(f)
+  expect_equal(f$tau[1:10], rep(50, 10))
+  expect_equal(f$tau[-(1:10)], f$est.tau[-(1:10)])
 })
