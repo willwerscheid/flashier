@@ -1,10 +1,10 @@
-# TODO remove default tol and maxiter after tests are removed
+# TODO remove add.next.factor and add.greedy (in main loop now)
 add.next.factor <- function(flash,
                             greedy.tol = 1e-2,
                             greedy.maxiter = 200,
                             init.tol = 1e-2,
                             init.maxiter = 100) {
-  factor <- init.factor(flash, init.tol, init.maxiter)
+  factor <- init.factor(flash, init.tol, init.maxiter, verbose = FALSE)
   if (is.fixed(factor)) {
     flash <- add.new.factor.to.flash(factor, flash)
   } else {
@@ -20,7 +20,7 @@ add.greedy <- function(factor, flash, tol, maxiter) {
                         obj.fn = calc.obj.diff,
                         tol = tol,
                         maxiter = maxiter)
-  if (ok.to.add.factor(factor, flash)) {
+  if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
     flash <- add.new.factor.to.flash(factor, flash)
   } else {
     flash <- set.greedy.fail.flag(flash)
@@ -28,10 +28,6 @@ add.greedy <- function(factor, flash, tol, maxiter) {
   # TODO: what if objective decreases?
 
   return(flash)
-}
-
-ok.to.add.factor <- function(factor, flash) {
-  return(get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor))
 }
 
 add.new.factor.to.flash <- function(factor, flash) {

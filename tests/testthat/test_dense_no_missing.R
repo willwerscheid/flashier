@@ -3,7 +3,7 @@ context("flashr comparison (no missing data)")
 library(flashr)
 set.seed(666)
 
-n <- 100
+n <- 20
 p <- 100
 
 LF1 <- outer(rep(1, n), rep(1, p))
@@ -149,11 +149,11 @@ f <- add.next.factor(f)
 f.b <- backfit(f, 1:3)
 
 test_that("nullcheck works as expected", {
-  f.n1 <- nullcheck.kth.factor(f.b, 1)
+  f.n1 <- nullchk.kth.factor(f.b, 1, 0)
   expect_identical(f.b, f.n1)
-  f.n2 <- nullcheck.kth.factor(f.b, 2)
+  f.n2 <- nullchk.kth.factor(f.b, 2, 0)
   expect_identical(f.b, f.n2)
-  f.n3 <- nullcheck.kth.factor(f.b, 3)
+  f.n3 <- nullchk.kth.factor(f.b, 3, 0)
   expect_false(identical(f.n3, f.b))
   expect_true(f.n3$is.zero[3])
 })

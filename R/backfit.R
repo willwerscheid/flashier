@@ -19,14 +19,18 @@ backfit.once <- function(flash, kset, shuffle.kset = FALSE) {
   return(flash)
 }
 
-update.kth.factor <- function(flash, k) {
-  factor <- extract.factor(flash, k)
+update.kth.factor <- function(flash, k, iter, verbose.lvl) {
+  old.factor <- extract.factor(flash, k)
 
-  if (!is.zero(factor)) {
-    factor <- update.factor(factor, flash)
-    if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor))
+  if (!is.zero(old.factor)) {
+    factor <- update.factor(old.factor, flash)
+
+    if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
       flash <- alter.existing.factor(flash, factor)
-    # TODO: what if objective decreases?
+    } else {
+      obj.diff <- get.obj(factor) - get.obj(flash)
+      report.backfit.obj.decrease(verbose.lvl, obj.diff, k)
+    }
   }
 
   return(flash)
@@ -38,6 +42,7 @@ extract.factor <- function(flash, k) {
   factor$EF      <- get.EFk(flash, k)
   factor$EF2     <- get.EF2k(flash, k)
   factor$KL      <- get.KLk(flash, k)
+  factor$obj     <- get.obj(flash)
   factor$is.zero <- is.zero(flash, k)
 
   factor$fix.dim <- get.fix.dim(flash, k)

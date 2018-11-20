@@ -1,4 +1,4 @@
-init.factor <- function(flash, tol, maxiter) {
+init.factor <- function(flash, tol, maxiter, verbose) {
   factor          <- list()
   factor$is.fixed <- is.next.fixed(flash)
   factor$EF       <- init.next.EF(flash, tol, maxiter)
@@ -60,7 +60,7 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
                                        fix.dim = fix.dim,
                                        dim.signs = dim.signs,
                                        subset.data = subset.data),
-                    obj.fn = calc.max.chg.r1,
+                    obj.fn = calc.max.chg.list,
                     tol = tol,
                     maxiter = maxiter)
 
@@ -82,7 +82,7 @@ update.init.EF <- function(EF, flash, update.order, fix.dim, dim.signs,
 }
 
 update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
-  if (is.fixed) {
+ if (is.fixed) {
     R        <- subset.data$R.subset
     Y        <- subset.data$Y.subset
     Z        <- subset.data$Z.subset

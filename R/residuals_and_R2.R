@@ -52,13 +52,14 @@ calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
     ugly.mat <- lowranks.combine(EF2.delta.mat,
                                  lowrank.sc.mult(EFprod.delta.mat, -2))
   } else if (is.new.factor) { # && !uses.R(flash)
-    EFprod.mat <- lowranks.prod(new.EF, get.EF(flash))
+    EFprod.mat <- lowranks.prod(new.EF, get.EF(flash), broadcast = TRUE)
     ugly.mat <- lowranks.combine(new.EF2,
                                  lowrank.sc.mult(EFprod.mat, 2))
   } else { # !is.new.factor && !uses.R(flash)
     EF.less.k        <- lowrank.drop.k(get.EF(flash), k)
-    EFprod.delta.mat <- lowrank.delta.mat(lowranks.prod(new.EF, EF.less.k),
-                                          lowranks.prod(old.EF, EF.less.k))
+    newprod.mat      <- lowranks.prod(new.EF, EF.less.k, broadcast = TRUE)
+    oldprod.mat      <- lowranks.prod(old.EF, EF.less.k, broadcast = TRUE)
+    EFprod.delta.mat <- lowrank.delta.mat(newprod.mat, oldprod.mat)
     ugly.mat <- lowranks.combine(EF2.delta.mat,
                                  lowrank.sc.mult(EFprod.delta.mat, 2))
   }

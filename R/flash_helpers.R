@@ -73,7 +73,7 @@ get.ebnm.param <- function(flash, factor) {
   return(get.ebnm.param.k(flash, get.k(factor)))
 }
 get.next.ebnm.param <- function(f) {
-  next.k <- get.n.factors(f) + 1
+  next.k <- get.next.k(f)
   return(get.ebnm.param.k(f, next.k))
 }
 get.ebnm.param.k <- function(f, k) {
@@ -140,27 +140,34 @@ get.EF2k <- function(f, k) {
 get.KLk <- function(f, k) sapply(f[["KL"]], getElement, k)
 
 get.n.fixed <- function(f)
-  return(length(f[["fix.dim"]]))
+  return(sum(unlist(f[["fix.dim"]]) > 0))
 get.fix.dim <- function(f, k = NULL) {
-  if (is.null(f[["fix.dim"]]))
-    return(NULL)
   if (is.null(k))
     return(f[["fix.dim"]])
+  if (length(f[["fix.dim"]]) < k)
+    return(NULL)
   return(f[["fix.dim"]][[k]])
 }
 get.fix.idx <- function(f, k = NULL) {
-  if (is.null(f[["fix.idx"]]))
-    return(NULL)
   if (is.null(k))
     return(f[["fix.idx"]])
+  if (length(f[["fix.idx"]]) < k)
+    return(NULL)
   return(f[["fix.idx"]][[k]])
 }
 get.fix.vals <- function(f, k = NULL) {
-  if (is.null(f[["fix.vals"]]))
-    return(NULL)
   if (is.null(k))
     return(f[["fix.vals"]])
+  if (length(f[["fix.vals"]]) < k)
+    return(NULL)
   return(f[["fix.vals"]][[k]])
+}
+get.dim.signs <- function(f, k = NULL) {
+  if (is.null(k))
+    return(f[["dim.signs"]])
+  if (length(f[["dim.signs"]]) < k)
+    return(NULL)
+  return(f[["dim.signs"]][[k]])
 }
 
 which.k.fixed <- function(f) {
@@ -170,31 +177,35 @@ which.k.fixed <- function(f) {
   return(which(!not.fixed))
 }
 
+get.next.k <- function(f) {
+  return(get.n.factors(f) + 1)
+}
+
 is.next.fixed <- function(f) {
   return(!is.null(get.next.fix.dim(f)))
 }
 get.next.fix.dim <- function(f) {
-  if (is.null(f[["fix.dim"]]))
+  next.k <- get.next.k(f)
+  if (length(get.fix.dim(f)) < next.k)
     return(NULL)
-  next.k <- get.n.factors(f) + 1
   return(f[["fix.dim"]][[next.k]])
 }
 get.next.fix.idx <- function(f) {
-  if (is.null(f[["fix.idx"]]))
+  next.k <- get.next.k(f)
+  if (length(get.fix.idx(f)) < next.k)
     return(NULL)
-  next.k <- get.n.factors(f) + 1
   return(f[["fix.idx"]][[next.k]])
 }
 get.next.fix.vals <- function(f) {
-  if (is.null(f[["fix.vals"]]))
+  next.k <- get.next.k(f)
+  if (length(get.fix.vals(f)) < next.k)
     return(NULL)
-  next.k <- get.n.factors(f) + 1
   return(f[["fix.vals"]][[next.k]])
 }
 get.next.dim.signs <- function(f) {
-  if (is.null(f[["dim.signs"]]))
+  next.k <- get.next.k(f)
+  if (length(get.dim.signs(f)) < next.k)
     return(NULL)
-  next.k <- get.n.factors(f) + 1
   return(f[["dim.signs"]][[next.k]])
 }
 
@@ -349,7 +360,7 @@ add.factor.to.EF <- function(f, new.EF) {
   if (is.null(f[["EF"]])) {
     f[["EF"]] <- as.lowrank(new.EF)
   } else {
-    f[["EF"]] <- mapply(cbind, f[["EF"]], new.EF, SIMPLIFY = FALSE)
+    f[["EF"]] <- lowranks.combine(f[["EF"]], new.EF)
   }
   return(f)
 }
@@ -357,7 +368,7 @@ add.factor.to.EF2 <- function(f, new.EF2) {
   if (is.null(f[["EF2"]])) {
     f[["EF2"]] <- as.lowrank(new.EF2)
   } else {
-    f[["EF2"]] <- mapply(cbind, f[["EF2"]], new.EF2, SIMPLIFY = FALSE)
+    f[["EF2"]] <- lowranks.combine(f[["EF2"]], new.EF2)
   }
   return(f)
 }
