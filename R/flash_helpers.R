@@ -1,87 +1,20 @@
-#TODO remove R
+# Getters for the main flash object (also used by the smaller factors):
+
 get.R              <- function(f) f[["R"]]
 get.Y              <- function(f) f[["Y"]]
 get.nonmissing     <- function(f) f[["Z"]]
-get.g              <- function(f) f[["g"]]
-get.KL             <- function(f) f[["KL"]]
 get.given.tau      <- function(f) f[["given.tau"]]
 get.given.tau.dim  <- function(f) f[["given.tau.dim"]]
-get.est.tau        <- function(f) f[["est.tau"]]
 get.est.tau.dim    <- function(f) f[["est.tau.dim"]]
-get.tau            <- function(f) f[["tau"]]
-get.R2             <- function(f) f[["R2"]]
-get.n.nonmissing   <- function(f) f[["n.nonmissing"]]
-get.obj            <- function(f) f[["obj"]]
-get.k              <- function(f) f[["k"]]
-get.delta.R2       <- function(f) f[["delta.R2"]]
-get.R.subset       <- function(f) f[["subset.data"]][["R.subset"]]
-get.Y.subset       <- function(f) f[["subset.data"]][["Y.subset"]]
-get.Z.subset       <- function(f) f[["subset.data"]][["Z.subset"]]
-get.EF.subset      <- function(f) f[["subset.data"]][["EF.subset"]]
-get.EF2.subset     <- function(f) f[["subset.data"]][["EF2.subset"]]
-is.fixed           <- function(f) f[["is.fixed"]]
 use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
-
-is.new             <- function(f) is.null(get.k(f))
-store.R2.as.scalar <- function(f) is.tau.constant(f)
-
-get.R.from.factor.or.flash <- function(factor, flash) {
-  if (!is.null(factor[["R"]]))
-    return(factor[["R"]])
-  return(flash[["R"]])
-}
-
-is.tau.lowrank <- function(f) {
-  given.tau <- get.given.tau(f)
-  return(is.null(given.tau) || is.vector(given.tau))
-}
-is.tau.zero <- function(f) {
-  return(is.null(get.est.tau.dim(f)))
-}
-is.tau.constant <- function(f) {
-  est.tau.dim <- get.est.tau.dim(f)
-  return(!is.null(est.tau.dim) && est.tau.dim == 0)
-}
-is.given.tau.constant <- function(f) {
-  given.tau.dim <- get.given.tau.dim(f)
-  return(!is.null(given.tau.dim) && given.tau.dim == 0)
-}
-get.R2.n <- function(f) {
-  n <- max(get.est.tau.dim(f), get.est.tau.dim(f), 0)
-  if (n == 0)
-    n <- which.min(get.dims(f))
-  return(n)
-}
-
-get.ebnm.fn <- function(flash, factor) {
-  if (is.new(factor))
-    return(get.next.ebnm.fn(flash))
-  return(get.ebnm.fn.k(flash, get.k(factor)))
-}
-get.next.ebnm.fn <- function(f) {
-  next.k <- get.n.factors(f) + 1
-  return(get.ebnm.fn.k(f, next.k))
-}
-get.ebnm.fn.k <- function(f, k) {
-  #if (is.null(k))
-    return(f[["ebnm.fn"]])
-  #return(f[["ebnm.fn"]][[k]])
-}
-
-get.ebnm.param <- function(flash, factor) {
-  if (is.new(factor))
-    return(get.next.ebnm.param(flash))
-  return(get.ebnm.param.k(flash, get.k(factor)))
-}
-get.next.ebnm.param <- function(f) {
-  next.k <- get.next.k(f)
-  return(get.ebnm.param.k(f, next.k))
-}
-get.ebnm.param.k <- function(f, k) {
-  if (is.null(get.fix.dim(f, k)))
-    return(f[["greedy.ebnm.param"]])
-  return(f[["fix.ebnm.param"]][[k]])
-}
+get.n.nonmissing   <- function(f) f[["n.nonmissing"]]
+get.R2             <- function(f) f[["R2"]]
+get.est.tau        <- function(f) f[["est.tau"]]
+get.tau            <- function(f) f[["tau"]]
+get.obj            <- function(f) f[["obj"]]
+get.g              <- function(f) f[["g"]]
+get.KL             <- function(f) f[["KL"]]
+get.delta.R2       <- function(f) f[["delta.R2"]]
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
@@ -91,6 +24,11 @@ get.EF <- function(f, n = NULL) {
     return(EF[[n]])
   return(EF)
 }
+get.EF.k <- function(f, k) {
+  EFk <- lapply(f[["EF"]], function(X) X[, k])
+  class(EFk) <- "r1"
+  return(EFk)
+}
 get.EF2 <- function(f, n = NULL) {
   EF2 <- f[["EF2"]]
   if (is.null(EF2[[1]]))
@@ -99,49 +37,18 @@ get.EF2 <- function(f, n = NULL) {
     return(EF2[[n]])
   return(EF2)
 }
-
-uses.R <- function(f) !is.null(f[["R"]])
-
-is.zero <- function(f, k = NULL) {
-  if (is.null(k))
-    return(f[["is.zero"]])
-  return(f[["is.zero"]][k])
-}
-is.valid <- function(f, k = NULL) {
-  if (is.null(k))
-    return(f[["is.valid"]])
-  return(f[["is.valid"]][k])
-}
-
-is.obj.valid <- function(flash, factor = NULL) {
-  valid <- c(flash[["is.valid"]])
-  if (!is.null(factor))
-    valid <- c(valid, factor[["is.valid"]])
-  return(all(valid))
-}
-
-get.n.factors <- function(f) max(0, ncol(f$EF[[1]]))
-get.dims <- function(f) {
-  if (!is.null(get.R(f)))
-    return(dim(get.R(f)))
-  return(dim(get.Y(f)))
-}
-get.dim <- function(f) length(get.dims(f))
-
-get.EFk <- function(f, k) {
-  EFk <- lapply(f[["EF"]], function(X) X[, k])
-  class(EFk) <- "r1"
-  return(EFk)
-}
-get.EF2k <- function(f, k) {
+get.EF2.k <- function(f, k) {
   EF2k <- lapply(f[["EF2"]], function(X) X[, k])
   class(EF2k) <- "r1"
   return(EF2k)
 }
-get.KLk <- function(f, k) sapply(f[["KL"]], getElement, k)
-
-get.n.fixed <- function(f)
-  return(sum(unlist(f[["fix.dim"]]) > 0))
+get.dim.signs <- function(f, k = NULL) {
+  if (is.null(k))
+    return(f[["dim.signs"]])
+  if (length(f[["dim.signs"]]) < k)
+    return(NULL)
+  return(f[["dim.signs"]][[k]])
+}
 get.fix.dim <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["fix.dim"]])
@@ -163,61 +70,131 @@ get.fix.vals <- function(f, k = NULL) {
     return(NULL)
   return(f[["fix.vals"]][[k]])
 }
-get.dim.signs <- function(f, k = NULL) {
+get.ebnm.fn.k <- function(f, k) {
+  if (!is.list(f[["ebnm.fn"]]))
+    return(f[["ebnm.fn"]])
+  if (length(f[["ebnm.fn"]]) < k)
+    return(f[["ebnm.fn"]][[k]])
+  return(f[["ebnm.fn"]][[length(f[["ebnm.fn"]])]])
+}
+get.ebnm.param.k <- function(f, k) {
+  if (length(f[["ebnm.param"]]) == 0 || !is.null(names(f[["ebnm.param"]])))
+    return(f[["ebnm.param"]])
+  if (length(f[["ebnm.param"]]) < k)
+    return(f[["ebnm.param"]][[k]])
+  return(f[["ebnm.param"]][[length(f[["ebnm.param"]])]])
+}
+get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
+is.zero <- function(f, k = NULL) {
   if (is.null(k))
-    return(f[["dim.signs"]])
-  if (length(f[["dim.signs"]]) < k)
-    return(NULL)
-  return(f[["dim.signs"]][[k]])
+    return(f[["is.zero"]])
+  return(f[["is.zero"]][k])
+}
+is.valid <- function(f, k = NULL) {
+  if (is.null(k))
+    return(f[["is.valid"]])
+  return(f[["is.valid"]][k])
 }
 
-which.k.fixed <- function(f) {
-  if (is.null(f[["fix.dim"]]))
-    return(NULL)
-  not.fixed <- sapply(f[["fix.dim"]], is.null)
-  return(which(!not.fixed))
-}
 
+# Additional getters that are only used by factors:
+
+get.k          <- function(f) f[["k"]]
+is.fixed       <- function(f) f[["is.fixed"]]
+get.R.subset   <- function(f) f[["subset.data"]][["R.subset"]]
+get.Y.subset   <- function(f) f[["subset.data"]][["Y.subset"]]
+get.Z.subset   <- function(f) f[["subset.data"]][["Z.subset"]]
+get.EF.subset  <- function(f) f[["subset.data"]][["EF.subset"]]
+get.EF2.subset <- function(f) f[["subset.data"]][["EF2.subset"]]
+
+get.idx.subset   <- function(f) {
+  if (!is.null(f[["subset.data"]]))
+    return(f[["subset.data"]][["idx.subset"]])
+  return(f[["idx.subset"]])
+}
+is.new <- function(f) is.null(get.k(f))
+
+
+# Simple helper functions for the main flash object and smaller factors:
+
+get.n.factors <- function(f) max(0, ncol(f[["EF"]][[1]]))
+get.dims <- function(f) {
+  if (!is.null(get.R(f)))
+    return(dim(get.R(f)))
+  return(dim(get.Y(f)))
+}
+get.dim <- function(f) length(get.dims(f))
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
+is.obj.valid <- function(flash, factor = NULL) {
+  valid <- c(flash[["is.valid"]])
+  if (!is.null(factor))
+    valid <- c(valid, factor[["is.valid"]])
+  return(all(valid))
+}
 
+get.ebnm.fn <- function(flash, factor, n) {
+  if (is.new(factor)) {
+    ebnm.fn <- get.ebnm.fn.k(flash, get.next.k(flash))
+  } else {
+    ebnm.fn <- get.ebnm.fn.k(flash, get.k(factor))
+  }
+  if (length(ebnm.fn) == 1)
+    return(ebnm.fn)
+  return(ebnm.fn[[n]])
+}
+get.ebnm.param <- function(flash, factor, n) {
+  if (is.new(factor)) {
+    ebnm.param <- get.ebnm.param.k(flash, get.next.k(flash))
+  } else {
+    ebnm.param <- get.ebnm.param.k(flash, get.k(factor))
+  }
+  if (length(ebnm.param) == 0 || !is.null(names(ebnm.param)))
+    return(ebnm.param)
+  return(ebnm.param[[n]])
+}
+
+is.tau.zero <- function(f) {
+  return(is.null(get.est.tau.dim(f)))
+}
+is.tau.constant <- function(f) {
+  est.tau.dim <- get.est.tau.dim(f)
+  return(!is.null(est.tau.dim) && est.tau.dim == 0)
+}
+is.tau.lowrank <- function(f) {
+  given.tau <- get.given.tau(f)
+  return(is.null(given.tau) || is.vector(given.tau))
+}
+get.R2.n <- function(f) {
+  n <- max(get.est.tau.dim(f), get.est.tau.dim(f), 0)
+  if (n == 0)
+    n <- which.min(get.dims(f))
+  return(n)
+}
+store.R2.as.scalar <- function(f) is.tau.constant(f)
+uses.R <- function(f) !is.null(get.R(f))
+
+get.n.fixed <- function(f) {
+  return(sum(unlist(get.fix.dim(f) > 0)))
+}
+which.k.fixed <- function(f) {
+  fix.dim <- get.fix.dim(f)
+  if (is.null(fix.cim))
+    return(NULL)
+  not.fixed <- sapply(fix.dim, is.null)
+  return(which(!not.fixed))
+}
 is.next.fixed <- function(f) {
-  return(!is.null(get.next.fix.dim(f)))
-}
-get.next.fix.dim <- function(f) {
-  next.k <- get.next.k(f)
-  if (length(get.fix.dim(f)) < next.k)
-    return(NULL)
-  return(f[["fix.dim"]][[next.k]])
-}
-get.next.fix.idx <- function(f) {
-  next.k <- get.next.k(f)
-  if (length(get.fix.idx(f)) < next.k)
-    return(NULL)
-  return(f[["fix.idx"]][[next.k]])
-}
-get.next.fix.vals <- function(f) {
-  next.k <- get.next.k(f)
-  if (length(get.fix.vals(f)) < next.k)
-    return(NULL)
-  return(f[["fix.vals"]][[next.k]])
-}
-get.next.dim.signs <- function(f) {
-  next.k <- get.next.k(f)
-  if (length(get.dim.signs(f)) < next.k)
-    return(NULL)
-  return(f[["dim.signs"]][[next.k]])
-}
-
-get.next.unfixed.idx <- function(f) {
-  next.k <- get.n.factors(f) + 1
-  return(get.unfixed.idx(f, next.k))
+  return(!is.null(get.fix.dim(f, get.next.k(f))))
 }
 get.unfixed.idx <- function(f, k) {
   fix.dim <- get.fix.dim(f, k)
   fix.idx <- get.fix.idx(f, k)
   return(setdiff(1:(get.dims(f)[[fix.dim]]), fix.idx))
+}
+get.next.unfixed.idx <- function(f) {
+  return(get.unfixed.idx(f, get.next.k(f)))
 }
 all.fixed <- function(f, n) {
   fix.dim <- as.integer(get.fix.dim(f))
@@ -225,26 +202,26 @@ all.fixed <- function(f, n) {
   return(identical(fix.dim, n) && length(idx.subset) == 0)
 }
 
-add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
-  factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
-  factor[["idx.subset"]]  <- NULL
-  return(factor)
+greedy.failed <- function(f) {
+  return(identical(f[["greedy.fail"]], TRUE))
 }
+nullchk.failed <- function(f) {
+  return(identical(f[["nullchk.fail"]], TRUE))
+}
+
 get.subset.data <- function(f, fix.dim, idx.subset) {
   if (length(idx.subset) < 1)
     return(NULL)
   subset.data <- list(idx.subset = idx.subset)
-  subset.data$R.subset  <- fullrank.subset(f[["R"]], fix.dim, idx.subset)
-  subset.data$Y.subset  <- fullrank.subset(f[["Y"]], fix.dim, idx.subset)
-  subset.data$Z.subset  <- fullrank.subset(f[["Z"]], fix.dim, idx.subset)
-  subset.data$EF.subset <- lowrank.subset(f[["EF"]], fix.dim, idx.subset)
+  subset.data$R.subset  <- fullrank.subset(get.R(f), fix.dim, idx.subset)
+  subset.data$Y.subset  <- fullrank.subset(get.Y(f), fix.dim, idx.subset)
+  subset.data$Z.subset  <- fullrank.subset(get.nonmissing(f), fix.dim, idx.subset)
+  subset.data$EF.subset <- lowrank.subset(get.EF(f), fix.dim, idx.subset)
   return(subset.data)
 }
-get.idx.subset   <- function(f) {
-  if (!is.null(f[["subset.data"]]))
-    return(f[["subset.data"]][["idx.subset"]])
-  return(f[["idx.subset"]])
-}
+
+
+# Setters for the main flash object and smaller factors:
 
 set.R <- function(f, R) {
   f[["R"]] <- R
@@ -264,6 +241,14 @@ set.EFk <- function(f, k, EF) {
   }
   return(f)
 }
+add.factor.to.EF <- function(f, new.EF) {
+  if (is.null(f[["EF"]])) {
+    f[["EF"]] <- as.lowrank(new.EF)
+  } else {
+    f[["EF"]] <- lowranks.combine(f[["EF"]], new.EF)
+  }
+  return(f)
+}
 set.EF2 <- function(f, EF2, n = NULL) {
   if (is.null(n)) {
     f[["EF2"]] <- EF2
@@ -275,6 +260,14 @@ set.EF2 <- function(f, EF2, n = NULL) {
 set.EF2k <- function(f, k, EF2) {
   for (n in 1:length(EF2)) {
     f[["EF2"]][[n]][, k] <- EF2[[n]]
+  }
+  return(f)
+}
+add.factor.to.EF2 <- function(f, new.EF2) {
+  if (is.null(f[["EF2"]])) {
+    f[["EF2"]] <- as.lowrank(new.EF2)
+  } else {
+    f[["EF2"]] <- lowranks.combine(f[["EF2"]], new.EF2)
   }
   return(f)
 }
@@ -292,6 +285,14 @@ set.KLk <- function(f, k, KL) {
   }
   return(f)
 }
+add.factor.to.KL <- function(f, new.KL) {
+  if (is.null(f[["KL"]])) {
+    f[["KL"]] <- as.list(new.KL)
+  } else {
+    f[["KL"]] <- mapply(c, get.KL(f), new.KL, SIMPLIFY = FALSE)
+  }
+  return(f)
+}
 set.g <- function(f, g, n = NULL) {
   if (is.null(n)) {
     f[["g"]] <- g
@@ -304,6 +305,10 @@ set.gk <- function(f, k, g) {
   f[["g"]][[k]] <- g
   return(f)
 }
+add.factor.to.g <- function(f, new.g) {
+  f[["g"]] <- c(f[["g"]], list(new.g))
+  return(f)
+}
 set.est.tau <- function(f, est.tau) {
   f[["est.tau"]] <- est.tau
   return(f)
@@ -312,20 +317,16 @@ set.tau <- function(f, tau) {
   f[["tau"]] <- tau
   return(f)
 }
-set.R2 <- function(f, R2) {
-  f[["R2"]] <- R2
-  return(f)
-}
 set.obj <- function(f, obj) {
   f[["obj"]] <- obj
   return(f)
 }
-set.delta.R2 <- function(f, delta.R2) {
-  f[["delta.R2"]] <- delta.R2
+set.R2 <- function(f, R2) {
+  f[["R2"]] <- R2
   return(f)
 }
-set.is.zero <- function(f, is.zero) {
-  f[["is.zero"]] <- is.zero
+set.delta.R2 <- function(f, delta.R2) {
+  f[["delta.R2"]] <- delta.R2
   return(f)
 }
 add.is.zero <- function(f, is.zero) {
@@ -340,10 +341,6 @@ set.to.zero <- function(f, k = NULL) {
   }
   return(f)
 }
-set.is.valid <- function(f, is.valid) {
-  f[["is.valid"]] <- is.valid
-  return(f)
-}
 add.is.valid <- function(f, is.valid) {
   f[["is.valid"]] <- c(f[["is.valid"]], is.valid)
   return(f)
@@ -356,42 +353,6 @@ set.to.valid <- function(f, k = NULL) {
   }
   return(f)
 }
-
-add.factor.to.EF <- function(f, new.EF) {
-  if (is.null(f[["EF"]])) {
-    f[["EF"]] <- as.lowrank(new.EF)
-  } else {
-    f[["EF"]] <- lowranks.combine(f[["EF"]], new.EF)
-  }
-  return(f)
-}
-add.factor.to.EF2 <- function(f, new.EF2) {
-  if (is.null(f[["EF2"]])) {
-    f[["EF2"]] <- as.lowrank(new.EF2)
-  } else {
-    f[["EF2"]] <- lowranks.combine(f[["EF2"]], new.EF2)
-  }
-  return(f)
-}
-add.factor.to.KL <- function(f, new.KL) {
-  if (is.null(f[["KL"]])) {
-    f[["KL"]] <- as.list(new.KL)
-  } else {
-    f[["KL"]] <- mapply(c, get.KL(f), new.KL, SIMPLIFY = FALSE)
-  }
-  return(f)
-}
-add.factor.to.g <- function(f, new.g) {
-  f[["g"]] <- c(f[["g"]], list(new.g))
-  return(f)
-}
-
-clear.flags <- function(f) {
-  f <- clear.greedy.fail.flag(f)
-  f <- clear.nullchk.fail.flag(f)
-  return(f)
-}
-
 set.greedy.fail.flag <- function(f) {
   f[["greedy.fail"]] <- TRUE
   return(f)
@@ -400,10 +361,6 @@ clear.greedy.fail.flag <- function(f) {
   f[["greedy.fail"]] <- NULL
   return(f)
 }
-greedy.failed <- function(f) {
-  return(identical(f[["greedy.fail"]], TRUE))
-}
-
 set.nullchk.fail.flag <- function(f) {
   f[["nullchk.fail"]] <- TRUE
   return(f)
@@ -412,12 +369,24 @@ clear.nullchk.fail.flag <- function(f) {
   f[["nullchk.fail"]] <- NULL
   return(f)
 }
-nullchk.failed <- function(f) {
-  return(identical(f[["nullchk.fail"]], TRUE))
+clear.flags <- function(f) {
+  f <- clear.greedy.fail.flag(f)
+  f <- clear.nullchk.fail.flag(f)
+  return(f)
 }
 
+add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
+  factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
+  factor[["idx.subset"]]  <- NULL
+  return(factor)
+}
+
+
+# Testing function that converts a flashier flash object into a flashr fit
+#   object:
+
 to.flashr <- function(f) {
-  flash <- list()
+  flash        <- list()
   flash$EL     <- f$EF[[1]]
   flash$EF     <- f$EF[[2]]
   flash$EL2    <- f$EF2[[1]]

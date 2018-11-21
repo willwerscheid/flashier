@@ -4,7 +4,7 @@ calc.obj <- function(flash, factor = NULL) {
   if (!is.null(factor)) {
     KL <- KL + sum(unlist(get.KL(factor)))
     if (!is.new(factor))
-      KL <- KL - sum(get.KLk(flash, get.k(factor)))
+      KL <- KL - sum(get.KL.k(flash, get.k(factor)))
     est.tau <- get.est.tau(factor)
     tau     <- get.tau(factor)
   } else {

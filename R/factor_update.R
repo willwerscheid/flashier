@@ -49,8 +49,8 @@ solve.ebnm <- function(factor, n, flash) {
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
   ebnm.args   <- calc.ebnm.args(factor, n, flash)
-  ebnm.res    <- do.call(get.ebnm.fn(flash, factor),
-                         c(ebnm.args, list(get.ebnm.param(flash, factor))))
+  ebnm.res    <- do.call(get.ebnm.fn(flash, factor, n),
+                         c(ebnm.args, list(get.ebnm.param(flash, factor, n))))
   ebnm.res$KL <- (ebnm.res$penloglik
                   - normal.means.loglik(ebnm.args$x, ebnm.args$s,
                                         ebnm.res$postmean, ebnm.res$postmean2))
@@ -115,7 +115,7 @@ calc.x <- function(factor, n, flash, s2, tau) {
 
   k <- get.k(factor)
   if (uses.R(flash) && !is.new(factor)) {
-    flash.EFk <- get.EFk(flash, k)
+    flash.EFk <- get.EF.k(flash, k)
     if (use.subsetted.flash.data(factor, n))
       flash.EFk <- r1.subset(flash.EFk, n, get.idx.subset(factor))
   }

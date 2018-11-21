@@ -18,9 +18,9 @@ update.kth.factor <- function(flash, k, iter, verbose.lvl) {
 extract.factor <- function(flash, k) {
   factor         <- list()
   factor$k       <- k
-  factor$EF      <- get.EFk(flash, k)
-  factor$EF2     <- get.EF2k(flash, k)
-  factor$KL      <- get.KLk(flash, k)
+  factor$EF      <- get.EF.k(flash, k)
+  factor$EF2     <- get.EF2.k(flash, k)
+  factor$KL      <- get.KL.k(flash, k)
   factor$obj     <- get.obj(flash)
   factor$is.zero <- is.zero(flash, k)
 

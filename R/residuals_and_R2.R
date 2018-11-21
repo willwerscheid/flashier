@@ -14,7 +14,7 @@ calc.residuals <- function(flash, factor) {
 
   if (!is.new(factor)) {
     new.EF       <- as.lowrank(get.EF(factor))
-    old.EF       <- as.lowrank(get.EFk(flash, get.k(factor)))
+    old.EF       <- as.lowrank(get.EF.k(flash, get.k(factor)))
     EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
     new.R <- old.R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
   } else {
@@ -38,9 +38,9 @@ calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
   if (is.new.factor) {
     EF.delta.mat  <- new.EF
   } else {
-    old.EF        <- as.lowrank(get.EFk(flash, k))
+    old.EF        <- as.lowrank(get.EF.k(flash, k))
     EF.delta.mat  <- lowrank.delta.mat(new.EF, old.EF)
-    old.EF2       <- as.lowrank(get.EF2k(flash, k))
+    old.EF2       <- as.lowrank(get.EF2.k(flash, k))
     EF2.delta.mat <- lowrank.delta.mat(new.EF2, old.EF2)
   }
 
