@@ -22,10 +22,8 @@ flash.workhorse <- function(Y,
                             when.to.nullcheck = NULL,
                             nullchk.fixed.factors = FALSE,
                             do.final.nullchk = TRUE,
-                            greedy.ebnm.fn = flashr:::ebnm_pn,
-                            greedy.ebnm.param = list(),
-                            fix.ebnm.fn = NULL,
-                            fix.ebnm.param = NULL,
+                            ebnm.fn = flashr:::ebnm_pn,
+                            ebnm.param = list(),
                             conv.crit.fn = calc.obj.diff,
                             init.fn = NULL,
                             init.maxiter = 100,
@@ -46,23 +44,25 @@ flash.workhorse <- function(Y,
   backfit.order <- match.arg(backfit.order)
 
   announce.flash.init(verbose.lvl)
-  flash <- init.flash(Y = Y,
-                      nonmissing = nonmissing,
-                      flash.init = flash.init,
-                      EF.init = EF.init,
-                      given.tau = given.tau,
-                      given.tau.dim = given.tau.dim,
-                      est.tau.dim = est.tau.dim,
-                      dim.signs = dim.signs,
-                      fix.dim = fix.dim,
-                      fix.idx = fix.idx,
-                      fix.vals = fix.vals,
-                      use.fixed.to.est.g = use.fixed.to.est.g,
-                      greedy.ebnm.fn = greedy.ebnm.fn,
-                      greedy.ebnm.param = greedy.ebnm.param,
-                      fix.ebnm.fn = fix.ebnm.fn,
-                      fix.ebnm.param = fix.ebnm.param,
-                      use.R = use.R)
+  if (is.null(flash.init)) {
+    flash <- init.new.flash(Y = Y,
+                            nonmissing = nonmissing,
+                            EF.init = EF.init,
+                            given.tau = given.tau,
+                            given.tau.dim = given.tau.dim,
+                            est.tau.dim = est.tau.dim,
+                            dim.signs = dim.signs,
+                            fix.dim = fix.dim,
+                            fix.idx = fix.idx,
+                            fix.vals = fix.vals,
+                            use.fixed.to.est.g = use.fixed.to.est.g,
+                            ebnm.fn = ebnm.fn,
+                            ebnm.param = ebnm.param,
+                            use.R = use.R)
+  } else {
+    # TODO change non-missing arguments in flash.init while arg checking
+    flash <- flash.init
+  }
 
   total.factors.added <- 0
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)

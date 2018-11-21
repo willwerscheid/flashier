@@ -1,3 +1,4 @@
+#TODO remove R
 get.R              <- function(f) f[["R"]]
 get.Y              <- function(f) f[["Y"]]
 get.nonmissing     <- function(f) f[["Z"]]
@@ -62,9 +63,9 @@ get.next.ebnm.fn <- function(f) {
   return(get.ebnm.fn.k(f, next.k))
 }
 get.ebnm.fn.k <- function(f, k) {
-  if (is.null(get.fix.dim(f, k)))
-    return(f[["greedy.ebnm.fn"]])
-  return(f[["fix.ebnm.fn"]][[k]])
+  #if (is.null(k))
+    return(f[["ebnm.fn"]])
+  #return(f[["ebnm.fn"]][[k]])
 }
 
 get.ebnm.param <- function(flash, factor) {

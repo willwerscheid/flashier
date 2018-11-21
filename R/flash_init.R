@@ -1,20 +1,17 @@
 init.flash <- function(Y,
                        nonmissing = NULL,
-                       flash.init = NULL,
                        EF.init = NULL,
+                       given.tau = NULL,
+                       given.tau.dim = NULL,
+                       est.tau.dim = 0,
+                       dim.signs = NULL,
                        fix.dim = NULL,
                        fix.idx = NULL,
                        fix.vals = NULL,
-                       est.tau.dim = 0,
-                       given.tau = NULL,
-                       given.tau.dim = NULL,
-                       dim.signs = NULL,
-                       greedy.ebnm.fn = flashr:::ebnm_pn,
-                       greedy.ebnm.param = list(),
-                       fix.ebnm.fn = NULL,
-                       fix.ebnm.param = NULL,
-                       use.R = TRUE,
-                       use.fixed.to.est.g = FALSE) {
+                       use.fixed.to.est.g = FALSE,
+                       ebnm.fn = flashr:::ebnm_pn,
+                       ebnm.param = list(),
+                       use.R = TRUE) {
   flash <- list()
 
   if (use.R) {
@@ -30,18 +27,22 @@ init.flash <- function(Y,
   if (!is.null(EF.init)) {
     flash$EF  <- EF.init
     flash$EF2 <- lowrank.square(EF.init)
-    # TODO: calc KL, g
+  } else {
+    flash$EF  <- NULL
+    flash$EF2 <- NULL
   }
 
-  if (!is.null(fix.dim))
-    flash$fix.dim <- lapply(fix.dim, as.integer)
+  flash$given.tau          <- given.tau
+  flash$given.tau.dim      <- given.tau.dim
+  flash$est.tau.dim        <- est.tau.dim
+  flash$dim.signs          <- dim.signs
+  flash$fix.dim            <- fix.dim
+  flash$fix.idx            <- fix.idx
+  flash$fix.vals           <- fix.vals
+  flash$use.fixed.to.est.g <- use.fixed.to.est.g
+  flash$ebnm.fn            <- ebnm.fn
+  flash$ebnm.param         <- ebnm.param
 
-  flash$fix.idx      <- fix.idx
-  flash$fix.vals     <- fix.vals
-
-  flash$est.tau.dim   <- est.tau.dim
-  flash$given.tau     <- given.tau
-  flash$given.tau.dim <- given.tau.dim
   if (is.tau.lowrank(flash)) {
     flash$n.nonmissing <- init.n.nonmissing(flash)
     flash$R2           <- init.R2(flash)
@@ -50,27 +51,11 @@ init.flash <- function(Y,
   } else {
     flash$tau          <- estimate.fullrank.tau(flash)
   }
-  flash$obj <- calc.obj(flash)
-
-  flash$greedy.ebnm.fn    <- greedy.ebnm.fn
-  flash$greedy.ebnm.param <- greedy.ebnm.param
-  flash$fix.ebnm.fn       <- fix.ebnm.fn
-  flash$fix.ebnm.param    <- fix.ebnm.param
-  if (is.null(flash$fix.ebnm.fn)) {
-    flash$fix.ebnm.fn    <- list()
-    flash$fix.ebnm.param <- list()
-    for (k in which.k.fixed(flash)) {
-      flash$fix.ebnm.fn[[k]]    <- greedy.ebnm.fn
-      flash$fix.ebnm.param[[k]] <- greedy.ebnm.param
-    }
-  }
-
-  flash$dim.signs  <- dim.signs
-
-  flash$use.fixed.to.est.g <- use.fixed.to.est.g
+  flash$obj            <- calc.obj(flash)
 
   return(flash)
 }
+
 
 init.n.nonmissing <- function(flash) {
   Z     <- get.nonmissing(flash)
