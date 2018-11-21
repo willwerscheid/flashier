@@ -20,19 +20,19 @@ test_that("matrix factor initialization is correct for R with missing data", {
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
-F.init <- list(matrix(rnorm(nrow(M)), ncol = 1),
+EF.init <- list(matrix(rnorm(nrow(M)), ncol = 1),
                matrix(rnorm(ncol(M)), ncol = 1))
-class(F.init) <- "lowrank"
-Y <- M + lowrank.expand(F.init)
+class(EF.init) <- "lowrank"
+Y <- M + lowrank.expand(EF.init)
 
 test_that("matrix factor initialization is correct for Y (no missing data)", {
-  f <- init.flash(Y, F.init = F.init, use.R = FALSE)
+  f <- init.flash(Y, EF.init = EF.init, use.R = FALSE)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
 test_that("matrix factor initialization is correct for Y with missing data", {
-  f <- init.flash(Y, nonmissing = Z, F.init = F.init, use.R = FALSE)
+  f <- init.flash(Y, nonmissing = Z, EF.init = EF.init, use.R = FALSE)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
@@ -53,20 +53,20 @@ test_that("tensor factor initialization is correct for R with missing data", {
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
-F.init <- list(matrix(rnorm(dim(A)[1]), ncol = 1),
+EF.init <- list(matrix(rnorm(dim(A)[1]), ncol = 1),
                matrix(rnorm(dim(A)[2]), ncol = 1),
                matrix(rnorm(dim(A)[3]), ncol = 1))
-class(F.init) <- "lowrank"
-Y <- A + lowrank.expand(F.init)
+class(EF.init) <- "lowrank"
+Y <- A + lowrank.expand(EF.init)
 
 test_that("tensor factor initialization is correct for Y (no missing data)", {
-  g <- init.flash(Y, F.init = F.init, use.R = FALSE)
+  g <- init.flash(Y, EF.init = EF.init, use.R = FALSE)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
 test_that("tensor factor initialization is correct for Y with missing data", {
-  g <- init.flash(Y, nonmissing = Z, F.init = F.init, use.R = FALSE)
+  g <- init.flash(Y, nonmissing = Z, EF.init = EF.init, use.R = FALSE)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })

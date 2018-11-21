@@ -1,24 +1,3 @@
-# TODO: can delete backfit and backfit.once after interface is complete
-backfit <- function(flash, kset, shuffle.kset = FALSE, tol = 1e-2) {
-  flash <- optimize.it(flash,
-                       update.fn = backfit.once,
-                       update.args = list(kset = kset,
-                                          shuffle.kset = shuffle.kset),
-                       obj.fn = calc.obj.diff,
-                       tol = tol)
-  return(flash)
-}
-
-backfit.once <- function(flash, kset, shuffle.kset = FALSE) {
-  if (shuffle.kset)
-    kset <- sample(kset)
-
-  for (k in kset)
-    flash <- update.kth.factor(flash, k)
-
-  return(flash)
-}
-
 update.kth.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 

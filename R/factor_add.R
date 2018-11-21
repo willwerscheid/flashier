@@ -1,35 +1,3 @@
-# TODO remove add.next.factor and add.greedy (in main loop now)
-add.next.factor <- function(flash,
-                            greedy.tol = 1e-2,
-                            greedy.maxiter = 200,
-                            init.tol = 1e-2,
-                            init.maxiter = 100) {
-  factor <- init.factor(flash, init.tol, init.maxiter, verbose = FALSE)
-  if (is.fixed(factor)) {
-    flash <- add.new.factor.to.flash(factor, flash)
-  } else {
-    flash <- add.greedy(factor, flash, greedy.tol, greedy.maxiter)
-  }
-  return(flash)
-}
-
-add.greedy <- function(factor, flash, tol, maxiter) {
-  factor <- optimize.it(factor,
-                        update.fn = update.factor,
-                        update.args = list(flash = flash),
-                        obj.fn = calc.obj.diff,
-                        tol = tol,
-                        maxiter = maxiter)
-  if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
-    flash <- add.new.factor.to.flash(factor, flash)
-  } else {
-    flash <- set.greedy.fail.flag(flash)
-  }
-  # TODO: what if objective decreases?
-
-  return(flash)
-}
-
 add.new.factor.to.flash <- function(factor, flash) {
   flash <- add.factor.to.EF(flash, get.EF(factor))
   flash <- add.factor.to.EF2(flash, get.EF2(factor))

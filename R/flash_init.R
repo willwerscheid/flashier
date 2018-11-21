@@ -1,6 +1,7 @@
 init.flash <- function(Y,
                        nonmissing = NULL,
-                       F.init = NULL,
+                       flash.init = NULL,
+                       EF.init = NULL,
                        fix.dim = NULL,
                        fix.idx = NULL,
                        fix.vals = NULL,
@@ -17,7 +18,7 @@ init.flash <- function(Y,
   flash <- list()
 
   if (use.R) {
-    flash$R <- Y - lowrank.expand(F.init)
+    flash$R <- Y - lowrank.expand(EF.init$EF)
   } else {
     flash$Y <- Y
   }
@@ -26,9 +27,9 @@ init.flash <- function(Y,
     nonmissing <- 1
   flash$Z <- nonmissing
 
-  if (!is.null(F.init)) {
-    flash$EF  <- F.init
-    flash$EF2 <- lowrank.square(F.init)
+  if (!is.null(EF.init)) {
+    flash$EF  <- EF.init
+    flash$EF2 <- lowrank.square(EF.init)
     # TODO: calc KL, g
   }
 

@@ -1,7 +1,14 @@
-init.factor <- function(flash, tol, maxiter, verbose) {
+# TODO: write a custom init.fn as an example (e.g. wrapper to NNMF)
+init.factor <- function(flash, init.fn, tol, maxiter, verbose) {
   factor          <- list()
   factor$is.fixed <- is.next.fixed(flash)
-  factor$EF       <- init.next.EF(flash, tol, maxiter)
+
+  if (is.null(init.fn)) {
+    factor$EF <- init.next.EF(flash, tol, maxiter)
+  } else {
+    factor$EF <- do.call(init.fn, flash)
+  }
+
   factor$EF2      <- r1.square(factor$EF)
   factor$KL       <- rep(0, get.dim(flash))
   factor          <- update.tau(factor, flash)
@@ -53,17 +60,17 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
     }
   }
 
-  EF <- optimize.it(EF,
-                    update.fn = update.init.EF,
-                    update.args = list(flash = flash,
-                                       update.order = update.order,
-                                       fix.dim = fix.dim,
-                                       dim.signs = dim.signs,
-                                       subset.data = subset.data),
-                    obj.fn = calc.max.chg.list,
-                    tol = tol,
-                    maxiter = maxiter)
+  max.chg <- Inf
+  iter <- 0
+  while (max.chg > tol && iter < maxiter) {
+    iter    <- iter + 1
+    old.EF  <- EF
+    EF      <- update.init.EF(EF, flash, update.order, fix.dim, dim.signs,
+                             subset.data)
+    max.chg <- calc.max.chg(EF, old.EF)
+  }
 
+  # TODO: maybe scale EF so values aren't too different one dim from another
   return(EF)
 }
 

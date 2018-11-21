@@ -5,33 +5,31 @@
 
 flash.workhorse <- function(Y,
                             nonmissing = NULL,
-                            F.init = NULL,
-                            fix.dim = NULL,
-                            fix.idx = NULL,
-                            fix.vals = NULL,
+                            EF.init = NULL,
+                            flash.init = NULL,
                             given.tau = NULL,
                             given.tau.dim = NULL,
                             est.tau.dim = 0,
                             dim.signs = NULL,
+                            fix.dim = NULL,
+                            fix.idx = NULL,
+                            fix.vals = NULL,
+                            use.fixed.to.est.g = FALSE,
+                            greedy.Kmax = 100,
+                            when.to.backfit = NULL,
+                            backfit.order = c("sequential", "random"),
+                            do.final.backfit = FALSE,
+                            when.to.nullcheck = NULL,
+                            nullchk.fixed.factors = FALSE,
+                            do.final.nullchk = TRUE,
                             greedy.ebnm.fn = flashr:::ebnm_pn,
                             greedy.ebnm.param = list(),
                             fix.ebnm.fn = NULL,
                             fix.ebnm.param = NULL,
-                            use.fixed.to.est.g = FALSE,
-                            use.R = TRUE,
-                            greedy.Kmax = 100,
-                            backfit.order = c("sequential", "random"),
-                            nullchk.fixed = FALSE,
-                            backfit.after = NULL,
-                            backfit.every = NULL,
-                            nullchk.after = backfit.after,
-                            nullchk.every = backfit.every,
-                            do.final.backfit = FALSE,
-                            do.final.nullchk = TRUE,
                             conv.crit.fn = calc.obj.diff,
+                            init.fn = NULL,
                             init.maxiter = 100,
                             init.tol = 1e-2,
-                            init.verbose = FALSE,
                             greedy.maxiter = 500,
                             greedy.tol = 1e-2,
                             backfit.maxiter = 100,
@@ -42,27 +40,29 @@ flash.workhorse <- function(Y,
                             verbose.fns = NULL,
                             verbose.colnames = NULL,
                             verbose.colwidths = NULL,
-                            seed = 666) {
+                            seed = 666,
+                            use.R = TRUE) {
   set.seed(seed)
-  backfit.order     <- match.arg(backfit.order)
+  backfit.order <- match.arg(backfit.order)
 
   announce.flash.init(verbose.lvl)
   flash <- init.flash(Y = Y,
                       nonmissing = nonmissing,
-                      F.init = F.init,
+                      flash.init = flash.init,
+                      EF.init = EF.init,
+                      given.tau = given.tau,
+                      given.tau.dim = given.tau.dim,
+                      est.tau.dim = est.tau.dim,
+                      dim.signs = dim.signs,
                       fix.dim = fix.dim,
                       fix.idx = fix.idx,
                       fix.vals = fix.vals,
-                      est.tau.dim = est.tau.dim,
-                      given.tau = given.tau,
-                      given.tau.dim = given.tau.dim,
-                      dim.signs = dim.signs,
+                      use.fixed.to.est.g = use.fixed.to.est.g,
                       greedy.ebnm.fn = greedy.ebnm.fn,
                       greedy.ebnm.param = greedy.ebnm.param,
                       fix.ebnm.fn = fix.ebnm.fn,
                       fix.ebnm.param = fix.ebnm.param,
-                      use.R = use.R,
-                      use.fixed.to.est.g = use.fixed.to.est.g)
+                      use.R = use.R)
 
   total.factors.added <- 0
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
@@ -70,10 +70,6 @@ flash.workhorse <- function(Y,
   # At least one round of backfitting and nullchecking should be performed
   #   when a non-empty flash object is passed in:
   curr.rnd.factors.added <- get.n.factors(flash)
-
-  # TODO - this kind of parameter handling belongs elsewhere...
-  when.to.backfit   <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
-  when.to.nullcheck <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
 
   something.changed <- TRUE
 
@@ -83,10 +79,10 @@ flash.workhorse <- function(Y,
 
     greedy.complete <- (total.factors.added >= max.factors.to.add)
     if (!greedy.complete) {
-      # TODO: verify works for fixed
       announce.add.factor(verbose.lvl, k = get.next.k(flash))
+
       announce.factor.init(verbose.lvl)
-      factor <- init.factor(flash, init.tol, init.maxiter, init.verbose)
+      factor <- init.factor(flash, init.fn, init.tol, init.maxiter)
 
       if (is.fixed(factor)) {
         flash <- add.new.factor.to.flash(factor, flash)
@@ -97,7 +93,8 @@ flash.workhorse <- function(Y,
         iter <- 0
         conv.crit <- Inf
         while (conv.crit > greedy.tol && iter < greedy.maxiter) {
-          iter     <- iter + 1
+          iter <- iter + 1
+
           old.f    <- factor
           factor   <- update.factor(factor, flash)
           obj.diff <- get.obj(factor) - get.obj(old.f)
@@ -106,7 +103,7 @@ flash.workhorse <- function(Y,
             factor <- old.f
             break
           }
-          info <- calc.update.info(old.f, factor, conv.crit.fn, verbose.fns)
+          info <- calc.update.info(factor, old.f, conv.crit.fn, verbose.fns)
           conv.crit <- get.conv.crit(info)
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info)
         }
@@ -165,10 +162,10 @@ flash.workhorse <- function(Y,
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info, k)
         }
       }
-      # TODO: parallel backfit updates; allow increases by
-      #   parallel.monotonicity; might want to do some parallel some seq;
-      #   (parallel.iters?) or maybe switch to seq when parallel fails
-      #   monotonicity req; in any case flexibility would be good.
+      # TODO: parallel backfit updates; allow increases by some
+      #   parallel.monotonicity parameter; might want to do some parallel,
+      #   some seq, or maybe switch to seq when parallel fails
+      #   monotonicity tol; in any case flexibility would be good.
 
       if (get.obj(flash) > old.obj)
         something.changed <- TRUE
@@ -176,7 +173,7 @@ flash.workhorse <- function(Y,
 
     if (do.nullchk) {
       nullchk.kset <- 1:get.n.factors(flash)
-      if (!nullchk.fixed)
+      if (!nullchk.fixed.factors)
         nullchk.kset <- setdiff(nullchk.kset, which.k.fixed(flash))
 
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
@@ -192,12 +189,16 @@ flash.workhorse <- function(Y,
   }
 
   announce.wrapup(verbose.lvl)
-  # remove R and then return results
+  # remove R and then return results; TODO: write sampler
 
   report.completion(verbose.lvl)
 
   return(flash)
 }
+
+# TODO - put this in parameter handling
+# when.to.backfit   <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
+# when.to.nullcheck <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
 
 as.Kset <- function(after, every, maxiter) {
   if (is.null(every))
