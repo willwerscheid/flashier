@@ -15,10 +15,16 @@ calc.obj <- function(flash, factor = NULL) {
   if (is.tau.lowrank(flash)) {
     n.nonmissing <- get.n.nonmissing(flash)
     obj <- KL - 0.5 * sum(n.nonmissing * (log(2 * pi / tau) + tau / est.tau))
+  } else if (is.tau.zero(flash)) {
+    obj <- KL - 0.5 * (get.log.2pi.s2(flash) + calc.sum.tau.R2(flash, factor))
   } else {
     obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + calc.sum.tau.R2(flash, factor))
   }
   return(obj)
+}
+
+precompute.log.2pi.s2 <- function(tau) {
+  return(sum(log(2 * pi / tau)))
 }
 
 normal.means.loglik <- function(x, s, Et, Et2) {

@@ -68,7 +68,7 @@ backfit.once <- function(flash, kset, shuffle.kset = FALSE) {
     kset <- sample(kset)
 
   for (k in kset)
-    flash <- update.kth.factor(flash, k)
+    flash <- update.existing.factor(flash, k)
 
   return(flash)
 }

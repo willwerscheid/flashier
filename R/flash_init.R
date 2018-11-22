@@ -49,6 +49,8 @@ init.flash <- function(Y,
     flash$est.tau      <- estimate.lowrank.tau(flash)
     flash$tau          <- reconcile.given.and.est.tau(flash)
   } else {
+    if (is.tau.zero(flash))
+      flash$log.2pi.s2 <- precompute.log.2pi.s2(given.tau)
     flash$tau          <- estimate.fullrank.tau(flash)
   }
   flash$obj            <- calc.obj(flash)

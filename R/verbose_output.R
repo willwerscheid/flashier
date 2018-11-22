@@ -107,5 +107,7 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k = NULL) {
                                     formatC(info[col], format="e", digits=2)))
     }
     message(table.entry)
+  } else if (verbose.lvl == -1) {
+    # TODO: option that writes tab-delim output (e.g., for use with sink)
   }
 }

@@ -9,6 +9,7 @@ get.est.tau.dim    <- function(f) f[["est.tau.dim"]]
 use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
 get.n.nonmissing   <- function(f) f[["n.nonmissing"]]
 get.R2             <- function(f) f[["R2"]]
+get.log.2pi.s2     <- function(f) f[["log.2pi.s2"]]
 get.est.tau        <- function(f) f[["est.tau"]]
 get.tau            <- function(f) f[["tau"]]
 get.obj            <- function(f) f[["obj"]]
@@ -128,7 +129,7 @@ get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
 is.obj.valid <- function(flash, factor = NULL) {
-  valid <- c(flash[["is.valid"]])
+  valid <- flash[["is.valid"]]
   if (!is.null(factor))
     valid <- c(valid, factor[["is.valid"]])
   return(all(valid))

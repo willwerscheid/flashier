@@ -1,4 +1,4 @@
-update.kth.factor <- function(flash, k, iter, verbose.lvl) {
+update.existing.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 
   if (!is.zero(old.factor)) {

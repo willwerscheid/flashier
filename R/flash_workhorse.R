@@ -17,11 +17,11 @@ flash.workhorse <- function(Y,
                             use.fixed.to.est.g = FALSE,
                             greedy.Kmax = 100,
                             when.to.backfit = NULL,
-                            backfit.order = c("sequential", "random"),
                             do.final.backfit = FALSE,
+                            backfit.order = c("sequential", "random"),
                             when.to.nullcheck = NULL,
-                            nullchk.fixed.factors = FALSE,
                             do.final.nullchk = TRUE,
+                            nullchk.fixed.factors = FALSE,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
                             conv.crit.fn = calc.obj.diff,
@@ -108,6 +108,19 @@ flash.workhorse <- function(Y,
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info)
         }
 
+        # if "same signs" factor, do a "delayed add"; that is, save the
+        #   factor in some candidate.factor variable (which can actually
+        #   be a list of multiple factors), set something.changed
+        #   to TRUE, and compare all factors when we get to the last one
+
+        # if (is.candidate(factor))
+        #   candidate.factors <- c(candidate.factors, list(factor))
+        # else
+        #   if (!is.null(candidate.factors))
+        #     factor <- select.best.factor(factor, candidate.factors)
+        #     candidate.factors <- NULL
+
+        # this whole thing is part of the else:
         if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
           flash <- add.new.factor.to.flash(factor, flash)
         } else {
@@ -119,6 +132,7 @@ flash.workhorse <- function(Y,
         greedy.complete <- TRUE
       } else {
         something.changed      <- TRUE
+        # if (!is.candidate):
         total.factors.added    <- total.factors.added + 1
         curr.rnd.factors.added <- curr.rnd.factors.added + 1
       }
@@ -156,7 +170,7 @@ flash.workhorse <- function(Y,
           kset <- sample(kset)
         for (k in kset) {
           old.f <- flash
-          flash <- update.kth.factor(flash, k, iter, verbose.lvl)
+          flash <- update.existing.factor(flash, k, iter, verbose.lvl)
           info  <- calc.update.info(old.f, flash, conv.crit.fn, verbose.fns)
           max.conv.crit <- max(max.conv.crit, get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info, k)
@@ -179,7 +193,7 @@ flash.workhorse <- function(Y,
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
       for (k in nullchk.kset)
-        flash <- nullchk.kth.factor(flash, k, verbose.lvl)
+        flash <- nullcheck.factor(flash, k, verbose.lvl)
       if (nullchk.failed(flash)) {
         something.changed <- TRUE
       } else if (length(nullchk.kset) > 0) {
