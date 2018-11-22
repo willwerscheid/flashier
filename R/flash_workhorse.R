@@ -2,29 +2,36 @@
 #   update.kth.factor needs to be called from within the main loop.
 # TODO: use.R can probably be removed; using it almost never seems to improve
 #   performance!
+# TODO: think more about how to set default tols.
+#   Maybe sqrt(machine.eps) * n * p??
 
 flash.workhorse <- function(Y,
                             nonmissing = NULL,
-                            EF.init = NULL,
-                            flash.init = NULL,
                             given.tau = NULL,
                             given.tau.dim = NULL,
+                            flash.init = NULL,
                             est.tau.dim = 0,
                             dim.signs = NULL,
-                            fix.dim = NULL,
-                            fix.idx = NULL,
-                            fix.vals = NULL,
-                            use.fixed.to.est.g = FALSE,
-                            greedy.Kmax = 100,
+                            candidate.factors = NULL,
+                            ebnm.fn = flashr:::ebnm_pn,
+                            ebnm.param = list(),
                             when.to.backfit = NULL,
                             do.final.backfit = FALSE,
                             backfit.order = c("sequential", "random"),
                             when.to.nullcheck = NULL,
                             do.final.nullchk = TRUE,
-                            nullchk.fixed.factors = FALSE,
-                            ebnm.fn = flashr:::ebnm_pn,
-                            ebnm.param = list(),
+                            greedy.Kmax = 100,
                             conv.crit.fn = calc.obj.diff,
+                            verbose.lvl = 1,
+                            verbose.fns = NULL,
+                            verbose.colnames = NULL,
+                            verbose.colwidths = NULL,
+                            EF.init = NULL,
+                            fix.dim = NULL,
+                            fix.idx = NULL,
+                            fix.vals = NULL,
+                            use.fixed.to.est.g = FALSE,
+                            nullchk.fixed.factors = FALSE,
                             init.fn = NULL,
                             init.maxiter = 100,
                             init.tol = 1e-2,
@@ -34,10 +41,6 @@ flash.workhorse <- function(Y,
                             backfit.tol = greedy.tol,
                             final.backfit.maxiter = backfit.maxiter,
                             final.backfit.tol = backfit.tol,
-                            verbose.lvl = 1,
-                            verbose.fns = NULL,
-                            verbose.colnames = NULL,
-                            verbose.colwidths = NULL,
                             seed = 666,
                             use.R = TRUE) {
   set.seed(seed)
@@ -47,24 +50,24 @@ flash.workhorse <- function(Y,
   if (is.null(flash.init)) {
     flash <- init.new.flash(Y = Y,
                             nonmissing = nonmissing,
-                            EF.init = EF.init,
                             given.tau = given.tau,
                             given.tau.dim = given.tau.dim,
+                            EF.init = EF.init,
                             est.tau.dim = est.tau.dim,
                             dim.signs = dim.signs,
+                            ebnm.fn = ebnm.fn,
+                            ebnm.param = ebnm.param,
                             fix.dim = fix.dim,
                             fix.idx = fix.idx,
                             fix.vals = fix.vals,
                             use.fixed.to.est.g = use.fixed.to.est.g,
-                            ebnm.fn = ebnm.fn,
-                            ebnm.param = ebnm.param,
                             use.R = use.R)
   } else {
     # TODO change non-missing arguments in flash.init while arg checking
     flash <- flash.init
   }
 
-  total.factors.added <- 0
+  total.factors.added <- get.n.factors(flash)
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
 
   # At least one round of backfitting and nullchecking should be performed

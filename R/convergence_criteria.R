@@ -1,3 +1,5 @@
+# TODO: more functions for verbose output: sparsity, max chg for single dim
+
 calc.update.info <- function(new, old, conv.crit.fn, verbose.fns) {
   if (length(verbose.fns) == 0) {
     all.fns <- list(conv.crit.fn)
