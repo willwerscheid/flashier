@@ -1,14 +1,16 @@
 flashier <- function(data,
+                     S = NULL,
                      flash.init = NULL,
                      var.type = 0,
                      prior.type = "point.normal",
                      greedy.Kmax = 50,
                      fit.strategy = c("greedy.only",
                                       "backfit.final",
-                                      "alternating"),
+                                      "alternating",
+                                      "only.backfit"),
                      verbose.lvl = 1,
                      ...) {
-  data <- set.flash.data(data)
+  data <- set.flash.data(data, S)
 
   must.be.flash.object(flash.init)
   must.be.valid.integer(var.type, lower = 0, upper = get.dim(data))
@@ -31,8 +33,14 @@ flashier <- function(data,
   if (is.null(ellipsis.params$do.final.backfit)
       && is.null(ellipsis.params$backfit.after)
       && is.null(ellipsis.params$backfit.every)) {
+    fit.strategy <- match.arg(fit.strategy)
+    if (fit.strategy == "only.backfit") {
+      if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
+        stop("Cannot set fit.strategy to only.backfit and greedy.Kmax > 0")
+      greedy.Kmax <- 0
+    }
     workhorse.params <- c(workhorse.params,
-                          control.params(match.arg(fit.strategy)))
+                          control.params(fit.strategy))
   } else if (!missing(fit.strategy)) {
     stop(paste("If fit.strategy is specified, then do.final.backfit,",
                "backfit.after, and backfit.every cannot be."))
@@ -58,8 +66,8 @@ flashier <- function(data,
                                          est.tau.dim = var.type,
                                          greedy.Kmax = greedy.Kmax,
                                          verbose.lvl = verbose.lvl),
-                                    ellipsis.params,
-                                    workhorse.params)))
+                                    workhorse.params,
+                                    ellipsis.params)))
 }
 
 prior.params <- function(prior.type, data.dim) {
@@ -130,7 +138,7 @@ prior.type.to.ebnm.param <- function(prior.type) {
 
 control.params <- function(fit.strategy) {
   control <- list()
-  if (fit.strategy == "backfit.final") {
+  if (fit.strategy %in% c("backfit.final", "only.backfit")) {
     control$do.final.backfit <- TRUE
   } else if (fit.strategy == "alternating") {
     control$backfit.after <- 2
