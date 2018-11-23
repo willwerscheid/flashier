@@ -28,6 +28,10 @@ calc.obj.diff <- function(new, old) {
   return(get.obj(new) - get.obj(old))
 }
 
+calc.max.chg.EF <- function(new, old) {
+  return(calc.max.chg(get.EF(new), get.EF(old)))
+}
+
 calc.max.chg <- function(new, old) {
   if (is.list(new)) {
     new <- lapply(new, l2.normalize)

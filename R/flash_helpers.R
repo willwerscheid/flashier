@@ -45,10 +45,8 @@ get.EF2.k <- function(f, k) {
 }
 get.dim.signs <- function(f, k = NULL) {
   if (is.null(k))
-    return(f[["dim.signs"]])
-  if (length(f[["dim.signs"]]) < k)
-    return(NULL)
-  return(f[["dim.signs"]][[k]])
+    return(unlist(f[["dim.signs"]]))
+  return(unlist(f[["dim.signs"]][[min(k, length(f[["dim.signs"]]))]]))
 }
 get.fix.dim <- function(f, k = NULL) {
   if (is.null(k))
@@ -74,16 +72,12 @@ get.fix.vals <- function(f, k = NULL) {
 get.ebnm.fn.k <- function(f, k) {
   if (!is.list(f[["ebnm.fn"]]))
     return(f[["ebnm.fn"]])
-  if (length(f[["ebnm.fn"]]) < k)
-    return(f[["ebnm.fn"]][[k]])
-  return(f[["ebnm.fn"]][[length(f[["ebnm.fn"]])]])
+  return(f[["ebnm.fn"]][[min(k, length(f[["ebnm.fn"]]))]])
 }
 get.ebnm.param.k <- function(f, k) {
-  if (length(f[["ebnm.param"]]) == 0 || !is.null(names(f[["ebnm.param"]])))
-    return(f[["ebnm.param"]])
-  if (length(f[["ebnm.param"]]) < k)
-    return(f[["ebnm.param"]][[k]])
-  return(f[["ebnm.param"]][[length(f[["ebnm.param"]])]])
+  if (!is.list(f[["ebnm.param"]]))
+    return(NULL)
+  return(f[["ebnm.param"]][[min(k, length(f[["ebnm.param"]]))]])
 }
 get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
 is.zero <- function(f, k = NULL) {
@@ -181,7 +175,7 @@ get.n.fixed <- function(f) {
 }
 which.k.fixed <- function(f) {
   fix.dim <- get.fix.dim(f)
-  if (is.null(fix.cim))
+  if (is.null(fix.dim))
     return(NULL)
   not.fixed <- sapply(fix.dim, is.null)
   return(which(!not.fixed))

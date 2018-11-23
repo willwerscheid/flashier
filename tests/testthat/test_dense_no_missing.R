@@ -13,9 +13,7 @@ LF2 <- 5 * outer(LL, FF)
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(n * p)
 
-f <- init.flash(M)
-f <- add.next.factor(f)
-f <- add.next.factor(f)
+f <- flashier(M, greedy.Kmax = 2)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(get.n.factors(f), 2)
@@ -25,12 +23,12 @@ test_that("matrix factor initialization is correct (using R)", {
 old.obj <- f$obj
 
 test_that("the greedy objective approximately agrees with flashr (using R)", {
-  flashr.greedy.res <- flashr::flash(M, var_type = "constant", Kmax = 2,
-                                     nullcheck = FALSE)
+  flashr.greedy.res <- flashr::flash(M, var_type = "constant", Kmax = 2)
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- backfit.once(f, 1:2)
+f.b <- flashier(M, flash.init = f, greedy.Kmax = 0, fit.strategy = "backfit",
+                backfit.maxiter = 1)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using R)", {
   expect_true(f.b$obj > old.obj)
@@ -44,21 +42,15 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- backfit(f, 1:2)
+f.b <- flashier(M, flash.init = f, greedy.Kmax = 0, fit.strategy = "backfit")
 
 test_that ("the final backfit objective approximately agrees with flashr (using R)", {
-  flashr.res <- flashr::flash(M, f_init = to.flashr(f), var_type = "constant",
-                              greedy = FALSE, backfit = TRUE, nullcheck = FALSE)
-  flashr.res <- flashr:::flash_update_precision(flash_set_data(M),
-                                                flashr.res$fit,
-                                                var_type = "constant")
+  flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2, backfit = TRUE)
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
-               f.b$obj, tol = 0.01, scale = 1)
+               f.b$obj, tol = 0.1, scale = 1)
 })
 
-f <- init.flash(M, use.R = FALSE)
-f <- add.next.factor(f)
-f <- add.next.factor(f)
+f <- flashier(M, greedy.Kmax = 2, use.R = FALSE)
 
 test_that("matrix factor initialization is correct (using Y)", {
   expect_equal(get.n.factors(f), 2)
@@ -73,7 +65,8 @@ test_that("the greedy objective approximately agrees with flashr (using Y)", {
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- backfit.once(f, 1:2)
+f.b <- flashier(M, flash.init = f, greedy.Kmax = 0, fit.strategy = "backfit",
+                backfit.maxiter = 1)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using Y)", {
   expect_true(f.b$obj > old.obj)
@@ -87,7 +80,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- backfit(f, 1:2)
+f.b <- flashier(M, flash.init = f, greedy.Kmax = 0, fit.strategy = "backfit")
 
 test_that ("the final backfit objective approximately agrees with flashr (using Y)", {
   flashr.res <- flashr::flash(M, f_init = to.flashr(f), var_type = "constant",
@@ -99,11 +92,9 @@ test_that ("the final backfit objective approximately agrees with flashr (using 
                f.b$obj, tol = 0.01, scale = 1)
 })
 
-f <- init.flash(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
-                fix.vals = list(rep(1, n), LL[1:5]))
-f <- add.next.factor(f)
-f <- add.next.factor(f)
-f.b <- backfit(f, 1:2)
+f <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
+              fix.vals = list(rep(1, n), LL[1:5]),
+              greedy.Kmax = 0, fit.strategy = "backfit")
 
 test_that("the objective after adding fixed factors approximately agrees with flashr", {
   flashr.res <- flashr:::flash_backfit_workhorse(M, kset = 1:2,
@@ -115,7 +106,7 @@ test_that("the objective after adding fixed factors approximately agrees with fl
                                                 flashr.res$fit,
                                                 var_type = "constant")
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
-               f.b$obj, tol = 0.1, scale = 1)
+               f$obj, tol = 0.1, scale = 1)
 
   fixed_loadings <- matrix(1, nrow = n, ncol = 2)
   fixed_loadings[1:5, 2] <- LL[1:5]
@@ -127,33 +118,23 @@ test_that("the objective after adding fixed factors approximately agrees with fl
                                                  fixl = fixl,
                                                  var_type = "constant")
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
-               f.b$obj, tol = 0.1, scale = 1)
+               f$obj, tol = 0.1, scale = 1)
 })
 
-f2 <- init.flash(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
-                fix.vals = list(rep(1, n), LL[1:5]),
-                use.fixed.to.est.g = TRUE)
-f2 <- add.next.factor(f2)
-f2 <- add.next.factor(f2)
-f2.b <- backfit(f2, 1:2)
+f2 <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
+               fix.vals = list(rep(1, n), LL[1:5]),
+               greedy.Kmax = 0, fit.strategy = "backfit",
+               use.fixed.to.est.g = TRUE)
 
 test_that("results are different if fixed elements are included in priors", {
-  expect_false(f.b$obj == f2.b$obj)
+  expect_false(f$obj == f2$obj)
 })
 
-f <- init.flash(M, fix.dim = list(1, 1, 1), fix.idx = list(1:n, 1:5, 1:n),
-                fix.vals = list(rep(1, n), LL[1:5], 1:n))
-f <- add.next.factor(f)
-f <- add.next.factor(f)
-f <- add.next.factor(f)
-f.b <- backfit(f, 1:3)
+f <- flashier(M, fix.dim = list(1, 1, 1), fix.idx = list(1:n, 1:5, 1:n),
+              fix.vals = list(rep(1, n), LL[1:5], 1:n),
+              greedy.Kmax = 0, fit.strategy = "backfit",
+              nullchk.fixed = TRUE)
 
 test_that("nullcheck works as expected", {
-  f.n1 <- nullcheck.factor(f.b, 1, 0)
-  expect_identical(f.b, f.n1)
-  f.n2 <- nullcheck.factor(f.b, 2, 0)
-  expect_identical(f.b, f.n2)
-  f.n3 <- nullcheck.factor(f.b, 3, 0)
-  expect_false(identical(f.n3, f.b))
-  expect_true(f.n3$is.zero[3])
+  expect_equal(is.zero(f), c(FALSE, FALSE, TRUE))
 })

@@ -1,17 +1,17 @@
-init.flash <- function(Y,
-                       nonmissing = NULL,
-                       EF.init = NULL,
-                       given.tau = NULL,
-                       given.tau.dim = NULL,
-                       est.tau.dim = 0,
-                       dim.signs = NULL,
-                       fix.dim = NULL,
-                       fix.idx = NULL,
-                       fix.vals = NULL,
-                       use.fixed.to.est.g = FALSE,
-                       ebnm.fn = flashr:::ebnm_pn,
-                       ebnm.param = list(),
-                       use.R = TRUE) {
+init.new.flash <- function(Y,
+                           nonmissing = NULL,
+                           EF.init = NULL,
+                           given.tau = NULL,
+                           given.tau.dim = NULL,
+                           est.tau.dim = 0,
+                           dim.signs = NULL,
+                           fix.dim = NULL,
+                           fix.idx = NULL,
+                           fix.vals = NULL,
+                           use.fixed.to.est.g = FALSE,
+                           ebnm.fn = ebnm.pn,
+                           ebnm.param = list(list(prior_type = "point_normal")),
+                           use.R = TRUE) {
   flash <- list()
 
   if (use.R) {

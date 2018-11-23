@@ -4,6 +4,7 @@
 #   performance!
 # TODO: think more about how to set default tols.
 #   Maybe sqrt(machine.eps) * n * p??
+# TODO: warmstarts!
 
 flash.workhorse <- function(Y,
                             nonmissing = NULL,
@@ -15,12 +16,15 @@ flash.workhorse <- function(Y,
                             candidate.factors = NULL,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
-                            when.to.backfit = NULL,
+                            use.warmstarts = TRUE,
+                            greedy.Kmax = 100,
+                            backfit.after = NULL,
+                            backfit.every = NULL,
                             do.final.backfit = FALSE,
                             backfit.order = c("sequential", "random"),
-                            when.to.nullcheck = NULL,
+                            nullchk.after = NULL,
+                            nullchk.every = NULL,
                             do.final.nullchk = TRUE,
-                            greedy.Kmax = 100,
                             conv.crit.fn = calc.obj.diff,
                             verbose.lvl = 1,
                             verbose.fns = NULL,
@@ -45,6 +49,8 @@ flash.workhorse <- function(Y,
                             use.R = TRUE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
+  when.to.backfit <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
+  when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
 
   announce.flash.init(verbose.lvl)
   if (is.null(flash.init)) {
@@ -143,6 +149,7 @@ flash.workhorse <- function(Y,
       report.add.factor.result(verbose.lvl, failure = greedy.complete)
     }
 
+    # if !is.null(candidate.factors) FALSE, FALSE
     if (greedy.complete) {
       do.backfit <- do.final.backfit && (curr.rnd.factors.added > 0)
       do.nullchk <- do.final.nullchk && (curr.rnd.factors.added > 0)
@@ -151,7 +158,7 @@ flash.workhorse <- function(Y,
       curr.rnd.factors.added <- 0
     } else {
       do.backfit <- total.factors.added %in% when.to.backfit
-      do.nullchk <- total.factors.added %in% when.to.nullcheck
+      do.nullchk <- total.factors.added %in% when.to.nullchk
       maxiter    <- backfit.maxiter
       tol        <- backfit.tol
     }
@@ -174,7 +181,7 @@ flash.workhorse <- function(Y,
         for (k in kset) {
           old.f <- flash
           flash <- update.existing.factor(flash, k, iter, verbose.lvl)
-          info  <- calc.update.info(old.f, flash, conv.crit.fn, verbose.fns)
+          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns)
           max.conv.crit <- max(max.conv.crit, get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info, k)
         }
@@ -206,16 +213,14 @@ flash.workhorse <- function(Y,
   }
 
   announce.wrapup(verbose.lvl)
-  # remove R and then return results; TODO: write sampler
+  # TODO: remove R and then return results; TODO: write sampler
 
   report.completion(verbose.lvl)
 
+  class(flash) = "flash"
+
   return(flash)
 }
-
-# TODO - put this in parameter handling
-# when.to.backfit   <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
-# when.to.nullcheck <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
 
 as.Kset <- function(after, every, maxiter) {
   if (is.null(every))
