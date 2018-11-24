@@ -26,6 +26,7 @@ flashier <- function(data,
     workhorse.params <- c(workhorse.params,
                           prior.params(prior.type, get.dim(data)))
   } else if (!missing(prior.type)) {
+    # TODO instead, use modifyList
     stop(paste("If prior.type is specified, then dim.signs, ebmn.fn, and",
                "ebnm.param cannot be."))
   }
@@ -108,7 +109,7 @@ prior.type.to.dim.sign <- function(prior.type) {
   return(switch(prior.type,
                 nonnegative = 1,
                 nonpositive = -1,
-                NULL))
+                0))
 }
 
 prior.type.to.ebnm.fn <- function(prior.type) {

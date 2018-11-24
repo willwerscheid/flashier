@@ -37,26 +37,33 @@ which.max.chg.EF <- function(new, old, n = NULL) {
 }
 
 calc.max.chg <- function(new, old) {
-  new <- l2.normalize.list(new)
-  old <- l2.normalize.list(old)
-  return(max(abs(unlist(new) - unlist(old))))
+  new <- l2.normalize.and.stack(new)
+  old <- l2.normalize.and.stack(old)
+  return(max(abs(new - old)))
 }
 
 which.max.chg <- function(new, old) {
-  new <- l2.normalize.list(new)
-  old <- l2.normalize.list(old)
-  return(which.max(abs(unlist(new) - unlist(old))))
+  new <- l2.normalize.and.stack(new)
+  old <- l2.normalize.and.stack(old)
+  return(which.max(apply(abs(unlist(new) - unlist(old)), 1, max)))
 }
 
-l2.normalize.list <- function(x) {
-  if (is.list(x))
-    return(lapply(x, l2.normalize))
+l2.normalize.and.stack <- function(x) {
+  if (is.list(x)) {
+    norm.x <- lapply(x, l2.normalize)
+    return(do.call(rbind, norm.x))
+  }
   return(l2.normalize(x))
 }
 
 l2.normalize <- function(x) {
-  norm <- sum(x^2)
-  if (norm == 0)
-    return(x)
-  return(x / sum(x^2))
+  if (is.matrix(x)) {
+    norm <- sqrt(colSums(x^2))
+  } else {
+    norm <- sqrt(sum(x^2))
+  }
+  norm[norm == 0] <- 1
+  if (is.matrix(x))
+    return(x / matrix(norm, nrow = nrow(x), ncol = ncol(x), byrow = TRUE))
+  return(matrix(x / norm, ncol = 1))
 }
