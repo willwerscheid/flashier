@@ -1,10 +1,7 @@
 # Since updating a factor also updates the matrix of residuals,
 #   update.kth.factor needs to be called from within the main loop.
-# TODO: use.R can probably be removed; using it almost never seems to improve
-#   performance!
 # TODO: think more about how to set default tols.
 #   Maybe sqrt(machine.eps) * n * p??
-# TODO: warmstarts!
 
 flash.workhorse <- function(Y,
                             nonmissing = NULL,
@@ -16,12 +13,12 @@ flash.workhorse <- function(Y,
                             candidate.factors = NULL,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
-                            use.warmstarts = TRUE,
                             greedy.Kmax = 100,
                             backfit.after = NULL,
                             backfit.every = NULL,
                             do.final.backfit = FALSE,
                             backfit.order = c("sequential", "random"),
+                            warmstart.backfits = TRUE,
                             nullchk.after = NULL,
                             nullchk.every = NULL,
                             do.final.nullchk = TRUE,
@@ -46,11 +43,16 @@ flash.workhorse <- function(Y,
                             final.backfit.maxiter = backfit.maxiter,
                             final.backfit.tol = backfit.tol,
                             seed = 666,
-                            use.R = TRUE) {
+                            use.R = FALSE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
   when.to.backfit <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
+  if (force.use.R(given.tau)) {
+    if (!missing(use.R))
+      stop("R must be used if S is a matrix")
+    use.R <- TRUE
+  }
 
   announce.flash.init(verbose.lvl)
   if (is.null(flash.init)) {
@@ -63,6 +65,7 @@ flash.workhorse <- function(Y,
                             dim.signs = dim.signs,
                             ebnm.fn = ebnm.fn,
                             ebnm.param = ebnm.param,
+                            warmstart.backfits = warmstart.backfits,
                             fix.dim = fix.dim,
                             fix.idx = fix.idx,
                             fix.vals = fix.vals,
@@ -117,7 +120,7 @@ flash.workhorse <- function(Y,
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info)
         }
 
-        # if "same signs" factor, do a "delayed add"; that is, save the
+        # TODO if "same signs" factor, do a "delayed add"; that is, save the
         #   factor in some candidate.factor variable (which can actually
         #   be a list of multiple factors), set something.changed
         #   to TRUE, and compare all factors when we get to the last one

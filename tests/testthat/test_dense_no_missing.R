@@ -13,7 +13,7 @@ LF2 <- 5 * outer(LL, FF)
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(n * p)
 
-f <- flashier(M, greedy.Kmax = 2)
+f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(get.n.factors(f), 2)

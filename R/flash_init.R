@@ -1,3 +1,5 @@
+# TODO: remove defaults once tests have been removed
+#
 init.new.flash <- function(Y,
                            nonmissing = NULL,
                            EF.init = NULL,
@@ -11,6 +13,7 @@ init.new.flash <- function(Y,
                            use.fixed.to.est.g = FALSE,
                            ebnm.fn = ebnm.pn,
                            ebnm.param = list(list(prior_type = "point_normal")),
+                           warmstart.backfits = TRUE,
                            use.R = TRUE) {
   flash <- list()
 
@@ -42,6 +45,7 @@ init.new.flash <- function(Y,
   flash$use.fixed.to.est.g <- use.fixed.to.est.g
   flash$ebnm.fn            <- ebnm.fn
   flash$ebnm.param         <- ebnm.param
+  flash$warmstart.backfits <- warmstart.backfits
 
   if (is.tau.lowrank(flash)) {
     flash$n.nonmissing <- init.n.nonmissing(flash)
@@ -58,6 +62,9 @@ init.new.flash <- function(Y,
   return(flash)
 }
 
+force.use.R <- function(given.tau) {
+  !(is.null(given.tau) || is.vector(given.tau))
+}
 
 init.n.nonmissing <- function(flash) {
   Z     <- get.nonmissing(flash)

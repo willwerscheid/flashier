@@ -9,10 +9,10 @@ update.residuals <- function(flash, factor) {
   return(flash)
 }
 
-calc.residuals <- function(flash, factor) {
+calc.residuals <- function(flash, factor = NULL) {
   old.R <- get.R(flash)
 
-  if (!is.new(factor)) {
+  if (!is.null(factor) && !is.new(factor)) {
     new.EF       <- as.lowrank(get.EF(factor))
     old.EF       <- as.lowrank(get.EF.k(flash, get.k(factor)))
     EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)

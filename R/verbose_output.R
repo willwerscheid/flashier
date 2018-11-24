@@ -102,9 +102,12 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k = NULL) {
       table.entry <- paste0(table.entry, sprintf("%8d", k))
     for (col in 1:length(colwidths)) {
       width.string <- paste0("%", as.character(colwidths[col]), "s")
-      table.entry <- paste0(table.entry,
-                            sprintf(width.string,
-                                    formatC(info[col], format="e", digits=2)))
+      if (is.finite(info[col]) && round(info[col]) == info[col]) {
+        format.info <- formatC(info[col], format="d")
+      } else {
+        format.info <- formatC(info[col], format="e", digits=2)
+      }
+      table.entry <- paste0(table.entry, sprintf(width.string, format.info))
     }
     message(table.entry)
   } else if (verbose.lvl == -1) {

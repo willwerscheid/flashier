@@ -1,12 +1,27 @@
-# TODO: write a custom init.fn as an example (e.g. wrapper to NNMF)
-init.factor <- function(flash, init.fn, tol, maxiter, verbose) {
+# A custom initialization function may also be used. It should take
+#   arguments flash, tol, and maxiter and output a list of vectors (which
+#   will be interpreted as an "r1" object). For example, a wrapper to
+#   function nnmf in package NNLM can be written as follows:
+#
+# nnmf.init.fn <- function(flash, tol, maxiter) {
+#   res <- NNLM::nnmf(flash$Y,
+#                     init = list(W0 = flash$EF[[1]],
+#                                 H0 = t(flash$EF[[2]])),
+#                     rel.tol = tol,
+#                     max.iter = maxiter,
+#                     verbose = FALSE)
+#   return(list(as.vector(res$W), as.vector(res$H)))
+# }
+
+init.factor <- function(flash, init.fn, tol, maxiter) {
   factor          <- list()
   factor$is.fixed <- is.next.fixed(flash)
 
   if (is.null(init.fn)) {
     factor$EF <- init.next.EF(flash, tol, maxiter)
   } else {
-    factor$EF <- do.call(init.fn, flash)
+    factor$EF <- do.call(init.fn, list(flash, tol, maxiter))
+    class(factor$EF) <- "r1"
   }
 
   factor$EF2      <- r1.square(factor$EF)
@@ -71,7 +86,10 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
     max.chg <- calc.max.chg(EF, old.EF)
   }
 
-  # TODO: maybe scale EF so values aren't too different one dim from another
+  # Scale EF so values aren't too different one dimension from another:
+  if (is.null(fix.dim))
+    EF <- scale.EF(EF)
+
   return(EF)
 }
 
@@ -122,5 +140,13 @@ update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
     EF[[n]] <- new.vals
   }
 
+  return(EF)
+}
+
+scale.EF <- function(EF) {
+  norms <- lapply(EF, function(x) {sqrt(sum(x^2))})
+  EF <- mapply(`/`, EF, norms)
+  EF <- lapply(EF, `*`, prod(unlist(norms))^(1/length(EF)))
+  class(EF) <- "r1"
   return(EF)
 }

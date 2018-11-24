@@ -13,9 +13,9 @@ get.log.2pi.s2     <- function(f) f[["log.2pi.s2"]]
 get.est.tau        <- function(f) f[["est.tau"]]
 get.tau            <- function(f) f[["tau"]]
 get.obj            <- function(f) f[["obj"]]
-get.g              <- function(f) f[["g"]]
 get.KL             <- function(f) f[["KL"]]
 get.delta.R2       <- function(f) f[["delta.R2"]]
+warmstart.backfits <- function(f) f[["warmstart.backfits"]]
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
@@ -78,6 +78,16 @@ get.ebnm.param.k <- function(f, k) {
   if (!is.list(f[["ebnm.param"]]))
     return(NULL)
   return(f[["ebnm.param"]][[min(k, length(f[["ebnm.param"]]))]])
+}
+get.g <- function(f, n = NULL) {
+  if (is.null(n))
+    return(f[["g"]])
+  if (is.null(f[["g"]]) || length(f[["g"]]) < n)
+    return(NULL)
+  return(f[["g"]][[n]])
+}
+get.g.k <- function(f, k) {
+  return(f[["g"]][[k]])
 }
 get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
 is.zero <- function(f, k = NULL) {
@@ -388,6 +398,8 @@ to.flashr <- function(f) {
   flash$EF2    <- f$EF2[[2]]
   flash$fixl   <- matrix(FALSE, nrow = nrow(flash$EL), ncol = ncol(flash$EL))
   flash$fixf   <- matrix(FALSE, nrow = nrow(flash$EF), ncol = ncol(flash$EF))
+  flash$gl     <- lapply(f$g, function(k) k[[1]])
+  flash$gf     <- lapply(f$g, function(k) k[[2]])
   flash$KL_l   <- as.list(f$KL[[1]])
   flash$KL_f   <- as.list(f$KL[[2]])
   flash$tau    <- f$tau

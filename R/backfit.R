@@ -21,6 +21,7 @@ extract.factor <- function(flash, k) {
   factor$EF      <- get.EF.k(flash, k)
   factor$EF2     <- get.EF2.k(flash, k)
   factor$KL      <- get.KL.k(flash, k)
+  factor$g       <- get.g.k(flash, k)
   factor$obj     <- get.obj(flash)
   factor$is.zero <- is.zero(flash, k)
 

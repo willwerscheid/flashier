@@ -28,19 +28,30 @@ calc.obj.diff <- function(new, old) {
   return(get.obj(new) - get.obj(old))
 }
 
-calc.max.chg.EF <- function(new, old) {
-  return(calc.max.chg(get.EF(new), get.EF(old)))
+calc.max.chg.EF <- function(new, old, n = NULL) {
+  return(calc.max.chg(get.EF(new, n), get.EF(old, n)))
+}
+
+which.max.chg.EF <- function(new, old, n = NULL) {
+  return(which.max.chg(get.EF(new, n), get.EF(old, n)))
 }
 
 calc.max.chg <- function(new, old) {
-  if (is.list(new)) {
-    new <- lapply(new, l2.normalize)
-    old <- lapply(old, l2.normalize)
-  } else {
-    new <- l2.normalize(new)
-    old <- l2.normalize(old)
-  }
+  new <- l2.normalize.list(new)
+  old <- l2.normalize.list(old)
   return(max(abs(unlist(new) - unlist(old))))
+}
+
+which.max.chg <- function(new, old) {
+  new <- l2.normalize.list(new)
+  old <- l2.normalize.list(old)
+  return(which.max(abs(unlist(new) - unlist(old))))
+}
+
+l2.normalize.list <- function(x) {
+  if (is.list(x))
+    return(lapply(x, l2.normalize))
+  return(l2.normalize(x))
 }
 
 l2.normalize <- function(x) {

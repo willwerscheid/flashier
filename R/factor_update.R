@@ -48,9 +48,14 @@ solve.ebnm <- function(factor, n, flash) {
   if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
+  ebnm.fn     <- get.ebnm.fn(flash, factor, n)
   ebnm.args   <- calc.ebnm.args(factor, n, flash)
-  ebnm.res    <- do.call(get.ebnm.fn(flash, factor, n),
-                         c(ebnm.args, list(get.ebnm.param(flash, factor, n))))
+  ebnm.param  <- get.ebnm.param(flash, factor, n)
+  if (!is.new(factor)
+      && warmstart.backfits(flash)
+      && !is.null(get.g(factor, n)))
+    ebnm.param <- c(ebnm.param, list(g = get.g(factor, n)))
+  ebnm.res    <- do.call(ebnm.fn, c(ebnm.args, list(ebnm.param)))
   ebnm.res$KL <- (ebnm.res$penloglik
                   - normal.means.loglik(ebnm.args$x, ebnm.args$s,
                                         ebnm.res$postmean, ebnm.res$postmean2))

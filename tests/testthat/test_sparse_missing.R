@@ -15,7 +15,7 @@ M <- LF + 0.1 * rnorm(n * p)
 missing <- sample(1:length(M), floor(0.6 * length(M)))
 M[missing] <- NA
 
-f <- flashier(M, greedy.Kmax = 2)
+f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(get.n.factors(f), 2)
