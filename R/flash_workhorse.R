@@ -9,7 +9,7 @@ flash.workhorse <- function(Y,
                             given.tau.dim = NULL,
                             flash.init = NULL,
                             est.tau.dim = 0,
-                            dim.signs = NULL,
+                            prior.sign = NULL,
                             candidate.factors = NULL,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
@@ -62,7 +62,7 @@ flash.workhorse <- function(Y,
                             given.tau.dim = given.tau.dim,
                             EF.init = EF.init,
                             est.tau.dim = est.tau.dim,
-                            dim.signs = dim.signs,
+                            dim.signs = prior.sign,
                             ebnm.fn = ebnm.fn,
                             ebnm.param = ebnm.param,
                             warmstart.backfits = warmstart.backfits,
@@ -216,7 +216,8 @@ flash.workhorse <- function(Y,
   }
 
   announce.wrapup(verbose.lvl)
-  # TODO: remove R and then return results; TODO: write sampler
+  # TODO: remove R and then return results; propagate names here;
+  #   include sampler
 
   report.completion(verbose.lvl)
 

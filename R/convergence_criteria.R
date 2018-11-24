@@ -1,4 +1,4 @@
-# TODO: more functions for verbose output: sparsity, max chg for single dim
+# TODO: more functions for verbose output: sparsity
 
 calc.update.info <- function(new, old, conv.crit.fn, verbose.fns) {
   if (length(verbose.fns) == 0) {
