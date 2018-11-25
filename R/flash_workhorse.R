@@ -3,25 +3,22 @@
 # TODO: think more about how to set default tols.
 #   Maybe sqrt(machine.eps) * n * p??
 
-flash.workhorse <- function(Y,
-                            nonmissing = NULL,
-                            given.tau = NULL,
-                            given.tau.dim = NULL,
+flash.workhorse <- function(data,
                             flash.init = NULL,
-                            est.tau.dim = 0,
+                            var.type = 0,
                             prior.sign = NULL,
-                            candidate.factors = NULL,
+                            #candidate.factors = NULL,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
                             greedy.Kmax = 100,
-                            backfit.after = NULL,
-                            backfit.every = NULL,
-                            do.final.backfit = FALSE,
                             backfit.order = c("sequential", "random"),
                             warmstart.backfits = TRUE,
+                            backfit.after = NULL,
+                            backfit.every = NULL,
+                            final.backfit = FALSE,
                             nullchk.after = NULL,
                             nullchk.every = NULL,
-                            do.final.nullchk = TRUE,
+                            final.nullchk = TRUE,
                             conv.crit.fn = calc.obj.diff,
                             verbose.lvl = 1,
                             verbose.fns = NULL,
@@ -48,33 +45,26 @@ flash.workhorse <- function(Y,
   backfit.order <- match.arg(backfit.order)
   when.to.backfit <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
-  if (force.use.R(given.tau)) {
+  if (force.use.R(data)) {
     if (!missing(use.R))
       stop("R must be used if S is a matrix")
     use.R <- TRUE
   }
 
   announce.flash.init(verbose.lvl)
-  if (is.null(flash.init)) {
-    flash <- init.new.flash(Y = Y,
-                            nonmissing = nonmissing,
-                            given.tau = given.tau,
-                            given.tau.dim = given.tau.dim,
-                            EF.init = EF.init,
-                            est.tau.dim = est.tau.dim,
-                            dim.signs = prior.sign,
-                            ebnm.fn = ebnm.fn,
-                            ebnm.param = ebnm.param,
-                            warmstart.backfits = warmstart.backfits,
-                            fix.dim = fix.dim,
-                            fix.idx = fix.idx,
-                            fix.vals = fix.vals,
-                            use.fixed.to.est.g = use.fixed.to.est.g,
-                            use.R = use.R)
-  } else {
-    # TODO change non-missing arguments in flash.init while arg checking
-    flash <- flash.init
-  }
+  flash <- init.flash(flash.init,
+                      data = data,
+                      EF.init = EF.init,
+                      est.tau.dim = var.type,
+                      dim.signs = prior.sign,
+                      ebnm.fn = ebnm.fn,
+                      ebnm.param = ebnm.param,
+                      warmstart.backfits = warmstart.backfits,
+                      fix.dim = fix.dim,
+                      fix.idx = fix.idx,
+                      fix.vals = fix.vals,
+                      use.fixed.to.est.g = use.fixed.to.est.g,
+                      use.R = use.R)
 
   total.factors.added <- get.n.factors(flash)
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
@@ -154,8 +144,8 @@ flash.workhorse <- function(Y,
 
     # if !is.null(candidate.factors) FALSE, FALSE
     if (greedy.complete) {
-      do.backfit <- do.final.backfit && (curr.rnd.factors.added > 0)
-      do.nullchk <- do.final.nullchk && (curr.rnd.factors.added > 0)
+      do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
+      do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
       maxiter    <- final.backfit.maxiter
       tol        <- final.backfit.tol
       curr.rnd.factors.added <- 0

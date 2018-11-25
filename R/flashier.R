@@ -8,49 +8,73 @@ flashier <- function(data,
                                  "final",
                                  "alternating",
                                  "only"),
+                     ebnm.param = NULL,
+                     ash.param = NULL,
                      verbose = 1,
                      ...) {
-  data <- set.flash.data(data, S)
+  if (!is(data, "flash.data")) {
+    data <- set.flash.data(data, S)
+  } else if (!missing(S)) {
+    warning("Data has already been set. Ignoring S.")
+  }
 
-  must.be.flash.object(flash.init)
-  must.be.valid.integer(var.type, lower = 0, upper = get.dim(data))
-  must.be.valid.integer(greedy.Kmax, lower = 0)
-  if (!is.character(verbose))
-    must.be.valid.integer(verbose, lower = -1, upper = 3)
-
-  workhorse.param <- list()
   ellipsis <- list(...)
 
+  # When available, use existing flash object settings as defaults.
+  must.be.flash.object(flash.init)
+  if (!is.null(flash.init)) {
+    if (missing(var.type))
+      var.type <- flash.init$est.tau.dim
+    if (missing(prior.type) && is.null(ellipsis$prior.sign))
+      ellipsis$prior.sign <- flash.init$dim.signs
+    if (missing(prior.type) && is.null(ellipsis$ebnm.fn))
+      ellipsis$ebnm.fn <- flash.init$ebnm.fn
+    if (missing(prior.type) && is.null(ellipsis$ebnm.param))
+      ellipsis$ebnm.param <- flash.init$ebnm.param
+  }
+
+  # Check inputs.
+  must.be.integer(var.type, lower = 0, upper = get.dim(data))
+  must.be.integer(greedy.Kmax, lower = 0)
+  must.be.named.list(ebnm.param)
+  must.be.named.list(ash.param)
+  if (!is.character(verbose))
+    must.be.integer(verbose, lower = -1, upper = 3)
+
+  workhorse.param <- list()
+
+  # Handle "prior type" parameter.
   if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
-    workhorse.param <- c(workhorse.param,
-                         prior.param(prior.type, get.dim(data), ellipsis))
-    ellipsis$ash.param  <- NULL
-    ellipsis$ebnm.param <- NULL
+    workhorse.param <- c(workhorse.param, prior.param(prior.type,
+                                                      get.dim(data),
+                                                      ebnm.param,
+                                                      ash.param))
   } else if (!missing(prior.type)) {
     stop(paste("If prior.type is specified, then prior.sign and ebnm.fn",
                "cannot be."))
   }
 
-  if (is.null(ellipsis$do.final.backfit)
+  # Handle "backfit" parameter.
+  if (is.null(ellipsis$final.backfit)
       && is.null(ellipsis$backfit.after)
       && is.null(ellipsis$backfit.every)) {
     backfit <- match.arg(backfit)
     if (backfit == "only") {
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
-        stop("Cannot set backfit to only with greedy.Kmax > 0")
+        stop("Cannot set backfit to only with greedy.Kmax > 0.")
       greedy.Kmax <- 0
     }
-    workhorse.param <- c(workhorse.param, control.params(backfit))
+    workhorse.param <- c(workhorse.param, control.param(backfit))
   } else if (!missing(backfit)) {
-    stop(paste("If backfit is specified, then do.final.backfit,",
+    stop(paste("If backfit is specified, then final.backfit,",
                "backfit.after, and backfit.every cannot be."))
   }
 
+  # Handle "verbose" parameter.
   if (is.null(ellipsis$verbose.fns)
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {
-    workhorse.param <- c(workhorse.param,
-                          verbose.params(verbose))
+    workhorse.param <- c(workhorse.param, verbose.param(verbose))
   } else if (is.null(ellipsis$verbose.fns)
              || is.null(ellipsis$verbose.colnames)
              || is.null(ellipsis$verbose.colwidths)) {
@@ -62,18 +86,15 @@ flashier <- function(data,
     verbose.lvl <- 3
   }
 
-  return(do.call(flash.workhorse, c(list(Y = get.Y(data),
-                                         nonmissing = get.nonmissing(data),
-                                         given.tau = get.given.tau(data),
-                                         given.tau.dim = get.given.tau.dim(data),
+  return(do.call(flash.workhorse, c(list(data,
                                          flash.init = flash.init,
-                                         est.tau.dim = var.type,
+                                         var.type = var.type,
                                          greedy.Kmax = greedy.Kmax),
                                     workhorse.param,
                                     ellipsis)))
 }
 
-prior.param <- function(prior.type, data.dim, addl.param) {
+prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
   if (!is.list(prior.type))
     prior.type <- list(prior.type)
 
@@ -91,7 +112,7 @@ prior.param <- function(prior.type, data.dim, addl.param) {
   prior.sign <- rapply(prior.type, prior.type.to.prior.sign, how = "list")
   ebnm.fn    <- rapply(prior.type, prior.type.to.ebnm.fn, how = "list")
   ebnm.param <- rapply(prior.type, prior.type.to.ebnm.param, how = "list",
-                       addl.param = addl.param)
+                       ebnm.param = ebnm.param, ash.param = ash.param)
 
   return(list(prior.sign = prior.sign,
               ebnm.fn = ebnm.fn,
@@ -123,58 +144,59 @@ prior.type.to.ebnm.fn <- function(prior.type) {
                 ebnm.ash))
 }
 
-prior.type.to.ebnm.param <- function(prior.type, addl.param) {
-  ebnm.param <- switch(prior.type,
-                       point.normal = list(prior_type = "point_normal"),
-                       point.laplace = list(prior_type = "point_laplace"),
-                       nonzero.mode = list(prior_type = "point_normal",
-                                           fix_mu = FALSE),
-                       normal.mixture = list(mixcompdist = "normal"),
-                       uniform.mixture = list(mixcompdist = "uniform"),
-                       nonnegative = list(mixcompdist = "+uniform"),
-                       nonpositive = list(mixcompdist = "-uniform"))
+prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
+  param <- switch(prior.type,
+                  point.normal = list(prior_type = "point_normal"),
+                  point.laplace = list(prior_type = "point_laplace"),
+                  nonzero.mode = list(prior_type = "point_normal",
+                                      fix_mu = FALSE),
+                  normal.mixture = list(mixcompdist = "normal"),
+                  uniform.mixture = list(mixcompdist = "uniform"),
+                  nonnegative = list(mixcompdist = "+uniform"),
+                  nonpositive = list(mixcompdist = "-uniform"))
 
-  if (!is.null(ebnm.param[["mixcompdist"]])) {
-    # Additional parameters for ashr:
-    ebnm.param <- c(ebnm.param, list(method = "shrink", output = "flash_data"))
-    ebnm.param <- c(ebnm.param, addl.param$ash.param)
+  if (!is.null(param[["mixcompdist"]])) {
+    # Additional parameters for ashr::ash
+    param <- c(param, list(method = "shrink", output = "flash_data"))
+    param <- c(param, ash.param)
   } else {
-    # Additional parameters for ebnm:
-    ebnm.param <- c(ebnm.param, addl.param$ebnm.param)
+    # Additional parameters for ebnm::ebnm
+    param <- c(param, ebnm.param)
   }
 
-  return(ebnm.param)
+  return(param)
 }
 
-control.params <- function(backfit) {
+control.param <- function(backfit) {
   control <- list()
   if (backfit %in% c("final", "only")) {
-    control$do.final.backfit <- TRUE
+    control$final.backfit <- TRUE
   } else if (backfit == "alternating") {
     control$backfit.after <- 2
     control$backfit.every <- 1
-    control$do.final.backfit <- TRUE
+    control$final.backfit <- TRUE
   }
   return(control)
 }
 
-verbose.params <- function(verbose) {
-  verbose.param <- list()
+verbose.param <- function(verbose) {
+  param <- list()
   if (is.character(verbose)) {
-    verbose <- unlist(strsplit(verbose, " "))
-    verbose.param$verbose.lvl         <- 3
-    verbose.param$verbose.fns         <- look.up.verbose.fns(verbose)
-    verbose.param$verbose.colnames    <- look.up.verbose.colnames(verbose)
-    verbose.param$verbose.colwidths   <- look.up.verbose.colwidths(verbose)
+    verbose <- unlist(strsplit(toupper(verbose), "[ .,/]"))
+    verbose <- verbose[verbose != ""]
+    param$verbose.lvl         <- 3
+    param$verbose.fns         <- look.up.verbose.fns(verbose)
+    param$verbose.colnames    <- look.up.verbose.colnames(verbose)
+    param$verbose.colwidths   <- look.up.verbose.colwidths(verbose)
   } else {
-    verbose.param$verbose.lvl         <- verbose
+    param$verbose.lvl         <- verbose
     if (verbose > 2) {
-      verbose.param$verbose.fns       <- c(calc.obj.diff, calc.max.chg.EF)
-      verbose.param$verbose.colnames  <- c("Obj Diff", "Max Chg")
-      verbose.param$verbose.colwidths <- c(12, 12)
+      param$verbose.fns       <- c(calc.obj.diff, calc.max.chg.EF)
+      param$verbose.colnames  <- c("Obj Diff", "Max Chg")
+      param$verbose.colwidths <- c(12, 12)
     }
   }
-  return(verbose.param)
+  return(param)
 }
 
 look.up.verbose.fns <- function(verbose) {

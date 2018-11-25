@@ -28,15 +28,20 @@ must.be.supported.data.type <- function(X,
     stop()
 }
 
-must.be.valid.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
+must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
   if (is.null(x)) {
     if (!allow.null)
-      stop(invalid.arg.error(x))
+      stop()
   } else if (!(is.numeric(x)
                && is.finite(x)
                && as.integer(x) == x
                && (is.null(lower) || x >= lower)
                && (is.null(upper) || x <= upper)))
+    stop()
+}
+
+must.be.named.list <- function(x) {
+  if (!is.null(x) && (!is.list(x) || is.null(names(x))))
     stop()
 }
 

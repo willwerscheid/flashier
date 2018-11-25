@@ -27,8 +27,7 @@ test_that("the greedy objective approximately agrees with flashr (using R)", {
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit",
-                backfit.maxiter = 1)
+f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using R)", {
   expect_true(f.b$obj > old.obj)
@@ -42,7 +41,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit")
+f.b <- flashier(M, flash.init = f, backfit = "only")
 
 test_that ("the final backfit objective approximately agrees with flashr (using R)", {
   flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2, backfit = TRUE)
@@ -65,8 +64,7 @@ test_that("the greedy objective approximately agrees with flashr (using Y)", {
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit",
-                backfit.maxiter = 1)
+f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using Y)", {
   expect_true(f.b$obj > old.obj)
@@ -80,7 +78,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit")
+f.b <- flashier(M, flash.init = f, backfit = "only")
 
 test_that ("the final backfit objective approximately agrees with flashr (using Y)", {
   flashr.res <- flashr::flash(M, f_init = to.flashr(f), var_type = "constant",
@@ -93,8 +91,7 @@ test_that ("the final backfit objective approximately agrees with flashr (using 
 })
 
 f <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
-              fix.vals = list(rep(1, n), LL[1:5]),
-              fit.strategy = "only.backfit")
+              fix.vals = list(rep(1, n), LL[1:5]), backfit = "only")
 
 test_that("the objective after adding fixed factors approximately agrees with flashr", {
   flashr.res <- flashr:::flash_backfit_workhorse(M, kset = 1:2,
@@ -123,7 +120,7 @@ test_that("the objective after adding fixed factors approximately agrees with fl
 
 f2 <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
                fix.vals = list(rep(1, n), LL[1:5]),
-               fit.strategy = "only.backfit",
+               backfit = "only",
                use.fixed.to.est.g = TRUE)
 
 test_that("results are different if fixed elements are included in priors", {
@@ -131,8 +128,7 @@ test_that("results are different if fixed elements are included in priors", {
 })
 
 f <- flashier(M, fix.dim = list(1, 1, 1), fix.idx = list(1:n, 1:5, 1:n),
-              fix.vals = list(rep(1, n), LL[1:5], 1:n),
-              fit.strategy = "only.backfit",
+              fix.vals = list(rep(1, n), LL[1:5], 1:n), backfit = "only",
               nullchk.fixed = TRUE)
 
 test_that("nullcheck works as expected", {

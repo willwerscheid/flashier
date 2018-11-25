@@ -18,14 +18,14 @@ test_that("matrix factor initialization is correct (using R)", {
   expect_equal(lowrank.expand(get.EF(f)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit",
-                backfit.maxiter = 1, do.final.nullchk = FALSE)
+f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE)
 
 test_that ("the backfit objective improves after one iteration (using R)", {
   expect_true(f.b$obj > f$obj)
 })
 
-f.b2 <- flashier(M, flash.init = f, fit.strategy = "only.backfit")
+f.b2 <- flashier(M, flash.init = f, backfit = "only")
 
 test_that ("the final backfit objective improves again (using R)", {
   expect_true(f.b2$obj > f.b$obj)
@@ -42,14 +42,14 @@ test_that("matrix factor initialization is correct (using Y, with missing)", {
   expect_equal(lowrank.expand(get.EF(f)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit",
-                backfit.maxiter = 1, do.final.nullchk = FALSE)
+f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE)
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
   expect_true(f.b$obj > f$obj)
 })
 
-f.b2 <- flashier(M, flash.init = f, fit.strategy = "only.backfit")
+f.b2 <- flashier(M, flash.init = f, backfit = "only")
 
 test_that ("the final backfit objective improves again (using Y, with missing)", {
   expect_true(f.b2$obj > f.b$obj)

@@ -34,7 +34,7 @@ test_that("zero variance type (with S constant) produces same fit as flashr", {
 
 test_that("zero variance type (with S low-rank) produces same fit as flashr", {
   S <- 0.1 + 0.01 * rnorm(n)
-  data <- set.flash.data(M, tau = 1 / S^2, tau.dim = 1)
+  data <- set.flash.data(M, S, S.dim = 1)
   f <- flashier(data, greedy.Kmax = 1, var.type = NULL)
   expect_equal(f$tau, f$given.tau)
 
@@ -66,7 +66,7 @@ test_that("constant S + constant estimation works", {
 
 test_that("by column S + by column estimation works", {
   tau = c(rep(50, 10), rep(250, p - 10))
-  data <- set.flash.data(M, tau = tau, tau.dim = 2)
+  data <- set.flash.data(M, S = 1 / sqrt(tau), S.dim = 2)
   f <- flashier(data, var.type = 2, greedy.Kmax = 1)
   expect_equal(f$tau[1:10], rep(50, 10))
   expect_equal(f$tau[-(1:10)], f$est.tau[-(1:10)])

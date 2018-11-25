@@ -5,90 +5,103 @@ set.seed(666)
 M <- matrix(5, nrow = 2, ncol = 3) + 0.1*rnorm(6)
 M.svd <- svd(M)
 correct.result <- M.svd$d[1] * outer(M.svd$u[, 1], M.svd$v[, 1])
+data <- set.flash.data(M)
 
 test_that("matrix factor initialization is correct for R (no missing data)", {
-  f <- init.new.flash(M)
+  f <- init.flash(NULL, data)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
-Z <- matrix(1, nrow = nrow(M), ncol = ncol(M))
+data.missing <- data
+data.missing$Z <- matrix(1, nrow = nrow(M), ncol = ncol(M))
 
 test_that("matrix factor initialization is correct for R with missing data", {
-  f <- init.new.flash(M, nonmissing = Z)
+  f <- init.flash(NULL, data.missing)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
 EF.init <- list(matrix(rnorm(nrow(M)), ncol = 1),
-               matrix(rnorm(ncol(M)), ncol = 1))
+                matrix(rnorm(ncol(M)), ncol = 1))
 class(EF.init) <- "lowrank"
 Y <- M + lowrank.expand(EF.init)
+data.Y <- set.flash.data(Y)
 
 test_that("matrix factor initialization is correct for Y (no missing data)", {
-  f <- init.new.flash(Y, EF.init = EF.init, use.R = FALSE)
+  f <- init.flash(NULL, data.Y, EF.init = EF.init, use.R = FALSE)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
+data.Y.missing   <- data.Y
+data.Y.missing$Z <- matrix(1, nrow = nrow(M), ncol = ncol(M))
+
 test_that("matrix factor initialization is correct for Y with missing data", {
-  f <- init.new.flash(Y, nonmissing = Z, EF.init = EF.init, use.R = FALSE)
+  f <- init.flash(NULL, data.Y.missing, EF.init = EF.init, use.R = FALSE)
   f.init <- init.next.EF(f)
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
 A <- array(5, dim = c(4, 3, 2)) + 0.001 * rnorm(24)
+data.A <- set.flash.data(A)
 
 test_that("tensor factor initialization is correct for R (no missing data)", {
-  g <- init.new.flash(A)
+  g <- init.flash(NULL, data.A)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
-Z <- array(1, dim = dim(A))
+data.A.missing   <- data.A
+data.A.missing$Z <- array(1, dim = dim(A))
 
 test_that("tensor factor initialization is correct for R with missing data", {
-  g <- init.new.flash(A, nonmissing = Z)
+  g <- init.flash(NULL, data.A.missing)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
 EF.init <- list(matrix(rnorm(dim(A)[1]), ncol = 1),
-               matrix(rnorm(dim(A)[2]), ncol = 1),
-               matrix(rnorm(dim(A)[3]), ncol = 1))
+                matrix(rnorm(dim(A)[2]), ncol = 1),
+                matrix(rnorm(dim(A)[3]), ncol = 1))
 class(EF.init) <- "lowrank"
 Y <- A + lowrank.expand(EF.init)
+data.AY <- set.flash.data(Y)
 
 test_that("tensor factor initialization is correct for Y (no missing data)", {
-  g <- init.new.flash(Y, EF.init = EF.init, use.R = FALSE)
+  g <- init.flash(NULL, data.AY, EF.init = EF.init, use.R = FALSE)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
+data.AY.missing   <- data.AY
+data.AY.missing$Z <- array(1, dim = dim(A))
+
 test_that("tensor factor initialization is correct for Y with missing data", {
-  g <- init.new.flash(Y, nonmissing = Z, EF.init = EF.init, use.R = FALSE)
+  g <- init.flash(NULL, data.AY.missing, EF.init = EF.init, use.R = FALSE)
   g.init <- init.next.EF(g)
   expect_equal(g.init[[1]] %o% g.init[[2]] %o% g.init[[3]], A, tol = 1e-2)
 })
 
 M <- outer(1:4, 1:6) + 0.1 * rnorm(24)
+data <- set.flash.data(M)
 
 test_that("fixed factor initialization works as expected", {
-  f <- init.new.flash(M,
+  f <- init.flash(NULL, data,
                   fix.dim = list(1),
                   fix.idx = list(1:4),
                   fix.vals = list(1:4))
   f.init <- init.next.EF(f)
   expect_equal(f.init[[1]], 1:4)
 
-  f <- init.new.flash(M,
+  f <- init.flash(NULL, data,
                   fix.dim = list(2),
                   fix.idx = list(1:3),
                   fix.vals = list(1:3))
   f.init <- init.next.EF(f)
   expect_equal(f.init[[2]][1:3], 1:3)
 
-  f <- init.new.flash(M,
+  f <- init.flash(NULL, data,
                   fix.dim = list(1),
                   fix.idx = list(1),
                   fix.vals = list(0),
@@ -100,19 +113,20 @@ test_that("fixed factor initialization works as expected", {
 
 M <- outer(-1:3, -2:6)
 M <- M + 0.1 * rnorm(length(M))
+data <- set.flash.data(M)
 
 test_that("nonnegative factor initialization works as expected", {
-  f <- init.new.flash(M, dim.signs = list(c(1, 0)))
+  f <- init.flash(NULL, data, dim.signs = list(c(1, 0)))
   f.init <- init.next.EF(f)
   expect_true(all(f.init[[1]] >= 0))
   expect_true(any(f.init[[2]] < 0))
 
-  f <- init.new.flash(M, dim.signs = list(c(1, -1)))
+  f <- init.flash(NULL, data, dim.signs = list(c(1, -1)))
   f.init <- init.next.EF(f)
   expect_true(all(f.init[[1]] >= 0))
   expect_true(all(f.init[[2]] <= 0))
 
-  f <- init.new.flash(M, dim.signs = list(c(0, 1)),
+  f <- init.flash(NULL, data, dim.signs = list(c(0, 1)),
                   fix.dim = list(2),
                   fix.idx = list(4:5),
                   fix.vals = list(rep(0, 2)))

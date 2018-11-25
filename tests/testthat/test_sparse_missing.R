@@ -29,8 +29,8 @@ test_that("the greedy objective approximately agrees with flashr (using R)", {
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit",
-                backfit.maxiter = 1, do.final.nullchk = FALSE)
+f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using R)", {
   expect_true(f.b$obj > old.obj)
@@ -45,7 +45,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- flashier(M, flash.init = f, fit.strategy = "only.backfit")
+f.b <- flashier(M, flash.init = f, backfit = "only")
 
 test_that ("the final backfit objective approximately agrees with flashr (using R)", {
   flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2,
@@ -72,8 +72,8 @@ test_that("the greedy objective approximately agrees with flashr (sparse, using 
   expect_equal(f.sprs$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, fit.strategy = "only.b",
-                     backfit.maxiter = 1, do.final.nullchk = FALSE)
+f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, backfit = "only",
+                     backfit.maxiter = 1, final.nullchk = FALSE)
 
 test_that ("the backfit objective agrees with flashr after one iteration (sparse, using Y)", {
   expect_true(f.sprs.b$obj > old.obj)
@@ -88,7 +88,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (sparse
                f.sprs.b$obj)
 })
 
-f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, fit.strategy = "only.b")
+f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, backfit = "only")
 
 test_that ("the final backfit objective approximately agrees with flashr (sparse, using Y)", {
   flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2,
