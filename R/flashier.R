@@ -74,7 +74,7 @@ flashier <- function(data,
   if (is.null(ellipsis$verbose.fns)
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {
-    workhorse.param <- c(workhorse.param, verbose.param(verbose))
+    workhorse.param <- c(workhorse.param, verbose.param(verbose, get.dim(data)))
   } else if (is.null(ellipsis$verbose.fns)
              || is.null(ellipsis$verbose.colnames)
              || is.null(ellipsis$verbose.colwidths)) {
@@ -179,13 +179,13 @@ control.param <- function(backfit) {
   return(control)
 }
 
-verbose.param <- function(verbose) {
+verbose.param <- function(verbose, data.dim) {
   param <- list()
   if (is.character(verbose)) {
     verbose <- unlist(strsplit(toupper(verbose), "[ .,/]"))
     verbose <- verbose[verbose != ""]
     param$verbose.lvl         <- 3
-    param$verbose.fns         <- look.up.verbose.fns(verbose)
+    param$verbose.fns         <- look.up.verbose.fns(verbose, data.dim)
     param$verbose.colnames    <- look.up.verbose.colnames(verbose)
     param$verbose.colwidths   <- look.up.verbose.colwidths(verbose)
   } else {
@@ -199,26 +199,29 @@ verbose.param <- function(verbose) {
   return(param)
 }
 
-look.up.verbose.fns <- function(verbose) {
+look.up.verbose.fns <- function(verbose, data.dim) {
   fns <- lapply(verbose, function(symbol) {
     chars <- unlist(strsplit(symbol, ""))
-    if (chars[[1]] == "O")
-      return(calc.obj.diff)
-    if (chars[[1]] == "L") {
-      if (length(chars) > 1) {
-        n <- as.integer(chars[[2]])
-        return(function(new, old) calc.max.chg.EF(new, old, n))
-      } else {
-        return(calc.max.chg.EF)
-      }
+    if (length(chars) > 1) {
+      if (length(chars) > 2)
+        stop("Unable to parse verbose output string.")
+      n <- as.integer(chars[[2]])
+      must.be.integer(n, lower = 1, upper = data.dim)
+    } else {
+      n <- NULL
     }
-    if (chars[[1]] == "W") {
-      if (length(chars) > 1) {
-        n <- as.integer(chars[[2]])
-        return(function(new, old) which.max.chg.EF(new, old, n))
-      } else {
-        return(which.max.chg.EF)
-      }
+    if (chars[[1]] == "O")
+      if (!is.null(n))
+        warning("Dimension ignored for verbose objective input.")
+      return(calc.obj.diff)
+    if (chars[[1]] == "L")
+      return(function(new, old, k) calc.max.chg.EF(new, old, k, n))
+    if (chars[[1]] == "W")
+      return(function(new, old, k) which.max.chg.EF(new, old, k, n))
+    if (chars[[1]] == "S") {
+      if (is.null(n))
+        stop("Dimension must be specified for verbose sparsity output.")
+      return(function(new, old, k) get.sparsity(new, old, k, n))
     }
     stop("Unrecognized verbose output character.")
   })
@@ -242,6 +245,9 @@ look.up.verbose.colnames <- function(verbose) {
         name <- paste(name, chars[[2]])
       return(name)
     }
+    if (chars[[1]] == "S") {
+      return(paste("Sparsity", chars[[2]]))
+    }
     stop("Unrecognized verbose output character.")
   })
   return(unlist(names))
@@ -250,7 +256,7 @@ look.up.verbose.colnames <- function(verbose) {
 look.up.verbose.colwidths <- function(verbose) {
   widths <- lapply(verbose, function(symbol) {
     char <- substring(symbol, 1, 1)
-    if (char %in% c("O", "L"))
+    if (char %in% c("O", "L", "S"))
       return(13)
     if (char == "W")
       return(9)

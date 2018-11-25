@@ -174,7 +174,7 @@ flash.workhorse <- function(data,
         for (k in kset) {
           old.f <- flash
           flash <- update.existing.factor(flash, k, iter, verbose.lvl)
-          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns)
+          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
           max.conv.crit <- max(max.conv.crit, get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info, k)
         }

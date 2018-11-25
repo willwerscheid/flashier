@@ -1,6 +1,4 @@
-# TODO: more functions for verbose output: sparsity
-
-calc.update.info <- function(new, old, conv.crit.fn, verbose.fns) {
+calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
   if (length(verbose.fns) == 0) {
     all.fns <- list(conv.crit.fn)
   } else {
@@ -10,7 +8,7 @@ calc.update.info <- function(new, old, conv.crit.fn, verbose.fns) {
       all.fns <- c(all.fns, conv.crit.fn)
   }
 
-  update.info <- sapply(all.fns, do.call, list(new, old))
+  update.info <- sapply(all.fns, do.call, list(new, old, k))
 
   if (length(verbose.fns) > 0 && length(conv.crit.idx) > 0)
     update.info <- c(update.info, update.info[conv.crit.idx])
@@ -22,18 +20,31 @@ get.conv.crit <- function(update.info) {
   return(update.info[length(update.info)])
 }
 
-calc.obj.diff <- function(new, old) {
+calc.obj.diff <- function(new, old, k) {
   if (!is.obj.valid(old) || !is.obj.valid(new))
     return(Inf)
   return(get.obj(new) - get.obj(old))
 }
 
-calc.max.chg.EF <- function(new, old, n = NULL) {
+calc.max.chg.EF <- function(new, old, k, n = NULL) {
+  if (!is.null(k))
+    return(calc.max.chg(get.EF.k(new, k, n), get.EF.k(old, k, n)))
   return(calc.max.chg(get.EF(new, n), get.EF(old, n)))
 }
 
-which.max.chg.EF <- function(new, old, n = NULL) {
+which.max.chg.EF <- function(new, old, k, n = NULL) {
+  if (!is.null(k))
+    return(which.max.chg(get.EF.k(new, k, n), get.EF.k(old, k, n)))
   return(which.max.chg(get.EF(new, n), get.EF(old, n)))
+}
+
+get.sparsity <- function(new, old, k, n) {
+  if (!is.null(k)) {
+    g <- get.g.k(new, k, n)
+  } else {
+    g <- get.g(new, n)
+  }
+  return(g$pi[1])
 }
 
 calc.max.chg <- function(new, old) {

@@ -25,8 +25,10 @@ get.EF <- function(f, n = NULL) {
     return(EF[[n]])
   return(EF)
 }
-get.EF.k <- function(f, k) {
+get.EF.k <- function(f, k, n = NULL) {
   EFk <- lapply(f[["EF"]], function(X) X[, k])
+  if (!is.null(n))
+    return(EFk[[n]])
   class(EFk) <- "r1"
   return(EFk)
 }
@@ -86,8 +88,10 @@ get.g <- function(f, n = NULL) {
     return(NULL)
   return(f[["g"]][[n]])
 }
-get.g.k <- function(f, k) {
-  return(f[["g"]][[k]])
+get.g.k <- function(f, k, n = NULL) {
+  if (is.null(n))
+    return(f[["g"]][[k]])
+  return(f[["g"]][[k]][[n]])
 }
 get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
 is.zero <- function(f, k = NULL) {
