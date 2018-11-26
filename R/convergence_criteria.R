@@ -56,6 +56,16 @@ get.sparsity <- function(new, old, k, n) {
 calc.max.chg <- function(new, old) {
   new <- l2.normalize.and.stack(new)
   old <- l2.normalize.and.stack(old)
+  max.increase <- max(new - old)
+  max.decrease <- max(old - new)
+  if (max.increase > max.decrease)
+    return(max.increase)
+  return(-max.decrease)
+}
+
+calc.max.abs.chg <- function(new, old) {
+  new <- l2.normalize.and.stack(new)
+  old <- l2.normalize.and.stack(old)
   return(max(abs(new - old)))
 }
 

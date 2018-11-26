@@ -219,15 +219,15 @@ look.up.verbose.fns <- function(verbose, data.dim) {
     } else {
       n <- NULL
     }
-    if (chars[[1]] == "O")
+    if (chars[[1]] == "O") {
       if (!is.null(n))
         warning("Dimension ignored for verbose objective input.")
       return(calc.obj.diff)
-    if (chars[[1]] == "L")
+    } else if (chars[[1]] == "L") {
       return(function(new, old, k) calc.max.chg.EF(new, old, k, n))
-    if (chars[[1]] == "W")
+    } else if (chars[[1]] == "W") {
       return(function(new, old, k) which.max.chg.EF(new, old, k, n))
-    if (chars[[1]] == "S") {
+    } else if (chars[[1]] == "S") {
       if (is.null(n))
         stop("Dimension must be specified for verbose sparsity output.")
       return(function(new, old, k) get.sparsity(new, old, k, n))

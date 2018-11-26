@@ -35,14 +35,14 @@ flash.workhorse <- function(data,
                             greedy.tol = NULL,
                             backfit.maxiter = 100,
                             backfit.tol = greedy.tol,
-                            final.backfit.maxiter = backfit.maxiter,
-                            final.backfit.tol = backfit.tol,
+                            dropout.tol = 0,
+                            inner.backfit.maxiter = backfit.maxiter,
+                            inner.backfit.tol = backfit.tol,
+                            inner.dropout.tol = inner.backfit.tol,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
-  when.to.backfit <- as.Kset(backfit.after, backfit.every, backfit.maxiter)
-  when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, nullchk.maxiter)
   if (force.use.R(data)) {
     if (!missing(use.R))
       stop("R must be used if S is a matrix")
@@ -71,6 +71,8 @@ flash.workhorse <- function(data,
 
   total.factors.added <- get.n.factors(flash)
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
+  when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
+  when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
   # At least one round of backfitting and nullchecking should be performed
   #   when a non-empty flash object is passed in:
@@ -158,14 +160,16 @@ flash.workhorse <- function(data,
     if (greedy.complete) {
       do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
       do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
-      maxiter    <- final.backfit.maxiter
-      tol        <- final.backfit.tol
+      maxiter    <- backfit.maxiter
+      tol        <- backfit.tol
+      dropout    <- dropout.tol
       curr.rnd.factors.added <- 0
     } else {
       do.backfit <- total.factors.added %in% when.to.backfit
       do.nullchk <- total.factors.added %in% when.to.nullchk
-      maxiter    <- backfit.maxiter
-      tol        <- backfit.tol
+      maxiter    <- inner.backfit.maxiter
+      tol        <- inner.backfit.tol
+      dropout    <- inner.dropout.tol
     }
 
     if (do.backfit) {
@@ -176,19 +180,23 @@ flash.workhorse <- function(data,
       iter <- 0
       max.conv.crit <- Inf
       old.obj <- get.obj(flash)
+      kset <- 1:get.n.factors(flash)
       while (iter < maxiter && max.conv.crit > tol) {
         is.converged <- TRUE
         iter <- iter + 1
         max.conv.crit <- 0
 
-        kset <- 1:get.n.factors(flash)
         if (identical(backfit.order, "random"))
           kset <- sample(kset)
         for (k in kset) {
           old.f <- flash
           flash <- update.existing.factor(flash, k, iter, verbose.lvl)
           info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
-          max.conv.crit <- max(max.conv.crit, get.conv.crit(info))
+          conv.crit <- get.conv.crit(info)
+          max.conv.crit <- max(max.conv.crit, conv.crit)
+          if (conv.crit < dropout) {
+            kset <- setdiff(kset, k)
+          }
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k, backfit = TRUE)
         }

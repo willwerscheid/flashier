@@ -32,7 +32,7 @@ announce.backfit <- function(verbose.lvl, n.factors) {
     message("Backfitting ", n.factors, " factors...")
 }
 
-report.backfit.obj.decrease <- function(verbose.lvl, obj.diff) {
+report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0)
     message("An update to factor ", k, " decreased the objective by ",
             formatC(-obj.diff, format = "e", digits = 3),
