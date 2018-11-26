@@ -4,6 +4,7 @@ wrapup.flash <- function(flash, data) {
   flash.object$pve       <- calc.pve(flash)
   flash.object$loadings  <- calc.normalized.loadings(flash)
   flash.object$objective <- get.obj(flash)
+  flash.object$sampler   <- F.sampler(flash)
 
   flash <- clear.flags(flash)
   flash <- remove.data.elements(flash)

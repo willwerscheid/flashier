@@ -231,10 +231,8 @@ flash.workhorse <- function(data,
 
   announce.wrapup(verbose.lvl)
   flash <- wrapup.flash(flash)
-  # TODO: add sampler
 
   report.completion(verbose.lvl)
-
   return(flash)
 }
 
