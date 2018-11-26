@@ -18,8 +18,8 @@ M[missing] <- NA
 f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
 
 test_that("matrix factor initialization is correct (using R)", {
-  expect_equal(get.n.factors(f), 2)
-  expect_equal(lowrank.expand(get.EF(f)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n.factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 old.obj <- f$obj
@@ -35,7 +35,7 @@ f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
 test_that ("the backfit objective agrees with flashr after one iteration (using R)", {
   expect_true(f.b$obj > old.obj)
   flashr.res <- flashr:::flash_backfit_workhorse(M,
-                                                 f_init = to.flashr(f),
+                                                 f_init = to.flashr(f$fit),
                                                  var_type = "constant",
                                                  maxiter = 1, nullcheck = FALSE)
   flashr.res <- flashr:::flash_update_precision(flash_set_data(M),
@@ -60,8 +60,8 @@ test_that ("the final backfit objective approximately agrees with flashr (using 
 f.sprs <- flashier(Matrix(M), greedy.Kmax = 2, use.R = FALSE)
 
 test_that("matrix factor initialization is correct (sparse, using Y)", {
-  expect_equal(get.n.factors(f.sprs), 2)
-  expect_equal(lowrank.expand(get.EF(f.sprs)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f.sprs$n.factors, 2)
+  expect_equal(lowrank.expand(get.EF(f.sprs$fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 old.obj <- f.sprs$obj
@@ -78,7 +78,7 @@ f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, backfit = "only",
 test_that ("the backfit objective agrees with flashr after one iteration (sparse, using Y)", {
   expect_true(f.sprs.b$obj > old.obj)
   flashr.res <- flashr:::flash_backfit_workhorse(M,
-                                                 f_init = to.flashr(f.sprs),
+                                                 f_init = to.flashr(f.sprs$fit),
                                                  var_type = "constant",
                                                  maxiter = 1, nullcheck = FALSE)
   flashr.res <- flashr:::flash_update_precision(flash_set_data(M),

@@ -14,8 +14,8 @@ M <- LF + 0.1 * rnorm(m * n * p)
 f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
 
 test_that("matrix factor initialization is correct (using R)", {
-  expect_equal(get.n.factors(f), 2)
-  expect_equal(lowrank.expand(get.EF(f)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n.factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
@@ -38,8 +38,8 @@ M.missing[missing] <- NA
 f <- flashier(M.missing, greedy.Kmax = 2, use.R = FALSE)
 
 test_that("matrix factor initialization is correct (using Y, with missing)", {
-  expect_equal(get.n.factors(f), 2)
-  expect_equal(lowrank.expand(get.EF(f)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n.factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
