@@ -13,9 +13,11 @@ init.flash <- function(flash.init,
                        fix.vals = NULL,
                        use.fixed.to.est.g = FALSE,
                        use.R = TRUE) {
-  flash <- flash.init
-  if (is.null(flash))
+  if (is.null(flash.init)) {
     flash <- list()
+  } else {
+    flash <- flash.init
+  }
 
   flash$EF       <- lowranks.combine(flash$EF, EF.init)
   flash$EF2      <- lowranks.combine(flash$EF2, lowrank.square(EF.init))

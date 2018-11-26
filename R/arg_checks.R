@@ -1,19 +1,3 @@
-must.not.supply.both <- function(arg1, arg2) {
-  if (!is.null(arg1) && !is.null(arg2))
-    stop()
-}
-
-must.supply.neither.or.both <- function(arg1, arg2) {
-  if ((is.null(arg1) && !is.null(arg2))
-      || (!is.null(arg1) && is.null(arg2)))
-    stop()
-}
-
-must.be.flash.object <- function(X) {
-  if (!is.null(X) && !is(X, "flash"))
-    stop()
-}
-
 must.be.supported.data.type <- function(X,
                                         allow.null = TRUE,
                                         allow.scalar = FALSE,

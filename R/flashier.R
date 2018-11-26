@@ -10,7 +10,7 @@ flashier <- function(data,
                                  "only"),
                      ebnm.param = NULL,
                      ash.param = NULL,
-                     verbose = 1,
+                     verbose.lvl = 1,
                      ...) {
   if (!is(data, "flash.data")) {
     data <- set.flash.data(data, S)
@@ -21,7 +21,10 @@ flashier <- function(data,
   ellipsis <- list(...)
 
   # When available, use existing flash object settings as defaults.
-  must.be.flash.object(flash.init)
+  if (is(flash.init, "flash"))
+    flash.init <- flash.init$fit
+  if (!is.null(flash.init) && !is(flash.init, "flash.fit"))
+    stop("flash.init must be a flash or flash.fit object.")
   if (!is.null(flash.init)) {
     if (missing(var.type))
       var.type <- flash.init$est.tau.dim
@@ -38,8 +41,8 @@ flashier <- function(data,
   must.be.integer(greedy.Kmax, lower = 0)
   must.be.named.list(ebnm.param)
   must.be.named.list(ash.param)
-  if (!is.character(verbose))
-    must.be.integer(verbose, lower = -1, upper = 3)
+  if (!is.character(verbose.lvl))
+    must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
   workhorse.param <- list()
 
@@ -70,20 +73,22 @@ flashier <- function(data,
                "backfit.after, and backfit.every cannot be."))
   }
 
-  # Handle "verbose" parameter.
+  # Handle "verbose.lvl" parameter.
+
   if (is.null(ellipsis$verbose.fns)
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {
-    workhorse.param <- c(workhorse.param, verbose.param(verbose, get.dim(data)))
+    workhorse.param <- c(workhorse.param, verbose.param(verbose.lvl,
+                                                        get.dim(data)))
   } else if (is.null(ellipsis$verbose.fns)
              || is.null(ellipsis$verbose.colnames)
              || is.null(ellipsis$verbose.colwidths)) {
     stop(paste("If one of verbose.fns, verbose.colnames, and",
                "verbose.colwidths is specified, then all must be."))
-  } else if (!(missing(verbose) || verbose == 3)) {
+  } else if (!(missing(verbose.lvl) || verbose.lvl %in% c(-1, 3))) {
     stop("Custom verbose output cannot be specified with verbose.lvl < 3")
   } else {
-    verbose.lvl <- 3
+    ellipsis$verbose.lvl <- 3
   }
 
   return(do.call(flash.workhorse, c(list(data,
@@ -194,6 +199,10 @@ verbose.param <- function(verbose, data.dim) {
       param$verbose.fns       <- c(calc.obj.diff, calc.max.chg.EF)
       param$verbose.colnames  <- c("Obj Diff", "Max Chg")
       param$verbose.colwidths <- c(12, 12)
+    } else if (verbose == -1) {
+      param$verbose.fns       <- c(get.new.obj, calc.obj.diff, calc.max.chg.EF)
+      param$verbose.colnames  <- c("Obj", "Obj.diff", "Max.chg")
+      param$verbose.colwidths <- c(14, 12, 12)
     }
   }
   return(param)

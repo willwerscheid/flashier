@@ -236,6 +236,14 @@ set.R <- function(f, R) {
   f[["R"]] <- R
   return(f)
 }
+set.Y <- function(f, Y) {
+  f[["Y"]] <- Y
+  return(f)
+}
+set.nonmissing <- function(f, Z) {
+  f[["Z"]] <- Z
+  return(f)
+}
 set.EF <- function(f, EF, n = NULL) {
   if (is.null(n)) {
     f[["EF"]] <- EF
@@ -328,6 +336,10 @@ set.tau <- function(f, tau) {
 }
 set.obj <- function(f, obj) {
   f[["obj"]] <- obj
+  return(f)
+}
+set.n.nonmissing <- function(f, n.nonmissing) {
+  f[["n.nonmissing"]] <- n.nonmissing
   return(f)
 }
 set.R2 <- function(f, R2) {

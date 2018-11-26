@@ -1,7 +1,5 @@
 # Since updating a factor also updates the matrix of residuals,
 #   update.kth.factor needs to be called from within the main loop.
-# TODO: think more about how to set default tols.
-#   Maybe sqrt(machine.eps) * n * p??
 
 flash.workhorse <- function(data,
                             flash.init = NULL,
@@ -34,7 +32,7 @@ flash.workhorse <- function(data,
                             init.maxiter = 100,
                             init.tol = 1e-2,
                             greedy.maxiter = 500,
-                            greedy.tol = 1e-2,
+                            greedy.tol = NULL,
                             backfit.maxiter = 100,
                             backfit.tol = greedy.tol,
                             final.backfit.maxiter = backfit.maxiter,
@@ -66,6 +64,11 @@ flash.workhorse <- function(data,
                       use.fixed.to.est.g = use.fixed.to.est.g,
                       use.R = use.R)
 
+  if (is.null(greedy.tol)) {
+    greedy.tol <- sqrt(.Machine$double.eps) * prod(get.dims(flash))
+    report.tol.setting(verbose.lvl, greedy.tol)
+  }
+
   total.factors.added <- get.n.factors(flash)
   max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
 
@@ -73,7 +76,11 @@ flash.workhorse <- function(data,
   #   when a non-empty flash object is passed in:
   curr.rnd.factors.added <- get.n.factors(flash)
 
+  if (verbose.lvl == -1)
+    print.tab.delim.table.header(verbose.colnames)
+
   something.changed <- TRUE
+  is.converged      <- TRUE
 
   while (something.changed) {
     something.changed <- FALSE
@@ -90,7 +97,8 @@ flash.workhorse <- function(data,
         flash <- add.new.factor.to.flash(factor, flash)
       } else if (greedy.maxiter > 0) {
         announce.factor.opt(verbose.lvl)
-        print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths)
+        print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
+                           backfit = FALSE)
 
         iter <- 0
         conv.crit <- Inf
@@ -107,8 +115,12 @@ flash.workhorse <- function(data,
           }
           info <- calc.update.info(factor, old.f, conv.crit.fn, verbose.fns)
           conv.crit <- get.conv.crit(info)
-          print.table.entry(verbose.lvl, verbose.colwidths, iter, info)
+          print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
+                            get.next.k(flash), backfit = FALSE)
         }
+
+        if (iter == greedy.maxiter)
+          is.converged <- FALSE
 
         # TODO if "same signs" factor, do a "delayed add"; that is, save the
         #   factor in some candidate.factor variable (which can actually
@@ -139,7 +151,7 @@ flash.workhorse <- function(data,
         curr.rnd.factors.added <- curr.rnd.factors.added + 1
       }
 
-      report.add.factor.result(verbose.lvl, failure = greedy.complete)
+      report.add.factor.result(verbose.lvl, greedy.complete, get.obj(flash))
     }
 
     # if !is.null(candidate.factors) FALSE, FALSE
@@ -165,6 +177,7 @@ flash.workhorse <- function(data,
       max.conv.crit <- Inf
       old.obj <- get.obj(flash)
       while (iter < maxiter && max.conv.crit > tol) {
+        is.converged <- TRUE
         iter <- iter + 1
         max.conv.crit <- 0
 
@@ -176,16 +189,23 @@ flash.workhorse <- function(data,
           flash <- update.existing.factor(flash, k, iter, verbose.lvl)
           info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
           max.conv.crit <- max(max.conv.crit, get.conv.crit(info))
-          print.table.entry(verbose.lvl, verbose.colwidths, iter, info, k)
+          print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
+                            k, backfit = TRUE)
         }
       }
+
+      if (iter == maxiter)
+        is.converged <- FALSE
+
       # TODO: parallel backfit updates; allow increases by some
       #   parallel.monotonicity parameter; might want to do some parallel,
       #   some seq, or maybe switch to seq when parallel fails
       #   monotonicity tol; in any case flexibility would be good.
 
-      if (get.obj(flash) > old.obj)
+      if (get.obj(flash) > old.obj) {
+        report.backfit.complete(verbose.lvl, get.obj(flash))
         something.changed <- TRUE
+      }
     }
 
     if (do.nullchk) {
@@ -205,13 +225,15 @@ flash.workhorse <- function(data,
     }
   }
 
+  if (!is.converged)
+    warning("Flash fit has not converged. Try backfitting the returned fit, ",
+            "setting backfit.tol and backfit.maxiter as needed.")
+
   announce.wrapup(verbose.lvl)
-  # TODO: remove R and then return results; propagate names here;
-  #   include sampler
+  flash <- wrapup.flash(flash)
+  # TODO: add sampler
 
   report.completion(verbose.lvl)
-
-  class(flash) = "flash"
 
   return(flash)
 }
