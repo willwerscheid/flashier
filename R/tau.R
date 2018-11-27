@@ -5,6 +5,8 @@ update.tau <- function(factor, flash) {
     factor <- update.zero.tau(factor, flash)
   } else if (is.var.type.kronecker(flash)) {
     factor <- update.kronecker.tau(factor, flash)
+  } else if (is.var.type.noisy(flash)) {
+    factor <- update.noisy.tau(factor, flash)
   }
   return(factor)
 }
@@ -21,7 +23,8 @@ update.simple.tau <- function(factor, flash) {
 }
 
 update.zero.tau <- function(factor, flash) {
-  factor <- set.R(factor, calc.residuals(flash, factor))
+  if (uses.R(flash))
+    factor <- set.R(factor, calc.residuals(flash, factor))
   factor <- set.tau(factor, get.given.tau(flash))
 
   return(factor)
@@ -31,6 +34,14 @@ update.kronecker.tau <- function(factor, flash) {
   factor <- set.tau(factor, estimate.kronecker.tau(flash, factor))
 
   return(factor)
+}
+
+update.noisy.tau <- function(factor, flash) {
+  if (uses.R(flash))
+    factor <- set.R(factor, calc.residuals(flash, factor))
+  noisy.tau <- estimate.noisy.tau(flash, factor)
+  factor <- set.tau(factor, noisy.tau$tau)
+  factor <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
 }
 
 estimate.simple.tau <- function(flash, delta.R2 = 0) {
@@ -68,23 +79,11 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
   tau.dim <- get.est.tau.dim(flash)
   kron.nonmissing <- get.kron.nonmissing(flash)
 
-  EF  <- get.EF(flash)
-  EF2 <- get.EF2(flash)
-  if (!is.new(factor)) {
-    EF  <- lowrank.drop.k(EF, get.k(factor))
-    EF2 <- lowrank.drop.k(EF2, get.k(factor))
-  }
-  EF  <- lowranks.combine(EF, as.lowrank(get.EF(factor)))
-  EF2 <- lowranks.combine(EF2, as.lowrank(get.EF2(factor)))
-  EFsquared <- lowrank.square(EF)
+  Z   <- get.nonmissing(flash)
+  EF  <- get.new.EF(flash, factor)
+  EF2 <- get.new.EF2(flash, factor)
 
-  if (uses.R(flash) && !is.null(factor)) {
-    R2 <- get.R(factor)^2
-  } else if (uses.R(flash)) {
-    R2 <- get.R(flash)^2
-  } else {
-    R2 <- (get.Y(flash) - lowrank.expand(EF))^2
-  }
+  R2 <- get.latest.Rsquared(flash, factor, EF)
 
   max.chg <- Inf
   iter <- 0
@@ -94,14 +93,36 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
     for (i in 1:length(tau.dim)) {
       n <- tau.dim[i]
       tau.R2 <- (nmode.prod.r1(R2, tau[-n], n)
-                 + nmode.prod.r1(EF2, tau[-n], n)
-                 - nmode.prod.r1(EFsquared, tau[-n], n))
+                 + premult.nmode.prod.r1(Z, EF2, tau[-n], n)
+                 - premult.nmode.prod.r1(Z, lowrank.square(EF), tau[-n], n))
       tau[[i]] <- kron.nonmissing[[i]] / tau.R2
     }
     max.chg <- calc.max.abs.chg(tau, old.tau)
   }
 
   return(tau)
+}
+
+estimate.noisy.tau <- function(flash, factor = NULL) {
+  Z   <- get.nonmissing(flash)
+  EF  <- get.new.EF(flash, factor)
+  EF2 <- get.new.EF2(flash, factor)
+
+  R2 <- get.latest.Rsquared(flash, factor, EF)
+  R2 <- R2 + Z * lowrank.expand(EF2) - Z * lowrank.expand(lowrank.square(EF))
+
+  var.type <- get.est.tau.dim(flash)
+  given.S2 <- 1 / get.given.tau(flash)
+  nonmissing.S2 <- given.S2[Z == 1]
+
+  if (var.type == 0) {
+    est.S2 <- optimize(function(x) {
+      sum(log(x + nonmissing.S2)) + sum(R2 / (x + given.S2))
+    }, interval = c(0, sum(R2) / sum(Z)))
+  }
+  tau    <- 1 / (est.S2$minimum + given.S2)
+  sum.tau.R2 <- sum(tau * R2)
+  return(list(tau = tau, sum.tau.R2 = sum.tau.R2))
 }
 
 get.tau.for.ebnm.calc <- function(flash, tau = NULL) {

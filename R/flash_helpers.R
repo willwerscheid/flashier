@@ -33,6 +33,14 @@ get.EF.k <- function(f, k, n = NULL) {
   class(EFk) <- "r1"
   return(EFk)
 }
+get.new.EF <- function(flash, factor = NULL) {
+  EF <- get.EF(flash)
+  if (is.null(factor))
+    return(EF)
+  if (!is.new(factor))
+    EF <- lowrank.drop.k(EF, get.k(factor))
+  return(lowranks.combine(EF, as.lowrank(get.EF(factor))))
+}
 get.EF2 <- function(f, n = NULL) {
   EF2 <- f[["EF2"]]
   if (is.null(EF2[[1]]))
@@ -45,6 +53,14 @@ get.EF2.k <- function(f, k) {
   EF2k <- lapply(f[["EF2"]], function(X) X[, k])
   class(EF2k) <- "r1"
   return(EF2k)
+}
+get.new.EF2 <- function(flash, factor = NULL) {
+  EF2 <- get.EF2(flash)
+  if (is.null(factor))
+    return(EF2)
+  if (!is.new(factor))
+    EF2 <- lowrank.drop.k(EF2, get.k(factor))
+  return(lowranks.combine(EF2, as.lowrank(get.EF2(factor))))
 }
 get.dim.signs <- function(f, k = NULL) {
   if (is.null(k))
@@ -99,6 +115,11 @@ is.zero <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.zero"]])
   return(f[["is.zero"]][k])
+}
+get.sum.tau.R2 <- function(flash, factor = NULL) {
+  if (is.null(factor))
+    return(flash[["sum.tau.R2"]])
+  return(factor[["sum.tau.R2"]])
 }
 is.valid <- function(f, k = NULL) {
   if (is.null(k))
@@ -171,6 +192,12 @@ is.var.type.zero <- function(f) {
 is.var.type.kronecker <- function(f) {
   return(is.null(get.given.tau(f)) && (length(get.est.tau.dim(f)) > 1))
 }
+is.var.type.noisy <- function(f) {
+  return(is.null(get.given.tau.dim(f))
+         && !is.null(get.given.tau(f))
+         && !is.null(get.est.tau.dim(f))
+         && (get.est.tau.dim(f) == 0))
+}
 is.tau.constant <- function(f) {
   return(!is.null(get.est.tau.dim(f)) && (get.est.tau.dim(f) == 0))
 }
@@ -184,7 +211,9 @@ is.tau.simple <- function(f) {
   is.simple <- (is.simple || ((length(var.type) == 1) && is.null(SEs)))
   # by.row/by.column var.type where SEs lie in same dimension as estimated var:
   is.simple <- (is.simple
-                || ((length(var.type) == 1) && (SEs.dim %in% c(0, var.type))))
+                || ((length(var.type) == 1)
+                    && !is.null(SEs.dim)
+                    && (SEs.dim %in% c(0, var.type))))
   return(is.simple)
 }
 is.tau.lowrank <- function(f) {
@@ -200,6 +229,18 @@ get.R2.n <- function(f) {
 store.R2.as.scalar <- function(f) is.tau.constant(f)
 store.R2.as.matrix <- function(f) is.var.type.kronecker(f)
 uses.R <- function(f) !is.null(get.R(f))
+get.latest.Rsquared <- function(flash, factor = NULL, EF = NULL) {
+  if (uses.R(flash) && !is.null(factor)) {
+    R2 <- get.R(factor)^2
+  } else if (uses.R(flash)) {
+    R2 <- get.R(flash)^2
+  } else {
+    if (is.null(EF))
+      EF <- get.new.EF(flash, factor)
+    R2 <- (get.Y(flash) - lowrank.expand(EF))^2
+  }
+  return(R2)
+}
 
 get.n.fixed <- function(f) {
   return(sum(unlist(get.fix.dim(f) > 0)))
@@ -365,6 +406,10 @@ set.R2 <- function(f, R2) {
 }
 set.delta.R2 <- function(f, delta.R2) {
   f[["delta.R2"]] <- delta.R2
+  return(f)
+}
+set.sum.tau.R2 <- function(f, sum.tau.R2) {
+  f[["sum.tau.R2"]] <- sum.tau.R2
   return(f)
 }
 add.is.zero <- function(f, is.zero) {

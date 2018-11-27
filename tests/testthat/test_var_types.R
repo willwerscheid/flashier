@@ -88,3 +88,10 @@ test_that("kroncker variance estimation works", {
   optim.tau <- outer(optim.soln$par[1:100], optim.soln$par[101:200])
   expect_equal(tau.mat, optim.tau, tol = 0.1, scale = 1)
 })
+
+test_that("basic noisy variance estimation works", {
+  f.const <- flashier(M, var.type = 0, greedy.Kmax = 1)
+  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                      var.type = 0, greedy.Kmax = 1)
+  expect_equal(f.const$fit$tau, f.noisy$fit$tau[1, 1], tol = 0.1, scale = 1)
+})
