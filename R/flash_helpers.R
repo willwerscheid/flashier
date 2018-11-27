@@ -1,4 +1,4 @@
-# Getters for the main flash object (also used by the smaller factors):
+# Getters for the main flash object (also used by the smaller factors) --------
 
 get.R               <- function(f) f[["R"]]
 get.Y               <- function(f) f[["Y"]]
@@ -107,7 +107,7 @@ is.valid <- function(f, k = NULL) {
 }
 
 
-# Additional getters that are only used by factors:
+# Additional getters that are only used by factors ----------------------------
 
 get.k          <- function(f) f[["k"]]
 is.fixed       <- function(f) f[["is.fixed"]]
@@ -125,7 +125,7 @@ get.idx.subset   <- function(f) {
 is.new <- function(f) is.null(get.k(f))
 
 
-# Simple helper functions for the main flash object and smaller factors:
+# Simple helper functions for the main flash object and smaller factors -------
 
 get.n.factors <- function(f) max(0, ncol(f[["EF"]][[1]]))
 get.dims <- function(f) {
@@ -247,7 +247,7 @@ get.subset.data <- function(f, fix.dim, idx.subset) {
 }
 
 
-# Setters for the main flash object and smaller factors:
+# Setters for the main flash object and smaller factors -----------------------
 
 set.R <- function(f, R) {
   f[["R"]] <- R
@@ -422,8 +422,10 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 
 # Testing function that converts a flashier flash object into a flashr fit
 #   object:
-
 to.flashr <- function(f) {
+  if (is(f, "flash"))
+    f <- f$fit
+
   flash        <- list()
   flash$EL     <- f$EF[[1]]
   flash$EF     <- f$EF[[2]]

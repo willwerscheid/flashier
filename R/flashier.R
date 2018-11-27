@@ -37,7 +37,7 @@ flashier <- function(data,
   }
 
   # Check arguments.
-  must.be.valid.dims(var.type, dim = get.dim(data))
+  must.be.valid.var.type(var.type, get.dim(data))
   must.be.integer(greedy.Kmax, lower = 0)
   must.be.named.list(ebnm.param)
   must.be.named.list(ash.param)
@@ -160,11 +160,11 @@ prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
                   nonpositive = list(mixcompdist = "-uniform"))
 
   if (!is.null(param[["mixcompdist"]])) {
-    # Additional parameters for ashr::ash
+    # Additional parameters for ashr::ash.
     param <- c(param, list(method = "shrink", output = "flash_data"))
     param <- c(param, ash.param)
   } else {
-    # Additional parameters for ebnm::ebnm
+    # Additional parameters for ebnm::ebnm.
     param <- c(param, ebnm.param)
   }
 

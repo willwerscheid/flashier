@@ -1,6 +1,6 @@
-# r1 objects are simply lists of vectors. For example, r1 = list(u, v, w)
-#   describes a tensor with ijk-entry equal to u_i v_j w_k. An r1 class is
-#   defined but these operations do not check the class of their arguments.
+#   r1 objects are simply lists of vectors. For example, r1 = list(u, v, w)
+# describes a tensor with ijk-entry equal to u_i v_j w_k. An r1 class is
+# defined but these operations do not check the class of their arguments.
 
 r1.ops.error <- function(fn.name, dim) {
   paste(fn.name, "is not yet implemented for r1 objects of dimension", dim)

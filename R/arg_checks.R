@@ -1,43 +1,14 @@
-must.be.supported.data.type <- function(X,
-                                        allow.null = TRUE,
-                                        allow.scalar = FALSE,
-                                        allow.vector = FALSE) {
-  if (!(is(X, "flash.data")
-        || is.matrix(X)
-        || is(X, "Matrix")
-        || (is.array(X) && length(dim(X)) == 3)
-        || (allow.null && is.null(X))
-        || (allow.scalar && is.vector(X) && length(X) == 1)
-        || (allow.vector && is.vector(X))))
-    stop()
-}
+# TODO: error messages
 
 must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
-  if (is.null(x)) {
-    if (!allow.null)
-      stop()
-  } else if (!(is.numeric(x)
-               && is.finite(x)
-               && as.integer(x) == x
-               && (is.null(lower) || x >= lower)
-               && (is.null(upper) || x <= upper)))
+  if (is.null(x) && !allow.null)
     stop()
-}
-
-must.be.valid.dims <- function(x, dim, allow.null = TRUE) {
-  if (is.null(x)) {
-    if (!allow.null)
-      stop()
-  }
-  for (d in x) {
-    must.be.integer(d, lower = 0, upper = dim)
-  }
-  if (!identical(x, unique(x))) {
+  if (!is.null(x) && (!(is.numeric(x)
+                        && is.finite(x)
+                        && as.integer(x) == x
+                        && (is.null(lower) || x >= lower)
+                        && (is.null(upper) || x <= upper))))
     stop()
-  }
-  if ((0 %in% x) && (length(x) > 1)) {
-    stop()
-  }
 }
 
 must.be.named.list <- function(x) {
@@ -45,14 +16,41 @@ must.be.named.list <- function(x) {
     stop()
 }
 
-dims.must.match <- function(X, Y, n = NULL) {
-  if (is.null(n)) {
+must.be.supported.data.type <- function(X,
+                                        allow.null = TRUE,
+                                        allow.vector = FALSE) {
+  if (!(is(X, "flash.data")
+        || is.matrix(X)
+        || is(X, "Matrix")
+        || (is.array(X) && length(dim(X)) == 3)
+        || (allow.null && is.null(X))
+        || (allow.vector && is.vector(X))))
+    stop()
+}
+
+must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
+  if (is.null(x) && !allow.null)
+    stop()
+  for (val in x) {must.be.integer(val, lower = 0, upper = data.dim)}
+  # No repeats.
+  if (!identical(x, unique(x)))
+    stop()
+  # If zero appears (meaning "constant" var.type), it must be alone.
+  if ((0 %in% x) && (length(x) > 1))
+    stop()
+}
+
+dims.must.match <- function(X, Y, Y.dim = NULL) {
+  # If Y.dim is NULL, then Y must be a matrix or array.
+  if (is.null(Y.dim)) {
     if (!is.null(X) && !is.null(Y) && !identical(dim(X), dim(Y)))
       stop()
   } else {
-    if (n == 0 && length(Y) != 1)
+    # If Y.dim is zero, then Y must be a scalar.
+    if (Y.dim == 0 && (!is.vector(Y) || (length(Y) != 1)))
       stop()
-    if (n > 0 && (!is.vector(Y) || !identical(length(Y), dim(X)[n])))
+    # Otherwise, Y must be a vector that can be aligned with X.
+    if (Y.dim > 0 && (!is.vector(Y) || (length(Y) != dim(X)[Y.dim])))
       stop()
   }
 }

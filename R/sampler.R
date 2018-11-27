@@ -1,5 +1,8 @@
 F.sampler <- function(flash) {
-  function(nsamp) {
+  # Beware of unfulfilled promise leak.
+  force(flash)
+
+  return(function(nsamp) {
     samp <- rapply(all.post.samplers(flash),
                    function(f) do.call(f, list(nsamp = nsamp)),
                    how = "list")
@@ -7,8 +10,8 @@ F.sampler <- function(flash) {
       lapply(1:get.dim(flash),
              function(n) do.call(cbind,
                                  lapply(samp[[n]], function(k) k[trial, ])))
-      }))
-  }
+    }))
+  })
 }
 
 all.post.samplers <- function(flash) {

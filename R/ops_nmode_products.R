@@ -1,9 +1,9 @@
-# N-mode products generalize matrix-vector products and constitute the key
-#   operations for this package. They currently work for matrices, sparse
-#   matrices (as implemented by package Matrix), and 3-dimensional tensors
-#   (which should be input as arrays). Ideally, they would also accept
-#   sparse tensors and tensors of arbitrary dimension, but R does not yet
-#   have good packages for handling these types of object.
+#   N-mode products generalize matrix-vector products and constitute the key
+# operations for this package. They currently work for matrices, sparse
+# matrices (as implemented by package Matrix), and 3-dimensional tensors
+# (which should be input as arrays). Ideally, they would also accept sparse
+# tensors and tensors of arbitrary dimension, but I am not aware of any good
+# R packages for handling these types of object.
 
 nmode.ops.error <- function(object) {
   paste("N-mode products are not yet implemented for objects of the same",
@@ -68,7 +68,7 @@ fullrank.nmode.prod.r1 <- function(X, r1, n) {
 
   if (is.array(X) && length(dim(X) == 3)) {
     ns <- (1:3)[-n]
-    # Go backwards (otherwise indices get messed up):
+    # Go backwards (otherwise indices get messed up).
     return(nmode.prod.vec(nmode.prod.vec(X, r1[[2]], ns[2]), r1[[1]], ns[1]))
   }
 
@@ -131,20 +131,20 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
   if (length(lowrank) == 3) {
     ns <- (1:3)[-n]
     # Sum over third (or second) index. Get k m_1 x m_2 (or m_1 x m_3) matrices
-    #   stacked on top of one another:
+    #   stacked on top of one another.
     tmp <- nmode.prod.vec(Z, r1[[2]] * lowrank[[ns[2]]], ns[[2]])
     # Elementwise multiply by an m_1 x k or m_2 x k matrix, then sum over the
     #   m_ index.
     if (ns[[1]] == 1) {
       tmp <- tmp * as.vector(lowrank[[1]] * r1[[1]])
       tmp <- Matrix::colSums(matrix(tmp, nrow = dim(Z)[1]))
-      # Have m_n k vectors concatenated one after another:
+      # Have m_n k vectors concatenated one after another.
       return(Matrix::rowSums(lowrank[[n]]
                              * matrix(tmp, nrow = dim(Z)[n], byrow = TRUE)))
     } else { # ns[[1]] == 2
       tmp <- tmp * rep(t(lowrank[[2]] * r1[[1]]), each = dim(Z)[1])
       tmp <- Matrix::rowSums(tmp)
-      # Have k m_n vectors concatenated one after another:
+      # Have k m_n vectors concatenated one after another.
       return(Matrix::rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n])))
     }
   }

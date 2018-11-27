@@ -1,6 +1,3 @@
-# Since updating a factor also updates the matrix of residuals,
-#   update.kth.factor needs to be called from within the main loop.
-
 flash.workhorse <- function(data,
                             flash.init = NULL,
                             var.type = 0,
@@ -45,7 +42,7 @@ flash.workhorse <- function(data,
   backfit.order <- match.arg(backfit.order)
   if (force.use.R(data, var.type)) {
     if (!missing(use.R) && !use.R)
-      stop("R must be used when data SEs are stored as matrix")
+      stop("R must be used with the requested variance structure.")
     use.R <- TRUE
   }
 
@@ -75,7 +72,7 @@ flash.workhorse <- function(data,
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
   # At least one round of backfitting and nullchecking should be performed
-  #   when a non-empty flash object is passed in:
+  #   when a non-empty flash object is passed in.
   curr.rnd.factors.added <- get.n.factors(flash)
 
   if (verbose.lvl == -1)

@@ -1,8 +1,8 @@
-# Similar to r1 objects, lowrank objects are lists of matrices whose columns
-#   each correspond to a single rank-one matrix or tensor. For example,
-#   lowrank = list(U, V, W) describes a tensor whose ijk-entry is equal to
-#   \sum_{\ell} U_{i \ell} V_{j \ell} W_{k \ell}. A lowrank class is defined
-#   but these operations do not usually check the class of their arguments.
+#   Similar to r1 objects, lowrank objects are lists of matrices whose columns
+# each correspond to a single rank-one matrix or tensor. For example,
+# lowrank = list(U, V, W) describes a tensor whose ijk-entry is equal to
+# \sum_{\ell} U_{i \ell} V_{j \ell} W_{k \ell}. A lowrank class is defined but
+# these operations do not usually check the class of their arguments.
 
 as.lowrank <- function(r1) {
   if (is.null(r1))

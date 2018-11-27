@@ -10,7 +10,9 @@ calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
 
   update.info <- sapply(all.fns, do.call, list(new, old, k))
 
-  if (length(verbose.fns) > 0 && length(conv.crit.idx) > 0)
+  # Put a copy of the convergence criterion at the end of the list so that
+  #   it's easy to find.
+  if ((length(verbose.fns) > 0) && (length(conv.crit.idx) > 0))
     update.info <- c(update.info, update.info[conv.crit.idx])
 
   return(update.info)
@@ -20,16 +22,20 @@ get.conv.crit <- function(update.info) {
   return(update.info[length(update.info)])
 }
 
-calc.obj.diff <- function(new, old, k) {
-  if (!is.obj.valid(old) || !is.obj.valid(new))
-    return(Inf)
-  return(get.obj(new) - get.obj(old))
+get.verbose.info <- function(update.info) {
+  return(update.info[-length(update.in)])
 }
 
 get.new.obj <- function(new, old, k) {
   if (!is.obj.valid(new))
     return(NA)
   return(get.obj(new))
+}
+
+calc.obj.diff <- function(new, old, k) {
+  if (!is.obj.valid(old) || !is.obj.valid(new))
+    return(Inf)
+  return(get.obj(new) - get.obj(old))
 }
 
 calc.max.chg.EF <- function(new, old, k, n = NULL) {
@@ -72,7 +78,7 @@ calc.max.abs.chg <- function(new, old) {
 which.max.chg <- function(new, old) {
   new <- l2.normalize.and.stack(new)
   old <- l2.normalize.and.stack(old)
-  return(which.max(apply(abs(unlist(new) - unlist(old)), 1, max)))
+  return(which.max(apply(abs(new - old), 1, max)))
 }
 
 l2.normalize.and.stack <- function(x) {

@@ -40,16 +40,16 @@ estimate.simple.tau <- function(flash, delta.R2 = 0) {
 tau.from.given.and.est <- function(flash, est.tau) {
   given.tau <- get.given.tau(flash)
 
-  # All variance is pre-specified ("zero" variance type):
   if (is.var.type.zero(flash)) {
+    # All variance is pre-specified ("zero" variance type):
     tau <- given.tau
-  # All variance is estimated:
   } else if (is.null(given.tau)) {
+    # All variance is estimated:
     tau <- est.tau
-  # Otherwise both types of variance are used. In the simple case here, the
-  #   total variance is estimated and the pre-specified variance functions
-  #   as a minimum:
   } else {
+    # Otherwise both types of variance are used. In the simple case here, the
+    #   total variance is estimated and the pre-specified variance functions
+    #   as a minimum:
     tau <- pmin(given.tau, est.tau)
   }
 
@@ -57,8 +57,8 @@ tau.from.given.and.est <- function(flash, est.tau) {
 }
 
 estimate.kronecker.tau <- function(flash, factor = NULL) {
-  # Tol and maxiter are hardcoded for now.
-  tol     <- 1e-3
+  # Tol and maxiter are hardcoded (for now, at least).
+  tol <- 1e-3
   maxiter <- 100
 
   tau <- get.tau(factor)

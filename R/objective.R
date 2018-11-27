@@ -6,10 +6,10 @@ calc.obj <- function(flash, factor = NULL) {
     if (!is.new(factor))
       KL <- KL - sum(get.KL.k(flash, get.k(factor)))
     est.tau <- get.est.tau(factor)
-    tau     <- get.tau(factor)
+    tau <- get.tau(factor)
   } else {
     est.tau <- get.est.tau(flash)
-    tau     <- get.tau(flash)
+    tau <- get.tau(flash)
   }
 
   if (is.tau.simple(flash)) {

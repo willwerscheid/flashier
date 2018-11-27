@@ -76,6 +76,10 @@ init.flash <- function(flash.init,
   return(flash)
 }
 
+init.kronecker.tau <- function(flash) {
+  return(lapply(get.dims(flash), function(dim) rep(1, dim)))
+}
+
 # Precomputations for estimating variance and calculating objective -----------
 
 init.n.nonmissing <- function(flash, n) {
@@ -122,8 +126,4 @@ init.R2 <- function(flash) {
 
 init.log.2pi.s2 <- function(tau) {
   return(sum(log(2 * pi / tau)))
-}
-
-init.kronecker.tau <- function(flash) {
-  return(lapply(get.dims(flash), function(dim) rep(1, dim)))
 }

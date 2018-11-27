@@ -1,7 +1,7 @@
-# A custom initialization function may also be used. It should take
-#   arguments flash, tol, and maxiter and output a list of vectors (which
-#   will be interpreted as an "r1" object). For example, a wrapper to
-#   function nnmf in package NNLM can be written as follows:
+#   A custom initialization function may also be used. It should accept
+# parameters flash, tol, and maxiter and output a list of vectors (which will
+# be interpreted as an "r1" object). For example, a wrapper to function nnmf
+# in package NNLM can be written as follows:
 #
 # nnmf.init.fn <- function(flash, tol, maxiter) {
 #   res <- NNLM::nnmf(flash$Y,
@@ -14,7 +14,7 @@
 # }
 
 init.factor <- function(flash, init.fn, tol, maxiter) {
-  factor          <- list()
+  factor <- list()
   factor$is.fixed <- is.next.fixed(flash)
 
   if (is.null(init.fn)) {
@@ -45,32 +45,32 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
   EF <- r1.random(get.dims(flash), dim.signs)
   if (!is.null(fix.dim)) {
     EF[[fix.dim]][fix.idx] <- fix.vals
-    # The non-fixed values should be similar in magnitude to the fixed ones:
+    # The non-fixed values should be similar in magnitude to the fixed ones.
     mean.fix2 <- mean(fix.vals^2)
     if (mean.fix2 != 0)
       EF[[fix.dim]][-fix.idx] <- sqrt(mean.fix2) * EF[[fix.dim]][-fix.idx]
   }
 
   update.order <- 1:get.dim(flash)
-  # Nonnegative/nonpositive dimensions are updated later:
+  # Nonnegative/nonpositive dimensions are updated later.
   signed.dims <- which(dim.signs %in% c(-1, 1))
   if (length(signed.dims) > 0) {
     which.signed <- which(update.order %in% signed.dims)
     update.order <- c(update.order[-which.signed], update.order[which.signed])
   }
-  # And fixed dimensions are updated last:
+  # And fixed dimensions are updated last.
   if (!is.null(fix.dim)) {
-    which.fixed  <- which(update.order == fix.dim)
+    which.fixed <- which(update.order == fix.dim)
     update.order <- c(update.order[-which.fixed], which.fixed)
   }
 
   subset.data <- NULL
   if (!is.null(fix.dim)) {
     idx.subset <- get.next.unfixed.idx(flash)
-    # If a dimension is entirely fixed, then it never needs to be updated:
+    # If a dimension is entirely fixed, then it never needs to be updated.
     if (length(idx.subset) == 0) {
       update.order <- setdiff(update.order, fix.dim)
-    # Otherwise, updates are performed using subsetted matrices:
+      # Otherwise, updates are performed using subsetted matrices.
     } else {
       subset.data <- get.subset.data(flash, fix.dim, idx.subset)
     }
@@ -79,14 +79,14 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
   max.chg <- Inf
   iter <- 0
   while (max.chg > tol && iter < maxiter) {
-    iter    <- iter + 1
-    old.EF  <- EF
-    EF      <- update.init.EF(EF, flash, update.order, fix.dim, dim.signs,
-                             subset.data)
+    iter <- iter + 1
+    old.EF <- EF
+    EF <- update.init.EF(EF, flash, update.order, fix.dim, dim.signs,
+                         subset.data)
     max.chg <- calc.max.abs.chg(EF, old.EF)
   }
 
-  # Scale EF so values aren't too different one dimension from another:
+  # Scale EF so that values aren't too different one dimension from another.
   if (is.null(fix.dim))
     EF <- scale.EF(EF)
 
@@ -108,7 +108,7 @@ update.init.EF <- function(EF, flash, update.order, fix.dim, dim.signs,
 }
 
 update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
- if (is.fixed) {
+  if (is.fixed) {
     R        <- subset.data$R.subset
     Y        <- subset.data$Y.subset
     Z        <- subset.data$Z.subset

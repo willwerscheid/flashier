@@ -1,5 +1,6 @@
-wrapup.flash <- function(flash, data) {
+wrapup.flash <- function(flash) {
   flash.object <- list()
+
   flash.object$n.factors <- get.n.factors(flash)
   flash.object$pve       <- calc.pve(flash)
   flash.object$loadings  <- calc.normalized.loadings(flash)
@@ -10,9 +11,10 @@ wrapup.flash <- function(flash, data) {
   flash <- remove.data.elements(flash)
   flash <- remove.auxiliary.elements(flash)
   class(flash) <- "flash.fit"
-
   flash.object$fit <- flash
+
   class(flash.object) <- "flash"
+
   return(flash.object)
 }
 
@@ -73,4 +75,3 @@ calc.normalized.loadings <- function(flash) {
 
   return(ret)
 }
-

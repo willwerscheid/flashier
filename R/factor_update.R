@@ -54,9 +54,9 @@ solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
 
   g <- get.g(factor, n)
   if (return.sampler && !is.null(g)) {
-    ebnm.param <- c(ebnm.param, list(g = g,
-                                     fixg = TRUE,
-                                     output = "post_sampler"))
+    ebnm.param <- modifyList(ebnm.param, list(g = g,
+                                              fixg = TRUE,
+                                              output = "post_sampler"))
   } else if (!is.new(factor) && warmstart.backfits(flash) && !is.null(g)) {
     ebnm.param <- c(ebnm.param, list(g = g))
   }
