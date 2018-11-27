@@ -138,7 +138,7 @@ calc.x <- function(factor, n, flash, s2, tau) {
 
   factor.EF <- get.EF(factor)
   if (n %in% get.fix.dim(factor))
-    factor.EF  <- r1.subset(factor.EF, n, get.idx.subset(factor))
+    factor.EF <- r1.subset(factor.EF, n, get.idx.subset(factor))
 
   if (uses.R(flash)) {
     x <- premult.nmode.prod.r1(R, tau, factor.EF[-n], n)

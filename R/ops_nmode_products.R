@@ -98,6 +98,8 @@ lowrank.nmode.prod.r1 <- function(lowrank, r1, n) {
 }
 
 nmode.prod.r1 <- function(X, r1, n) {
+  if (is.null(X))
+    return(0)
   if (is(X, "lowrank"))
     return(lowrank.nmode.prod.r1(X, r1, n))
   return(fullrank.nmode.prod.r1(X, r1, n))

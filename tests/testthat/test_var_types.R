@@ -71,3 +71,20 @@ test_that("by column S + by column estimation works", {
   expect_equal(f$fit$tau[1:10], rep(50, 10))
   expect_equal(f$fit$tau[-(1:10)], f$fit$est.tau[-(1:10)])
 })
+
+test_that("kroncker variance estimation works", {
+  Y <- matrix(10, nrow = 100, ncol = 100) + 0.1 * rnorm(100 * 100)
+  f <- flashier(Y, var.type = c(1, 2), greedy.Kmax = 1)
+  tau.mat <- r1.expand(f$fit$tau)
+  expect_equal(mean(tau.mat), 100, tol = 0.1)
+
+  R2 <- (Y - lowrank.expand(f$fit$EF))^2
+  R2 <- R2 + lowrank.expand(f$fit$EF2) - lowrank.expand(lowrank.square(f$fit$EF))
+  neg.llik <- function(x) {
+    tau <- outer(x[1:100], x[101:200])
+    return(-sum(log(tau)) + sum(R2 * tau))
+  }
+  optim.soln <- optim(rep(1, 200), neg.llik, method = "L-BFGS-B", lower = 0)
+  optim.tau <- outer(optim.soln$par[1:100], optim.soln$par[101:200])
+  expect_equal(tau.mat, optim.tau, tol = 0.1, scale = 1)
+})

@@ -36,8 +36,8 @@ flashier <- function(data,
       ellipsis$ebnm.param <- flash.init$ebnm.param
   }
 
-  # Check inputs.
-  must.be.integer(var.type, lower = 0, upper = get.dim(data))
+  # Check arguments.
+  must.be.valid.dims(var.type, dim = get.dim(data))
   must.be.integer(greedy.Kmax, lower = 0)
   must.be.named.list(ebnm.param)
   must.be.named.list(ash.param)
@@ -74,7 +74,6 @@ flashier <- function(data,
   }
 
   # Handle "verbose.lvl" parameter.
-
   if (is.null(ellipsis$verbose.fns)
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {

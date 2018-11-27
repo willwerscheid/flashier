@@ -83,7 +83,7 @@ init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
     old.EF  <- EF
     EF      <- update.init.EF(EF, flash, update.order, fix.dim, dim.signs,
                              subset.data)
-    max.chg <- calc.max.chg(EF, old.EF)
+    max.chg <- calc.max.abs.chg(EF, old.EF)
   }
 
   # Scale EF so values aren't too different one dimension from another:
@@ -145,7 +145,7 @@ update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
 
 scale.EF <- function(EF) {
   norms <- lapply(EF, function(x) {sqrt(sum(x^2))})
-  EF <- mapply(`/`, EF, norms)
+  EF <- mapply(`/`, EF, norms, SIMPLIFY = FALSE)
   EF <- lapply(EF, `*`, prod(unlist(norms))^(1/length(EF)))
   class(EF) <- "r1"
   return(EF)

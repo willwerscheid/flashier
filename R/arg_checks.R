@@ -24,6 +24,22 @@ must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
     stop()
 }
 
+must.be.valid.dims <- function(x, dim, allow.null = TRUE) {
+  if (is.null(x)) {
+    if (!allow.null)
+      stop()
+  }
+  for (d in x) {
+    must.be.integer(d, lower = 0, upper = dim)
+  }
+  if (!identical(x, unique(x))) {
+    stop()
+  }
+  if ((0 %in% x) && (length(x) > 1)) {
+    stop()
+  }
+}
+
 must.be.named.list <- function(x) {
   if (!is.null(x) && (!is.list(x) || is.null(names(x))))
     stop()

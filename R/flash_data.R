@@ -28,13 +28,13 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL) {
     dims.must.match(data, S, S.dim)
   }
 
-  if (!is.null(S)) {
-    tau <- 1 / S^2
-  } else {
+  if (is.null(S)) {
     tau <- NULL
+  } else {
+    tau <- 1 / S^2
   }
 
-  flash.data$given.tau     <- tau
+  flash.data$given.tau <- tau
   flash.data$given.tau.dim <- S.dim
 
   class(flash.data) <- "flash.data"

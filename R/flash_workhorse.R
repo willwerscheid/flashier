@@ -35,17 +35,17 @@ flash.workhorse <- function(data,
                             greedy.tol = NULL,
                             backfit.maxiter = 100,
                             backfit.tol = greedy.tol,
-                            dropout.tol = 0,
+                            dropout = 0,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.tol = backfit.tol,
-                            inner.dropout.tol = inner.backfit.tol,
+                            inner.dropout = 1,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
-  if (force.use.R(data)) {
-    if (!missing(use.R))
-      stop("R must be used if S is a matrix")
+  if (force.use.R(data, var.type)) {
+    if (!missing(use.R) && !use.R)
+      stop("R must be used when data SEs are stored as matrix")
     use.R <- TRUE
   }
 
@@ -158,18 +158,18 @@ flash.workhorse <- function(data,
 
     # if !is.null(candidate.factors) FALSE, FALSE
     if (greedy.complete) {
-      do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
-      do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
-      maxiter    <- backfit.maxiter
-      tol        <- backfit.tol
-      dropout    <- dropout.tol
+      do.backfit  <- final.backfit && (curr.rnd.factors.added > 0)
+      do.nullchk  <- final.nullchk && (curr.rnd.factors.added > 0)
+      maxiter     <- backfit.maxiter
+      tol         <- backfit.tol
+      dropout.tol <- dropout * backfit.tol
       curr.rnd.factors.added <- 0
     } else {
-      do.backfit <- total.factors.added %in% when.to.backfit
-      do.nullchk <- total.factors.added %in% when.to.nullchk
-      maxiter    <- inner.backfit.maxiter
-      tol        <- inner.backfit.tol
-      dropout    <- inner.dropout.tol
+      do.backfit  <- total.factors.added %in% when.to.backfit
+      do.nullchk  <- total.factors.added %in% when.to.nullchk
+      maxiter     <- inner.backfit.maxiter
+      tol         <- inner.backfit.tol
+      dropout.tol <- inner.dropout * inner.backfit.tol
     }
 
     if (do.backfit) {
@@ -194,7 +194,7 @@ flash.workhorse <- function(data,
           info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
           conv.crit <- get.conv.crit(info)
           max.conv.crit <- max(max.conv.crit, conv.crit)
-          if (conv.crit < dropout) {
+          if (conv.crit < dropout.tol) {
             kset <- setdiff(kset, k)
           }
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
@@ -242,6 +242,14 @@ flash.workhorse <- function(data,
 
   report.completion(verbose.lvl)
   return(flash)
+}
+
+force.use.R <- function(data, var.type) {
+  tmp <- list()
+  tmp$est.tau.dim <- var.type
+  tmp$given.tau.dim <- get.given.tau.dim(data)
+  tmp$given.tau <- get.given.tau(data)
+  return(!(is.tau.simple(tmp) || is.var.type.kronecker(tmp)))
 }
 
 as.Kset <- function(after, every, maxiter) {

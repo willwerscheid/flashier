@@ -1,21 +1,22 @@
 # Getters for the main flash object (also used by the smaller factors):
 
-get.R              <- function(f) f[["R"]]
-get.Y              <- function(f) f[["Y"]]
-get.nonmissing     <- function(f) f[["Z"]]
-get.given.tau      <- function(f) f[["given.tau"]]
-get.given.tau.dim  <- function(f) f[["given.tau.dim"]]
-get.est.tau.dim    <- function(f) f[["est.tau.dim"]]
-use.fixed.to.est.g <- function(f) f[["use.fixed.to.est.g"]]
-get.n.nonmissing   <- function(f) f[["n.nonmissing"]]
-get.R2             <- function(f) f[["R2"]]
-get.log.2pi.s2     <- function(f) f[["log.2pi.s2"]]
-get.est.tau        <- function(f) f[["est.tau"]]
-get.tau            <- function(f) f[["tau"]]
-get.obj            <- function(f) f[["obj"]]
-get.KL             <- function(f) f[["KL"]]
-get.delta.R2       <- function(f) f[["delta.R2"]]
-warmstart.backfits <- function(f) f[["warmstart.backfits"]]
+get.R               <- function(f) f[["R"]]
+get.Y               <- function(f) f[["Y"]]
+get.nonmissing      <- function(f) f[["Z"]]
+get.given.tau       <- function(f) f[["given.tau"]]
+get.given.tau.dim   <- function(f) f[["given.tau.dim"]]
+get.est.tau.dim     <- function(f) f[["est.tau.dim"]]
+use.fixed.to.est.g  <- function(f) f[["use.fixed.to.est.g"]]
+get.n.nonmissing    <- function(f) f[["n.nonmissing"]]
+get.kron.nonmissing <- function(f) f[["kron.nonmissing"]]
+get.R2              <- function(f) f[["R2"]]
+get.log.2pi.s2      <- function(f) f[["log.2pi.s2"]]
+get.est.tau         <- function(f) f[["est.tau"]]
+get.tau             <- function(f) f[["tau"]]
+get.obj             <- function(f) f[["obj"]]
+get.KL              <- function(f) f[["KL"]]
+get.delta.R2        <- function(f) f[["delta.R2"]]
+warmstart.backfits  <- function(f) f[["warmstart.backfits"]]
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
@@ -164,24 +165,40 @@ get.ebnm.param <- function(flash, factor, n) {
   return(ebnm.param[[n]])
 }
 
-is.tau.zero <- function(f) {
+is.var.type.zero <- function(f) {
   return(is.null(get.est.tau.dim(f)))
 }
+is.var.type.kronecker <- function(f) {
+  return(is.null(get.given.tau(f)) && (length(get.est.tau.dim(f)) > 1))
+}
 is.tau.constant <- function(f) {
-  est.tau.dim <- get.est.tau.dim(f)
-  return(!is.null(est.tau.dim) && est.tau.dim == 0)
+  return(!is.null(get.est.tau.dim(f)) && (get.est.tau.dim(f) == 0))
+}
+is.tau.simple <- function(f) {
+  var.type <- get.est.tau.dim(f)
+  SEs <- get.given.tau(f)
+  SEs.dim <- get.given.tau.dim(f)
+  # Zero var.type with tau representable as low-rank:
+  is.simple <- (is.var.type.zero(f) && !is.null(SEs.dim))
+  # Simple by.row/by.column estimation with SEs not provided:
+  is.simple <- (is.simple || ((length(var.type) == 1) && is.null(SEs)))
+  # by.row/by.column var.type where SEs lie in same dimension as estimated var:
+  is.simple <- (is.simple
+                || ((length(var.type) == 1) && (SEs.dim %in% c(0, var.type))))
+  return(is.simple)
 }
 is.tau.lowrank <- function(f) {
   given.tau <- get.given.tau(f)
   return(is.null(given.tau) || is.vector(given.tau))
 }
 get.R2.n <- function(f) {
-  n <- max(get.est.tau.dim(f), get.est.tau.dim(f), 0)
+  n <- max(get.est.tau.dim(f), 0)
   if (n == 0)
     n <- which.min(get.dims(f))
   return(n)
 }
 store.R2.as.scalar <- function(f) is.tau.constant(f)
+store.R2.as.matrix <- function(f) is.var.type.kronecker(f)
 uses.R <- function(f) !is.null(get.R(f))
 
 get.n.fixed <- function(f) {

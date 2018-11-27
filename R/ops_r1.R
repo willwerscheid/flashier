@@ -54,3 +54,12 @@ r1.random <- function(dims, dim.signs = NULL) {
   class(r1) <- "r1"
   return(r1)
 }
+
+r1.to.lowrank <- function(r1, flash) {
+  lowrank <- mapply(r1, get.dims(flash),
+                    FUN = function(vals, dim) {
+                      matrix(vals, ncol = 1, nrow = dim)
+                    }, SIMPLIFY = FALSE)
+  class(lowrank) <- "lowrank"
+  return(lowrank)
+}

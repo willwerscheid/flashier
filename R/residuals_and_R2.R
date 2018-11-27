@@ -10,21 +10,21 @@ update.residuals <- function(flash, factor) {
 }
 
 calc.residuals <- function(flash, factor = NULL) {
-  old.R <- get.R(flash)
+  R <- get.R(flash)
 
   if (!is.null(factor) && !is.new(factor)) {
     new.EF       <- as.lowrank(get.EF(factor))
     old.EF       <- as.lowrank(get.EF.k(flash, get.k(factor)))
     EF.delta.mat <- lowrank.delta.mat(new.EF, old.EF)
-    new.R <- old.R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
-  } else {
-    new.R <- old.R - get.nonmissing(flash) * r1.expand(get.EF(factor))
+    R <- R - get.nonmissing(flash) * lowrank.expand(EF.delta.mat)
+  } else if (!is.null(factor)) {
+    R <- R - get.nonmissing(flash) * r1.expand(get.EF(factor))
   }
 
-  return(new.R)
+  return(R)
 }
 
-calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
+calc.delta.R2.for.simple.tau <- function(factor, flash) {
   R <- get.R(flash)
   Y <- get.Y(flash)
   Z <- get.nonmissing(flash)
@@ -77,7 +77,7 @@ calc.delta.R2.for.lowrank.tau <- function(factor, flash) {
   return(delta.R2)
 }
 
-calc.sum.tau.R2 <- function(flash, factor) {
+calc.tau.R2 <- function(flash, factor, n) {
   if (is.null(factor)) {
     R   <- get.R(flash)
     tau <- get.tau(flash)
@@ -86,7 +86,6 @@ calc.sum.tau.R2 <- function(flash, factor) {
     tau <- get.tau(factor)
     k   <- get.k(factor)
   }
-  n   <- get.R2.n(flash)
 
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
@@ -99,7 +98,15 @@ calc.sum.tau.R2 <- function(flash, factor) {
 
   EFsquared <- lowrank.square(EF)
 
-  return(sum(tau * R^2)
-         + sum(premult.nmode.prod.r1(tau, EF2, r1.ones(flash), n)
-               - premult.nmode.prod.r1(tau, EFsquared, r1.ones(flash), n)))
+  if (is.tau.lowrank(flash)) {
+    tau <- as.r1.tau(tau, flash, n)
+    tau.R2 <- (nmode.prod.r1(R^2, tau, n)
+               + nmode.prod.r1(EF2, tau, n)
+               - nmode.prod.r1(EFsquared, tau, n))
+  } else {
+    tau.R2 <- (nmode.prod.r1(tau * R^2, r1.ones(flash), n)
+               + premult.nmode.prod.r1(tau, EF2, r1.ones(flash), n)
+               - premult.nmode.prod.r1(tau, EFsquared, r1.ones(flash), n))
+  }
+  return(tau.R2)
 }

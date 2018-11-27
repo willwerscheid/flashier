@@ -36,9 +36,11 @@ calc.pve <- function(flash) {
   S   <- ldf$scale.factor^2
 
   tau <- get.tau(flash)
-  if (is.tau.lowrank(flash)) {
+  if (is.tau.simple(flash)) {
     var.from.tau <- sum(get.n.nonmissing(flash) / tau)
-  } else {
+  } else if (is.var.type.kronecker(flash)) {
+    var.from.tau <- sum(get.nonmissing(flash) / r1.expand(tau))
+  } else{
     var.from.tau <- sum(1 / tau[tau > 0])
   }
 

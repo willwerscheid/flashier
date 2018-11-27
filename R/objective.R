@@ -12,19 +12,22 @@ calc.obj <- function(flash, factor = NULL) {
     tau     <- get.tau(flash)
   }
 
-  if (is.tau.lowrank(flash)) {
+  if (is.tau.simple(flash)) {
     n.nonmissing <- get.n.nonmissing(flash)
-    obj <- KL - 0.5 * sum(n.nonmissing * (log(2 * pi / tau) + tau / est.tau))
-  } else if (is.tau.zero(flash)) {
-    obj <- KL - 0.5 * (get.log.2pi.s2(flash) + calc.sum.tau.R2(flash, factor))
+    obj <- KL - 0.5 * sum(n.nonmissing * (log(2 * pi)
+                                          - log(tau) + tau / est.tau))
+  } else if (is.var.type.zero(flash)) {
+    obj <- KL - 0.5 * (get.log.2pi.s2(flash)
+                       + sum(calc.tau.R2(flash, factor, get.R2.n(flash))))
+  } else if (is.var.type.kronecker(flash)) {
+    n.nonmissing <- get.kron.nonmissing(flash)
+    obj <- KL - 0.5 * (sum(n.nonmissing[[1]]) * (log(2 * pi) + 1)
+                       - sum(unlist(n.nonmissing) * log(unlist(tau))))
   } else {
-    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + calc.sum.tau.R2(flash, factor))
+    # Not yet used:
+    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + sum(calc.tau.R2(flash, factor)))
   }
   return(obj)
-}
-
-precompute.log.2pi.s2 <- function(tau) {
-  return(sum(log(2 * pi / tau)))
 }
 
 normal.means.loglik <- function(x, s, Et, Et2) {
