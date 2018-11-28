@@ -21,6 +21,7 @@ init.flash <- function(flash.init,
 
   Y             <- get.Y(data)
   nonmissing    <- get.nonmissing(data)
+  given.S2      <- get.given.S2(data)
   given.tau     <- get.given.tau(data)
   given.tau.dim <- get.given.tau.dim(data)
 
@@ -36,13 +37,10 @@ init.flash <- function(flash.init,
     nonmissing <- 1
   flash$Z <- nonmissing
 
-  flash$est.tau.dim <- est.tau.dim
+  flash$est.tau.dim   <- est.tau.dim
+  flash$given.S2      <- given.S2
+  flash$given.tau     <- given.tau
   flash$given.tau.dim <- given.tau.dim
-  if (!is.null(flash$given.tau) && !is.vector(flash$given.tau)) {
-    flash$given.tau <- nonmissing * given.tau
-  } else {
-    flash$given.tau <- given.tau
-  }
 
   if (is.tau.simple(flash)) {
     flash$n.nonmissing    <- init.n.nonmissing(flash, get.R2.n(flash))

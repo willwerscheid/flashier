@@ -108,21 +108,50 @@ estimate.noisy.tau <- function(flash, factor = NULL) {
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
 
-  R2 <- get.latest.Rsquared(flash, factor, EF)
-  R2 <- R2 + Z * lowrank.expand(EF2) - Z * lowrank.expand(lowrank.square(EF))
+  R2 <- get.latest.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
+  R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
+  S2 <- get.given.S2(flash)
 
   var.type <- get.est.tau.dim(flash)
-  given.S2 <- 1 / get.given.tau(flash)
-  nonmissing.S2 <- given.S2[Z == 1]
+  any.missing <- !identical(Z, 1)
 
   if (var.type == 0) {
-    est.S2 <- optimize(function(x) {
-      sum(log(x + nonmissing.S2)) + sum(R2 / (x + given.S2))
-    }, interval = c(0, sum(R2) / sum(Z)))
+    if (any.missing) {
+      R2.slice <- R2[as.logical(Z)]
+      S2.slice <- S2[as.logical(Z)]
+    } else {
+      R2.slice <- R2
+      S2.slice <- S2
+    }
+    est.S2 <- optimize.noisy(R2.slice, S2.slice)
+    final.S2 <- S2 + est.S2
+  } else {
+    if (any.missing) {
+      R2.slices <- R2
+      S2.slices <- S2
+      is.na(R2.slices) <- is.na(S2.slices) <- !Z
+      R2.slices <- lapply(apply(R2.slices, var.type, list.with.no.NAs), unlist)
+      S2.slices <- lapply(apply(S2.slices, var.type, list.with.no.NAs), unlist)
+    } else {
+      R2.slices <- lapply(apply(R2, var.type, list), unlist)
+      S2.slices <- lapply(apply(S2, var.type, list), unlist)
+    }
+    est.S2 <- mapply(optimize.noisy, R2.slices, S2.slices)
+    each <- prod(c(1, get.dims(flash)[1:get.dim(flash) < var.type]))
+    final.S2 <- S2 + rep(est.S2, each = each)
   }
-  tau    <- 1 / (est.S2$minimum + given.S2)
+
+  tau <- Z / final.S2
   sum.tau.R2 <- sum(tau * R2)
   return(list(tau = tau, sum.tau.R2 = sum.tau.R2))
+}
+
+list.with.no.NAs <- function(x) list(x[!is.na(x)])
+
+optimize.noisy <- function(R2, S2) {
+  opt.res <- optimize(function(x) {sum(log(x + S2)) + sum(R2 / (x + S2))},
+                      interval = c(0, mean(R2)))
+  return(opt.res$minimum)
 }
 
 get.tau.for.ebnm.calc <- function(flash, tau = NULL) {

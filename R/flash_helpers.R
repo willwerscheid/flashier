@@ -3,6 +3,7 @@
 get.R               <- function(f) f[["R"]]
 get.Y               <- function(f) f[["Y"]]
 get.nonmissing      <- function(f) f[["Z"]]
+get.given.S2        <- function(f) f[["given.S2"]]
 get.given.tau       <- function(f) f[["given.tau"]]
 get.given.tau.dim   <- function(f) f[["given.tau.dim"]]
 get.est.tau.dim     <- function(f) f[["est.tau.dim"]]
@@ -193,15 +194,14 @@ is.var.type.kronecker <- function(f) {
   return(is.null(get.given.tau(f)) && (length(get.est.tau.dim(f)) > 1))
 }
 is.var.type.noisy <- function(f) {
-  return(is.null(get.given.tau.dim(f))
-         && !is.null(get.given.tau(f))
-         && !is.null(get.est.tau.dim(f))
-         && (get.est.tau.dim(f) == 0))
+  return(!is.null(get.given.S2(f)))
 }
 is.tau.constant <- function(f) {
   return(!is.null(get.est.tau.dim(f)) && (get.est.tau.dim(f) == 0))
 }
 is.tau.simple <- function(f) {
+  if (is.var.type.noisy(f))
+    return(FALSE)
   var.type <- get.est.tau.dim(f)
   SEs <- get.given.tau(f)
   SEs.dim <- get.given.tau.dim(f)
@@ -229,7 +229,8 @@ get.R2.n <- function(f) {
 store.R2.as.scalar <- function(f) is.tau.constant(f)
 store.R2.as.matrix <- function(f) is.var.type.kronecker(f)
 uses.R <- function(f) !is.null(get.R(f))
-get.latest.Rsquared <- function(flash, factor = NULL, EF = NULL) {
+get.latest.Rsquared <- function(flash, factor = NULL, EF = NULL,
+                                set.missing.to.zero = TRUE) {
   if (uses.R(flash) && !is.null(factor)) {
     R2 <- get.R(factor)^2
   } else if (uses.R(flash)) {
@@ -238,6 +239,8 @@ get.latest.Rsquared <- function(flash, factor = NULL, EF = NULL) {
     if (is.null(EF))
       EF <- get.new.EF(flash, factor)
     R2 <- (get.Y(flash) - lowrank.expand(EF))^2
+    if (set.missing.to.zero)
+      R2 <- get.nonmissing(flash) * R2
   }
   return(R2)
 }

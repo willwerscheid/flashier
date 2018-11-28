@@ -93,5 +93,16 @@ test_that("basic noisy variance estimation works", {
   f.const <- flashier(M, var.type = 0, greedy.Kmax = 1)
   f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
                       var.type = 0, greedy.Kmax = 1)
-  expect_equal(f.const$fit$tau, f.noisy$fit$tau[1, 1], tol = 0.1, scale = 1)
+  expect_equal(f.const$fit$tau, f.noisy$fit$tau[1, 1], tol = 0.5, scale = 1)
+  expect_equal(f.const$objective, f.noisy$objective, tol = 0.01, scale = 1)
+})
+
+test_that("fixed + by_column estimation works", {
+  f.bycol <- flashier(M, var.type = 2, greedy.Kmax = 1)
+  f.noisy <- flashier(M,
+                      S = (matrix(0.01, nrow = nrow(M), ncol = ncol(M))
+                           + 0.001 * rnorm(length(M))),
+                      var.type = 2, greedy.Kmax = 1)
+  expect_equal(f.bycol$fit$tau, f.noisy$fit$tau[1, ], tol = 0.5, scale = 1)
+  expect_equal(f.bycol$objective, f.noisy$objective, tol = 0.1, scale = 1)
 })

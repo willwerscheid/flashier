@@ -12,11 +12,9 @@ flashier <- function(data,
                      ash.param = NULL,
                      verbose.lvl = 1,
                      ...) {
-  if (!is(data, "flash.data")) {
-    data <- set.flash.data(data, S)
-  } else if (!missing(S)) {
+  if (is(data, "flash.data") && !missing(S))
     warning("Data has already been set. Ignoring S.")
-  }
+  data <- set.flash.data(data, S, var.type = var.type)
 
   ellipsis <- list(...)
 
