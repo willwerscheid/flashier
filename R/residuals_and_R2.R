@@ -24,6 +24,27 @@ calc.residuals <- function(flash, factor = NULL) {
   return(R)
 }
 
+calc.R2 <- function(flash) {
+  R   <- get.R(flash)
+  Y   <- get.Y(flash)
+  Z   <- get.nonmissing(flash)
+  EF  <- get.EF(flash)
+  EF2 <- get.EF2(flash)
+
+  if (!uses.R(flash))
+    R <- Z * (Y - lowrank.expand(EF))
+
+  n  <- get.R2.n(flash)
+  R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
+         + premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
+         - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n))
+
+  if (store.R2.as.scalar(flash))
+    R2 <- sum(R2)
+
+  return(R2)
+}
+
 calc.delta.R2.for.simple.tau <- function(factor, flash) {
   R <- get.R(flash)
   Y <- get.Y(flash)

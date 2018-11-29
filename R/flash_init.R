@@ -42,32 +42,15 @@ init.flash <- function(flash.init,
   flash$given.tau     <- given.tau
   flash$given.tau.dim <- given.tau.dim
 
+  # Precomputations.
   if (is.tau.simple(flash)) {
     flash$n.nonmissing    <- init.n.nonmissing(flash, get.R2.n(flash))
-    flash$R2              <- init.R2(flash)
-    flash$est.tau         <- estimate.simple.tau(flash)
-    flash$tau             <- tau.from.given.and.est(flash, flash$est.tau)
   } else if (is.var.type.zero(flash)) {
     flash$log.2pi.s2      <- init.log.2pi.s2(given.tau)
-    flash$tau             <- given.tau
   } else if (is.var.type.kronecker(flash)) {
     flash$kron.nonmissing <- init.kron.nonmissing(flash)
-    flash$tau             <- init.kronecker.tau(flash)
-    flash$tau             <- estimate.kronecker.tau(flash)
-  } else if (is.var.type.noisy(flash)) {
-    noisy.tau             <- estimate.noisy.tau(flash)
-    flash$sum.tau.R2      <- noisy.tau$sum.tau.R2
-    flash$tau             <- noisy.tau$tau
-  } else if (is.var.type.noisy.kron(flash)) {
-    flash$est.S2          <- init.kronecker.tau(flash)
-    noisy.tau             <- estimate.noisy.kron.tau(flash)
-    flash$sum.tau.R2      <- noisy.tau$sum.tau.R2
-    flash$est.S2          <- noisy.tau$est.S2
-    flash$tau             <- noisy.tau$tau
-  } else {
-    # TODO: We should never get here:
-    stop("The requested variance structure has not yet been implemented.")
   }
+  flash <- estimate.tau(flash)
 
   flash$obj                <- calc.obj(flash)
   flash$dim.signs          <- dim.signs
@@ -110,27 +93,6 @@ init.n.nonmissing <- function(flash, n) {
 init.kron.nonmissing <- function(flash) {
   return(lapply(get.est.tau.dim(flash),
                 function(n) {init.n.nonmissing(flash, n)}))
-}
-
-init.R2 <- function(flash) {
-  R   <- get.R(flash)
-  Y   <- get.Y(flash)
-  Z   <- get.nonmissing(flash)
-  EF  <- get.EF(flash)
-  EF2 <- get.EF2(flash)
-
-  if (!uses.R(flash))
-    R <- Z * (Y - lowrank.expand(EF))
-
-  n  <- get.R2.n(flash)
-  R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
-         + premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
-         - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n))
-
-  if (store.R2.as.scalar(flash))
-    R2 <- sum(R2)
-
-  return(R2)
 }
 
 init.log.2pi.s2 <- function(tau) {

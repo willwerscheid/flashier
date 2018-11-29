@@ -1,4 +1,4 @@
-update.factor <- function(factor, flash) {
+update.factor <- function(factor, flash, update.tau = TRUE) {
   if (is.zero(factor))
     return(factor)
 
@@ -6,7 +6,8 @@ update.factor <- function(factor, flash) {
     if (!is.zero(factor) && !all.fixed(factor, n))
       factor <- update.factor.one.n(factor, n, flash)
 
-  factor <- update.R2.tau.and.obj(factor, flash)
+  if (update.tau)
+    factor <- update.R2.tau.and.obj(factor, flash)
 
   return(factor)
 }

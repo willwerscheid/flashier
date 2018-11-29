@@ -36,6 +36,7 @@ flash.workhorse <- function(data,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.tol = backfit.tol,
                             inner.dropout = 1,
+                            parallel.backfit = FALSE,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
@@ -171,17 +172,27 @@ flash.workhorse <- function(data,
 
         if (identical(backfit.order, "random"))
           kset <- sample(kset)
-        for (k in kset) {
-          old.f <- flash
-          flash <- update.existing.factor(flash, k, iter, verbose.lvl)
-          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
-          conv.crit <- get.conv.crit(info)
-          max.conv.crit <- max(max.conv.crit, conv.crit)
-          if (conv.crit < dropout.tol) {
-            kset <- setdiff(kset, k)
+
+        if (!parallel.backfit) {
+          for (k in kset) {
+            old.f <- flash
+            flash <- update.existing.factor(flash, k, iter, verbose.lvl)
+            info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
+            conv.crit <- get.conv.crit(info)
+            max.conv.crit <- max(max.conv.crit, conv.crit)
+            if (conv.crit < dropout.tol) {
+              kset <- setdiff(kset, k)
+            }
+            print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
+                              k, backfit = TRUE)
           }
+        } else {
+          old.f <- flash
+          flash <- update.factors.parallel(flash, kset)
+          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns)
+          max.conv.crit <- abs(get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
-                            k, backfit = TRUE)
+                            k = "all", backfit = TRUE)
         }
       }
 

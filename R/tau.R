@@ -1,3 +1,35 @@
+estimate.tau <- function(flash) {
+  if (is.tau.simple(flash)) {
+    flash   <- set.R2(flash, calc.R2(flash))
+    est.tau <- estimate.simple.tau(flash)
+    flash   <- set.est.tau(flash, est.tau)
+    flash   <- set.tau(flash, tau.from.given.and.est(flash, est.tau))
+  } else if (is.var.type.zero(flash)) {
+    if (is.null(get.tau(flash)))
+      flash <- set.tau(flash, get.given.tau(flash))
+  } else if (is.var.type.kronecker(flash)) {
+    if (is.null(get.tau(flash)))
+      flash <- set.tau(flash, init.kronecker.tau(flash))
+    flash   <- set.tau(flash, estimate.kronecker.tau(flash))
+  } else if (is.var.type.noisy(flash)) {
+    noisy.tau <- estimate.noisy.tau(flash)
+    flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
+    flash     <- set.tau(flash, noisy.tau$tau)
+  } else if (is.var.type.noisy.kron(flash)) {
+    if (is.null(get.est.S2(flash)))
+      flash   <- set.est.S2(flash, init.kronecker.tau(flash))
+    noisy.tau <- estimate.noisy.kron.tau(flash)
+    flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
+    flash     <- set.est.S2(flash, noisy.tau$est.S2)
+    flash     <- set.tau(flash, noisy.tau$tau)
+  } else {
+    # This error should never occur:
+    stop("The requested variance structure has not yet been implemented.")
+  }
+
+  return(flash)
+}
+
 update.tau <- function(factor, flash) {
   if (is.tau.simple(flash)) {
     factor <- update.simple.tau(factor, flash)

@@ -425,6 +425,10 @@ set.sum.tau.R2 <- function(f, sum.tau.R2) {
   f[["sum.tau.R2"]] <- sum.tau.R2
   return(f)
 }
+set.is.zero <- function(f, is.zero) {
+  f[["is.zero"]] <- is.zero
+  return(f)
+}
 add.is.zero <- function(f, is.zero) {
   f[["is.zero"]] <- c(f[["is.zero"]], is.zero)
   return(f)
@@ -435,6 +439,10 @@ set.to.zero <- function(f, k = NULL) {
   } else {
     f[["is.zero"]][k] <- TRUE
   }
+  return(f)
+}
+set.is.valid <- function(f, is.valid) {
+  f[["is.valid"]] <- is.valid
   return(f)
 }
 add.is.valid <- function(f, is.valid) {
