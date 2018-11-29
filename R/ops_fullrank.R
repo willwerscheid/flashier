@@ -41,3 +41,7 @@ fullrank.subset <- function(X, n, subset) {
 elemwise.prod.fullrank.r1 <- function(X, r1) {
   return(X * r1.expand(r1))
 }
+
+elemwise.prod.fullrank.lowrank <- function(X, lr) {
+  return(X * lowrank.expand(lr))
+}

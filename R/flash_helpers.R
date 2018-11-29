@@ -221,8 +221,10 @@ is.tau.simple <- function(f) {
   return(is.simple)
 }
 is.tau.lowrank <- function(f) {
-  given.tau <- get.given.tau(f)
-  return(is.null(given.tau) || is.vector(given.tau))
+  tau <- get.given.tau(f)
+  if (is.null(tau))
+    tau <- get.given.S2(f)
+  return(is.null(tau) || is.vector(tau))
 }
 get.R2.n <- function(f) {
   n <- max(get.est.tau.dim(f), 0)

@@ -153,11 +153,18 @@ calc.x <- function(factor, n, flash, s2, tau) {
     }
   } else {
     x <- premult.nmode.prod.r1(Y, tau, factor.EF[-n], n)
-    # Note that whenever Y is used, tau is low-rank.
-    flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)
-    if (!is.new(factor))
-      flash.EF.tau <- lowrank.drop.k(flash.EF.tau, k)
-    x <- x - premult.nmode.prod.r1(Z, flash.EF.tau, factor.EF[-n], n)
+    if (is.tau.lowrank(flash)) {
+      flash.EF.tau <- lowranks.prod(tau, flash.EF, broadcast = TRUE)
+      if (!is.new(factor))
+        flash.EF.tau <- lowrank.drop.k(flash.EF.tau, k)
+      x <- x - premult.nmode.prod.r1(Z, flash.EF.tau, factor.EF[-n], n)
+    } else {
+      flash.EF.minus.k <- flash.EF
+      if (!is.new(factor))
+        flash.EF.minus.k <- lowrank.drop.k(flash.EF, k)
+      flash.EF.tau <- elemwise.prod.fullrank.lowrank(tau, flash.EF)
+      x <- x - nmode.prod.r1(flash.EF.tau, factor.EF[-n], n)
+    }
   }
   x <- s2 * x
 
