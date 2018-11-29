@@ -12,6 +12,7 @@ update.factors.parallel <- function(flash, kset) {
   EF <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF(f)[[n]])})
   EF2 <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF2(f)[[n]])})
   class(EF) <- class(EF2) <- "lowrank"
+
   flash <- set.EF(flash, EF)
   flash <- set.EF2(flash, EF2)
   flash <- set.KL(flash, lapply(1:d, function(n) {

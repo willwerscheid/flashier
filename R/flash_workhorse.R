@@ -182,7 +182,7 @@ flash.workhorse <- function(data,
           flash <- update.factors.parallel(flash, kset)
           info  <- calc.update.info(flash, old.f,
                                     conv.crit.fn, verbose.fns)
-          max.conv.crit <- abs(get.conv.crit(info))
+          conv.crit <- abs(get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
         } else {
