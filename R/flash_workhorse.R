@@ -1,3 +1,5 @@
+# TODO: change default backfit.order (and maxiter) after tests have been removed
+
 flash.workhorse <- function(data,
                             flash.init = NULL,
                             var.type = 0,
@@ -5,7 +7,10 @@ flash.workhorse <- function(data,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
                             greedy.Kmax = 100,
-                            backfit.order = c("sequential", "random"),
+                            backfit.order = c("sequential",
+                                              "random",
+                                              "montaigne",
+                                              "parallel"),
                             warmstart.backfits = TRUE,
                             backfit.after = NULL,
                             backfit.every = NULL,
@@ -32,11 +37,8 @@ flash.workhorse <- function(data,
                             greedy.tol = NULL,
                             backfit.maxiter = 100,
                             backfit.tol = greedy.tol,
-                            dropout = 0,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.tol = backfit.tol,
-                            inner.dropout = 1,
-                            parallel.backfit = FALSE,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
@@ -146,14 +148,12 @@ flash.workhorse <- function(data,
       do.nullchk  <- final.nullchk && (curr.rnd.factors.added > 0)
       maxiter     <- backfit.maxiter
       tol         <- backfit.tol
-      dropout.tol <- dropout * backfit.tol
       curr.rnd.factors.added <- 0
     } else {
       do.backfit  <- total.factors.added %in% when.to.backfit
       do.nullchk  <- total.factors.added %in% when.to.nullchk
       maxiter     <- inner.backfit.maxiter
       tol         <- inner.backfit.tol
-      dropout.tol <- inner.dropout * inner.backfit.tol
     }
 
     if (do.backfit) {
@@ -161,48 +161,45 @@ flash.workhorse <- function(data,
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
-      iter <- 0
-      max.conv.crit <- Inf
-      old.obj <- get.obj(flash)
       kset <- 1:get.n.factors(flash)
-      while (iter < maxiter && max.conv.crit > tol) {
+
+      iter <- 0
+      old.obj <- get.obj(flash)
+      conv.crit <- rep(Inf, get.n.factors(flash))
+      while (iter < maxiter && max(conv.crit) > tol) {
         is.converged <- TRUE
         iter <- iter + 1
-        max.conv.crit <- 0
 
-        if (identical(backfit.order, "random"))
+        if (backfit.order == "random") {
           kset <- sample(kset)
+        } else if (backfit.order == "montaigne") {
+          # Il faut courir au plus pressé.
+          kset <- which.max(conv.crit)
+        }
 
-        if (!parallel.backfit) {
-          for (k in kset) {
-            old.f <- flash
-            flash <- update.existing.factor(flash, k, iter, verbose.lvl)
-            info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns, k)
-            conv.crit <- get.conv.crit(info)
-            max.conv.crit <- max(max.conv.crit, conv.crit)
-            if (conv.crit < dropout.tol) {
-              kset <- setdiff(kset, k)
-            }
-            print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
-                              k, backfit = TRUE)
-          }
-        } else {
+        if (backfit.order == "parallel") {
           old.f <- flash
           flash <- update.factors.parallel(flash, kset)
-          info  <- calc.update.info(flash, old.f, conv.crit.fn, verbose.fns)
+          info  <- calc.update.info(flash, old.f,
+                                    conv.crit.fn, verbose.fns)
           max.conv.crit <- abs(get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
+        } else {
+          for (k in kset) {
+            old.f <- flash
+            flash <- update.existing.factor(flash, k, iter, verbose.lvl)
+            info  <- calc.update.info(flash, old.f,
+                                      conv.crit.fn, verbose.fns, k)
+            conv.crit[k] <- get.conv.crit(info)
+            print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
+                              k, backfit = TRUE)
+          }
         }
       }
 
       if (iter == maxiter)
         is.converged <- FALSE
-
-      # TODO: parallel backfit updates; allow increases by some
-      #   parallel.monotonicity parameter; might want to do some parallel,
-      #   some seq, or maybe switch to seq when parallel fails
-      #   monotonicity tol; in any case flexibility would be good.
 
       if (get.obj(flash) > old.obj) {
         report.backfit.complete(verbose.lvl, get.obj(flash))
