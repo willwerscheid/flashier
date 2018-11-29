@@ -1,4 +1,7 @@
-wrapup.flash <- function(flash) {
+wrapup.flash <- function(flash, output.lvl) {
+  if (output.lvl == 0)
+    return(flash)
+
   flash.object <- list()
 
   flash.object$n.factors  <- get.n.factors(flash)
@@ -6,12 +9,16 @@ wrapup.flash <- function(flash) {
   if (flash.object$n.factors > 0) {
     flash.object$pve      <- calc.pve(flash)
     flash.object$loadings <- calc.normalized.loadings(flash)
+    if (output.lvl > 1)
     flash.object$sampler    <- F.sampler(flash)
   }
 
-  flash <- clear.flags(flash)
-  flash <- remove.data.elements(flash)
-  flash <- remove.auxiliary.elements(flash)
+  if (output.lvl < 3) {
+    flash <- clear.flags(flash)
+    flash <- remove.data.elements(flash)
+    flash <- remove.auxiliary.elements(flash)
+  }
+
   class(flash) <- "flash.fit"
   flash.object$fit <- flash
 

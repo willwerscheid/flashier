@@ -2,7 +2,6 @@ flash.workhorse <- function(data,
                             flash.init = NULL,
                             var.type = 0,
                             prior.sign = NULL,
-                            #candidate.factors = NULL,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
                             greedy.Kmax = 100,
@@ -19,6 +18,7 @@ flash.workhorse <- function(data,
                             verbose.fns = NULL,
                             verbose.colnames = NULL,
                             verbose.colwidths = NULL,
+                            output.lvl = 2,
                             EF.init = NULL,
                             fix.dim = NULL,
                             fix.idx = NULL,
@@ -121,19 +121,6 @@ flash.workhorse <- function(data,
         if (iter == greedy.maxiter)
           is.converged <- FALSE
 
-        # TODO if "same signs" factor, do a "delayed add"; that is, save the
-        #   factor in some candidate.factor variable (which can actually
-        #   be a list of multiple factors), set something.changed
-        #   to TRUE, and compare all factors when we get to the last one
-
-        # if (is.candidate(factor))
-        #   candidate.factors <- c(candidate.factors, list(factor))
-        # else
-        #   if (!is.null(candidate.factors))
-        #     factor <- select.best.factor(factor, candidate.factors)
-        #     candidate.factors <- NULL
-
-        # this whole thing is part of the else:
         if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
           flash <- add.new.factor.to.flash(factor, flash)
         } else {
@@ -153,7 +140,6 @@ flash.workhorse <- function(data,
       report.add.factor.result(verbose.lvl, greedy.complete, get.obj(flash))
     }
 
-    # if !is.null(candidate.factors) FALSE, FALSE
     if (greedy.complete) {
       do.backfit  <- final.backfit && (curr.rnd.factors.added > 0)
       do.nullchk  <- final.nullchk && (curr.rnd.factors.added > 0)
@@ -235,7 +221,7 @@ flash.workhorse <- function(data,
             "setting backfit.tol and backfit.maxiter as needed.")
 
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash)
+  flash <- wrapup.flash(flash, output.lvl)
 
   report.completion(verbose.lvl)
   return(flash)
