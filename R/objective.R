@@ -5,11 +5,13 @@ calc.obj <- function(flash, factor = NULL) {
     KL <- KL + sum(unlist(get.KL(factor)))
     if (!is.new(factor))
       KL <- KL - sum(get.KL.k(flash, get.k(factor)))
-    est.tau <- get.est.tau(factor)
-    tau <- get.tau(factor)
+    est.tau    <- get.est.tau(factor)
+    tau        <- get.tau(factor)
+    sum.tau.R2 <- get.sum.tau.R2(factor)
   } else {
-    est.tau <- get.est.tau(flash)
-    tau <- get.tau(flash)
+    est.tau    <- get.est.tau(flash)
+    tau        <- get.tau(flash)
+    sum.tau.R2 <- get.sum.tau.R2(flash)
   }
 
   if (is.tau.simple(flash)) {
@@ -23,11 +25,10 @@ calc.obj <- function(flash, factor = NULL) {
     n.nonmissing <- get.kron.nonmissing(flash)
     obj <- KL - 0.5 * (sum(n.nonmissing[[1]]) * (log(2 * pi) + 1)
                        - sum(unlist(n.nonmissing) * log(unlist(tau))))
-  } else if (is.var.type.noisy(flash)) {
-    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + get.sum.tau.R2(flash, factor))
+  } else if (is.var.type.noisy(flash) || is.var.type.noisy.kron(flash)) {
+    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + sum.tau.R2)
   } else {
-    # Not yet used:
-    obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + sum(calc.tau.R2(flash, factor)))
+    stop("Something unexpected happened while trying to compute the objective.")
   }
   return(obj)
 }

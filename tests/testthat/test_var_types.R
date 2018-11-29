@@ -106,3 +106,19 @@ test_that("fixed + by_column estimation works", {
   expect_equal(f.bycol$fit$tau, f.noisy$fit$tau[1, ], tol = 0.5, scale = 1)
   expect_equal(f.bycol$objective, f.noisy$objective, tol = 0.1, scale = 1)
 })
+
+test_that("fixed + kronecker estimation works", {
+  f.kron <- flashier(M, var.type = c(1, 2), greedy.Kmax = 0)
+  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                      var.type = c(1, 2), greedy.Kmax = 0)
+
+  expect_equal(r1.expand(f.kron$fit$tau), f.noisy$fit$tau, tol = 0.01, scale = 1)
+  expect_equal(f.kron$objective, f.noisy$objective, tol = 0.01, scale = 1)
+
+  f.kron <- flashier(M, var.type = c(1, 2), greedy.Kmax = 1)
+  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                      var.type = c(1, 2), greedy.Kmax = 1)
+
+  expect_equal(r1.expand(f.kron$fit$tau), f.noisy$fit$tau, tol = 1, scale = 1)
+  expect_equal(f.kron$objective, f.noisy$objective, tol = 0.05, scale = 1)
+})

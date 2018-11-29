@@ -74,7 +74,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
 
 use.S2 <- function(S, S.dim, var.type) {
   return(!is.null(S)
-         && (length(var.type) == 1)
+         && (length(var.type) > 0)
          && (is.null(S.dim) || (S.dim > 0 && !(S.dim == var.type))))
 }
 

@@ -7,6 +7,8 @@ update.tau <- function(factor, flash) {
     factor <- update.kronecker.tau(factor, flash)
   } else if (is.var.type.noisy(flash)) {
     factor <- update.noisy.tau(factor, flash)
+  } else if (is.var.type.noisy.kron(flash)) {
+    factor <- update.noisy.kron.tau(factor, flash)
   }
   return(factor)
 }
@@ -41,6 +43,17 @@ update.noisy.tau <- function(factor, flash) {
     factor <- set.R(factor, calc.residuals(flash, factor))
   noisy.tau <- estimate.noisy.tau(flash, factor)
   factor <- set.tau(factor, noisy.tau$tau)
+  factor <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
+
+  return(factor)
+}
+
+update.noisy.kron.tau <- function(factor, flash) {
+  if (uses.R(flash))
+    factor <- set.R(factor, calc.residuals(flash, factor))
+  noisy.tau <- estimate.noisy.kron.tau(flash, factor)
+  factor <- set.tau(factor, noisy.tau$tau)
+  factor <- set.est.S2(factor, noisy.tau$est.S2)
   factor <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
 }
 
@@ -104,6 +117,8 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
 }
 
 estimate.noisy.tau <- function(flash, factor = NULL) {
+  tau.dim <- get.est.tau.dim(flash)
+
   Z   <- get.nonmissing(flash)
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
@@ -112,45 +127,85 @@ estimate.noisy.tau <- function(flash, factor = NULL) {
   R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
   S2 <- get.given.S2(flash)
 
-  var.type <- get.est.tau.dim(flash)
-  any.missing <- !identical(Z, 1)
+  R2.slices <- slice.data(R2, tau.dim, Z)
+  S2.slices <- slice.data(S2, tau.dim, Z)
 
-  if (var.type == 0) {
-    if (any.missing) {
-      R2.slice <- R2[as.logical(Z)]
-      S2.slice <- S2[as.logical(Z)]
-    } else {
-      R2.slice <- R2
-      S2.slice <- S2
-    }
-    est.S2 <- optimize.noisy(R2.slice, S2.slice)
-    final.S2 <- S2 + est.S2
-  } else {
-    if (any.missing) {
-      R2.slices <- R2
-      S2.slices <- S2
-      is.na(R2.slices) <- is.na(S2.slices) <- !Z
-      R2.slices <- lapply(apply(R2.slices, var.type, list.with.no.NAs), unlist)
-      S2.slices <- lapply(apply(S2.slices, var.type, list.with.no.NAs), unlist)
-    } else {
-      R2.slices <- lapply(apply(R2, var.type, list), unlist)
-      S2.slices <- lapply(apply(S2, var.type, list), unlist)
-    }
-    est.S2 <- mapply(optimize.noisy, R2.slices, S2.slices)
-    each <- prod(c(1, get.dims(flash)[1:get.dim(flash) < var.type]))
-    final.S2 <- S2 + rep(est.S2, each = each)
-  }
+  est.S2 <- mapply(optimize.noisy, R2.slices, S2.slices)
+  each <- prod(c(1, get.dims(flash)[1:get.dim(flash) < tau.dim]))
 
-  tau <- Z / final.S2
+  tau <- Z / (S2 + rep(est.S2, each = each))
   sum.tau.R2 <- sum(tau * R2)
   return(list(tau = tau, sum.tau.R2 = sum.tau.R2))
 }
 
+estimate.noisy.kron.tau <- function(flash, factor = NULL) {
+  # Tol and maxiter are again hardcoded.
+  tol <- 1e-3
+  maxiter <- 100
+
+  est.S2 <- get.est.S2(factor)
+  if (is.null(est.S2))
+    est.S2 <- get.est.S2(flash)
+  est.S2 <- as.r1.tau(est.S2, flash)
+  S2.dim <- get.est.tau.dim(flash)
+
+  Z   <- get.nonmissing(flash)
+  EF  <- get.new.EF(flash, factor)
+  EF2 <- get.new.EF2(flash, factor)
+
+  R2 <- get.latest.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
+  R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
+  S2 <- get.given.S2(flash)
+
+  max.chg <- Inf
+  iter <- 0
+  while (max.chg > tol && iter < maxiter) {
+    iter <- iter + 1
+    old.est.S2 <- est.S2
+    for (i in 1:length(S2.dim)) {
+      n <- S2.dim[i]
+      R2.slices <- slice.data(R2, n, Z)
+      S2.slices <- slice.data(S2, n, Z)
+      wts <- r1.expand(est.S2[-n])
+      est.S2[[i]] <- mapply(R2.slices, S2.slices,
+                            FUN = function(r2, s2) optimize.noisy(r2, s2, wts))
+    }
+    max.chg <- calc.max.abs.chg(est.S2, old.est.S2)
+  }
+
+  tau <- Z / (S2 + r1.expand(est.S2))
+  sum.tau.R2 <- sum(tau * R2)
+  return(list(est.S2 = est.S2, tau = tau, sum.tau.R2 = sum.tau.R2))
+}
+
+slice.data <- function(data, dim, Z) {
+  if (all(dim == 0)) {
+    if (identical(Z, 1)) {
+      slices <- list(data)
+    } else {
+      slices <- list(data[as.logical(Z)])
+    }
+  } else {
+    if (identical(Z, 1)) {
+      slices <- lapply(apply(data, dim, list), unlist)
+    } else {
+      slices <- data
+      is.na(slices) <- !Z
+      slices <- lapply(apply(slices, dim, list.with.no.NAs), unlist)
+    }
+  }
+  return(slices)
+}
+
 list.with.no.NAs <- function(x) list(x[!is.na(x)])
 
-optimize.noisy <- function(R2, S2) {
-  opt.res <- optimize(function(x) {sum(log(x + S2)) + sum(R2 / (x + S2))},
-                      interval = c(0, mean(R2)))
+optimize.noisy <- function(R2, S2, wts = 1) {
+  interval.max <- max((R2 - S2) / wts)
+  if (interval.max <= 0)
+    return(0)
+  opt.res <- optimize(function(x) {
+    sum(log(wts * x + S2)) + sum(R2 / (wts * x + S2))
+  }, interval = c(0, interval.max))
   return(opt.res$minimum)
 }
 

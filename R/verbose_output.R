@@ -13,7 +13,7 @@ announce.add.factor <- function(verbose.lvl, k) {
 report.greedy.obj.decrease <- function(verbose.lvl, obj.diff) {
   if (verbose.lvl > 0)
     message("An iteration decreased the objective by ",
-            formatC(-obj.diff, format = "e", digits = 3),
+            formatC(-obj.diff, format = "e", digits = 2),
             ". Try backfitting with warmstarts.")
 }
 

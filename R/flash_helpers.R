@@ -6,14 +6,16 @@ get.nonmissing      <- function(f) f[["Z"]]
 get.given.S2        <- function(f) f[["given.S2"]]
 get.given.tau       <- function(f) f[["given.tau"]]
 get.given.tau.dim   <- function(f) f[["given.tau.dim"]]
+get.est.S2          <- function(f) f[["est.S2"]]
+get.est.tau         <- function(f) f[["est.tau"]]
 get.est.tau.dim     <- function(f) f[["est.tau.dim"]]
+get.tau             <- function(f) f[["tau"]]
 use.fixed.to.est.g  <- function(f) f[["use.fixed.to.est.g"]]
 get.n.nonmissing    <- function(f) f[["n.nonmissing"]]
 get.kron.nonmissing <- function(f) f[["kron.nonmissing"]]
 get.R2              <- function(f) f[["R2"]]
 get.log.2pi.s2      <- function(f) f[["log.2pi.s2"]]
-get.est.tau         <- function(f) f[["est.tau"]]
-get.tau             <- function(f) f[["tau"]]
+get.sum.tau.R2      <- function(f) f[["sum.tau.R2"]]
 get.obj             <- function(f) f[["obj"]]
 get.KL              <- function(f) f[["KL"]]
 get.delta.R2        <- function(f) f[["delta.R2"]]
@@ -117,11 +119,6 @@ is.zero <- function(f, k = NULL) {
     return(f[["is.zero"]])
   return(f[["is.zero"]][k])
 }
-get.sum.tau.R2 <- function(flash, factor = NULL) {
-  if (is.null(factor))
-    return(flash[["sum.tau.R2"]])
-  return(factor[["sum.tau.R2"]])
-}
 is.valid <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.valid"]])
@@ -191,16 +188,23 @@ is.var.type.zero <- function(f) {
   return(is.null(get.est.tau.dim(f)))
 }
 is.var.type.kronecker <- function(f) {
-  return(is.null(get.given.tau(f)) && (length(get.est.tau.dim(f)) > 1))
+  return(is.null(get.given.tau(f))
+         && is.null(get.given.S2(f))
+         && (length(get.est.tau.dim(f)) > 1))
 }
 is.var.type.noisy <- function(f) {
-  return(!is.null(get.given.S2(f)))
+  return(!is.null(get.given.S2(f))
+         && (length(get.est.tau.dim(f)) == 1))
+}
+is.var.type.noisy.kron <- function(f) {
+  return(!is.null(get.given.S2(f))
+         && (length(get.est.tau.dim(f)) > 1))
 }
 is.tau.constant <- function(f) {
   return(!is.null(get.est.tau.dim(f)) && (get.est.tau.dim(f) == 0))
 }
 is.tau.simple <- function(f) {
-  if (is.var.type.noisy(f))
+  if (is.var.type.noisy(f) || is.var.type.noisy.kron(f))
     return(FALSE)
   var.type <- get.est.tau.dim(f)
   SEs <- get.given.tau(f)
@@ -385,6 +389,10 @@ set.gk <- function(f, k, g) {
 }
 add.factor.to.g <- function(f, new.g) {
   f[["g"]] <- c(f[["g"]], list(new.g))
+  return(f)
+}
+set.est.S2 <- function(f, est.S2) {
+  f[["est.S2"]] <- est.S2
   return(f)
 }
 set.est.tau <- function(f, est.tau) {

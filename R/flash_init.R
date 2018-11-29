@@ -58,7 +58,14 @@ init.flash <- function(flash.init,
     noisy.tau             <- estimate.noisy.tau(flash)
     flash$sum.tau.R2      <- noisy.tau$sum.tau.R2
     flash$tau             <- noisy.tau$tau
+  } else if (is.var.type.noisy.kron(flash)) {
+    flash$est.S2          <- init.kronecker.tau(flash)
+    noisy.tau             <- estimate.noisy.kron.tau(flash)
+    flash$sum.tau.R2      <- noisy.tau$sum.tau.R2
+    flash$est.S2          <- noisy.tau$est.S2
+    flash$tau             <- noisy.tau$tau
   } else {
+    # TODO: We should never get here:
     stop("The requested variance structure has not yet been implemented.")
   }
 
