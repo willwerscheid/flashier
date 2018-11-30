@@ -27,6 +27,7 @@ init.flash <- function(flash.init,
 
   flash$EF  <- lowranks.combine(flash$EF, EF.init)
   flash$EF2 <- lowranks.combine(flash$EF2, lowrank.square(EF.init))
+
   if (use.R) {
     flash$R <- nonmissing * (Y - lowrank.expand(flash$EF))
   } else {
@@ -62,8 +63,20 @@ init.flash <- function(flash.init,
   flash$fix.vals           <- fix.vals
   flash$use.fixed.to.est.g <- use.fixed.to.est.g
 
-  flash$is.valid <- c(flash$is.valid, rep(FALSE, length(EF.init)))
-  flash$is.zero  <- c(flash$is.zero, rep(FALSE, length(EF.init)))
+  if (!is.null(EF.init)) {
+    EF.init.k <- ncol(EF.init[[1]])
+
+    EF.init.KL <- rep(list(rep(0, EF.init.k)), get.dim(flash))
+    if (!is.null(flash$KL)) {
+      flash$KL <- mapply(c, flash$KL, EF.init.KL)
+    } else {
+      flash$KL <- EF.init.KL
+    }
+
+    flash$g <- c(flash$g, rep(list(rep(list(NULL), get.dim(flash))), EF.init.k))
+    flash$is.valid <- c(flash$is.valid, rep(FALSE, EF.init.k))
+    flash$is.zero  <- c(flash$is.zero, rep(FALSE, EF.init.k))
+  }
 
   return(flash)
 }
