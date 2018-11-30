@@ -1,17 +1,23 @@
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
+  # If data is a flash.data object, check that it has been set correctly.
   if (is(data, "flash.data")) {
-    if (is.null(data$given.tau)) {
-      S <- sqrt(data$given.S2)
-    } else {
-      S <- 1 / sqrt(data$given.tau)
+    if (!is.null(data$given.S2)) {
+      S <- data$given.S2
+    } else if (!is.null(data$given.tau)) {
+      S <- data$given.tau
     }
     S.dim <- data$given.tau.dim
 
-    if ((use.S2(S, S.dim, var.type) && is.null(data$S2.given))
-        || (!use.S2(S, S.dim, var.type) && !is.null(data$S2.given))) {
+    if ((use.S2(S, S.dim, var.type) && is.null(data$given.S2))
+        || (!use.S2(S, S.dim, var.type) && !is.null(data$given.S2))) {
       warning("Data has not been set correctly for the requested variance ",
               "type. Resetting.")
       data <- data$Y
+      if (!is.null(data$given.S2)) {
+        S <- sqrt(S)
+      } else if (!is.null(data$given.tau)) {
+        S <- 1 / sqrt(S)
+      }
     } else {
       return(data)
     }
@@ -22,6 +28,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   must.be.integer(S.dim, lower = 0, upper = length(dim(data)))
   must.be.valid.var.type(var.type, length(dim(data)))
 
+  # Set Y and Z.
   flash.data <- list()
   flash.data$Y <- data
   any.missing <- anyNA(data)
