@@ -130,10 +130,14 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
       }
     for (col in 1:length(colwidths)) {
       width.string <- paste0("%", as.character(colwidths[col]), "s")
-      if (is.finite(info[col]) && round(info[col]) == info[col]) {
-        format.info <- formatC(info[col], format = "d")
+      if (is.numeric(info[[col]])
+          && is.finite(info[[col]])
+          && round(info[[col]]) == info[[col]]) {
+        format.info <- formatC(info[[col]], format = "d")
+      } else if (is.numeric(info[[col]])) {
+        format.info <- formatC(info[[col]], format = "e", digits = 2)
       } else {
-        format.info <- formatC(info[col], format = "e", digits = 2)
+        format.info <- info[[col]]
       }
       table.entry <- paste0(table.entry, sprintf(width.string, format.info))
     }

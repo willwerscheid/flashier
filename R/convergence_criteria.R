@@ -8,7 +8,7 @@ calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
       all.fns <- c(all.fns, conv.crit.fn)
   }
 
-  update.info <- sapply(all.fns, do.call, list(new, old, k))
+  update.info <- lapply(all.fns, do.call, list(new, old, k))
 
   # Put a copy of the convergence criterion at the end of the list so that
   #   it's easy to find.
@@ -19,11 +19,11 @@ calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
 }
 
 get.conv.crit <- function(update.info) {
-  return(update.info[length(update.info)])
+  return(update.info[[length(update.info)]])
 }
 
 get.verbose.info <- function(update.info) {
-  return(update.info[-length(update.in)])
+  return(update.info[-length(update.info)])
 }
 
 get.new.obj <- function(new, old, k) {
@@ -36,6 +36,13 @@ calc.obj.diff <- function(new, old, k) {
   if (!is.obj.valid(old) || !is.obj.valid(new))
     return(Inf)
   return(get.obj(new) - get.obj(old))
+}
+
+calc.max.abs.chg.EF <- function(new, old, k, n = NULL) {
+  if (!is.null(k))
+    return(calc.max.abs.chg(get.EF.k(new, k, n), get.EF.k(old, k, n)))
+  return(calc.max.abs.chg(get.EF(new, n), get.EF(old, n)))
+
 }
 
 calc.max.chg.EF <- function(new, old, k, n = NULL) {
