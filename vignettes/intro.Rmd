@@ -112,8 +112,7 @@ c(gtex.const$objective, gtex.byrow$objective, gtex.kronecker$objective)
 It is worth noting that the residual variances can be obtained analytically when they vary along a single dimension, but must be estimated via an alternating maximization algorithm when more than one dimension is used. For this reason, the residual variance structure will affect the runtime of `flashier`.
 
 ```{r timing}
-list(by.row = byrow.time[3],
-     kronecker = kronecker.time[3])
+c(byrow.time[3], kronecker.time[3])
 ```
 
 ## Measurement error
