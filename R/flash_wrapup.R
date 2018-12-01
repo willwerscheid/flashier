@@ -1,6 +1,9 @@
 wrapup.flash <- function(flash, output.lvl) {
-  if (output.lvl == 0)
+  if (output.lvl == 0) {
+    flash <- set.bypass.init.flag(flash)
+    class(flash) = "flash.fit"
     return(flash)
+  }
 
   flash.object <- list()
 
@@ -10,7 +13,7 @@ wrapup.flash <- function(flash, output.lvl) {
     flash.object$pve      <- calc.pve(flash)
     flash.object$loadings <- calc.normalized.loadings(flash)
     if (output.lvl > 1)
-    flash.object$sampler    <- F.sampler(flash)
+      flash.object$sampler <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {

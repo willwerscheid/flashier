@@ -5,8 +5,9 @@ init.flash <- function(flash.init,
                        EF.init = NULL,
                        est.tau.dim = 0,
                        dim.signs = NULL,
-                       ebnm.fn = ebnm.pn,
-                       ebnm.param = list(list(prior_type = "point_normal")),
+                       ebnm.fn = list(ebnm.pn, ebnm.pn),
+                       ebnm.param = list(list(prior_type = "point_normal"),
+                                         list(prior_type = "point_normal")),
                        warmstart.backfits = TRUE,
                        fix.dim = NULL,
                        fix.idx = NULL,
@@ -19,49 +20,44 @@ init.flash <- function(flash.init,
     flash <- flash.init
   }
 
-  Y             <- get.Y(data)
-  nonmissing    <- get.nonmissing(data)
-  given.S2      <- get.given.S2(data)
-  given.tau     <- get.given.tau(data)
-  given.tau.dim <- get.given.tau.dim(data)
+  if (!is.null(EF.init)) {
+    flash$EF  <- lowranks.combine(flash$EF, EF.init)
+    flash$EF2 <- lowranks.combine(flash$EF2, lowrank.square(EF.init))
+  }
 
-  flash$EF  <- lowranks.combine(flash$EF, EF.init)
-  flash$EF2 <- lowranks.combine(flash$EF2, lowrank.square(EF.init))
+  flash$est.tau.dim  <- est.tau.dim
 
-  if (use.R) {
-    flash$R <- nonmissing * (Y - lowrank.expand(flash$EF))
+  if (bypass.init(flash)) {
+    flash <- clear.bypass.init.flag(flash)
   } else {
-    flash$Y <- Y
+    Y <- get.Y(data)
+    nonmissing <- get.nonmissing(data)
+
+    if (use.R) {
+      flash$R <- nonmissing * (Y - lowrank.expand(flash$EF))
+    } else {
+      flash$Y <- Y
+    }
+
+    if (is.null(nonmissing))
+      nonmissing <- 1
+    flash$Z <- nonmissing
+
+    flash$given.S2      <- get.given.S2(data)
+    flash$given.tau     <- get.given.tau(data)
+    flash$given.tau.dim <- get.given.tau.dim(data)
+
+    # Precomputations.
+    if (is.tau.simple(flash)) {
+      flash$n.nonmissing    <- init.n.nonmissing(flash, get.R2.n(flash))
+    } else if (is.var.type.zero(flash)) {
+      flash$log.2pi.s2      <- init.log.2pi.s2(get.given.tau(data))
+    } else if (is.var.type.kronecker(flash)) {
+      flash$kron.nonmissing <- init.kron.nonmissing(flash)
+    }
+    flash <- estimate.tau(flash)
+    flash$obj <- calc.obj(flash)
   }
-
-  if (is.null(nonmissing))
-    nonmissing <- 1
-  flash$Z <- nonmissing
-
-  flash$est.tau.dim   <- est.tau.dim
-  flash$given.S2      <- given.S2
-  flash$given.tau     <- given.tau
-  flash$given.tau.dim <- given.tau.dim
-
-  # Precomputations.
-  if (is.tau.simple(flash)) {
-    flash$n.nonmissing    <- init.n.nonmissing(flash, get.R2.n(flash))
-  } else if (is.var.type.zero(flash)) {
-    flash$log.2pi.s2      <- init.log.2pi.s2(given.tau)
-  } else if (is.var.type.kronecker(flash)) {
-    flash$kron.nonmissing <- init.kron.nonmissing(flash)
-  }
-  flash <- estimate.tau(flash)
-
-  flash$obj                <- calc.obj(flash)
-  flash$dim.signs          <- dim.signs
-  flash$ebnm.fn            <- ebnm.fn
-  flash$ebnm.param         <- ebnm.param
-  flash$warmstart.backfits <- warmstart.backfits
-  flash$fix.dim            <- fix.dim
-  flash$fix.idx            <- fix.idx
-  flash$fix.vals           <- fix.vals
-  flash$use.fixed.to.est.g <- use.fixed.to.est.g
 
   if (!is.null(EF.init)) {
     EF.init.k <- ncol(EF.init[[1]])
@@ -77,6 +73,18 @@ init.flash <- function(flash.init,
     flash$is.valid <- c(flash$is.valid, rep(FALSE, EF.init.k))
     flash$is.zero  <- c(flash$is.zero, rep(FALSE, EF.init.k))
   }
+
+  flash$dim.signs  <- dim.signs
+  flash$ebnm.fn    <- ebnm.fn
+  flash$ebnm.param <- ebnm.param
+  flash <- extend.ebnm.lists(flash)
+
+  flash$fix.dim  <- fix.dim
+  flash$fix.idx  <- fix.idx
+  flash$fix.vals <- fix.vals
+
+  flash$warmstart.backfits <- warmstart.backfits
+  flash$use.fixed.to.est.g <- use.fixed.to.est.g
 
   return(flash)
 }

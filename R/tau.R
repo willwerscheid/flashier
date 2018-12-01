@@ -266,9 +266,11 @@ as.lowrank.tau <- function(tau, flash) {
   return(tau.lowrank)
 }
 
-as.r1.tau <- function(tau, flash) {
+as.r1.tau <- function(tau, flash, n = NULL) {
   r1 <- as.list(rep(1, get.dim(flash)))
   r1[get.est.tau.dim(flash)] <- tau
+  if (!is.null(n))
+    r1 <- r1[-n]
 
   class(r1) <- "r1"
   return(r1)

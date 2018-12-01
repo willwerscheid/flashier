@@ -1,4 +1,5 @@
 # TODO: change default backfit.order (and maxiter) after tests have been removed
+# change warmstart default to FALSE after removal of tests
 
 flash.workhorse <- function(data,
                             flash.init = NULL,
@@ -11,7 +12,7 @@ flash.workhorse <- function(data,
                                               "random",
                                               "montaigne",
                                               "parallel"),
-                            warmstart.backfits = FALSE,
+                            warmstart.backfits = TRUE,
                             backfit.after = NULL,
                             backfit.every = NULL,
                             final.backfit = FALSE,
@@ -50,6 +51,18 @@ flash.workhorse <- function(data,
   }
 
   announce.flash.init(verbose.lvl)
+  if (!is.null(flash.init)) {
+    if (missing(fix.dim))
+      fix.dim <- flash.init$fix.dim
+    if (missing(fix.idx))
+      fix.idx <- flash.init$fix.idx
+    if (missing(fix.vals))
+      fix.vals <- flash.init$fix.vals
+    if (missing(warmstart.backfits))
+      warmstart.backfits <- flash.init$warmstart.backfits
+    if (missing(use.fixed.to.est.g))
+      use.fixed.to.est.g <- flash.init$use.fixed.to.est.g
+  }
   flash <- init.flash(flash.init,
                       data = data,
                       EF.init = EF.init,

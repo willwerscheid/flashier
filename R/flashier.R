@@ -45,7 +45,18 @@ flashier <- function(data,
   workhorse.param <- list()
 
   # Handle "prior type" parameter.
-  if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
+  if (!is.null(flash.init) && !missing(prior.type) && !is.list(prior.type)) {
+    new.prior.param <- prior.param(prior.type,
+                                   get.dim(data),
+                                   ebnm.param,
+                                   ash.param)
+    k <- length(flash.init$ebnm.fn)
+    flash.init$ebnm.fn[k] <- new.prior.param$ebnm.fn
+    flash.init$ebnm.param[k] <- new.prior.param$ebnm.param
+    ellipsis$ebnm.fn <- flash.init$ebnm.fn
+    ellipsis$ebnm.param <- flash.init$ebnm.param
+    ellipsis$prior.sign <- new.prior.param$prior.sign
+  } else if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
     workhorse.param <- c(workhorse.param, prior.param(prior.type,
                                                       get.dim(data),
                                                       ebnm.param,

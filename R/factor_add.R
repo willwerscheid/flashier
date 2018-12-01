@@ -3,6 +3,7 @@ add.new.factor.to.flash <- function(factor, flash) {
   flash <- add.factor.to.EF2(flash, get.EF2(factor))
   flash <- add.factor.to.KL(flash, get.KL(factor))
   flash <- add.factor.to.g(flash, get.g(factor))
+  flash <- extend.ebnm.lists(flash)
   flash <- set.tau(flash, get.tau(factor))
   flash <- set.obj(flash, get.obj(factor))
   flash <- add.is.zero(flash, FALSE)

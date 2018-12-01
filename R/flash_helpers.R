@@ -94,12 +94,12 @@ get.fix.vals <- function(f, k = NULL) {
 get.ebnm.fn.k <- function(f, k) {
   if (!is.list(f[["ebnm.fn"]]))
     return(f[["ebnm.fn"]])
-  return(f[["ebnm.fn"]][[min(k, length(f[["ebnm.fn"]]))]])
+  return(f[["ebnm.fn"]][[k]])
 }
 get.ebnm.param.k <- function(f, k) {
   if (!is.list(f[["ebnm.param"]]))
     return(NULL)
-  return(f[["ebnm.param"]][[min(k, length(f[["ebnm.param"]]))]])
+  return(f[["ebnm.param"]][[k]])
 }
 get.g <- function(f, n = NULL) {
   if (is.null(n))
@@ -182,6 +182,18 @@ get.ebnm.param <- function(flash, factor, n) {
   if (length(ebnm.param) == 0 || !is.null(names(ebnm.param)))
     return(ebnm.param)
   return(ebnm.param[[n]])
+}
+extend.ebnm.lists <- function(flash) {
+  k <- get.n.factors(flash)
+  l <- length(flash[["ebnm.fn"]])
+  extend.by <- (k + 1) - l
+  if (extend.by > 0) {
+    flash[["ebnm.fn"]] <- c(flash[["ebnm.fn"]],
+                            rep(flash[["ebnm.fn"]][l], extend.by))
+    flash[["ebnm.param"]] <- c(flash[["ebnm.param"]],
+                               rep(flash[["ebnm.param"]][l], extend.by))
+  }
+  return(flash)
 }
 
 is.var.type.zero <- function(f) {
@@ -283,6 +295,9 @@ greedy.failed <- function(f) {
 }
 nullchk.failed <- function(f) {
   return(identical(f[["nullchk.fail"]], TRUE))
+}
+bypass.init <- function(f) {
+  return(identical(f[["bypass.init"]], TRUE))
 }
 
 get.subset.data <- function(f, fix.dim, idx.subset) {
@@ -476,6 +491,14 @@ clear.nullchk.fail.flag <- function(f) {
 clear.flags <- function(f) {
   f <- clear.greedy.fail.flag(f)
   f <- clear.nullchk.fail.flag(f)
+  return(f)
+}
+set.bypass.init.flag <- function(f) {
+  f[["bypass.init"]] <- TRUE
+  return(f)
+}
+clear.bypass.init.flag <- function(f) {
+  f[["bypass.init"]] <- NULL
   return(f)
 }
 
