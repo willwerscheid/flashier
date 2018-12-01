@@ -137,7 +137,7 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
       } else if (is.numeric(info[[col]])) {
         format.info <- formatC(info[[col]], format = "e", digits = 2)
       } else {
-        format.info <- info[[col]]
+        format.info <- toString(info[[col]])
       }
       table.entry <- paste0(table.entry, sprintf(width.string, format.info))
     }
