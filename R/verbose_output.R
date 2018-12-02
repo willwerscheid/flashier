@@ -2,98 +2,98 @@
 
 announce.flash.init <- function(verbose.lvl) {
   if (verbose.lvl > 0)
-    message("Initializing flash object...")
+    cat("Initializing flash object...\n")
 }
 
 announce.add.factor <- function(verbose.lvl, k) {
   if (verbose.lvl > 0)
-    message("Adding factor ", k, " to flash object...")
+    cat("Adding factor", k, "to flash object...\n")
 }
 
 report.greedy.obj.decrease <- function(verbose.lvl, obj.diff) {
   if (verbose.lvl > 0)
-    message("An iteration decreased the objective by ",
-            formatC(-obj.diff, format = "e", digits = 2),
-            ". Try backfitting with warmstarts.")
+    cat("An iteration decreased the objective by ",
+        formatC(-obj.diff, format = "e", digits = 2),
+        ". Try backfitting with warmstarts.\n", sep="")
 }
 
 report.add.factor.result <- function(verbose.lvl, greedy.complete, obj) {
   if (verbose.lvl > 0 && greedy.complete) {
-    message("Factor doesn't increase objective and won't be added.")
+    cat("Factor doesn't increase objective and won't be added.\n")
   }
   if (verbose.lvl > 1 && !greedy.complete) {
-    message("  Factor successfully added. Objective: ",
-            formatC(obj, format = "f", digits = 3))
+    cat("  Factor successfully added. Objective:",
+        formatC(obj, format = "f", digits = 3), "\n")
   }
 }
 
 announce.backfit <- function(verbose.lvl, n.factors) {
   if (verbose.lvl > 0)
-    message("Backfitting ", n.factors, " factors...")
+    cat("Backfitting", n.factors, "factors...\n")
 }
 
 report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0)
-    message("An update to factor ", k, " decreased the objective by ",
-            formatC(-obj.diff, format = "e", digits = 3),
-            ". Try using warmstarts?")
+    cat("An update to factor ", k, " decreased the objective by ",
+        formatC(-obj.diff, format = "e", digits = 3),
+        ". Try using warmstarts?\n", sep = "")
 }
 
 announce.nullchk <- function(verbose.lvl, n.factors) {
   if (verbose.lvl > 0 && n.factors > 0)
-    message("Nullchecking ", n.factors, " factors...")
+    cat("Nullchecking", n.factors, "factors...\n")
 }
 
 report.nullchk.failure <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0) {
     if (obj.diff > 0) {
-      message("Factor ", k, " removed, increasing objective by ",
-              formatC(obj.diff, format = "e", digits = 3), ".")
+      cat("Factor ", k, " removed, increasing objective by ",
+          formatC(obj.diff, format = "e", digits = 3), ".\n", sep = "")
     } else if (obj.diff == 0) {
-      message("Factor ", k, " removed with no change to objective.")
+      cat("Factor", k, "removed with no change to objective.\n")
     }
   }
 }
 
 announce.wrapup <- function(verbose.lvl) {
   if (verbose.lvl > 0)
-    message("Wrapping up...")
+    cat("Wrapping up...\n")
 }
 
 report.completion <- function(verbose.lvl) {
   if (verbose.lvl > 0)
-    message("Done.")
+    cat("Done.\n")
 }
 
 # Level 2 announcements -------------------------------------------------------
 
 announce.factor.init <- function(verbose.lvl) {
   if (verbose.lvl > 1)
-    message("  Initializing factor...")
+    cat("  Initializing factor...\n")
 }
 
 announce.factor.opt <- function(verbose.lvl) {
   if (verbose.lvl > 1)
-    message("  Optimizing factor...")
+    cat("  Optimizing factor...\n")
 }
 
 report.backfit.complete <- function(verbose.lvl, obj) {
   if (verbose.lvl > 1)
-    message("  Backfit complete. Objective: ",
-            formatC(obj, format = "f", digits = 3))
+    cat("  Backfit complete. Objective:",
+        formatC(obj, format = "f", digits = 3), "\n")
 }
 
 report.nullchk.success <- function(verbose.lvl) {
   if (verbose.lvl > 1)
-    message("  No factor can be removed without decreasing the objective.")
+    cat("  No factor can be removed without decreasing the objective.\n")
 }
 
 # Optimization details (level 3) ----------------------------------------------
 
 report.tol.setting <- function(verbose.lvl, tol) {
   if (verbose.lvl > 2)
-    message("Convergence tolerance set to ",
-            formatC(tol, format = "e", digits = 2), ".")
+    cat("Convergence tolerance set to ",
+        formatC(tol, format = "e", digits = 2), ".\n", sep = "")
 }
 
 print.table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
@@ -106,7 +106,8 @@ print.table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
       header.string <- paste0(header.string,
                               sprintf(width.string, colnames[col]))
     }
-    message(header.string)
+    header.string <- paste0(header.string, "\n")
+    cat(header.string)
   }
 }
 
@@ -137,7 +138,7 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
       }
       table.entry <- paste0(table.entry, sprintf(width.string, format.info))
     }
-    message(table.entry)
+    cat(table.entry, "\n")
   } else if (verbose.lvl == -1) {
     if (backfit) {
       table.entry <- "backfit\t"

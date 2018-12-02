@@ -241,12 +241,12 @@ for (k in 1:greedy.Kmax) {
                      prior.type = c("nonnegative", "nonpositive"),
                      output.lvl = 0, verbose.lvl = 0)
   if (nn.fit$obj > np.fit$obj) {
-    message("Nonnegative factor added. Objective: ",
-            formatC(nn.fit$obj, format = "f", digits = 2))
+    cat("Nonnegative factor added. Objective: ",
+        formatC(nn.fit$obj, format = "f", digits = 2), "\n", sep = "")
     fit <- nn.fit
   } else {
-    message("Nonpositive factor added. Objective: ",
-            formatC(np.fit$obj, format = "f", digits = 2))
+    cat("Nonpositive factor added. Objective: ",
+        formatC(np.fit$obj, format = "f", digits = 2), "\n", sep = "")
     fit <- np.fit
   }
 }
