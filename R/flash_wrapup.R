@@ -47,7 +47,7 @@ remove.auxiliary.elements <- function(flash) {
 
 calc.pve <- function(flash) {
   ldf <- calc.normalized.loadings(flash)
-  S   <- ldf$scale.factor^2
+  S   <- ldf$scale.constant^2
 
   tau <- get.tau(flash)
   if (is.tau.simple(flash)) {
@@ -82,7 +82,7 @@ calc.normalized.loadings <- function(flash) {
   }
 
   norms <- do.call(rbind, norms)
-  ret$scale.factor <- apply(norms, 2, prod)
+  ret$scale.constant <- apply(norms, 2, prod)
   ret$normalized.loadings <- L
 
   return(ret)

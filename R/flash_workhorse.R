@@ -1,6 +1,108 @@
 # TODO: change default backfit.order (and maxiter) after tests have been removed
 # change warmstart default to FALSE after removal of tests
 
+#' A horse that works for flashier
+#'
+#' Caveat emptor.
+#'
+#' @inheritParams flashier
+#'
+#' @param prior.sign A vector or list of vectors indicating the sign(s) of
+#'   the priors (-1 for nonpositive, 1 for nonnegative, and 0 otherwise). Only
+#'   used when initializing factors.
+#'
+#' @param ebnm.fn A list of lists giving the functions to be used to solve the
+#'   Empirical Bayes normal means problem when updating each factor.
+#'
+#' @param ebnm.param A list of lists giving the parameters to be passed to the
+#'   functions in \code{ebnm.fn}.
+#'
+#' @param backfit.order How to determine the order in which to backfit factors.
+#'   \code{"montaigne"} goes after the factor that promises to yield the
+#'   largest increase in the variational lower bound. Il faut courir au plus
+#'   pressé.
+#'
+#' @param warmstart.backfits Whether to use the current prior parameters to
+#'   initialize the solution to the empirical Bayes normal means problem.
+#'
+#' @param backfit.after A vector of factor indices. A backfit will be
+#'   performed each time one of these factors have been added.
+#'
+#' @param backfit.every After the last factor in \code{backfit.after} is added,
+#'   an additional backfit will be performed after every \code{backfit.every}th
+#'   factor is added.
+#'
+#' @param final.backfit Whether to perform a final backfit.
+#'
+#' @param nullchk.after Similar to \code{backfit.after}, but for nullchecks.
+#'
+#' @param nullchk.every Similar to \code{backfit.every}. For nullchecks.
+#'
+#' @param final.nullchk Whether to perform a final nullcheck.
+#'
+#' @param conv.crit.fn The function to use to determine whether convergence has
+#'   occurred. Used for both new factors and backfits.
+#'
+#' @param verbose.fns A vector of functions. Used to calculate values to
+#'   output after each factor update.
+#'
+#' @param verbose.colnames A vector of column names, one for each function in
+#'   \code{verbose.fns}.
+#'
+#' @param verbose.colwidths A vector of column widths.
+#'
+#' @param output.lvl What to include in the returned flash object. 0 = raw fit
+#'   only; 1 = trimmed fit, no sampler; 2 = raw fit and sampler; 3 = trimmed
+#'   fit and sampler.
+#'
+#' @param EF.init A list of matrices, one for each dimension. Each matrix
+#'   should have k columns, one for each factor. New factors are initialized
+#'   at these values.
+#'
+#' @param fix.dim A list of integers, one for each fixed factor. Specifies the
+#'   dimension along which the factor is (partially) fixed.
+#'
+#' @param fix.idx A list of vectors, one for each fixed factor. Gives the
+#'   indices of the loadings to fix.
+#'
+#' @param fix.vals A list of vectors that gives the values at which to fix
+#'   the loadings specified by \code{fix.idx}.
+#'
+#' @param use.fixed.to.est.g Whether to include fixed values when estimating
+#'   priors on (partially) fixed factors.
+#'
+#' @param nullchk.fixed.factors Whether to nullcheck fixed factors.
+#'
+#' @param init.fn The function to use to initialize factors.
+#'
+#' @param init.maxiter The maximum number of iterations when initializing
+#'   factors.
+#'
+#' @param init.tol The maximum absolute change in normalized loadings that can
+#'   occur before initialization is considered complete.
+#'
+#' @param greedy.maxiter The maximum number of iterations when optimizing a
+#'   new factor.
+#'
+#' @param greedy.tol The convergence tolerance when optimizing a new factor.
+#'
+#' @param backfit.maxiter The maximum number of iterations when performing a
+#'   final backfit.
+#'
+#' @param backfit.tol The convergence tolerance when performing a final
+#'   backfit.
+#'
+#' @param inner.backfit.maxiter Maximum iterations for intermediary backfits.
+#'
+#' @param inner.backfit.tol Convergence tolerance for intermediary backfits.
+#'
+#' @param seed By default, a seed is set for reproducibility. Set to
+#'   \code{NULL} for a random seed.
+#'
+#' @param use.R Whether to maintain a matrix of residuals throughout the
+#'   fitting process. This usually requires much more memory and seldom offers
+#'   much improvement in runtime.
+#'
 flash.workhorse <- function(data,
                             flash.init = NULL,
                             var.type = 0,

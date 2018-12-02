@@ -1,13 +1,17 @@
 Package: flashier
 Type: Package
-Title: What the Package Does (Title Case)
+Date: 2018-12-01
+Title: Empirical Bayes Matrix and Tensor Factorization
 Version: 0.1.0
 Author: Jason Willwerscheid
 Maintainer: Jason Willwerscheid <willwerscheid@github.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Methods for matrix factorization based on "Empirical
+    Bayes Matrix Factorization" (W. Wang & M. Stephens, 2018,
+    <https://arxiv.org/abs/1802.06931>).
+Depends: R (>= 3.4)
 Imports:
     Matrix
-License: What license is it under?
+License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.0.1.9000
