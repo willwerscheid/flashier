@@ -24,9 +24,7 @@ init.flash <- function(flash.init,
 
   flash$est.tau.dim <- est.tau.dim
 
-  if (bypass.init(flash)) {
-    flash <- clear.bypass.init.flag(flash)
-  } else {
+  if (!bypass.init(flash) || !is.null(EF.init)) {
     Y <- get.Y(data)
     nonmissing <- get.nonmissing(data)
 
@@ -55,6 +53,8 @@ init.flash <- function(flash.init,
     flash <- init.tau(flash)
     flash$obj <- calc.obj(flash)
   }
+
+  flash <- clear.bypass.init.flag(flash)
 
   if (!is.null(EF.init)) {
     EF.init.k <- ncol(EF.init[[1]])

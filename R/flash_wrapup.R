@@ -21,6 +21,8 @@ wrapup.flash <- function(flash, output.lvl) {
     flash <- clear.flags(flash)
     flash <- remove.data.elements(flash)
     flash <- remove.auxiliary.elements(flash)
+  } else {
+    flash <- set.bypass.init.flag(flash)
   }
 
   flash.object$fit <- flash
