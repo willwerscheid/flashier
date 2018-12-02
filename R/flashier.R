@@ -84,8 +84,8 @@ flashier <- function(data,
                                  "final",
                                  "alternating",
                                  "only"),
-                     ebnm.param = NULL,
-                     ash.param = NULL,
+                     ebnm.param = list(),
+                     ash.param = list(),
                      verbose.lvl = 1,
                      ...) {
   if (is(data, "flash.data") && !missing(S))
@@ -122,6 +122,9 @@ flashier <- function(data,
 
   # Handle "prior type" parameter.
   if (!is.null(flash.init) && !missing(prior.type) && !is.list(prior.type)) {
+    # The last element of ebnm.fn (and ebnm.param) specifies settings for new
+    #   factors. If there is an initial flash object, the existing settings
+    #   need to be kept, while the last list element is overridden.
     new.prior.param <- prior.param(prior.type,
                                    get.dim(data),
                                    ebnm.param,
@@ -133,6 +136,8 @@ flashier <- function(data,
     ellipsis$ebnm.param <- flash.init$ebnm.param
     ellipsis$prior.sign <- new.prior.param$prior.sign
   } else if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
+    # I can't check that ellipsis$ebnm.param is NULL because I've overloaded
+    #   ebnm.param.
     workhorse.param <- c(workhorse.param, prior.param(prior.type,
                                                       get.dim(data),
                                                       ebnm.param,
@@ -149,7 +154,7 @@ flashier <- function(data,
     backfit <- match.arg(backfit)
     if (backfit == "only") {
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
-        stop("Cannot set backfit to only with greedy.Kmax > 0.")
+        stop("Cannot set backfit to \"only\" with greedy.Kmax > 0.")
       greedy.Kmax <- 0
     }
     workhorse.param <- c(workhorse.param, control.param(backfit))
@@ -187,13 +192,15 @@ prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
   if (!is.list(prior.type))
     prior.type <- list(prior.type)
 
+  error.msg <- "Invalid argument to prior.type."
+
   prior.type <- lapply(prior.type, function(k) {
     if (!is.vector(k))
-      stop()
+      stop(error.msg)
     if (length(k) == 1)
       k <- rep(k, data.dim)
     if (length(k) != data.dim)
-      stop()
+      stop(error.msg)
     return(as.list(k))
   })
 
@@ -247,10 +254,10 @@ prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
   if (!is.null(param[["mixcompdist"]])) {
     # Additional parameters for ashr::ash.
     param <- c(param, list(method = "shrink", output = "flash_data"))
-    param <- c(param, ash.param)
+    param <- modifyList(param, ash.param)
   } else {
     # Additional parameters for ebnm::ebnm.
-    param <- c(param, ebnm.param)
+    param <- modifyList(param, ebnm.param)
   }
 
   return(param)
