@@ -1,7 +1,7 @@
 #' Set data for flash
 #'
 #' Converts matrices or arrays of observations and standard errors into the
-#' form that will be used by \code{flashier}. When it is necessary to be
+#' form that will be used by \code{\link{flashier}}. When it is necessary to be
 #' parsimonious with memory, one can call \code{set.flash.data} and then remove
 #' the original objects from memory. Otherwise, one should simply pass the
 #' original objects to \code{flashier} as is.

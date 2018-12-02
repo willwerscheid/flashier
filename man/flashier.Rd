@@ -85,5 +85,5 @@ A \code{flash} object. Contains elements:
   }
 }
 \description{
-TODO: describe model here
+TODO: Describe model. Add reference.
 }

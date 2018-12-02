@@ -2,7 +2,7 @@
 % Please edit documentation in R/flash_workhorse.R
 \name{flash.workhorse}
 \alias{flash.workhorse}
-\title{A horse that works for flashier}
+\title{A horse that works for \code{\link{flashier}}}
 \usage{
 flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
   ebnm.fn = flashr:::ebnm_pn, ebnm.param = list(), greedy.Kmax = 100,

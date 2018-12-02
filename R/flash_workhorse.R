@@ -2,7 +2,7 @@
 #   tests have been removed. Change warmstart default to FALSE until issues
 #   with ashr are fixed.
 
-#' A horse that works for flashier
+#' A horse that works for \code{\link{flashier}}
 #'
 #' Caveat emptor.
 #'

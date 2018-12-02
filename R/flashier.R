@@ -1,6 +1,6 @@
 #' Fit an empirical Bayes matrix/tensor factorization
 #'
-#' TODO: describe model here
+#' TODO: Describe model. Add reference.
 #'
 #' @param data The observations. Can be a matrix, sparse matrix of class
 #'   \code{Matrix}, three-dimensional array, or \code{flash.data} object
