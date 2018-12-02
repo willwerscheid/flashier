@@ -6,15 +6,18 @@
 \usage{
 flashier(data, S = NULL, flash.init = NULL, var.type = 0,
   prior.type = "point.normal", greedy.Kmax = 30, backfit = c("none",
-  "final", "alternating", "only"), ebnm.param = NULL, ash.param = NULL,
+  "final", "alternating", "only"), ebnm.param = list(), ash.param = list(),
   verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
-\code{Matrix}, or three-dimensional array.}
+\code{Matrix}, three-dimensional array, or \code{flash.data} object
+obtained from \code{set.flash.data}.}
 
-\item{S}{The standard errors. If \code{NULL}, all residual variance will be
-estimated.}
+\item{S}{The standard errors. Can be a matrix, scalar (if standard errors
+are the same for all observations), or vector (if, for example, \code{S}
+only varies across columns and is constant within any given row). If
+\code{NULL}, all residual variance will be estimated.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 

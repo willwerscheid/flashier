@@ -1,27 +1,16 @@
-estimate.tau <- function(flash) {
+# Functions for estimating tau ------------------------------------------------
+
+init.tau <- function(flash) {
   if (is.tau.simple(flash)) {
-    flash   <- set.R2(flash, calc.R2(flash))
-    est.tau <- estimate.simple.tau(flash)
-    flash   <- set.est.tau(flash, est.tau)
-    flash   <- set.tau(flash, tau.from.given.and.est(flash, est.tau))
+    flash <- init.simple.tau(flash)
   } else if (is.var.type.zero(flash)) {
-    if (is.null(get.tau(flash)))
-      flash <- set.tau(flash, get.given.tau(flash))
+    flash <- init.zero.tau(flash)
   } else if (is.var.type.kronecker(flash)) {
-    if (is.null(get.tau(flash)))
-      flash <- set.tau(flash, init.kronecker.tau(flash))
-    flash   <- set.tau(flash, estimate.kronecker.tau(flash))
+    flash <- init.kronecker.tau(flash)
   } else if (is.var.type.noisy(flash)) {
-    noisy.tau <- estimate.noisy.tau(flash)
-    flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
-    flash     <- set.tau(flash, noisy.tau$tau)
+    flash <- init.noisy.tau(flash)
   } else if (is.var.type.noisy.kron(flash)) {
-    if (is.null(get.est.S2(flash)))
-      flash   <- set.est.S2(flash, init.kronecker.tau(flash))
-    noisy.tau <- estimate.noisy.kron.tau(flash)
-    flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
-    flash     <- set.est.S2(flash, noisy.tau$est.S2)
-    flash     <- set.tau(flash, noisy.tau$tau)
+    flash <- init.noisy.kron.tau(flash)
   } else {
     # This error should never occur:
     stop("The requested variance structure has not yet been implemented.")
@@ -41,12 +30,24 @@ update.tau <- function(factor, flash) {
     factor <- update.noisy.tau(factor, flash)
   } else if (is.var.type.noisy.kron(flash)) {
     factor <- update.noisy.kron.tau(factor, flash)
+  } else {
+    stop("The requested variance structure has not yet been implemented.")
   }
+
   return(factor)
 }
 
+init.simple.tau <- function(flash) {
+  flash   <- set.R2(flash, calc.R2(flash))
+  est.tau <- estimate.simple.tau(flash)
+  flash   <- set.est.tau(flash, est.tau)
+  flash   <- set.tau(flash, tau.from.given.and.est(flash, est.tau))
+
+  return(flash)
+}
+
 update.simple.tau <- function(factor, flash) {
-  delta.R2 <- calc.delta.R2.for.simple.tau(factor, flash)
+  delta.R2 <- calc.delta.R2(factor, flash)
   est.tau  <- estimate.simple.tau(flash, delta.R2)
   tau      <- tau.from.given.and.est(flash, est.tau)
   factor   <- set.delta.R2(factor, delta.R2)
@@ -56,12 +57,29 @@ update.simple.tau <- function(factor, flash) {
   return(factor)
 }
 
+init.zero.tau <- function(flash) {
+  if (is.null(get.tau(flash)))
+    flash <- set.tau(flash, get.given.tau(flash))
+
+  return(flash)
+}
+
 update.zero.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))
+
   factor <- set.tau(factor, get.given.tau(flash))
 
   return(factor)
+}
+
+init.kronecker.tau <- function(flash) {
+  if (is.null(get.tau(flash)))
+    flash <- set.tau(flash, init.tau.at.one(flash))
+
+  flash <- set.tau(flash, estimate.kronecker.tau(flash))
+
+  return(flash)
 }
 
 update.kronecker.tau <- function(factor, flash) {
@@ -70,23 +88,47 @@ update.kronecker.tau <- function(factor, flash) {
   return(factor)
 }
 
+init.noisy.tau <- function(flash) {
+  noisy.tau <- estimate.noisy.tau(flash)
+  flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
+  flash     <- set.tau(flash, noisy.tau$tau)
+
+  return(flash)
+}
+
 update.noisy.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))
+
   noisy.tau <- estimate.noisy.tau(flash, factor)
-  factor <- set.tau(factor, noisy.tau$tau)
-  factor <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
+  factor    <- set.tau(factor, noisy.tau$tau)
+  factor    <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
 
   return(factor)
+}
+
+init.noisy.kron.tau <- function(flash) {
+  if (is.null(get.est.S2(flash)))
+    flash   <- set.est.S2(flash, init.tau.at.one(flash))
+
+  noisy.tau <- estimate.noisy.kron.tau(flash)
+  flash     <- set.sum.tau.R2(flash, noisy.tau$sum.tau.R2)
+  flash     <- set.est.S2(flash, noisy.tau$est.S2)
+  flash     <- set.tau(flash, noisy.tau$tau)
+
+  return(flash)
 }
 
 update.noisy.kron.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))
+
   noisy.tau <- estimate.noisy.kron.tau(flash, factor)
   factor <- set.tau(factor, noisy.tau$tau)
   factor <- set.est.S2(factor, noisy.tau$est.S2)
   factor <- set.sum.tau.R2(factor, noisy.tau$sum.tau.R2)
+
+  return(factor)
 }
 
 estimate.simple.tau <- function(flash, delta.R2 = 0) {
@@ -104,8 +146,7 @@ tau.from.given.and.est <- function(flash, est.tau) {
     tau <- est.tau
   } else {
     # Otherwise both types of variance are used. In the simple case here, the
-    #   total variance is estimated and the pre-specified variance functions
-    #   as a minimum:
+    #   total variance is estimated and the given variance serves as a floor:
     tau <- pmin(given.tau, est.tau)
   }
 
@@ -113,7 +154,7 @@ tau.from.given.and.est <- function(flash, est.tau) {
 }
 
 estimate.kronecker.tau <- function(flash, factor = NULL) {
-  # Tol and maxiter are hardcoded (for now, at least).
+  # Tol and maxiter are hardcoded.
   tol <- 1e-3
   maxiter <- 100
 
@@ -128,7 +169,7 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
 
-  R2 <- get.latest.Rsquared(flash, factor, EF)
+  R2 <- get.new.Rsquared(flash, factor, EF)
 
   max.chg <- Inf
   iter <- 0
@@ -155,7 +196,7 @@ estimate.noisy.tau <- function(flash, factor = NULL) {
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
 
-  R2 <- get.latest.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
+  R2 <- get.new.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
   R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
   S2 <- get.given.S2(flash)
 
@@ -185,7 +226,7 @@ estimate.noisy.kron.tau <- function(flash, factor = NULL) {
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
 
-  R2 <- get.latest.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
+  R2 <- get.new.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
   R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
   S2 <- get.given.S2(flash)
 
@@ -240,6 +281,8 @@ optimize.noisy <- function(R2, S2, wts = 1) {
   }, interval = c(0, interval.max))
   return(opt.res$minimum)
 }
+
+# Helper functions to deal with various possible storage modes ----------------
 
 get.tau.for.ebnm.calc <- function(flash, tau = NULL) {
   if (is.null(tau))

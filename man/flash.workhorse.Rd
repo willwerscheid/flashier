@@ -21,7 +21,8 @@ flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
-\code{Matrix}, or three-dimensional array.}
+\code{Matrix}, three-dimensional array, or \code{flash.data} object
+obtained from \code{set.flash.data}.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
@@ -90,8 +91,8 @@ output after each factor update.}
 \item{verbose.colwidths}{A vector of column widths.}
 
 \item{output.lvl}{What to include in the returned flash object. 0 = raw fit
-only; 1 = trimmed fit, no sampler; 2 = raw fit and sampler; 3 = trimmed
-fit and sampler.}
+only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
+and sampler.}
 
 \item{EF.init}{A list of matrices, one for each dimension. Each matrix
 should have k columns, one for each factor. New factors are initialized

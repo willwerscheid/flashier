@@ -1,7 +1,8 @@
 wrapup.flash <- function(flash, output.lvl) {
+  class(flash) <- "flash.fit"
+
   if (output.lvl == 0) {
     flash <- set.bypass.init.flag(flash)
-    class(flash) = "flash.fit"
     return(flash)
   }
 
@@ -22,7 +23,6 @@ wrapup.flash <- function(flash, output.lvl) {
     flash <- remove.auxiliary.elements(flash)
   }
 
-  class(flash) <- "flash.fit"
   flash.object$fit <- flash
 
   class(flash.object) <- "flash"
@@ -34,6 +34,7 @@ remove.data.elements <- function(flash) {
   flash <- set.R(flash, NULL)
   flash <- set.Y(flash, NULL)
   flash <- set.nonmissing(flash, NULL)
+
   return(flash)
 }
 
@@ -42,6 +43,7 @@ remove.auxiliary.elements <- function(flash) {
   flash <- set.n.nonmissing(flash, NULL)
   flash <- set.R2(flash, NULL)
   # flash <- set.est.tau(flash, NULL)
+
   return(flash)
 }
 
@@ -70,6 +72,7 @@ calc.normalized.loadings <- function(flash) {
     X / matrix(y, nrow = nrow(X), ncol = ncol(X), byrow = TRUE)
   })
 
+  # Propagate names.
   if (uses.R(flash)) {
     data.dimnames <- dimnames(get.R(flash))
   } else {

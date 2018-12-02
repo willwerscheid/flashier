@@ -100,7 +100,7 @@ update.init.EF <- function(EF, flash, update.order, fix.dim, dim.signs,
 
   for (n in update.order) {
     is.fixed <- n %in% fix.dim
-    sign     <- dim.signs[n]
+    sign <- dim.signs[n]
     EF <- update.init.EF.one.n(EF, n, flash, is.fixed, sign, subset.data)
   }
 

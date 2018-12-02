@@ -8,7 +8,10 @@ add.new.factor.to.flash <- function(factor, flash) {
   flash <- set.obj(flash, get.obj(factor))
   flash <- add.is.zero(flash, FALSE)
   flash <- add.is.valid(flash, is.valid(factor))
-  flash <- update.residuals(flash, factor)
+
+  if (uses.R(flash))
+    flash <- update.R(flash, factor)
+
   if (is.tau.simple(flash)) {
     flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
     flash <- set.est.tau(flash, get.est.tau(factor))

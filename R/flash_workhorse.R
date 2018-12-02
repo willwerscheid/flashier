@@ -52,8 +52,8 @@
 #' @param verbose.colwidths A vector of column widths.
 #'
 #' @param output.lvl What to include in the returned flash object. 0 = raw fit
-#'   only; 1 = trimmed fit, no sampler; 2 = raw fit and sampler; 3 = trimmed
-#'   fit and sampler.
+#'   only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
+#'   and sampler.
 #'
 #' @param EF.init A list of matrices, one for each dimension. Each matrix
 #'   should have k columns, one for each factor. New factors are initialized
@@ -180,7 +180,7 @@ flash.workhorse <- function(data,
                       use.R = use.R)
 
   if (is.null(greedy.tol)) {
-    greedy.tol <- sqrt(.Machine$double.eps) * prod(get.dims(flash))
+    greedy.tol <- set.default.tol(flash)
     report.tol.setting(verbose.lvl, greedy.tol)
   }
 
@@ -250,7 +250,6 @@ flash.workhorse <- function(data,
         greedy.complete <- TRUE
       } else {
         something.changed      <- TRUE
-        # if (!is.candidate):
         total.factors.added    <- total.factors.added + 1
         curr.rnd.factors.added <- curr.rnd.factors.added + 1
       }
@@ -259,16 +258,16 @@ flash.workhorse <- function(data,
     }
 
     if (greedy.complete) {
-      do.backfit  <- final.backfit && (curr.rnd.factors.added > 0)
-      do.nullchk  <- final.nullchk && (curr.rnd.factors.added > 0)
-      maxiter     <- backfit.maxiter
-      tol         <- backfit.tol
+      do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
+      do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
+      maxiter    <- backfit.maxiter
+      tol        <- backfit.tol
       curr.rnd.factors.added <- 0
     } else {
-      do.backfit  <- total.factors.added %in% when.to.backfit
-      do.nullchk  <- total.factors.added %in% when.to.nullchk
-      maxiter     <- inner.backfit.maxiter
-      tol         <- inner.backfit.tol
+      do.backfit <- total.factors.added %in% when.to.backfit
+      do.nullchk <- total.factors.added %in% when.to.nullchk
+      maxiter    <- inner.backfit.maxiter
+      tol        <- inner.backfit.tol
     }
 
     if (do.backfit) {
@@ -276,11 +275,10 @@ flash.workhorse <- function(data,
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
-      kset <- 1:get.n.factors(flash)
-
       iter <- 0
       old.obj <- get.obj(flash)
       conv.crit <- rep(Inf, get.n.factors(flash))
+      kset <- 1:get.n.factors(flash)
       while (iter < maxiter && max(conv.crit) > tol) {
         is.converged <- TRUE
         iter <- iter + 1
@@ -308,7 +306,7 @@ flash.workhorse <- function(data,
                                       conv.crit.fn, verbose.fns, k)
             conv.crit[k] <- get.conv.crit(info)
             print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
-                              k, backfit = TRUE)
+                              k = k, backfit = TRUE)
           }
         }
       }
@@ -352,10 +350,13 @@ flash.workhorse <- function(data,
 
 force.use.R <- function(data, var.type) {
   tmp <- list()
+
   tmp$est.tau.dim <- var.type
   tmp$given.tau.dim <- get.given.tau.dim(data)
   tmp$given.tau <- get.given.tau(data)
-  return(!(is.tau.simple(tmp) || is.var.type.kronecker(tmp)))
+  tmp$given.S2 <- get.given.S2(data)
+
+  return(is.var.type.zero(tmp) && !is.tau.simple(tmp))
 }
 
 as.Kset <- function(after, every, maxiter) {

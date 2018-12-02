@@ -123,11 +123,7 @@ print.table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
   if (verbose.lvl > 2) {
     table.entry <- sprintf("%13d", iter)
     if (backfit)
-      if (is.character(k)) {
-        table.entry <- paste0(table.entry, sprintf("%8s", k))
-      } else {
-        table.entry <- paste0(table.entry, sprintf("%8d", k))
-      }
+      table.entry <- paste0(table.entry, sprintf("%8s", as.character(k)))
     for (col in 1:length(colwidths)) {
       width.string <- paste0("%", as.character(colwidths[col]), "s")
       if (is.numeric(info[[col]])

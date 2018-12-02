@@ -14,11 +14,11 @@ use.fixed.to.est.g  <- function(f) f[["use.fixed.to.est.g"]]
 get.n.nonmissing    <- function(f) f[["n.nonmissing"]]
 get.kron.nonmissing <- function(f) f[["kron.nonmissing"]]
 get.R2              <- function(f) f[["R2"]]
+get.delta.R2        <- function(f) f[["delta.R2"]]
 get.log.2pi.s2      <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2      <- function(f) f[["sum.tau.R2"]]
 get.obj             <- function(f) f[["obj"]]
 get.KL              <- function(f) f[["KL"]]
-get.delta.R2        <- function(f) f[["delta.R2"]]
 warmstart.backfits  <- function(f) f[["warmstart.backfits"]]
 
 get.EF <- function(f, n = NULL) {
@@ -36,14 +36,6 @@ get.EF.k <- function(f, k, n = NULL) {
   class(EFk) <- "r1"
   return(EFk)
 }
-get.new.EF <- function(flash, factor = NULL) {
-  EF <- get.EF(flash)
-  if (is.null(factor))
-    return(EF)
-  if (!is.new(factor))
-    EF <- lowrank.drop.k(EF, get.k(factor))
-  return(lowranks.combine(EF, as.lowrank(get.EF(factor))))
-}
 get.EF2 <- function(f, n = NULL) {
   EF2 <- f[["EF2"]]
   if (is.null(EF2[[1]]))
@@ -56,14 +48,6 @@ get.EF2.k <- function(f, k) {
   EF2k <- lapply(f[["EF2"]], function(X) X[, k])
   class(EF2k) <- "r1"
   return(EF2k)
-}
-get.new.EF2 <- function(flash, factor = NULL) {
-  EF2 <- get.EF2(flash)
-  if (is.null(factor))
-    return(EF2)
-  if (!is.new(factor))
-    EF2 <- lowrank.drop.k(EF2, get.k(factor))
-  return(lowranks.combine(EF2, as.lowrank(get.EF2(factor))))
 }
 get.dim.signs <- function(f, k = NULL) {
   if (is.null(k))
@@ -157,10 +141,27 @@ get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
 is.obj.valid <- function(flash, factor = NULL) {
-  valid <- flash[["is.valid"]]
+  valid <- is.valid(flash)
   if (!is.null(factor))
-    valid <- c(valid, factor[["is.valid"]])
+    valid <- c(valid, is.valid(factor))
   return(all(valid))
+}
+
+get.new.EF <- function(flash, factor = NULL) {
+  EF <- get.EF(flash)
+  if (is.null(factor))
+    return(EF)
+  if (!is.new(factor))
+    EF <- lowrank.drop.k(EF, get.k(factor))
+  return(lowranks.combine(EF, as.lowrank(get.EF(factor))))
+}
+get.new.EF2 <- function(flash, factor = NULL) {
+  EF2 <- get.EF2(flash)
+  if (is.null(factor))
+    return(EF2)
+  if (!is.new(factor))
+    EF2 <- lowrank.drop.k(EF2, get.k(factor))
+  return(lowranks.combine(EF2, as.lowrank(get.EF2(factor))))
 }
 
 get.ebnm.fn <- function(flash, factor, n) {
@@ -238,6 +239,7 @@ is.tau.lowrank <- function(f) {
     tau <- get.given.S2(f)
   return(is.null(tau) || is.vector(tau))
 }
+
 get.R2.n <- function(f) {
   n <- max(get.est.tau.dim(f), 0)
   if (n == 0)
@@ -247,8 +249,8 @@ get.R2.n <- function(f) {
 store.R2.as.scalar <- function(f) is.tau.constant(f)
 store.R2.as.matrix <- function(f) is.var.type.kronecker(f)
 uses.R <- function(f) !is.null(get.R(f))
-get.latest.Rsquared <- function(flash, factor = NULL, EF = NULL,
-                                set.missing.to.zero = TRUE) {
+get.new.Rsquared <- function(flash, factor = NULL, EF = NULL,
+                             set.missing.to.zero = TRUE) {
   if (uses.R(flash) && !is.null(factor)) {
     R2 <- get.R(factor)^2
   } else if (uses.R(flash)) {
@@ -501,7 +503,6 @@ clear.bypass.init.flag <- function(f) {
   f[["bypass.init"]] <- NULL
   return(f)
 }
-
 add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
   factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
   factor[["idx.subset"]]  <- NULL
@@ -509,25 +510,23 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 }
 
 
-# Testing function that converts a flashier flash object into a flashr fit
-#   object:
+# Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
   if (is(f, "flash"))
     f <- f$fit
 
-  flash        <- list()
-  flash$EL     <- f$EF[[1]]
-  flash$EF     <- f$EF[[2]]
-  flash$EL2    <- f$EF2[[1]]
-  flash$EF2    <- f$EF2[[2]]
-  flash$fixl   <- matrix(FALSE, nrow = nrow(flash$EL), ncol = ncol(flash$EL))
-  flash$fixf   <- matrix(FALSE, nrow = nrow(flash$EF), ncol = ncol(flash$EF))
-  flash$gl     <- lapply(f$g, function(k) k[[1]])
-  flash$gf     <- lapply(f$g, function(k) k[[2]])
-  flash$KL_l   <- as.list(f$KL[[1]])
-  flash$KL_f   <- as.list(f$KL[[2]])
-  flash$tau    <- f$tau
-  class(flash) <- "flash_fit"
+  flash      <- list()
+  flash$EL   <- f$EF[[1]]
+  flash$EF   <- f$EF[[2]]
+  flash$EL2  <- f$EF2[[1]]
+  flash$EF2  <- f$EF2[[2]]
+  flash$fixl <- matrix(FALSE, nrow = nrow(flash$EL), ncol = ncol(flash$EL))
+  flash$fixf <- matrix(FALSE, nrow = nrow(flash$EF), ncol = ncol(flash$EF))
+  flash$gl   <- lapply(f$g, function(k) k[[1]])
+  flash$gf   <- lapply(f$g, function(k) k[[2]])
+  flash$KL_l <- as.list(f$KL[[1]])
+  flash$KL_f <- as.list(f$KL[[2]])
+  flash$tau  <- f$tau
 
   if (!is.null(f$fix.dim)) {
     for (k in 1:get.n.factors(f)) {
@@ -539,6 +538,8 @@ to.flashr <- function(f) {
       }
     }
   }
+
+  class(flash) <- "flash_fit"
 
   return(flash)
 }

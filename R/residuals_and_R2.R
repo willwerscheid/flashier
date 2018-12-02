@@ -1,10 +1,8 @@
-update.residuals <- function(flash, factor) {
-  if (uses.R(flash)) {
-    R <- get.R(factor)
-    if (is.null(R))
-      R <- calc.residuals(flash, factor)
-    flash <- set.R(flash, R)
-  }
+update.R <- function(flash, factor) {
+  R <- get.R(factor)
+  if (is.null(R))
+    R <- calc.residuals(flash, factor)
+  flash <- set.R(flash, R)
 
   return(flash)
 }
@@ -24,6 +22,7 @@ calc.residuals <- function(flash, factor = NULL) {
   return(R)
 }
 
+# Used to initiate tau when tau is simple.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
   Y   <- get.Y(flash)
@@ -45,7 +44,8 @@ calc.R2 <- function(flash) {
   return(R2)
 }
 
-calc.delta.R2.for.simple.tau <- function(factor, flash) {
+# Used to update tau when tau is simple.
+calc.delta.R2 <- function(factor, flash) {
   R <- get.R(flash)
   Y <- get.Y(flash)
   Z <- get.nonmissing(flash)
@@ -98,6 +98,7 @@ calc.delta.R2.for.simple.tau <- function(factor, flash) {
   return(delta.R2)
 }
 
+# Used to calculate objective when variance type is NULL.
 calc.tau.R2 <- function(flash, factor, n) {
   if (is.null(factor)) {
     R   <- get.R(flash)

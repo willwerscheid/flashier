@@ -1,3 +1,7 @@
+set.default.tol <- function(flash) {
+  return(sqrt(.Machine$double.eps) * prod(get.dims(flash)))
+}
+
 calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
   if (length(verbose.fns) == 0) {
     all.fns <- list(conv.crit.fn)
@@ -42,7 +46,6 @@ calc.max.abs.chg.EF <- function(new, old, k, n = NULL) {
   if (!is.null(k))
     return(calc.max.abs.chg(get.EF.k(new, k, n), get.EF.k(old, k, n)))
   return(calc.max.abs.chg(get.EF(new, n), get.EF(old, n)))
-
 }
 
 calc.max.chg.EF <- function(new, old, k, n = NULL) {
@@ -66,6 +69,12 @@ get.sparsity <- function(new, old, k, n) {
   return(g$pi[1])
 }
 
+calc.max.abs.chg <- function(new, old) {
+  new <- l2.normalize.and.stack(new)
+  old <- l2.normalize.and.stack(old)
+  return(max(abs(new - old)))
+}
+
 calc.max.chg <- function(new, old) {
   new <- l2.normalize.and.stack(new)
   old <- l2.normalize.and.stack(old)
@@ -74,12 +83,6 @@ calc.max.chg <- function(new, old) {
   if (max.increase > max.decrease)
     return(max.increase)
   return(-max.decrease)
-}
-
-calc.max.abs.chg <- function(new, old) {
-  new <- l2.normalize.and.stack(new)
-  old <- l2.normalize.and.stack(old)
-  return(max(abs(new - old)))
 }
 
 which.max.chg <- function(new, old) {

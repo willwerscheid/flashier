@@ -28,8 +28,10 @@ calc.obj <- function(flash, factor = NULL) {
   } else if (is.var.type.noisy(flash) || is.var.type.noisy.kron(flash)) {
     obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + sum.tau.R2)
   } else {
-    stop("Something unexpected happened while trying to compute the objective.")
+    # This error should never occur:
+    stop("The requested variance structure has not yet been implemented.")
   }
+
   return(obj)
 }
 
@@ -39,5 +41,6 @@ normal.means.loglik <- function(x, s, Et, Et2) {
   s   <- s[idx]
   Et  <- Et[idx]
   Et2 <- Et2[idx]
+
   return(-0.5 * sum(log(2 * pi * s^2) + (1 / s^2) * (Et2 - 2 * x * Et + x^2)))
 }

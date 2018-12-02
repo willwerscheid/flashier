@@ -3,9 +3,11 @@ F.sampler <- function(flash) {
   force(flash)
 
   return(function(nsamp) {
+    # Get samples as list of dimensions with sublists of factors.
     samp <- rapply(all.post.samplers(flash),
                    function(f) do.call(f, list(nsamp = nsamp)),
                    how = "list")
+    # Re-organize the list so that each element corresponds to a single sample.
     return(lapply(1:nsamp, function(trial) {
       lapply(1:get.dim(flash),
              function(n) do.call(cbind,

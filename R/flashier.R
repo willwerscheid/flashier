@@ -3,10 +3,13 @@
 #' TODO: describe model here
 #'
 #' @param data The observations. Can be a matrix, sparse matrix of class
-#'   \code{Matrix}, or three-dimensional array.
+#'   \code{Matrix}, three-dimensional array, or \code{flash.data} object
+#'   obtained from \code{set.flash.data}.
 #'
-#' @param S The standard errors. If \code{NULL}, all residual variance will be
-#'   estimated.
+#' @param S The standard errors. Can be a matrix, scalar (if standard errors
+#'   are the same for all observations), or vector (if, for example, \code{S}
+#'   only varies across columns and is constant within any given row). If
+#'   \code{NULL}, all residual variance will be estimated.
 #'
 #' @param flash.init An initial \code{flash} or \code{flash.fit} object.
 #'

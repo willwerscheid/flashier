@@ -25,7 +25,7 @@ init.flash <- function(flash.init,
     flash$EF2 <- lowranks.combine(flash$EF2, lowrank.square(EF.init))
   }
 
-  flash$est.tau.dim  <- est.tau.dim
+  flash$est.tau.dim <- est.tau.dim
 
   if (bypass.init(flash)) {
     flash <- clear.bypass.init.flag(flash)
@@ -49,13 +49,13 @@ init.flash <- function(flash.init,
 
     # Precomputations.
     if (is.tau.simple(flash)) {
-      flash$n.nonmissing    <- init.n.nonmissing(flash, get.R2.n(flash))
+      flash$n.nonmissing <- init.n.nonmissing(flash, get.R2.n(flash))
     } else if (is.var.type.zero(flash)) {
-      flash$log.2pi.s2      <- init.log.2pi.s2(get.given.tau(data))
+      flash$log.2pi.s2 <- init.log.2pi.s2(get.given.tau(data))
     } else if (is.var.type.kronecker(flash)) {
       flash$kron.nonmissing <- init.kron.nonmissing(flash)
     }
-    flash <- estimate.tau(flash)
+    flash <- init.tau(flash)
     flash$obj <- calc.obj(flash)
   }
 
@@ -77,6 +77,7 @@ init.flash <- function(flash.init,
   flash$dim.signs  <- dim.signs
   flash$ebnm.fn    <- ebnm.fn
   flash$ebnm.param <- ebnm.param
+
   flash <- extend.ebnm.lists(flash)
 
   flash$fix.dim  <- fix.dim
@@ -89,7 +90,7 @@ init.flash <- function(flash.init,
   return(flash)
 }
 
-init.kronecker.tau <- function(flash) {
+init.tau.at.one <- function(flash) {
   return(lapply(get.dims(flash), function(dim) rep(1, dim)))
 }
 

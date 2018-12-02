@@ -1,9 +1,9 @@
-# Fullrank operations are implemented for the same types of objects as
-#   n-mode products.
+#   Fullrank operations are implemented for the same types of objects as
+# n-mode products.
 
 fullrank.ops.error <- function(fn.name, object) {
-  paste(fn.name, "is not yet implemented for objects of the same class and/or",
-        "dimension as object", deparse(substitute(object)))
+  paste(fn.name, "is not yet implemented for objects of that class and/or",
+        "dimension.")
 }
 
 full.or.lowrank.subset <- function(X, n, subset) {
@@ -35,7 +35,7 @@ fullrank.subset <- function(X, n, subset) {
       return(X[, , subset, drop = FALSE])
   }
 
-  stop(fullrank.ops.error("fullrank.subset", X))
+  stop(fullrank.ops.error("fullrank.subset"))
 }
 
 elemwise.prod.fullrank.r1 <- function(X, r1) {

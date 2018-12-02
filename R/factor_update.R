@@ -49,9 +49,9 @@ solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
   if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
-  ebnm.fn     <- get.ebnm.fn(flash, factor, n)
-  ebnm.args   <- calc.ebnm.args(factor, n, flash, return.sampler)
-  ebnm.param  <- get.ebnm.param(flash, factor, n)
+  ebnm.fn    <- get.ebnm.fn(flash, factor, n)
+  ebnm.args  <- calc.ebnm.args(factor, n, flash, return.sampler)
+  ebnm.param <- get.ebnm.param(flash, factor, n)
 
   g <- get.g(factor, n)
   if (return.sampler && !is.null(g)) {
@@ -59,7 +59,7 @@ solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
                                               fixg = TRUE,
                                               output = "post_sampler"))
   } else if (!is.new(factor) && warmstart.backfits(flash) && !is.null(g)) {
-    ebnm.param <- c(ebnm.param, list(g = g))
+    ebnm.param <- modifyList(ebnm.param, list(g = g))
   }
   ebnm.res <- do.call(ebnm.fn, c(ebnm.args, list(ebnm.param)))
 

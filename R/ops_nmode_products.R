@@ -6,8 +6,8 @@
 # R packages for handling these types of object.
 
 nmode.ops.error <- function(object) {
-  paste("N-mode products are not yet implemented for objects of the same",
-        "class and/or dimension as object", deparse(substitute(object)))
+  paste("N-mode products are not yet implemented for objects of that class",
+        "and/or dimension.")
 }
 
 # X is a m_1 x m_2 (x m_3) matrix (array) and v is an m_n-vector. The n-mode
@@ -45,7 +45,7 @@ nmode.prod.vec <- function(X, v, n) {
       return(apply(X, 2, FUN = function(M) {M %*% v}))
   }
 
-  stop(nmode.ops.error(X))
+  stop(nmode.ops.error)
 }
 
 # X is a m_1 x m_2 (x m_3) matrix (array), v is a r1 object whose dimension
@@ -72,7 +72,7 @@ fullrank.nmode.prod.r1 <- function(X, r1, n) {
     return(nmode.prod.vec(nmode.prod.vec(X, r1[[2]], ns[2]), r1[[1]], ns[1]))
   }
 
-  stop(nmode.ops.error(X))
+  stop(nmode.ops.error)
 }
 
 # The following function has the same purpose as nmode.prod.r1, except that
@@ -94,7 +94,7 @@ lowrank.nmode.prod.r1 <- function(lowrank, r1, n) {
                           * nmode.prod.vec(lowrank[[ns[2]]], r1[[2]], 1))))
   }
 
-  stop(nmode.ops.error(lowrank))
+  stop(nmode.ops.error)
 }
 
 nmode.prod.r1 <- function(X, r1, n) {
@@ -149,7 +149,7 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     }
   }
 
-  stop(nmode.ops.error(lowrank))
+  stop(nmode.ops.error)
 }
 
 premult.nmode.prod.r1 <- function(Z, X, r1, n) {

@@ -1,3 +1,19 @@
+#' Set data for flash
+#'
+#' Converts matrices or arrays of observations and standard errors into the
+#' form that will be used by \code{flashier}. When it is necessary to be
+#' parsimonious with memory, one can call \code{set.flash.data} and then remove
+#' the original objects from memory. Otherwise, one should simply pass the
+#' original objects to \code{flashier} as is.
+#'
+#' @inheritParams flashier
+#'
+#' @param S.dim The dimension along which \code{S} lies when \code{S} is a
+#'   vector. Only necessary when it cannot be inferred from the data (when,
+#'   for example, \code{S} is a square matrix).
+#'
+#' @export
+
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   # If data is a flash.data object, check that it has been set correctly.
   if (is(data, "flash.data")) {
@@ -86,4 +102,3 @@ use.S2 <- function(S, S.dim, var.type) {
              || is.null(S.dim)
              || (S.dim > 0 && !(S.dim == var.type))))
 }
-

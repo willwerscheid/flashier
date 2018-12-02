@@ -1,32 +1,3 @@
-update.factors.parallel <- function(flash, kset) {
-  factors <- lapply(1:get.n.factors(flash), function(k) {
-    factor <- extract.factor(flash, k)
-    if (k %in% kset) {
-      factor <- update.factor(factor, flash, update.tau = FALSE)
-      factor <- set.to.valid(factor)
-    }
-    return(factor)
-  })
-
-  d <- get.dim(flash)
-  EF <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF(f)[[n]])})
-  EF2 <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF2(f)[[n]])})
-  class(EF) <- class(EF2) <- "lowrank"
-
-  flash <- set.EF(flash, EF)
-  flash <- set.EF2(flash, EF2)
-  flash <- set.KL(flash, lapply(1:d, function(n) {
-    sapply(factors, function(f) get.KL(f)[[n]])
-  }))
-  flash <- set.g(flash, lapply(factors, getElement, "g"))
-  flash <- estimate.tau(flash)
-  flash <- set.obj(flash, calc.obj(flash))
-  flash <- set.is.valid(flash, sapply(factors, getElement, "is.valid"))
-  flash <- set.is.zero(flash, sapply(factors, getElement, "is.zero"))
-
-  return(flash)
-}
-
 update.existing.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 
@@ -64,7 +35,9 @@ extract.factor <- function(flash, k) {
 alter.existing.factor <- function(flash, factor) {
   k <- get.k(factor)
 
-  flash <- update.residuals(flash, factor)
+  if (uses.R(flash))
+    flash <- update.R(flash, factor)
+
   flash <- set.EFk(flash, k, get.EF(factor))
   flash <- set.EF2k(flash, k, get.EF2(factor))
   flash <- set.KLk(flash, k, get.KL(factor))
@@ -80,6 +53,42 @@ alter.existing.factor <- function(flash, factor) {
     flash <- set.to.zero(flash, k)
   if (is.valid(factor))
     flash <- set.to.valid(flash, k)
+
+  return(flash)
+}
+
+update.factors.parallel <- function(flash, kset) {
+  factors <- lapply(1:get.n.factors(flash), function(k) {
+    factor <- extract.factor(flash, k)
+    if (k %in% kset) {
+      factor <- update.factor(factor, flash, update.tau = FALSE)
+      factor <- set.to.valid(factor)
+    }
+    return(factor)
+  })
+
+  flash <- alter.factors.parallel(flash, factors)
+
+  return(flash)
+}
+
+alter.factors.parallel <- function(flash, factors) {
+  d <- get.dim(flash)
+  EF  <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF(f)[[n]])})
+  EF2 <- lapply(1:d, function(n) {sapply(factors, function(f) get.EF2(f)[[n]])})
+  class(EF)  <- "lowrank"
+  class(EF2) <- "lowrank"
+
+  flash <- set.EF(flash, EF)
+  flash <- set.EF2(flash, EF2)
+  flash <- set.KL(flash, lapply(1:d, function(n) {
+    sapply(factors, function(f) get.KL(f)[[n]])
+  }))
+  flash <- set.g(flash, lapply(factors, getElement, "g"))
+  flash <- init.tau(flash)
+  flash <- set.obj(flash, calc.obj(flash))
+  flash <- set.is.valid(flash, sapply(factors, getElement, "is.valid"))
+  flash <- set.is.zero(flash, sapply(factors, getElement, "is.zero"))
 
   return(flash)
 }

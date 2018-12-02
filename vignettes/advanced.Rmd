@@ -226,7 +226,7 @@ c(gtex.no.warmstarts$objective, gtex.warmstarts$objective)
 
 ## Fitting same-sign priors 
 
-Parameter `output.lvl` determines the form of the returned list. In most cases, the default `output.lvl = 3` will do. The other important setting is `output.lvl = 0`, which causes `flashier` to return a flash fit that is entirely free from post-processing and can be fed directly into subsequent `flashier` calls. This can save time in complex flash fits that involve repeated calls to `flashier`.
+Parameter `output.lvl` determines the form of the returned list. In most cases, the default `output.lvl = 2` will do. The other important setting is `output.lvl = 0`, which causes `flashier` to return a flash fit that is entirely free from post-processing and can be fed directly into subsequent `flashier` calls. This can save time in complex flash fits that involve repeated calls to `flashier`.
 
 As an example, I implement "same-sign" priors. The idea, suggested to me by Matthew Stephens, is to put nonnegative priors on rows and then allow priors on tissues to be either nonnegative or nonpositive. This might be especially useful in nonnegative matrix factorization since it provides a mechanism to correct for mistakes made in factors added early on. (Since later factors can only ever increase the fitted values, it becomes very difficult to correct for an overambitious factor.) This approach makes less sense for the `gtex` matrix of $z$-scores, but it is nonetheless interesting to observe that tissue loadings are very similar regardless of whether they represent positive effects or negative ones.
 
