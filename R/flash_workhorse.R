@@ -1,5 +1,6 @@
-# TODO: change default backfit.order (and maxiter) after tests have been removed
-# change warmstart default to FALSE after removal of tests
+# TODO: Change default backfit.order (and maxiter) after flashr comparison
+#   tests have been removed. Change warmstart default to FALSE until issues
+#   with ashr are fixed.
 
 #' A horse that works for flashier
 #'

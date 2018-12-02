@@ -34,8 +34,7 @@ init.factor <- function(flash, init.fn, tol, maxiter) {
   return(factor)
 }
 
-# TODO: remove default tol and maxiter after tests are removed
-init.next.EF <- function(flash, tol = 1e-2, maxiter = 100) {
+init.next.EF <- function(flash, tol, maxiter) {
   next.k    <- get.next.k(flash)
   fix.dim   <- get.fix.dim(flash, next.k)
   fix.idx   <- get.fix.idx(flash, next.k)

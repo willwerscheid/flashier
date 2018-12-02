@@ -57,17 +57,17 @@ test_that("zero variance type (with S a matrix) produces same fit as flashr", {
 })
 
 test_that("constant S + constant estimation works", {
-  f <- flashier(M, S = 0.2, var.type = 0, greedy.Kmax = 1)
+  f <- flashier(M, S = 0.2, var.type = 0, greedy.Kmax = 1, output.lvl = 3)
   expect_equal(f$fit$tau, f$fit$given.tau)
 
-  f <- flashier(M, S = 0.05, var.type = 0, greedy.Kmax = 1)
+  f <- flashier(M, S = 0.05, var.type = 0, greedy.Kmax = 1, output.lvl = 3)
   expect_equal(f$fit$tau, f$fit$est.tau)
 })
 
 test_that("by column S + by column estimation works", {
   tau = c(rep(50, 10), rep(250, p - 10))
   data <- set.flash.data(M, S = 1 / sqrt(tau), S.dim = 2)
-  f <- flashier(data, var.type = 2, greedy.Kmax = 1)
+  f <- flashier(data, var.type = 2, greedy.Kmax = 1, output.lvl = 3)
   expect_equal(f$fit$tau[1:10], rep(50, 10))
   expect_equal(f$fit$tau[-(1:10)], f$fit$est.tau[-(1:10)])
 })

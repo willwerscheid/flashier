@@ -38,11 +38,10 @@ remove.data.elements <- function(flash) {
   return(flash)
 }
 
-# TODO: remove est.tau once tests no longer need it
 remove.auxiliary.elements <- function(flash) {
   flash <- set.n.nonmissing(flash, NULL)
   flash <- set.R2(flash, NULL)
-  # flash <- set.est.tau(flash, NULL)
+  flash <- set.est.tau(flash, NULL)
 
   return(flash)
 }

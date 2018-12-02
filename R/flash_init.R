@@ -1,19 +1,16 @@
-# TODO: remove defaults once tests have been removed
-#
 init.flash <- function(flash.init,
-                       data = data,
-                       EF.init = NULL,
-                       est.tau.dim = 0,
-                       dim.signs = NULL,
-                       ebnm.fn = list(ebnm.pn, ebnm.pn),
-                       ebnm.param = list(list(prior_type = "point_normal"),
-                                         list(prior_type = "point_normal")),
-                       warmstart.backfits = TRUE,
-                       fix.dim = NULL,
-                       fix.idx = NULL,
-                       fix.vals = NULL,
-                       use.fixed.to.est.g = FALSE,
-                       use.R = TRUE) {
+                       data,
+                       EF.init,
+                       est.tau.dim,
+                       dim.signs,
+                       ebnm.fn,
+                       ebnm.param,
+                       warmstart.backfits,
+                       fix.dim,
+                       fix.idx,
+                       fix.vals,
+                       use.fixed.to.est.g,
+                       use.R) {
   if (is.null(flash.init)) {
     flash <- list()
   } else {
