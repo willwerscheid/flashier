@@ -113,6 +113,7 @@ flash.workhorse <- function(data,
                             greedy.Kmax = 100,
                             backfit.order = c("sequential",
                                               "random",
+                                              "dropout",
                                               "montaigne",
                                               "parallel"),
                             warmstart.backfits = TRUE,
@@ -289,6 +290,8 @@ flash.workhorse <- function(data,
         } else if (backfit.order == "montaigne") {
           # Il faut courir au plus pressé.
           kset <- which.max(conv.crit)
+        } else if (backfit.order == "dropout") {
+          kset <- kset[conv.crit[kset] > tol]
         }
 
         if (backfit.order == "parallel") {
