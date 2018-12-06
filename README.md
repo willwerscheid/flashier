@@ -14,6 +14,12 @@ When using the more flexible `ashr` priors, I recommend that you include `ebnm.a
 
 ```devtools::install_github("stephenslab/mixsqp")```
 
-Finally, I recommend taking a look at the vignettes before diving in. Be forewarned, however, that they take a few minutes to build (it took me a little less than 5 minutes on a 2015 MacBook Pro). If you choose to build them, make sure you've installed the above packages first. Then run:
+Finally, I recommend taking a look at the vignettes before diving in. Do note, however, that they take a few minutes to build (it took me a little less than 5 minutes on a 2015 MacBook Pro). If you choose to build them, make sure you've installed the above packages first. Then run:
 
 ```devtools::install_github("willwerscheid/flashier", build_vignettes = TRUE)```
+
+There are two vignettes:
+
+```vignette("intro", package = "flashier")```
+
+```vignette("advanced", package = "flashier")```
