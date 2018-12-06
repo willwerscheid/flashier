@@ -289,7 +289,16 @@ flash.workhorse <- function(data,
           kset <- sample(kset)
         } else if (backfit.order == "montaigne") {
           # Il faut courir au plus pressé.
+          last.max <- kset
           kset <- which.max(conv.crit)
+          # Don't go after the same factor twice in a row.
+          if (identical(last.max, kset)) {
+            tmp <- conv.crit
+            # Settle for second best.
+            tmp[kset] <- 0
+            if (max(tmp) > tol)
+              kset <- which.max(tmp)
+          }
         } else if (backfit.order == "dropout") {
           kset <- kset[conv.crit[kset] > tol]
         }
