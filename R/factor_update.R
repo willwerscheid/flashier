@@ -168,6 +168,7 @@ calc.x <- function(factor, n, flash, s2, tau) {
     }
   }
   x <- s2 * x
+  x[is.infinite(s2)] <- 0
 
   return(x)
 }

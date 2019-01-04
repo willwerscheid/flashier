@@ -128,6 +128,8 @@ update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
                  / nmode.prod.r1(Z, r1.square(EF[-n]), n))
   }
 
+  new.vals[is.na(new.vals)] <- 0
+
   if (sign == 1)
     new.vals <- pmax(new.vals, 0)
   if (sign == -1)

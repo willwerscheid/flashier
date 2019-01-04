@@ -36,7 +36,7 @@ calc.obj <- function(flash, factor = NULL) {
 }
 
 normal.means.loglik <- function(x, s, Et, Et2) {
-  idx <- is.finite(s) && s > 0
+  idx <- is.finite(s) & s > 0
   x   <- x[idx]
   s   <- s[idx]
   Et  <- Et[idx]
