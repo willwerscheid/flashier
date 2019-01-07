@@ -4,7 +4,9 @@ update.existing.factor <- function(flash, k, iter, verbose.lvl) {
   if (!is.zero(old.factor)) {
     factor <- update.factor(old.factor, flash)
 
-    if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
+    if (get.obj(factor) > get.obj(flash)
+        || !is.obj.valid(flash, factor)
+        || !identical(get.exclusions(old.factor), get.exclusions(factor))) {
       flash <- alter.existing.factor(flash, factor)
     } else {
       obj.diff <- get.obj(factor) - get.obj(flash)
@@ -28,6 +30,8 @@ extract.factor <- function(flash, k) {
   factor$fix.dim <- get.fix.dim(flash, k)
   if (!is.null(factor$fix.dim))
     factor$idx.subset <- get.unfixed.idx(flash, k)
+
+  factor$exclusions <- get.exclusions(flash, k)
 
   return(factor)
 }

@@ -97,6 +97,10 @@
 #'
 #' @param inner.backfit.tol Convergence tolerance for intermediary backfits.
 #'
+#' @param nonmissing.thresh The (weighted) proportion of data that must be
+#'   nonmissing in a given matrix or array slice in order to estimate the
+#'   corresponding factor loading.
+#'
 #' @param seed By default, a seed is set for reproducibility. Set to
 #'   \code{NULL} for a random seed.
 #'
@@ -144,6 +148,7 @@ flash.workhorse <- function(data,
                             backfit.tol = greedy.tol,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.tol = backfit.tol,
+                            nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
@@ -166,6 +171,8 @@ flash.workhorse <- function(data,
       warmstart.backfits <- flash.init$warmstart.backfits
     if (missing(use.fixed.to.est.g))
       use.fixed.to.est.g <- flash.init$use.fixed.to.est.g
+    if (missing(nonmissing.thresh))
+      nonmissing.thresh <- flash.init$nonmissing.thresh
   }
   flash <- init.flash(flash.init,
                       data = data,
@@ -179,6 +186,7 @@ flash.workhorse <- function(data,
                       fix.idx = fix.idx,
                       fix.vals = fix.vals,
                       use.fixed.to.est.g = use.fixed.to.est.g,
+                      nonmissing.thresh = nonmissing.thresh,
                       use.R = use.R)
 
   if (is.null(greedy.tol)) {
@@ -227,7 +235,8 @@ flash.workhorse <- function(data,
           old.f    <- factor
           factor   <- update.factor(factor, flash)
           obj.diff <- get.obj(factor) - get.obj(old.f)
-          if (is.obj.valid(old.f) && obj.diff < 0) {
+          if (is.obj.valid(old.f) && obj.diff < 0
+              && identical(get.exclusions(old.f), get.exclusions(factor))) {
             report.greedy.obj.decrease(verbose.lvl, obj.diff)
             factor <- old.f
             break

@@ -24,12 +24,13 @@ init.factor <- function(flash, init.fn, tol, maxiter) {
     class(factor$EF) <- "r1"
   }
 
-  factor$EF2      <- r1.square(factor$EF)
-  factor$KL       <- rep(0, get.dim(flash))
-  factor          <- update.tau(factor, flash)
-  factor$obj      <- calc.obj(flash, factor)
-  factor$is.valid <- FALSE
-  factor$is.zero  <- FALSE
+  factor$EF2        <- r1.square(factor$EF)
+  factor$KL         <- rep(0, get.dim(flash))
+  factor            <- update.tau(factor, flash)
+  factor$obj        <- calc.obj(flash, factor)
+  factor$is.valid   <- FALSE
+  factor$is.zero    <- FALSE
+  factor$exclusions <- rep(list(numeric(0)), get.dim(flash))
 
   return(factor)
 }

@@ -1,25 +1,26 @@
 # Getters for the main flash object (also used by the smaller factors) --------
 
-get.R               <- function(f) f[["R"]]
-get.Y               <- function(f) f[["Y"]]
-get.nonmissing      <- function(f) f[["Z"]]
-get.given.S2        <- function(f) f[["given.S2"]]
-get.given.tau       <- function(f) f[["given.tau"]]
-get.given.tau.dim   <- function(f) f[["given.tau.dim"]]
-get.est.S2          <- function(f) f[["est.S2"]]
-get.est.tau         <- function(f) f[["est.tau"]]
-get.est.tau.dim     <- function(f) f[["est.tau.dim"]]
-get.tau             <- function(f) f[["tau"]]
-use.fixed.to.est.g  <- function(f) f[["use.fixed.to.est.g"]]
-get.n.nonmissing    <- function(f) f[["n.nonmissing"]]
-get.kron.nonmissing <- function(f) f[["kron.nonmissing"]]
-get.R2              <- function(f) f[["R2"]]
-get.delta.R2        <- function(f) f[["delta.R2"]]
-get.log.2pi.s2      <- function(f) f[["log.2pi.s2"]]
-get.sum.tau.R2      <- function(f) f[["sum.tau.R2"]]
-get.obj             <- function(f) f[["obj"]]
-get.KL              <- function(f) f[["KL"]]
-warmstart.backfits  <- function(f) f[["warmstart.backfits"]]
+get.R                 <- function(f) f[["R"]]
+get.Y                 <- function(f) f[["Y"]]
+get.nonmissing        <- function(f) f[["Z"]]
+get.given.S2          <- function(f) f[["given.S2"]]
+get.given.tau         <- function(f) f[["given.tau"]]
+get.given.tau.dim     <- function(f) f[["given.tau.dim"]]
+get.est.S2            <- function(f) f[["est.S2"]]
+get.est.tau           <- function(f) f[["est.tau"]]
+get.est.tau.dim       <- function(f) f[["est.tau.dim"]]
+get.tau               <- function(f) f[["tau"]]
+use.fixed.to.est.g    <- function(f) f[["use.fixed.to.est.g"]]
+get.n.nonmissing      <- function(f) f[["n.nonmissing"]]
+get.kron.nonmissing   <- function(f) f[["kron.nonmissing"]]
+get.R2                <- function(f) f[["R2"]]
+get.delta.R2          <- function(f) f[["delta.R2"]]
+get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
+get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
+get.obj               <- function(f) f[["obj"]]
+get.KL                <- function(f) f[["KL"]]
+get.nonmissing.thresh <- function(f) f[["nonmissing.thresh"]]
+warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
 
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
@@ -107,6 +108,11 @@ is.valid <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.valid"]])
   return(f[["is.valid"]][k])
+}
+get.exclusions <- function(f, n = NULL) {
+  if (is.null(n))
+    return(f[["exclusions"]])
+  return(f[["exclusions"]][[n]])
 }
 
 
@@ -472,6 +478,19 @@ set.to.valid <- function(f, k = NULL) {
   } else {
     f[["is.valid"]][k] <- TRUE
   }
+  return(f)
+}
+set.exclusions <- function(f, exclusions, n) {
+  if (is.null(get.k(f))) {
+    f[["exclusions"]][[n]] <- exclusions
+  } else {
+    # During backfitting, exclusions can be added but not removed.
+    f[["exclusions"]][[n]] <- union(f[["exclusions"]][[n]], exclusions)
+  }
+  return(f)
+}
+add.exclusions <- function(f, exclusions, k) {
+  f[["exclusions"]] <- c(f[["exclusions"]], list(exclusions))
   return(f)
 }
 set.greedy.fail.flag <- function(f) {

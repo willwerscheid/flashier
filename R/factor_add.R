@@ -8,6 +8,7 @@ add.new.factor.to.flash <- function(factor, flash) {
   flash <- set.obj(flash, get.obj(factor))
   flash <- add.is.zero(flash, FALSE)
   flash <- add.is.valid(flash, is.valid(factor))
+  flash <- add.exclusions(flash, get.exclusions(factor))
 
   if (uses.R(flash))
     flash <- update.R(flash, factor)

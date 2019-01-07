@@ -325,6 +325,8 @@ look.up.verbose.fns <- function(verbose, data.dim) {
       if (is.null(n))
         stop("Dimension must be specified for verbose sparsity output.")
       return(function(new, old, k) get.sparsity(new, old, k, n))
+    } else if (chars[[1]] == "E") {
+      return(function(new, old, k) get.exclusion.count(new, old, k, n))
     }
     stop("Unrecognized verbose output character.")
   })
@@ -351,6 +353,9 @@ look.up.verbose.colnames <- function(verbose) {
     if (chars[[1]] == "S") {
       return(paste("Sparsity", chars[[2]]))
     }
+    if (chars[[1]] == "E") {
+      return(paste("Excl", chars[[2]]))
+    }
     stop("Unrecognized verbose output character.")
   })
   return(unlist(names))
@@ -361,7 +366,7 @@ look.up.verbose.colwidths <- function(verbose) {
     char <- substring(symbol, 1, 1)
     if (char %in% c("O", "L", "S"))
       return(13)
-    if (char == "W")
+    if (char %in% c("W", "E"))
       return(9)
     stop("Unrecognized verbose output character.")
   })

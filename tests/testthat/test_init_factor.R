@@ -15,10 +15,12 @@ init.flash.test <- function(flash.init,
                             fix.idx = NULL,
                             fix.vals = NULL,
                             use.fixed.to.est.g = FALSE,
+                            nonmissing.thresh = NULL,
                             use.R = TRUE) {
   return(init.flash(flash.init, data, EF.init, est.tau.dim, dim.signs,
                     ebnm.fn, ebnm.param, warmstart.backfits,
-                    fix.dim, fix.idx, fix.vals, use.fixed.to.est.g, use.R))
+                    fix.dim, fix.idx, fix.vals, use.fixed.to.est.g,
+                    nonmissing.thresh, use.R))
 }
 
 M <- matrix(5, nrow = 2, ncol = 3) + 0.1*rnorm(6)

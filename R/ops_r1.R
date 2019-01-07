@@ -21,6 +21,12 @@ r1.subset <- function(r1, n, subset) {
   return(r1)
 }
 
+r1.drop.dim <- function(r1, n) {
+  r1 <- r1[-n]
+  class(r1) <- "r1"
+  return(r1)
+}
+
 r1.square <- function(r1) {
   r12 <- lapply(r1, function(v) {v^2})
   class(r12) <- "r1"

@@ -6,18 +6,19 @@
 \usage{
 flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
   ebnm.fn = flashr:::ebnm_pn, ebnm.param = list(), greedy.Kmax = 100,
-  backfit.order = c("sequential", "random", "montaigne", "parallel"),
-  warmstart.backfits = TRUE, backfit.after = NULL, backfit.every = NULL,
-  final.backfit = FALSE, nullchk.after = NULL, nullchk.every = NULL,
-  final.nullchk = TRUE, conv.crit.fn = calc.obj.diff, verbose.lvl = 1,
-  verbose.fns = NULL, verbose.colnames = NULL, verbose.colwidths = NULL,
-  output.lvl = 2, EF.init = NULL, fix.dim = NULL, fix.idx = NULL,
-  fix.vals = NULL, use.fixed.to.est.g = FALSE,
-  nullchk.fixed.factors = FALSE, init.fn = NULL, init.maxiter = 100,
-  init.tol = 0.01, greedy.maxiter = 500, greedy.tol = NULL,
-  backfit.maxiter = 100, backfit.tol = greedy.tol,
-  inner.backfit.maxiter = backfit.maxiter, inner.backfit.tol = backfit.tol,
-  seed = 666, use.R = FALSE)
+  backfit.order = c("sequential", "random", "dropout", "montaigne",
+  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
+  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
+  nullchk.every = NULL, final.nullchk = TRUE,
+  conv.crit.fn = calc.obj.diff, verbose.lvl = 1, verbose.fns = NULL,
+  verbose.colnames = NULL, verbose.colwidths = NULL, output.lvl = 3,
+  EF.init = NULL, fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
+  use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
+  init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
+  greedy.maxiter = 500, greedy.tol = NULL, backfit.maxiter = 100,
+  backfit.tol = greedy.tol, inner.backfit.maxiter = backfit.maxiter,
+  inner.backfit.tol = backfit.tol, nonmissing.thresh = NULL, seed = 666,
+  use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -134,6 +135,10 @@ backfit.}
 \item{inner.backfit.maxiter}{Maximum iterations for intermediary backfits.}
 
 \item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
+
+\item{nonmissing.thresh}{The (weighted) proportion of data that must be
+nonmissing in a given matrix or array slice in order to estimate the
+corresponding factor loading.}
 
 \item{seed}{By default, a seed is set for reproducibility. Set to
 \code{NULL} for a random seed.}

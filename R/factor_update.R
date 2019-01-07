@@ -13,6 +13,16 @@ update.factor <- function(factor, flash, update.tau = TRUE) {
 }
 
 update.factor.one.n <- function(factor, n, flash) {
+  nonmissing.thresh <- get.nonmissing.thresh(flash)
+  if (nonmissing.thresh > 0) {
+    prop.nonmissing <- calc.prop.nonmissing(factor, n, flash)
+    # After exclusions, at least two loadings must remain.
+    min.thresh <- sort(prop.nonmissing, decreasing = TRUE)[2]
+    nonmissing.thresh <- min(nonmissing.thresh, min.thresh)
+    exclude.idx <- which(prop.nonmissing < nonmissing.thresh)
+    factor <- set.exclusions(factor, exclude.idx, n)
+  }
+
   ebnm.res <- solve.ebnm(factor, n, flash)
 
   if (only.update.subset(factor, n, flash)) {
@@ -42,6 +52,12 @@ update.R2.tau.and.obj <- function(factor, flash) {
   factor <- set.obj(factor, calc.obj(flash, factor))
   factor <- set.to.valid(factor)
   return(factor)
+}
+
+calc.prop.nonmissing <- function(factor, n, flash) {
+  Z   <- get.nonmissing(flash)
+  EF2 <- r1.square(r1.drop.dim(get.EF(factor), n))
+  return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
 solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
@@ -92,6 +108,8 @@ calc.ebnm.args <- function(factor, n, flash, return.sampler) {
     all.x  <- x
     all.s2 <- s2
   }
+
+  all.s2[get.exclusions(factor, n)] <- Inf
 
   return(list(x = all.x, s = sqrt(all.s2)))
 }
