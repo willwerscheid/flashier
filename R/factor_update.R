@@ -13,7 +13,7 @@ update.factor <- function(factor, flash, update.tau = TRUE) {
 }
 
 update.factor.one.n <- function(factor, n, flash) {
-  nonmissing.thresh <- get.nonmissing.thresh(flash)
+  nonmissing.thresh <- get.nonmissing.thresh(flash, n)
   if (nonmissing.thresh > 0) {
     prop.nonmissing <- calc.prop.nonmissing(factor, n, flash)
     # After exclusions, at least two loadings must remain.

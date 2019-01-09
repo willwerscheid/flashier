@@ -129,10 +129,10 @@ init.log.2pi.s2 <- function(tau) {
 # Default threshold of nonmissingness required to estimate loadings -----------
 
 get.default.nonmissing.thresh <- function(flash) {
-  if (identical(get.nonmissing(flash), 1)) {
-    return(0)
-  } else {
+  thresh <- rep(0, get.dim(flash))
+  if (!identical(get.nonmissing(flash), 1)) {
     # This default is set to ensure that a "mean factor" can be estimated.
-    return(0.5 / sqrt(min(get.dims(flash))))
+    thresh[which.min(get.dims(flash))] <- 0.5 / sqrt(min(get.dims(flash)))
   }
+  return(thresh)
 }

@@ -136,7 +136,8 @@ backfit.}
 
 \item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
 
-\item{nonmissing.thresh}{The (weighted) proportion of data that must be
+\item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
+threshold sets the (weighted) proportion of data that must be
 nonmissing in a given matrix or array slice in order to estimate the
 corresponding factor loading.}
 

@@ -19,7 +19,6 @@ get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
 get.obj               <- function(f) f[["obj"]]
 get.KL                <- function(f) f[["KL"]]
-get.nonmissing.thresh <- function(f) f[["nonmissing.thresh"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
 
 get.EF <- function(f, n = NULL) {
@@ -109,6 +108,7 @@ is.valid <- function(f, k = NULL) {
     return(f[["is.valid"]])
   return(f[["is.valid"]][k])
 }
+get.nonmissing.thresh <- function(f, n) f[["nonmissing.thresh"]][n]
 get.exclusions <- function(f, n = NULL) {
   if (is.null(n))
     return(f[["exclusions"]])
