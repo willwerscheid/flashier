@@ -132,7 +132,7 @@ get.default.nonmissing.thresh <- function(flash) {
   thresh <- rep(0, get.dim(flash))
   if (!identical(get.nonmissing(flash), 1)) {
     # This default is set to ensure that a "mean factor" can be estimated.
-    thresh[which.min(get.dims(flash))] <- 0.5 / sqrt(min(get.dims(flash)))
+    thresh[which.min(get.dims(flash))] <- 0.5 / min(get.dims(flash))
   }
   return(thresh)
 }
