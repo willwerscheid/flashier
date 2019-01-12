@@ -6,15 +6,13 @@ Please note that `flashier` currently uses a development branch of package `ebnm
 
 ```devtools::install_github("stephenslab/ebnm", ref = "regular-normal")```
 
-To get more flexible priors such as `normal.mixture` and `nonnegative` working, you will need to install `ashr`:
+To get more flexible priors such as `normal.mixture` and `nonnegative` working, you will need to install `ashr`. The `warmstart.backfits` option requires changes which I have implemented in my own branch of `ashr`:
 
-```install.packages("ashr")```
+```devtools::install_github("willwerscheid/ashr")```
 
-When using the more flexible `ashr` priors, I recommend that you include `ebnm.ash = list(optmethod = "mixSQP")` in your `flashier` calls if you care about runtime. To use this option, you will need to install `mixsqp`. I strongly recommend using the current version:
+If you are using any other version of `ashr`, you will need to set `warmstart.backfits = FALSE` when backfitting (and even then, I can't guarantee that it will work).
 
-```devtools::install_github("stephenslab/mixsqp")```
-
-Finally, I recommend taking a look at the vignettes before diving in. Do note, however, that they take a few minutes to build (it took me a little less than 5 minutes on a 2015 MacBook Pro). If you choose to build them, make sure you've installed the above packages first. Then run:
+Before diving in, I recommend taking a look at the vignettes. Do note, however, that they take a few minutes to build (it took me a little less than 5 minutes on a 2015 13" MacBook Pro). If you choose to build them, make sure you've installed the above packages first. Then run:
 
 ```devtools::install_github("willwerscheid/flashier", build_vignettes = TRUE)```
 
