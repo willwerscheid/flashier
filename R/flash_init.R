@@ -10,6 +10,7 @@ init.flash <- function(flash.init,
                        fix.idx,
                        fix.vals,
                        use.fixed.to.est.g,
+                       nonmissing.thresh,
                        use.R) {
   if (is.null(flash.init)) {
     flash <- list()
@@ -81,6 +82,13 @@ init.flash <- function(flash.init,
   flash$fix.idx  <- fix.idx
   flash$fix.vals <- fix.vals
 
+  if (is.null(nonmissing.thresh))
+    nonmissing.thresh <- get.default.nonmissing.thresh(flash)
+  flash$nonmissing.thresh <- nonmissing.thresh
+
+  if (is.null(flash$exclusions))
+    flash$exclusions <- list()
+
   flash$warmstart.backfits <- warmstart.backfits
   flash$use.fixed.to.est.g <- use.fixed.to.est.g
 
@@ -116,4 +124,15 @@ init.kron.nonmissing <- function(flash) {
 
 init.log.2pi.s2 <- function(tau) {
   return(sum(log(2 * pi / tau)))
+}
+
+# Default threshold of nonmissingness required to estimate loadings -----------
+
+get.default.nonmissing.thresh <- function(flash) {
+  thresh <- rep(0, get.dim(flash))
+  if (!identical(get.nonmissing(flash), 1)) {
+    # This default is set to ensure that a "mean factor" can be estimated.
+    thresh[which.min(get.dims(flash))] <- 0.5 / min(get.dims(flash))
+  }
+  return(thresh)
 }

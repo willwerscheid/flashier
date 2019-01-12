@@ -69,6 +69,14 @@ get.sparsity <- function(new, old, k, n) {
   return(g$pi[1])
 }
 
+get.exclusion.count <- function(new, old, k, n) {
+  if (!is.null(k)) {
+    return(length(get.exclusions(new)[[k]][[n]]))
+  } else {
+    return(length(get.exclusions(new)[[n]]))
+  }
+}
+
 calc.max.abs.chg <- function(new, old) {
   new <- l2.normalize.and.stack(new)
   old <- l2.normalize.and.stack(old)
