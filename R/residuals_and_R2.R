@@ -22,7 +22,7 @@ calc.residuals <- function(flash, factor = NULL) {
   return(R)
 }
 
-# Used to initiate tau when tau is simple.
+# Used to initialize tau when tau is simple.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
   Y   <- get.Y(flash)
