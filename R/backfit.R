@@ -57,6 +57,7 @@ alter.existing.factor <- function(flash, factor) {
     flash <- set.to.zero(flash, k)
   if (is.valid(factor))
     flash <- set.to.valid(flash, k)
+  flash <- add.exclusions(flash, get.exclusions(factor), k)
 
   return(flash)
 }

@@ -489,8 +489,12 @@ set.exclusions <- function(f, exclusions, n) {
   }
   return(f)
 }
-add.exclusions <- function(f, exclusions, k) {
-  f[["exclusions"]] <- c(f[["exclusions"]], list(exclusions))
+add.exclusions <- function(f, exclusions, k = NULL) {
+  if (is.null(k)) {
+    f[["exclusions"]] <- c(f[["exclusions"]], list(exclusions))
+  } else {
+    f[["exclusions"]][[k]] <- exclusions
+  }
   return(f)
 }
 set.greedy.fail.flag <- function(f) {
