@@ -13,7 +13,7 @@ Imports:
     Matrix
 Suggests:
     ebnm (>= 0.1-17),
-    ashr (>= 2.2-4),
+    ashr (>= 2.2-27),
     mixsqp (>= 0.1.92),
     testthat,
     knitr,

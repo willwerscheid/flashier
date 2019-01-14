@@ -67,9 +67,14 @@ init.flash <- function(flash.init,
       flash$KL <- EF.init.KL
     }
 
-    flash$g <- c(flash$g, rep(list(rep(list(NULL), get.dim(flash))), EF.init.k))
-    flash$is.valid <- c(flash$is.valid, rep(FALSE, EF.init.k))
-    flash$is.zero  <- c(flash$is.zero, rep(FALSE, EF.init.k))
+    flash$g <- c(flash$g,
+                 rep(list(rep(list(NULL), get.dim(flash))), EF.init.k))
+
+    flash$is.valid   <- c(flash$is.valid, rep(FALSE, EF.init.k))
+    flash$is.zero    <- c(flash$is.zero, rep(FALSE, EF.init.k))
+    flash$exclusions <- c(flash$exclusions,
+                          rep(list(rep(list(integer(0)), get.dim(flash))),
+                              EF.init.k))
   }
 
   flash$dim.signs  <- dim.signs

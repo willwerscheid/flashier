@@ -30,7 +30,7 @@ init.factor <- function(flash, init.fn, tol, maxiter) {
   factor$obj        <- calc.obj(flash, factor)
   factor$is.valid   <- FALSE
   factor$is.zero    <- FALSE
-  factor$exclusions <- rep(list(numeric(0)), get.dim(flash))
+  factor$exclusions <- rep(list(integer(0)), get.dim(flash))
 
   return(factor)
 }
