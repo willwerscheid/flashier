@@ -8,7 +8,7 @@ Please note that `flashier` currently uses a development branch of package `ebnm
 
 To get more flexible priors such as `normal.mixture` and `nonnegative` working, you will need to install `ashr`. The `warmstart.backfits` option requires changes which I have implemented in my own branch of `ashr`:
 
-```devtools::install_github("willwerscheid/ashr")```
+```devtools::install_github("willwerscheid/ashr", ref = "improve-grid-select")```
 
 If you are using any other version of `ashr`, you will need to set `warmstart.backfits = FALSE` when backfitting (and even then, I can't guarantee that it will work).
 
