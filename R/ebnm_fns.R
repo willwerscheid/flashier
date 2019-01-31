@@ -11,10 +11,6 @@
 # row corresponding to a single sample from the posterior).
 
 ebnm.ash = function(x, s, ash.param) {
-  if (!is.null(ash.param$g)) {
-    ash.param$initsd <- ash.param$g[[3]]
-    ash.param$g <- NULL
-  }
   res <- do.call(ashr::ash,
                  c(list(betahat = as.vector(x),
                         sebetahat = as.vector(s)),

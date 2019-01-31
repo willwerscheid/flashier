@@ -192,6 +192,7 @@ flash.workhorse <- function(data,
 
   if (is.null(greedy.tol)) {
     greedy.tol <- set.default.tol(flash)
+    # TODO don't report when only backfitting; OR set tols as multiplier
     report.tol.setting(verbose.lvl, greedy.tol)
   }
 
