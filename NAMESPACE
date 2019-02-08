@@ -2,3 +2,6 @@
 
 export(flashier)
 export(set.flash.data)
+
+useDynLib(flashier)
+importFrom(Rcpp, sourceCpp)
