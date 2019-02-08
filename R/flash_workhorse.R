@@ -220,6 +220,7 @@ flash.workhorse <- function(data,
 
       announce.factor.init(verbose.lvl)
       factor <- init.factor(flash, init.fn, init.tol, init.maxiter)
+      gc()
 
       if (is.fixed(factor)) {
         flash <- add.new.factor.to.flash(factor, flash)
