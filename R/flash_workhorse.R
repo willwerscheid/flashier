@@ -146,9 +146,9 @@ flash.workhorse <- function(data,
                             greedy.maxiter = 500,
                             greedy.tol = NULL,
                             backfit.maxiter = 100,
-                            backfit.tol = greedy.tol,
+                            backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
-                            inner.backfit.tol = backfit.tol,
+                            inner.backfit.reltol = backfit.reltol,
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
@@ -192,7 +192,6 @@ flash.workhorse <- function(data,
 
   if (is.null(greedy.tol)) {
     greedy.tol <- set.default.tol(flash)
-    # TODO don't report when only backfitting; OR set tols as multiplier
     report.tol.setting(verbose.lvl, greedy.tol)
   }
 
@@ -274,13 +273,13 @@ flash.workhorse <- function(data,
       do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
       do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
       maxiter    <- backfit.maxiter
-      tol        <- backfit.tol
+      tol        <- greedy.tol * backfit.reltol
       curr.rnd.factors.added <- 0
     } else {
       do.backfit <- total.factors.added %in% when.to.backfit
       do.nullchk <- total.factors.added %in% when.to.nullchk
       maxiter    <- inner.backfit.maxiter
-      tol        <- inner.backfit.tol
+      tol        <- greedy.tol * inner.backfit.reltol
     }
 
     if (do.backfit) {
