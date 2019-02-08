@@ -1,3 +1,7 @@
+// Implements row and column sums of squared elements of matrices. Only one
+//   of these functions is ever called, and it is only called once (during
+//   initialization), so simplicity is better than performance.
+
 #include <Rcpp.h>
 using namespace Rcpp;
 

@@ -36,9 +36,9 @@ calc.R2 <- function(flash) {
   if (is.null(EF) && get.dim(flash) == 2) {
     # TODO: implement for tensors.
     if (n == 1) {
-      R2 <- calc_R2_colsums_rcpp(Y)
-    } else {
       R2 <- calc_R2_rowsums_rcpp(Y)
+    } else {
+      R2 <- calc_R2_colsums_rcpp(Y)
     }
   } else {
     if (!uses.R(flash)) {
