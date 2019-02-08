@@ -256,6 +256,8 @@ flash.workhorse <- function(data,
         } else {
           flash <- set.greedy.fail.flag(flash)
         }
+
+        gc()
       }
 
       if (greedy.failed(flash)) {
@@ -332,6 +334,8 @@ flash.workhorse <- function(data,
                               k = k, backfit = TRUE)
           }
         }
+
+        gc()
       }
 
       if (iter == maxiter)
