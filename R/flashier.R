@@ -273,7 +273,7 @@ control.param <- function(backfit) {
   } else if (backfit == "alternating") {
     control$backfit.after <- 2
     control$backfit.every <- 1
-    control$final.backfit <- TRUE
+    control$final.backfit <- FALSE
   }
   return(control)
 }
