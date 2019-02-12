@@ -16,12 +16,14 @@ nullcheck.factor <- function(flash, k, verbose.lvl) {
 }
 
 zero.factor <- function(flash, k) {
-  factor         <- list()
-  factor$k       <- k
-  factor$EF      <- r1.zeros(flash)
-  factor$EF2     <- factor$EF
-  factor$KL      <- rep(0, get.dim(flash))
-  factor$is.zero <- TRUE
+  factor            <- list()
+  factor$k          <- k
+  factor$EF         <- r1.zeros(flash)
+  factor$EF2        <- factor$EF
+  factor$g          <- list()
+  factor$KL         <- rep(0, get.dim(flash))
+  factor$exclusions <- list()
+  factor$is.zero    <- TRUE
 
   return(factor)
 }

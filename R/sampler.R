@@ -24,7 +24,11 @@ all.post.samplers <- function(flash) {
 
 post.sampler <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
-  if (all.fixed(factor, n)) {
+  if (is.zero(factor)) {
+    sampler <- function(nsamp) {matrix(0,
+                                       nrow = nsamp,
+                                       ncol = get.dims(flash)[n])}
+  } else if (all.fixed(factor, n)) {
     sampler <- function(nsamp) {matrix(get.fix.vals(flash, k),
                                        nrow = nsamp,
                                        ncol = get.dims(flash)[n],
