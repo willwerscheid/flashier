@@ -181,7 +181,7 @@ calc.x <- function(factor, n, flash, s2, tau) {
       flash.EF.minus.k <- flash.EF
       if (!is.new(factor))
         flash.EF.minus.k <- lowrank.drop.k(flash.EF, k)
-      flash.EF.tau <- elemwise.prod.fullrank.lowrank(tau, flash.EF)
+      flash.EF.tau <- elemwise.prod.fullrank.lowrank(tau, flash.EF.minus.k)
       x <- x - nmode.prod.r1(flash.EF.tau, factor.EF[-n], n)
     }
   }

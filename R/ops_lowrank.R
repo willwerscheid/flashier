@@ -41,7 +41,7 @@ lowrank.subset <- function(lowrank, n, subset) {
 }
 
 lowrank.drop.k <- function(lowrank, k) {
-  if (is.null(lowrank))
+  if (is.null(lowrank) || ncol(lowrank[[1]]) == 1)
     return(NULL)
   lowrank <- lapply(lowrank, function(X) X[, -k, drop = FALSE])
   class(lowrank) <- "lowrank"
@@ -86,7 +86,7 @@ lowranks.combine <- function(lr1, lr2) {
 lowrank.delta.mat <- function(new.lr, old.lr) {
   k <- ncol(new.lr[[1]])
   lowrank <- mapply(cbind, new.lr, old.lr, SIMPLIFY = FALSE)
-  if (k > 0)
+  if (!is.null(k) && k > 0)
     lowrank[[1]][, (k + 1):(2 * k)] <- -lowrank[[1]][, (k + 1):(2 * k)]
   class(lowrank) <- "lowrank"
   return(lowrank)
