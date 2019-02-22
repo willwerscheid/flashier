@@ -4,12 +4,8 @@
 # in package NNLM can be written as follows:
 #
 # nnmf.init.fn <- function(flash, tol, maxiter) {
-#   res <- NNLM::nnmf(flash$Y,
-#                     init = list(W0 = flash$EF[[1]],
-#                                 H0 = t(flash$EF[[2]])),
-#                     rel.tol = tol,
-#                     max.iter = maxiter,
-#                     verbose = FALSE)
+#   R <- flash$Y - flashier:::lowrank.expand(flash$EF)
+#   res <- NNLM::nnmf(R, rel.tol = tol, max.iter = maxiter, verbose = FALSE)
 #   return(list(as.vector(res$W), as.vector(res$H)))
 # }
 
