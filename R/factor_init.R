@@ -24,8 +24,8 @@ init.factor <- function(flash, init.fn, tol, maxiter) {
   factor$KL         <- rep(0, get.dim(flash))
   factor            <- update.tau(factor, flash)
   factor$obj        <- calc.obj(flash, factor)
-  factor$is.valid   <- FALSE
-  factor$is.zero    <- FALSE
+  factor$is.zero    <- all(unlist(factor$EF) == 0)
+  factor$is.valid   <- factor$is.zero
   factor$exclusions <- rep(list(integer(0)), get.dim(flash))
 
   return(factor)
@@ -143,8 +143,16 @@ update.init.EF.one.n <- function(EF, n, flash, is.fixed, sign, subset.data) {
 
 scale.EF <- function(EF) {
   norms <- lapply(EF, function(x) {sqrt(sum(x^2))})
-  EF <- mapply(`/`, EF, norms, SIMPLIFY = FALSE)
-  EF <- lapply(EF, `*`, prod(unlist(norms))^(1/length(EF)))
+
+  if (all(unlist(norms) > 0)) {
+    EF <- mapply(`/`, EF, norms, SIMPLIFY = FALSE)
+    EF <- lapply(EF, `*`, prod(unlist(norms))^(1/length(EF)))
+  } else {
+    warning("Fitting stopped after the initialization function failed to find",
+            " a non-zero factor.")
+    EF <- lapply(EF, `*`, 0)
+  }
   class(EF) <- "r1"
+
   return(EF)
 }
