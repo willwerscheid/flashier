@@ -146,6 +146,7 @@ get.dim <- function(f) length(get.dims(f))
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
+any.missing <- function(f) !identical(get.nonmissing(f), 1)
 is.obj.valid <- function(flash, factor = NULL) {
   valid <- is.valid(flash)
   if (!is.null(factor))
