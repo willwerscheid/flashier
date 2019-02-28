@@ -7,7 +7,7 @@ fullrank.ops.error <- function(fn.name, object) {
 }
 
 full.or.lowrank.subset <- function(X, n, subset) {
-  if (is(X, "lowrank"))
+  if (inherits(X, "lowrank"))
     return(lowrank.subset(X, n, subset))
   return(fullrank.subset(X, n, subset))
 }
@@ -19,7 +19,7 @@ fullrank.subset <- function(X, n, subset) {
   if(identical(X, 1))
     return(1)
 
-  if (is.matrix(X) || is(X, "Matrix")) {
+  if (is.matrix(X) || inherits(X, "Matrix")) {
     if (n == 1)
       return(X[subset, , drop = FALSE])
     if (n == 2)

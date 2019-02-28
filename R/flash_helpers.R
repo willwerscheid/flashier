@@ -536,7 +536,7 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 
 # Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
-  if (is(f, "flash"))
+  if (inherits(f, "flash"))
     f <- f$fit
 
   flash      <- list()

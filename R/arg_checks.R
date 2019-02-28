@@ -20,9 +20,9 @@ must.be.supported.data.type <- function(X,
                                         allow.null = TRUE,
                                         allow.vector = FALSE) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(X)), ".")
-  if (!(is(X, "flash.data")
+  if (!(inherits(X, "flash.data")
         || is.matrix(X)
-        || is(X, "Matrix")
+        || inherits(X, "Matrix")
         || (is.array(X) && length(dim(X)) == 3)
         || (allow.null && is.null(X))
         || (allow.vector && is.vector(X))))

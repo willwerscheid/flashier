@@ -18,7 +18,7 @@ nmode.ops.error <- function(object) {
 #
 nmode.prod.vec <- function(X, v, n) {
   # Matrices and sparse matrices:
-  if (is.matrix(X) || is(X, "Matrix")) {
+  if (is.matrix(X) || inherits(X, "Matrix")) {
     if (n == 1 && identical(v, 1))
       return(Matrix::colSums(X))
     if (n == 1)
@@ -62,7 +62,7 @@ fullrank.nmode.prod.r1 <- function(X, r1, n) {
     return(r1.sum(r1))
   }
 
-  if (is.matrix(X) || is(X, "Matrix")) {
+  if (is.matrix(X) || inherits(X, "Matrix")) {
     return(nmode.prod.vec(X, unlist(r1), (1:2)[-n]))
   }
 
@@ -100,7 +100,7 @@ lowrank.nmode.prod.r1 <- function(lowrank, r1, n) {
 nmode.prod.r1 <- function(X, r1, n) {
   if (is.null(X))
     return(0)
-  if (is(X, "lowrank"))
+  if (inherits(X, "lowrank"))
     return(lowrank.nmode.prod.r1(X, r1, n))
   return(fullrank.nmode.prod.r1(X, r1, n))
 }
@@ -155,7 +155,7 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
 premult.nmode.prod.r1 <- function(Z, X, r1, n) {
   if (is.null(X))
     return(0)
-  if (is(X, "lowrank"))
+  if (inherits(X, "lowrank"))
     return(premult.lowrank.nmode.prod.r1(Z, X, r1, n))
   return(fullrank.nmode.prod.r1(Z * X, r1, n))
 }

@@ -7,7 +7,7 @@
 as.lowrank <- function(r1) {
   if (is.null(r1))
     return(NULL)
-  if (is(r1, "r1")) {
+  if (inherits(r1, "r1")) {
     lowrank <- lapply(r1, matrix, ncol = 1)
     class(lowrank) <- "lowrank"
     return(lowrank)
@@ -19,7 +19,7 @@ as.lowrank <- function(r1) {
 lowrank.expand <- function(lowrank) {
   if (is.null(lowrank))
     return(0)
-  if (is.matrix(lowrank) || is(lowrank, "Matrix"))
+  if (is.matrix(lowrank) || inherits(lowrank, "Matrix"))
     return(tcrossprod(lowrank[[1]], lowrank[[2]]))
 
   K   <- ncol(lowrank[[1]])

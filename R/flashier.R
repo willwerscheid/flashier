@@ -91,16 +91,16 @@ flashier <- function(data,
                      ash.param = list(),
                      verbose.lvl = 1,
                      ...) {
-  if (is(data, "flash.data") && !missing(S))
+  if (inherits(data, "flash.data") && !missing(S))
     warning("Data has already been set. Ignoring S.")
   data <- set.flash.data(data, S, var.type = var.type)
 
   ellipsis <- list(...)
 
   # When available, use existing flash object settings as defaults.
-  if (is(flash.init, "flash"))
+  if (inherits(flash.init, "flash"))
     flash.init <- flash.init$fit
-  if (!is.null(flash.init) && !is(flash.init, "flash.fit"))
+  if (!is.null(flash.init) && !inherits(flash.init, "flash.fit"))
     stop("flash.init must be a flash or flash.fit object.")
   if (!is.null(flash.init)) {
     if (missing(var.type))

@@ -16,7 +16,7 @@
 
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   # If data is a flash.data object, check that it has been set correctly.
-  if (is(data, "flash.data")) {
+  if (inherits(data, "flash.data")) {
     if (!is.null(data$given.S2)) {
       S <- data$given.S2
     } else if (!is.null(data$given.tau)) {
