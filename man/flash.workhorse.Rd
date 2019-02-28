@@ -6,8 +6,8 @@
 \usage{
 flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
   ebnm.fn = flashr:::ebnm_pn, ebnm.param = list(), greedy.Kmax = 100,
-  backfit.order = c("sequential", "random", "dropout", "montaigne",
-  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
+  backfit.kset = NULL, backfit.order = c("dropout", "sequential", "random",
+  "montaigne", "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
   backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
   nullchk.every = NULL, final.nullchk = TRUE,
   conv.crit.fn = calc.obj.diff, verbose.lvl = 1, verbose.fns = NULL,
@@ -16,9 +16,9 @@ flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
   greedy.maxiter = 500, greedy.tol = NULL, backfit.maxiter = 100,
-  backfit.tol = greedy.tol, inner.backfit.maxiter = backfit.maxiter,
-  inner.backfit.tol = backfit.tol, nonmissing.thresh = NULL, seed = 666,
-  use.R = FALSE)
+  backfit.reltol = 1, inner.backfit.maxiter = backfit.maxiter,
+  inner.backfit.reltol = backfit.reltol, nonmissing.thresh = NULL,
+  seed = 666, use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -50,6 +50,10 @@ functions in \code{ebnm.fn}.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
 are not counted.}
+
+\item{backfit.kset}{Which factors to backfit. The - operator can be used to
+instead specify which factors not to backfit. For example,
+\code{backfit.kset = -(1:2)} will backfit all factors but the first two.}
 
 \item{backfit.order}{How to determine the order in which to backfit factors.
 \code{"montaigne"} goes after the factor that promises to yield the
@@ -129,12 +133,7 @@ new factor.}
 \item{backfit.maxiter}{The maximum number of iterations when performing a
 final backfit.}
 
-\item{backfit.tol}{The convergence tolerance when performing a final
-backfit.}
-
 \item{inner.backfit.maxiter}{Maximum iterations for intermediary backfits.}
-
-\item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be
@@ -147,6 +146,11 @@ corresponding factor loading.}
 \item{use.R}{Whether to maintain a matrix of residuals throughout the
 fitting process. This usually requires much more memory and seldom offers
 much improvement in runtime.}
+
+\item{backfit.tol}{The convergence tolerance when performing a final
+backfit.}
+
+\item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
 }
 \description{
 Caveat emptor.

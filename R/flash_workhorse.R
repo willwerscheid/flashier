@@ -18,6 +18,10 @@
 #' @param ebnm.param A list of lists giving the parameters to be passed to the
 #'   functions in \code{ebnm.fn}.
 #'
+#' @param backfit.kset Which factors to backfit. The - operator can be used to
+#'   instead specify which factors not to backfit. For example,
+#'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
+#'
 #' @param backfit.order How to determine the order in which to backfit factors.
 #'   \code{"montaigne"} goes after the factor that promises to yield the
 #'   largest increase in the variational lower bound. Il faut courir au plus
@@ -116,9 +120,10 @@ flash.workhorse <- function(data,
                             ebnm.fn = flashr:::ebnm_pn,
                             ebnm.param = list(),
                             greedy.Kmax = 100,
-                            backfit.order = c("sequential",
+                            backfit.kset = NULL,
+                            backfit.order = c("dropout",
+                                              "sequential",
                                               "random",
-                                              "dropout",
                                               "montaigne",
                                               "parallel"),
                             warmstart.backfits = TRUE,
@@ -291,6 +296,12 @@ flash.workhorse <- function(data,
       old.obj <- get.obj(flash)
       conv.crit <- rep(Inf, get.n.factors(flash))
       kset <- 1:get.n.factors(flash)
+      if (!is.null(backfit.kset)) {
+        # Remove factors that haven't been added yet.
+        ksubset <- intersect(backfit.kset, c(kset, -kset))
+        kset <- kset[ksubset]
+        conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
+      }
       while (iter < maxiter && max(conv.crit) > tol) {
         is.converged <- TRUE
         iter <- iter + 1
