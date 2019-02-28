@@ -113,7 +113,7 @@
 #'   fitting process. This usually requires much more memory and seldom offers
 #'   much improvement in runtime.
 #'
-flash.workhorse <- function(data,
+flash.workhorse <- function(data = NULL,
                             flash.init = NULL,
                             var.type = 0,
                             prior.sign = NULL,
@@ -159,7 +159,9 @@ flash.workhorse <- function(data,
                             use.R = FALSE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
-  if (force.use.R(data, var.type)) {
+
+  ## data can be NULL when initialization can be bypassed.
+  if (!is.null(data) && force.use.R(data, var.type)) {
     if (!missing(use.R) && !use.R)
       stop("R must be used with the requested variance structure.")
     use.R <- TRUE

@@ -4,12 +4,12 @@
 \alias{flash.workhorse}
 \title{A horse that works for \code{\link{flashier}}}
 \usage{
-flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
-  ebnm.fn = ebnm.pn, ebnm.param = list(), greedy.Kmax = 100,
-  backfit.kset = NULL, backfit.order = c("dropout", "sequential", "random",
-  "montaigne", "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
-  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
-  nullchk.every = NULL, final.nullchk = TRUE,
+flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
+  prior.sign = NULL, ebnm.fn = ebnm.pn, ebnm.param = list(),
+  greedy.Kmax = 100, backfit.kset = NULL, backfit.order = c("dropout",
+  "sequential", "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
+  backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
+  nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
   conv.crit.fn = calc.obj.diff, verbose.lvl = 1, verbose.fns = NULL,
   verbose.colnames = NULL, verbose.colwidths = NULL, output.lvl = 3,
   EF.init = NULL, fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,

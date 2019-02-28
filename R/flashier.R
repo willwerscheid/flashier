@@ -93,7 +93,6 @@ flashier <- function(data,
                      ...) {
   if (inherits(data, "flash.data") && !missing(S))
     warning("Data has already been set. Ignoring S.")
-  data <- set.flash.data(data, S, var.type = var.type)
 
   ellipsis <- list(...)
 
@@ -113,8 +112,17 @@ flashier <- function(data,
       ellipsis$ebnm.param <- flash.init$ebnm.param
   }
 
+  # Bypass set.flash.data if flash.init has the needed fields.
+  if (bypass.init(flash.init)) {
+    data <- NULL
+    data.dim <- get.dim(flash.init)
+  } else {
+    data <- set.flash.data(data, S, var.type = var.type)
+    data.dim <- get.dim(data)
+  }
+
   # Check arguments.
-  must.be.valid.var.type(var.type, get.dim(data))
+  must.be.valid.var.type(var.type, data.dim)
   must.be.integer(greedy.Kmax, lower = 0)
   must.be.named.list(ebnm.param)
   must.be.named.list(ash.param)
@@ -129,7 +137,7 @@ flashier <- function(data,
     #   factors. If there is an initial flash object, the existing settings
     #   need to be kept, while the last list element is overridden.
     new.prior.param <- prior.param(prior.type,
-                                   get.dim(data),
+                                   data.dim,
                                    ebnm.param,
                                    ash.param)
     k <- length(flash.init$ebnm.fn)
@@ -142,7 +150,7 @@ flashier <- function(data,
     # I can't check that ellipsis$ebnm.param is NULL because I've overloaded
     #   ebnm.param.
     workhorse.param <- c(workhorse.param, prior.param(prior.type,
-                                                      get.dim(data),
+                                                      data.dim,
                                                       ebnm.param,
                                                       ash.param))
   } else if (!missing(prior.type)) {
@@ -171,7 +179,7 @@ flashier <- function(data,
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {
     workhorse.param <- c(workhorse.param, verbose.param(verbose.lvl,
-                                                        get.dim(data)))
+                                                        data.dim))
   } else if (is.null(ellipsis$verbose.fns)
              || is.null(ellipsis$verbose.colnames)
              || is.null(ellipsis$verbose.colwidths)) {
