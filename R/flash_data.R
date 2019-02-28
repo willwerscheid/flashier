@@ -54,6 +54,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   } else {
     flash.data$Z <- 1
   }
+  must.not.have.zero.slices(flash.data$Y)
 
   # Set S.dim.
   if (is.vector(S) && is.null(S.dim)) {
