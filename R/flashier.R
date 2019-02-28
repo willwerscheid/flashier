@@ -4,7 +4,8 @@
 #'
 #' @param data The observations. Can be a matrix, sparse matrix of class
 #'   \code{Matrix}, three-dimensional array, or \code{flash.data} object
-#'   obtained from \code{set.flash.data}.
+#'   obtained from \code{set.flash.data}. Can be \code{NULL} if
+#'   \code{flash.init} is used.
 #'
 #' @param S The standard errors. Can be a matrix, scalar (if standard errors
 #'   are the same for all observations), or vector (if, for example, \code{S}
@@ -77,7 +78,7 @@
 #'
 #' @export
 #'
-flashier <- function(data,
+flashier <- function(data = NULL,
                      S = NULL,
                      flash.init = NULL,
                      var.type = 0,

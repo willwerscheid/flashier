@@ -23,7 +23,8 @@ flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}.}
+obtained from \code{set.flash.data}. Can be \code{NULL} if
+\code{flash.init} is used.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 

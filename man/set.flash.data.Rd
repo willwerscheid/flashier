@@ -9,7 +9,8 @@ set.flash.data(data, S = NULL, S.dim = NULL, var.type = NULL)
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}.}
+obtained from \code{set.flash.data}. Can be \code{NULL} if
+\code{flash.init} is used.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}

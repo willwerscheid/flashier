@@ -4,7 +4,7 @@
 \alias{flashier}
 \title{Fit an empirical Bayes matrix/tensor factorization}
 \usage{
-flashier(data, S = NULL, flash.init = NULL, var.type = 0,
+flashier(data = NULL, S = NULL, flash.init = NULL, var.type = 0,
   prior.type = "point.normal", greedy.Kmax = 30, backfit = c("none",
   "final", "alternating", "only"), ebnm.param = list(), ash.param = list(),
   verbose.lvl = 1, ...)
@@ -12,7 +12,8 @@ flashier(data, S = NULL, flash.init = NULL, var.type = 0,
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}.}
+obtained from \code{set.flash.data}. Can be \code{NULL} if
+\code{flash.init} is used.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}
