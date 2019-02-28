@@ -29,6 +29,15 @@ must.be.supported.data.type <- function(X,
     stop(error.msg)
 }
 
+must.be.compatible.data.types <- function(X, Y) {
+  error.msg <- paste0("If either ", deparse(substitute(X)), " or ",
+                      deparse(substitute(Y)), " is of class Matrix, then both",
+                      " must be.")
+  if ((inherits(X, "Matrix") && is.matrix(Y))
+      || (is.matrix(X) && inherits(Y, "Matrix")))
+    stop(error.msg)
+}
+
 must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
   error.msg <- "Invalid var.type."
   if (is.null(x) && !allow.null)
