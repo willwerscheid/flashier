@@ -69,8 +69,10 @@ calc.normalized.loadings <- function(flash) {
 
   EF <- get.EF(flash)
   norms <- lapply(EF, function(x) {sqrt(colSums(x^2))})
+  # Zero factors are "normalized" to zero.
+  norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
   L <- mapply(EF, norms, FUN = function(X, y) {
-    X / matrix(y, nrow = nrow(X), ncol = ncol(X), byrow = TRUE)
+    X / rep(y, each = nrow(X))
   })
 
   # Propagate names.
@@ -87,6 +89,7 @@ calc.normalized.loadings <- function(flash) {
 
   norms <- do.call(rbind, norms)
   ret$scale.constant <- apply(norms, 2, prod)
+  ret$scale.constant[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
 
   return(ret)
