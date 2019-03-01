@@ -60,26 +60,28 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
-solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
+solve.ebnm <- function(factor, n, flash, output = "flash.data") {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
   ebnm.fn    <- get.ebnm.fn(flash, factor, n)
-  ebnm.args  <- calc.ebnm.args(factor, n, flash, return.sampler)
+  ebnm.args  <- calc.ebnm.args(factor, n, flash, output)
   ebnm.param <- get.ebnm.param(flash, factor, n)
 
   g <- get.g(factor, n)
-  if (return.sampler && !is.null(g)) {
+  if ((output != "flash.data") && !is.null(g)) {
+    if (output == "sampler")
+      output <- "post_sampler"
     ebnm.param <- modifyList(ebnm.param, list(g = g,
                                               fixg = TRUE,
-                                              output = "post_sampler"))
+                                              output = output))
   } else if (!is.new(factor) && warmstart.backfits(flash) && !is.null(g)) {
     ebnm.param <- modifyList(ebnm.param, list(g = g))
   }
   ebnm.res <- do.call(ebnm.fn, c(ebnm.args, list(ebnm.param)))
 
-  if (!return.sampler) {
+  if (output == "flash.data") {
     ebnm.res$KL <- (ebnm.res$penloglik
                     - normal.means.loglik(ebnm.args$x,
                                           ebnm.args$s,
@@ -90,7 +92,7 @@ solve.ebnm <- function(factor, n, flash, return.sampler = FALSE) {
   return(ebnm.res)
 }
 
-calc.ebnm.args <- function(factor, n, flash, return.sampler) {
+calc.ebnm.args <- function(factor, n, flash, output) {
   tau <- get.tau.for.ebnm.calc(flash, tau = get.tau(factor))
   if (n %in% get.fix.dim(factor))
     tau <- full.or.lowrank.subset(tau, n, get.idx.subset(factor))
@@ -98,7 +100,7 @@ calc.ebnm.args <- function(factor, n, flash, return.sampler) {
   s2 <- calc.s2(factor, n, flash, tau)
   x  <- calc.x(factor, n, flash, s2, tau)
 
-  if (add.fixed.to.ebnm.args(factor, n, flash, return.sampler)) {
+  if (add.fixed.to.ebnm.args(factor, n, flash, output)) {
     idx.subset         <- get.idx.subset(factor)
     all.x              <- get.EF(factor, n)
     all.x[idx.subset]  <- x
@@ -199,7 +201,7 @@ use.subsetted.flash.data <- function(factor, n) {
   return((n %in% get.fix.dim(factor)) && !all.fixed(factor, n))
 }
 
-add.fixed.to.ebnm.args <- function(factor, n, flash, return.sampler) {
+add.fixed.to.ebnm.args <- function(factor, n, flash, output) {
   return((n %in% get.fix.dim(factor))
-          && (use.fixed.to.est.g(flash) || return.sampler))
+          && (use.fixed.to.est.g(flash) || (output == "sampler")))
 }

@@ -13,6 +13,7 @@ wrapup.flash <- function(flash, output.lvl) {
   if (flash.object$n.factors > 0) {
     flash.object$pve      <- calc.pve(flash)
     flash.object$loadings <- calc.normalized.loadings(flash)
+    flash.object$lfsr     <- calc.lfsr(flash)
     if (output.lvl > 1)
       flash.object$sampler <- F.sampler(flash)
   }
@@ -93,4 +94,22 @@ calc.normalized.loadings <- function(flash) {
   ret$normalized.loadings <- L
 
   return(ret)
+}
+
+calc.lfsr <- function(flash) {
+  return(lapply(1:get.dim(flash),
+                function(n) sapply(1:get.n.factors(flash),
+                                   function(k) factor.lfsr(flash, k, n))))
+
+}
+
+factor.lfsr <- function(flash, k, n) {
+  factor <- extract.factor(flash, k)
+  if (is.zero(factor) || all.fixed(factor, n)) {
+    lfsr <- rep(NA, get.dims(flash)[n])
+  } else {
+    ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")
+    lfsr <- ebnm.res$lfsr
+  }
+  return(lfsr)
 }

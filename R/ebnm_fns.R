@@ -18,11 +18,20 @@ ebnm.ash = function(x, s, ash.param) {
 
   if (!is.null(res$flash_data))
     res <- res$flash_data
+  else if (!is.null(res$result))
+    res <- res$result
 
   return(res)
 }
 
 ebnm.pn = function(x, s, ebnm.param) {
+  # TODO: update ebnm to return lfsr
+  if ("lfsr" %in% ebnm.param$output) {
+    res <- list()
+    res$lfsr <- rep(NA, length(x))
+    return(res)
+  }
+
   res <- do.call(ebnm::ebnm,
                  c(list(x = as.vector(x),
                         s = as.vector(s)),

@@ -34,7 +34,7 @@ post.sampler <- function(flash, k, n) {
                                        ncol = get.dims(flash)[n],
                                        byrow = TRUE)}
   } else {
-    ebnm.res <- solve.ebnm(factor, n, flash, return.sampler = TRUE)
+    ebnm.res <- solve.ebnm(factor, n, flash, output = "sampler")
     sampler <- ebnm.res$post_sampler
   }
   return(sampler)
