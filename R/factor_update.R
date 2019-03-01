@@ -203,5 +203,5 @@ use.subsetted.flash.data <- function(factor, n) {
 
 add.fixed.to.ebnm.args <- function(factor, n, flash, output) {
   return((n %in% get.fix.dim(factor))
-          && (use.fixed.to.est.g(flash) || (output == "sampler")))
+          && (use.fixed.to.est.g(flash) || (output != "flash.data")))
 }
