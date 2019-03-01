@@ -14,17 +14,18 @@ M <- LF + 0.1 * rnorm(n * p)
 
 # Factor 3 will be removed here:
 f <- flashier(M, greedy.Kmax = 2,
-              fix.dim = list(1), fix.idx = list(1:n), fix.vals = rep(1, n),
-              backfit = "final", backfit.reltol = 100)
+              fixed.factors = fixed.factors(1, 1:n),
+              backfit = "final", backfit.reltol = 100,
+              nullchk.fixed = TRUE, verbose.lvl = 0)
 
 test_that("sampler works correctly when there are zero factors", {
   samp <- f$sampler(1)[[1]]
-  expect_equal(samp[[1]][, 3], rep(0, n))
-  expect_equal(samp[[2]][, 3], rep(0, p))
+  expect_equal(samp[[1]][, 1], rep(0, n))
+  expect_equal(samp[[2]][, 1], rep(0, p))
 })
 
 test_that("zero factors are dealt with correctly when normalizing loadings", {
-  expect_equal(f$loadings$scale.constant[3], 0)
-  expect_equal(f$loadings$normalized.loadings[[1]][, 3], rep(0, n))
-  expect_equal(f$loadings$normalized.loadings[[2]][, 3], rep(0, p))
+  expect_equal(f$loadings$scale.constant[1], 0)
+  expect_equal(f$loadings$normalized.loadings[[1]][, 1], rep(0, n))
+  expect_equal(f$loadings$normalized.loadings[[2]][, 1], rep(0, p))
 })

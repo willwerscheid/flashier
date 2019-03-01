@@ -15,7 +15,7 @@ M <- LF + 0.1 * rnorm(n * p)
 missing <- sample(1:length(M), floor(0.6 * length(M)))
 M[missing] <- NA
 
-f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
+f <- flashier(M, greedy.Kmax = 2, use.R = TRUE, verbose.lvl = 0)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(f$n.factors, 2)
@@ -29,8 +29,8 @@ test_that("the greedy objective approximately agrees with flashr (using R)", {
   expect_equal(f$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
-                final.nullchk = FALSE)
+f.b <- flashier(flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE, verbose.lvl = 0)
 
 test_that ("the backfit objective agrees with flashr after one iteration (using R)", {
   expect_true(f.b$obj > old.obj)
@@ -45,7 +45,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                f.b$obj)
 })
 
-f.b <- flashier(M, flash.init = f, backfit = "only")
+f.b <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
 
 test_that ("the final backfit objective approximately agrees with flashr (using R)", {
   flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2,
@@ -57,7 +57,7 @@ test_that ("the final backfit objective approximately agrees with flashr (using 
                f.b$obj, tol = 0.01, scale = 1)
 })
 
-f.sprs <- flashier(Matrix(M), greedy.Kmax = 2, use.R = FALSE)
+f.sprs <- flashier(Matrix(M), greedy.Kmax = 2, use.R = FALSE, verbose.lvl = 0)
 
 test_that("matrix factor initialization is correct (sparse, using Y)", {
   expect_equal(f.sprs$n.factors, 2)
@@ -72,8 +72,9 @@ test_that("the greedy objective approximately agrees with flashr (sparse, using 
   expect_equal(f.sprs$obj, flashr.greedy.res$objective, tol = 0.5, scale = 1)
 })
 
-f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, backfit = "only",
-                     backfit.maxiter = 1, final.nullchk = FALSE)
+f.sprs.b <- flashier(flash.init = f.sprs, backfit = "only",
+                     backfit.maxiter = 1, final.nullchk = FALSE,
+                     verbose.lvl = 0)
 
 test_that ("the backfit objective agrees with flashr after one iteration (sparse, using Y)", {
   expect_true(f.sprs.b$obj > old.obj)
@@ -88,7 +89,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (sparse
                f.sprs.b$obj)
 })
 
-f.sprs.b <- flashier(Matrix(M), flash.init = f.sprs, backfit = "only")
+f.sprs.b <- flashier(flash.init = f.sprs, backfit = "only", verbose.lvl = 0)
 
 test_that ("the final backfit objective approximately agrees with flashr (sparse, using Y)", {
   flashr.res <- flashr::flash(M, var_type = "constant", Kmax = 2,

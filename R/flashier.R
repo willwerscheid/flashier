@@ -12,8 +12,6 @@
 #'   only varies across columns and is constant within any given row). If
 #'   \code{NULL}, all residual variance will be estimated.
 #'
-#' @param flash.init An initial \code{flash} or \code{flash.fit} object.
-#'
 #' @param var.type Describes the structure of the estimated residual variance.
 #'   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 #'   \code{S} accounts for all residual variance. Otherwise, a rank-one
@@ -34,6 +32,8 @@
 #'   \code{"point.normal"}, \code{"point.laplace"}, \code{"normal.mixture"},
 #'   \code{"uniform.mixture"}, \code{"nonnegative"}, \code{"nonpositive"}, and
 #'   \code{"nonzero.mode"}.
+#'
+#' @param flash.init An initial \code{flash} or \code{flash.fit} object.
 #'
 #' @param greedy.Kmax The maximum number of factors to be added. Fixed factors
 #'   are not counted.
@@ -80,14 +80,15 @@
 #'
 flashier <- function(data = NULL,
                      S = NULL,
-                     flash.init = NULL,
                      var.type = 0,
                      prior.type = "point.normal",
+                     flash.init = NULL,
                      greedy.Kmax = 30,
                      backfit = c("none",
                                  "final",
                                  "alternating",
                                  "only"),
+                     fixed.factors = NULL,
                      ebnm.param = list(),
                      ash.param = list(),
                      verbose.lvl = 1,
@@ -113,18 +114,30 @@ flashier <- function(data = NULL,
       ellipsis$ebnm.param <- flash.init$ebnm.param
   }
 
+  if (!is.null(flash.init) && !identical(var.type, flash.init$est.tau.dim)) {
+    flash.init <- clear.bypass.init.flag(flash.init)
+    if (is.null(data))
+      stop("When changing var.type, data cannot be NULL.")
+  }
+
   # Bypass set.flash.data if flash.init has the needed fields.
   if (bypass.init(flash.init)) {
+    if (!is.null(data) || !is.null(S))
+      warning("Flash object does not need to be re-initialized. Ignoring",
+              " data (and/or S).")
     data <- NULL
-    data.dim <- get.dim(flash.init)
+    dims <- get.dims(flash.init)
   } else {
     data <- set.flash.data(data, S, var.type = var.type)
-    data.dim <- get.dim(data)
+    dims <- get.dims(data)
   }
+  data.dim <- length(dims)
 
   # Check arguments.
   must.be.valid.var.type(var.type, data.dim)
   must.be.integer(greedy.Kmax, lower = 0)
+  if (!is.null(fixed.factors))
+    must.be.list.of.named.lists(fixed.factors, c("dim", "idx", "vals"))
   must.be.named.list(ebnm.param)
   must.be.named.list(ash.param)
   if (!is.character(verbose.lvl))
@@ -159,6 +172,44 @@ flashier <- function(data = NULL,
                "cannot be."))
   }
 
+  # Handle "fixed factors" parameter.
+  if (length(fixed.factors) > 0) {
+    fixed.factors <- lapply(fixed.factors, function(f) {
+      # Handle fixed factor modes.
+      dim <- f$dim
+      must.be.integer(dim, lower = 1, upper = data.dim, allow.null = FALSE)
+      # Handle fixed factor indices (the default is to fix the entire factor).
+      idx <- 1:dims[dim]
+      if (!is.null(f$idx) && length(f$idx) > 0) {
+        if (!all(f$idx %in% c(-idx, idx)))
+          stop("Invalid fixed factor indices.")
+        idx <- idx[f$idx]
+      }
+      # Handle fixed factor values.
+      vals <- f$vals
+      if (length(vals) == 1) {
+        vals <- rep(vals, length(idx))
+      } else if (length(vals) != length(idx)) {
+        stop("The lengths of the fixed factor indices and values do not",
+             " match.")
+      }
+      return(list(dim = dim, idx = idx, vals = vals))
+    })
+    # If flash.init is used, previously fixed factors need to be included.
+    #   These fields aren't always populated, so an offset needs to be
+    #   used when setting the new fixed factors.
+    ellipsis$fix.dim <- ellipsis$fix.idx <- ellipsis$fix.vals <- list()
+    if (!is.null(get.fix.dim(flash.init))) {
+      ellipsis$fix.dim  <- get.fix.dim(flash.init)
+      ellipsis$fix.idx  <- get.fix.idx(flash.init)
+      ellipsis$fix.vals <- get.fix.vals(flash.init)
+    }
+    kset <- get.n.factors(flash.init) + 1:length(fixed.factors)
+    ellipsis$fix.dim[kset]  <- lapply(fixed.factors, `[[`, "dim")
+    ellipsis$fix.idx[kset]  <- lapply(fixed.factors, `[[`, "idx")
+    ellipsis$fix.vals[kset] <- lapply(fixed.factors, `[[`, "vals")
+  }
+
   # Handle "backfit" parameter.
   if (is.null(ellipsis$final.backfit)
       && is.null(ellipsis$backfit.after)
@@ -169,7 +220,8 @@ flashier <- function(data = NULL,
         stop("Cannot set backfit to \"only\" with greedy.Kmax > 0.")
       greedy.Kmax <- 0
     }
-    workhorse.param <- c(workhorse.param, control.param(backfit))
+    workhorse.param <- c(workhorse.param,
+                         control.param(backfit, length(fixed.factors)))
   } else if (!missing(backfit)) {
     stop(paste("If backfit is specified, then final.backfit,",
                "backfit.after, and backfit.every cannot be."))
@@ -179,8 +231,7 @@ flashier <- function(data = NULL,
   if (is.null(ellipsis$verbose.fns)
       && is.null(ellipsis$verbose.colnames)
       && is.null(ellipsis$verbose.colwidths)) {
-    workhorse.param <- c(workhorse.param, verbose.param(verbose.lvl,
-                                                        data.dim))
+    workhorse.param <- c(workhorse.param, verbose.param(verbose.lvl, data.dim))
   } else if (is.null(ellipsis$verbose.fns)
              || is.null(ellipsis$verbose.colnames)
              || is.null(ellipsis$verbose.colwidths)) {
@@ -275,12 +326,19 @@ prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
   return(param)
 }
 
-control.param <- function(backfit) {
+control.param <- function(backfit, n.fixed) {
   control <- list()
+  if (n.fixed > 0) {
+    control$backfit.after <- n.fixed
+  }
   if (backfit %in% c("final", "only")) {
     control$final.backfit <- TRUE
   } else if (backfit == "alternating") {
-    control$backfit.after <- 2
+    if (n.fixed > 0) {
+      control$backfit.after <- 1
+    } else {
+      control$backfit.after <- 2
+    }
     control$backfit.every <- 1
     control$final.backfit <- FALSE
   }

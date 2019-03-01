@@ -1,5 +1,5 @@
 nullcheck.factor <- function(flash, k, verbose.lvl) {
-  if (!is.valid(flash, k))
+  if (!is.valid(flash, k) || is.zero(flash, k))
     return(flash)
 
   factor <- zero.factor(flash, k)

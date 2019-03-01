@@ -160,7 +160,7 @@ flash.workhorse <- function(data = NULL,
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
 
-  ## data can be NULL when initialization can be bypassed.
+  ## data should be NULL when bypassing initialization.
   if (!is.null(data) && force.use.R(data, var.type)) {
     if (!missing(use.R) && !use.R)
       stop("R must be used with the requested variance structure.")
@@ -202,27 +202,33 @@ flash.workhorse <- function(data = NULL,
     report.tol.setting(verbose.lvl, greedy.tol)
   }
 
-  total.factors.added <- get.n.factors(flash)
-  max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
+  total.factors.added <- 0
+  max.factors.to.add  <- greedy.Kmax + get.n.fixed.to.add(flash)
   when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
-  # At least one round of backfitting and nullchecking should be performed
-  #   when a non-empty flash object is passed in.
-  curr.rnd.factors.added <- get.n.factors(flash)
+  if (get.n.fixed.to.add(flash) == 0) {
+    ok.to.add.greedy <- is.obj.valid(flash)
+  } else {
+    ok.to.add.greedy <- (max(which.k.fixed(flash)) %in% when.to.backfit)
+  }
+  if (greedy.Kmax > 0 && !ok.to.add.greedy)
+    stop("Greedy factors can only be added when the flash objective is valid.",
+         " In particular, all fixed factors must be at least partially",
+         " backfitted before attempting to add a greedy factor.")
 
   if (verbose.lvl == -1)
     print.tab.delim.table.header(verbose.colnames)
 
-  something.changed <- TRUE
-  is.converged      <- TRUE
+  continue.looping <- TRUE
+  is.converged     <- TRUE
 
-  while (something.changed) {
-    something.changed <- FALSE
+  while (continue.looping) {
+    continue.looping <- FALSE
     flash <- clear.flags(flash)
 
-    greedy.complete <- (total.factors.added >= max.factors.to.add)
-    if (!greedy.complete) {
+    continue.adding <- (total.factors.added < max.factors.to.add)
+    if (continue.adding) {
       announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
       announce.factor.init(verbose.lvl)
@@ -266,27 +272,25 @@ flash.workhorse <- function(data = NULL,
       }
 
       if (greedy.failed(flash)) {
-        greedy.complete <- TRUE
+        continue.adding <- FALSE
       } else {
-        something.changed      <- TRUE
-        total.factors.added    <- total.factors.added + 1
-        curr.rnd.factors.added <- curr.rnd.factors.added + 1
+        continue.looping    <- TRUE
+        total.factors.added <- total.factors.added + 1
       }
 
-      report.add.factor.result(verbose.lvl, greedy.complete, get.obj(flash))
+      report.add.factor.result(verbose.lvl, greedy.failed(flash), get.obj(flash))
     }
 
-    if (greedy.complete) {
-      do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
-      do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
-      maxiter    <- backfit.maxiter
-      tol        <- greedy.tol * backfit.reltol
-      curr.rnd.factors.added <- 0
-    } else {
+    if (continue.adding) {
       do.backfit <- total.factors.added %in% when.to.backfit
       do.nullchk <- total.factors.added %in% when.to.nullchk
       maxiter    <- inner.backfit.maxiter
       tol        <- greedy.tol * inner.backfit.reltol
+    } else {
+      do.backfit <- final.backfit
+      do.nullchk <- final.nullchk
+      maxiter    <- backfit.maxiter
+      tol        <- greedy.tol * backfit.reltol
     }
 
     if (do.backfit) {
@@ -299,7 +303,7 @@ flash.workhorse <- function(data = NULL,
       conv.crit <- rep(Inf, get.n.factors(flash))
       kset <- 1:get.n.factors(flash)
       if (!is.null(backfit.kset)) {
-        # Remove factors that haven't been added yet.
+        # Remove any k that haven't been added yet.
         ksubset <- intersect(backfit.kset, c(kset, -kset))
         kset <- kset[ksubset]
         conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
@@ -352,7 +356,6 @@ flash.workhorse <- function(data = NULL,
 
       if (get.obj(flash) > old.obj) {
         report.backfit.complete(verbose.lvl, get.obj(flash))
-        something.changed <- TRUE
       }
     }
 
@@ -366,7 +369,7 @@ flash.workhorse <- function(data = NULL,
       for (k in nullchk.kset)
         flash <- nullcheck.factor(flash, k, verbose.lvl)
       if (nullchk.failed(flash)) {
-        something.changed <- TRUE
+        continue.looping <- TRUE
       } else if (length(nullchk.kset) > 0) {
         report.nullchk.success(verbose.lvl)
       }

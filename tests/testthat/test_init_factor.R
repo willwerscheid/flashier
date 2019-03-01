@@ -64,7 +64,7 @@ test_that("matrix factor initialization is correct for Y with missing data", {
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
-A <- array(5, dim = c(4, 3, 2)) + 0.001 * rnorm(24)
+A      <- array(5, dim = c(4, 3, 2)) + 0.001 * rnorm(24)
 data.A <- set.flash.data(A)
 
 test_that("tensor factor initialization is correct for R (no missing data)", {

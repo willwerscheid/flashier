@@ -10,6 +10,14 @@ must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
     stop(error.msg)
 }
 
+must.be.list.of.named.lists <- function(x, valid.fields) {
+  error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
+  if (!is.list(x) || !all(sapply(x, is.list)))
+    stop(error.msg)
+  if (!all(unlist(lapply(x, names)) %in% valid.fields))
+    stop(error.msg)
+}
+
 must.be.named.list <- function(x) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
   if (!is.list(x) || (length(x) > 0 && is.null(names(x))))

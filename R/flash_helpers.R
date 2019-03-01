@@ -272,8 +272,8 @@ get.new.Rsquared <- function(flash, factor = NULL, EF = NULL,
   return(R2)
 }
 
-get.n.fixed <- function(f) {
-  return(sum(unlist(get.fix.dim(f) > 0)))
+get.n.fixed.to.add <- function(f) {
+  return(sum(which.k.fixed(f) > get.n.factors(f)))
 }
 which.k.fixed <- function(f) {
   fix.dim <- get.fix.dim(f)
