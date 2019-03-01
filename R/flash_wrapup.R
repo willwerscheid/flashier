@@ -8,12 +8,13 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object <- list()
 
-  flash.object$n.factors  <- get.n.factors(flash)
-  flash.object$objective  <- get.obj(flash)
+  flash.object$n.factors   <- get.n.factors(flash)
+  flash.object$objective   <- get.obj(flash)
   if (flash.object$n.factors > 0) {
-    flash.object$pve      <- calc.pve(flash)
-    flash.object$loadings <- calc.normalized.loadings(flash)
-    flash.object$lfsr     <- calc.lfsr(flash)
+    flash.object$pve       <- calc.pve(flash)
+    flash.object$loadings  <- calc.normalized.loadings(flash)
+    if (output.lvl > 3)
+      flash.object$lfsr    <- calc.lfsr(flash)
     if (output.lvl > 1)
       flash.object$sampler <- F.sampler(flash)
   }

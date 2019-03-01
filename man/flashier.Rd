@@ -4,10 +4,10 @@
 \alias{flashier}
 \title{Fit an empirical Bayes matrix/tensor factorization}
 \usage{
-flashier(data = NULL, S = NULL, flash.init = NULL, var.type = 0,
-  prior.type = "point.normal", greedy.Kmax = 30, backfit = c("none",
-  "final", "alternating", "only"), ebnm.param = list(), ash.param = list(),
-  verbose.lvl = 1, ...)
+flashier(data = NULL, S = NULL, var.type = 0,
+  prior.type = "point.normal", flash.init = NULL, greedy.Kmax = 30,
+  backfit = c("none", "final", "alternating", "only"), fixed.factors = NULL,
+  ebnm.param = list(), ash.param = list(), verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -19,8 +19,6 @@ obtained from \code{set.flash.data}. Can be \code{NULL} if
 are the same for all observations), or vector (if, for example, \code{S}
 only varies across columns and is constant within any given row). If
 \code{NULL}, all residual variance will be estimated.}
-
-\item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
@@ -42,6 +40,8 @@ list element is then re-used as often as necessary. Options include
 \code{"point.normal"}, \code{"point.laplace"}, \code{"normal.mixture"},
 \code{"uniform.mixture"}, \code{"nonnegative"}, \code{"nonpositive"}, and
 \code{"nonzero.mode"}.}
+
+\item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
 are not counted.}

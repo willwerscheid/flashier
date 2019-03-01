@@ -98,7 +98,7 @@ output after each factor update.}
 
 \item{output.lvl}{What to include in the returned flash object. 0 = raw fit
 only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
-and sampler.}
+and sampler; 4 = raw fit, sampler, and lfsr (currently in beta).}
 
 \item{EF.init}{A list of matrices, one for each dimension. Each matrix
 should have k columns, one for each factor. New factors are initialized
