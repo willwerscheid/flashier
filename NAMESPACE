@@ -2,6 +2,6 @@
 
 export(fixed.factors)
 export(flashier)
-export(mean.factor)
+export(ones.factor)
 export(set.flash.data)
 export(sparse.factors)

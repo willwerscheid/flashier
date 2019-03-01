@@ -44,6 +44,15 @@
 #'   factor is added. Set \code{backfit = "only"} to backfit \code{flash.init}
 #'   without adding additional factors.
 #'
+#' @param fixed.factors Adds factors with fixed loadings. Current options
+#'   include mean factors (where all row or column loadings are fixed at 1),
+#'   factors with known sparsity patterns, and factors with arbitrarily fixed
+#'   elements. See \code{\link{ones.factor}}, \code{\link{sparse.factors}},
+#'   and \code{\link{fixed.factors}} for usage. Multiple types of fixed factors
+#'   can be added by concatenating via \code{c()}. For example,
+#'   \code{fixed.factors = c(ones.factor(n = 1), sparse.factors(n = 1,
+#'   nz.idx = 1:10)} will add one mean factor and one sparse factor.
+#'
 #' @param ebnm.param Additional parameters to be passed to \code{ebnm::ebnm}.
 #'   Used by prior types \code{"point.normal"}, \code{"point.laplace"}, and
 #'   \code{"nonzero.mode"}.
