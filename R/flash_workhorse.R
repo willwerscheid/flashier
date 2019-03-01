@@ -294,20 +294,21 @@ flash.workhorse <- function(data = NULL,
     }
 
     if (do.backfit) {
-      announce.backfit(verbose.lvl, n.factors = get.n.factors(flash))
-      print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
-                         backfit = TRUE)
-
-      iter <- 0
-      old.obj <- get.obj(flash)
-      conv.crit <- rep(Inf, get.n.factors(flash))
       kset <- 1:get.n.factors(flash)
+      conv.crit <- rep(Inf, get.n.factors(flash))
       if (!is.null(backfit.kset)) {
         # Remove any k that haven't been added yet.
         ksubset <- intersect(backfit.kset, c(kset, -kset))
         kset <- kset[ksubset]
         conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
       }
+
+      announce.backfit(verbose.lvl, n.factors = length(kset))
+      print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
+                         backfit = TRUE)
+
+      iter <- 0
+      old.obj <- get.obj(flash)
       while (iter < maxiter && max(conv.crit) > tol) {
         is.converged <- TRUE
         iter <- iter + 1

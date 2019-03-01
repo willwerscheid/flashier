@@ -328,7 +328,7 @@ prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
 
 control.param <- function(backfit, n.fixed) {
   control <- list()
-  if ((n.fixed > 0) && backfit == "final") {
+  if ((n.fixed > 0) && (backfit != "only")) {
     control$backfit.after <- n.fixed
   }
   if (backfit %in% c("final", "only")) {
