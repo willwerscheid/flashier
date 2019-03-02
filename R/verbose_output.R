@@ -10,13 +10,6 @@ announce.add.factor <- function(verbose.lvl, k) {
     cat("Adding factor", k, "to flash object...\n")
 }
 
-report.greedy.obj.decrease <- function(verbose.lvl, obj.diff) {
-  if (verbose.lvl > 0)
-    cat("An iteration decreased the objective by ",
-        formatC(-obj.diff, format = "e", digits = 2),
-        ". Try backfitting with warmstarts.\n", sep="")
-}
-
 report.add.factor.result <- function(verbose.lvl, greedy.complete, obj) {
   if (verbose.lvl > 0 && greedy.complete) {
     cat("Factor doesn't increase objective and won't be added.\n")
@@ -35,8 +28,7 @@ announce.backfit <- function(verbose.lvl, n.factors) {
 report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0)
     cat("An update to factor ", k, " decreased the objective by ",
-        formatC(-obj.diff, format = "e", digits = 3),
-        ". Try using warmstarts?\n", sep = "")
+        formatC(-obj.diff, format = "e", digits = 3), ".\n", sep = "")
 }
 
 announce.nullchk <- function(verbose.lvl, n.factors) {
@@ -78,7 +70,7 @@ announce.factor.opt <- function(verbose.lvl) {
 }
 
 report.backfit.complete <- function(verbose.lvl, obj) {
-  if (verbose.lvl > 1)
+  if (verbose.lvl > 0)
     cat("  Backfit complete. Objective:",
         formatC(obj, format = "f", digits = 3), "\n")
 }
@@ -94,6 +86,12 @@ report.tol.setting <- function(verbose.lvl, tol) {
   if (verbose.lvl > 2)
     cat("Convergence tolerance set to ",
         formatC(tol, format = "e", digits = 2), ".\n", sep = "")
+}
+
+report.greedy.obj.decrease <- function(verbose.lvl, obj.diff) {
+  if (verbose.lvl > 2)
+    cat("An iteration decreased the objective by ",
+        formatC(-obj.diff, format = "e", digits = 2), ".\n", sep="")
 }
 
 print.table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
