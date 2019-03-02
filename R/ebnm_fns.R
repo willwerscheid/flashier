@@ -25,7 +25,7 @@ ebnm.ash = function(x, s, ash.param) {
 }
 
 ebnm.pn = function(x, s, ebnm.param) {
-  # TODO: update ebnm to return lfsr
+  # TODO: update ebnm to return lfsr; update description above.
   if ("lfsr" %in% ebnm.param$output) {
     res <- list()
     res$lfsr <- rep(NA, length(x))

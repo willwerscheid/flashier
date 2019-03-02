@@ -1,7 +1,3 @@
-# TODO: Change default backfit.order (and maxiter) after flashr comparison
-#   tests have been removed. Change warmstart default to FALSE until issues
-#   with ashr are fixed.
-
 #' A horse that works for \code{\link{flashier}}
 #'
 #' Caveat emptor.
@@ -289,7 +285,8 @@ flash.workhorse <- function(data = NULL,
         total.factors.added <- total.factors.added + 1
       }
 
-      report.add.factor.result(verbose.lvl, greedy.failed(flash), get.obj(flash))
+      report.add.factor.result(verbose.lvl, greedy.failed(flash),
+                               get.obj(flash))
     }
 
     if (continue.adding) {

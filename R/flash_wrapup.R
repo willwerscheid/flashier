@@ -1,3 +1,6 @@
+# TODO: Change default to output LFSR after ebnm can do it and after
+#   changing default ash method to "fdr".
+
 wrapup.flash <- function(flash, output.lvl) {
   class(flash) <- "flash.fit"
 
