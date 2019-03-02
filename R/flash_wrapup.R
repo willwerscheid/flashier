@@ -103,11 +103,11 @@ calc.normalized.loadings <- function(flash) {
 calc.lfsr <- function(flash) {
   return(lapply(1:get.dim(flash),
                 function(n) sapply(1:get.n.factors(flash),
-                                   function(k) factor.lfsr(flash, k, n))))
+                                   function(k) lfsr.one.n(flash, k, n))))
 
 }
 
-factor.lfsr <- function(flash, k, n) {
+lfsr.one.n <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
   if (is.zero(factor) || all.fixed(factor, n)) {
     lfsr <- rep(NA, get.dims(flash)[n])

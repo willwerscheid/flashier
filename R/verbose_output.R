@@ -70,7 +70,7 @@ announce.factor.opt <- function(verbose.lvl) {
 }
 
 report.backfit.complete <- function(verbose.lvl, obj) {
-  if (verbose.lvl > 0)
+  if (verbose.lvl > 1)
     cat("  Backfit complete. Objective:",
         formatC(obj, format = "f", digits = 3), "\n")
 }
