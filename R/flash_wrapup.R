@@ -114,7 +114,8 @@ lfsr.one.n <- function(flash, k, n) {
   } else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")
     lfsr <- ebnm.res$lfsr
-    if (get.fix.dim(factor) == n)
+    fix.dim <- get.fix.dim(factor)
+    if (!is.null(fix.dim) && (fix.dim == n))
       lfsr[get.fix.idx(factor)] <- NA
   }
   return(lfsr)
