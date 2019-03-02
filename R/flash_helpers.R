@@ -119,7 +119,6 @@ get.exclusions <- function(f, n = NULL) {
 # Additional getters that are only used by factors ----------------------------
 
 get.k          <- function(f) f[["k"]]
-is.fixed       <- function(f) f[["is.fixed"]]
 get.R.subset   <- function(f) f[["subset.data"]][["R.subset"]]
 get.Y.subset   <- function(f) f[["subset.data"]][["Y.subset"]]
 get.Z.subset   <- function(f) f[["subset.data"]][["Z.subset"]]

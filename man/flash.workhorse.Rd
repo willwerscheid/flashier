@@ -15,8 +15,9 @@ flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
   EF.init = NULL, fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, greedy.tol = NULL, backfit.maxiter = 100,
-  backfit.reltol = 1, inner.backfit.maxiter = backfit.maxiter,
+  greedy.maxiter = 500, greedy.tol = NULL, fixed.maxiter = greedy.maxiter,
+  fixed.reltol = 1, backfit.maxiter = 100, backfit.reltol = 1,
+  inner.backfit.maxiter = backfit.maxiter,
   inner.backfit.reltol = backfit.reltol, nonmissing.thresh = NULL,
   seed = 666, use.R = FALSE)
 }
@@ -127,14 +128,26 @@ factors.}
 occur before initialization is considered complete.}
 
 \item{greedy.maxiter}{The maximum number of iterations when optimizing a
-new factor.}
+greedily added factor.}
 
-\item{greedy.tol}{The convergence tolerance when optimizing a new factor.}
+\item{greedy.tol}{The convergence tolerance when optimizing a greedily added
+factor.}
 
-\item{backfit.maxiter}{The maximum number of iterations when performing a
-final backfit.}
+\item{fixed.maxiter}{The maximum number of iterations when optimizing a
+newly added fixed factor.}
+
+\item{fixed.reltol}{The convergence tolerance (relative to greedy.tol) when
+optimizing a new fixed factor.}
+
+\item{backfit.maxiter}{Maximum iterations for final backfits.}
+
+\item{backfit.reltol}{Convergence tolerance for final backfits, relative to
+greedy.tol.}
 
 \item{inner.backfit.maxiter}{Maximum iterations for intermediary backfits.}
+
+\item{inner.backfit.reltol}{Convergence tolerance for intermediary backfits,
+relative to greedy.tol.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be
@@ -147,11 +160,6 @@ corresponding factor loading.}
 \item{use.R}{Whether to maintain a matrix of residuals throughout the
 fitting process. This usually requires much more memory and seldom offers
 much improvement in runtime.}
-
-\item{backfit.tol}{The convergence tolerance when performing a final
-backfit.}
-
-\item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
 }
 \description{
 Caveat emptor.

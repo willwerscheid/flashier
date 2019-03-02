@@ -87,19 +87,26 @@
 #'   occur before initialization is considered complete.
 #'
 #' @param greedy.maxiter The maximum number of iterations when optimizing a
-#'   new factor.
+#'   greedily added factor.
 #'
-#' @param greedy.tol The convergence tolerance when optimizing a new factor.
+#' @param greedy.tol The convergence tolerance when optimizing a greedily added
+#'   factor.
 #'
-#' @param backfit.maxiter The maximum number of iterations when performing a
-#'   final backfit.
+#' @param fixed.maxiter The maximum number of iterations when optimizing a
+#'   newly added fixed factor.
 #'
-#' @param backfit.tol The convergence tolerance when performing a final
-#'   backfit.
+#' @param fixed.reltol The convergence tolerance (relative to greedy.tol) when
+#'   optimizing a newly added fixed factor.
+#'
+#' @param backfit.maxiter Maximum iterations for final backfits.
+#'
+#' @param backfit.reltol Convergence tolerance for final backfits, relative to
+#'   greedy.tol.
 #'
 #' @param inner.backfit.maxiter Maximum iterations for intermediary backfits.
 #'
-#' @param inner.backfit.tol Convergence tolerance for intermediary backfits.
+#' @param inner.backfit.reltol Convergence tolerance for intermediary backfits,
+#'   relative to greedy.tol.
 #'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
@@ -150,6 +157,8 @@ flash.workhorse <- function(data = NULL,
                             init.tol = 1e-2,
                             greedy.maxiter = 500,
                             greedy.tol = NULL,
+                            fixed.maxiter = greedy.maxiter,
+                            fixed.reltol = 1,
                             backfit.maxiter = 100,
                             backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
@@ -207,16 +216,6 @@ flash.workhorse <- function(data = NULL,
   when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
-  if (get.n.fixed.to.add(flash) == 0) {
-    ok.to.add.greedy <- is.obj.valid(flash)
-  } else {
-    ok.to.add.greedy <- (max(which.k.fixed(flash)) %in% when.to.backfit)
-  }
-  if (greedy.Kmax > 0 && !ok.to.add.greedy)
-    stop("Greedy factors can only be added when the flash objective is valid.",
-         " In particular, all fixed factors must be at least partially",
-         " backfitted before attempting to add a greedy factor.")
-
   if (verbose.lvl == -1)
     print.tab.delim.table.header(verbose.colnames)
 
@@ -229,21 +228,28 @@ flash.workhorse <- function(data = NULL,
 
     continue.adding <- (total.factors.added < max.factors.to.add)
     if (continue.adding) {
+      is.fixed <- is.next.fixed(flash)
       announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
       announce.factor.init(verbose.lvl)
       factor <- init.factor(flash, init.fn, init.tol, init.maxiter)
 
-      if (is.fixed(factor)) {
-        flash <- add.new.factor.to.flash(factor, flash)
-      } else if (greedy.maxiter > 0) {
+      if (is.fixed) {
+        maxiter <- fixed.maxiter
+        tol     <- greedy.tol * fixed.reltol
+      } else {
+        maxiter <- greedy.maxiter
+        tol     <- greedy.tol
+      }
+
+      if (maxiter > 0) {
         announce.factor.opt(verbose.lvl)
         print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                            backfit = FALSE)
 
         iter <- 0
         conv.crit <- Inf
-        while (conv.crit > greedy.tol && iter < greedy.maxiter) {
+        while (conv.crit > tol && iter < maxiter) {
           iter <- iter + 1
 
           old.f    <- factor
@@ -261,14 +267,19 @@ flash.workhorse <- function(data = NULL,
                             get.next.k(flash), backfit = FALSE)
         }
 
-        if (iter == greedy.maxiter)
+        if (iter == maxiter)
           is.converged <- FALSE
 
-        if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
+        if (get.obj(factor) > get.obj(flash)
+            || !is.obj.valid(flash, factor)
+            || is.fixed) {
           flash <- add.new.factor.to.flash(factor, flash)
         } else {
           flash <- set.greedy.fail.flag(flash)
         }
+      } else if (is.fixed) {
+        # Add fixed factors even when maxiter = 0.
+        flash <- add.new.factor.to.flash(factor, flash)
       }
 
       if (greedy.failed(flash)) {

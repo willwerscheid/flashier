@@ -12,7 +12,7 @@ LF2 <- 5 * outer(LL, FF)
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(n * p)
 
-fl <- flashier(M, fixed.factors = c(mean.factor(n = 1),
+fl <- flashier(M, fixed.factors = c(ones.factor(n = 1),
                                     fixed.factors(n = 1, vals = 1:n)),
                greedy.Kmax = 1, verbose.lvl = 0)
 

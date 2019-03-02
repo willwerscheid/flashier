@@ -11,7 +11,6 @@
 
 init.factor <- function(flash, init.fn, tol, maxiter) {
   factor <- list()
-  factor$is.fixed <- is.next.fixed(flash)
 
   if (is.null(init.fn)) {
     factor$EF <- init.next.EF(flash, tol, maxiter)
@@ -27,6 +26,10 @@ init.factor <- function(flash, init.fn, tol, maxiter) {
   factor$is.zero    <- all(unlist(factor$EF) == 0)
   factor$is.valid   <- factor$is.zero
   factor$exclusions <- rep(list(integer(0)), get.dim(flash))
+
+  factor$fix.dim    <- get.fix.dim(flash, get.next.k(flash))
+  if (!is.null(factor$fix.dim))
+    factor$idx.subset <- get.unfixed.idx(flash, get.next.k(flash))
 
   return(factor)
 }

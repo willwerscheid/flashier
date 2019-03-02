@@ -229,8 +229,7 @@ flashier <- function(data = NULL,
         stop("Cannot set backfit to \"only\" with greedy.Kmax > 0.")
       greedy.Kmax <- 0
     }
-    workhorse.param <- c(workhorse.param,
-                         control.param(backfit, length(fixed.factors)))
+    workhorse.param <- c(workhorse.param, control.param(backfit))
   } else if (!missing(backfit)) {
     stop(paste("If backfit is specified, then final.backfit,",
                "backfit.after, and backfit.every cannot be."))
@@ -335,19 +334,12 @@ prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
   return(param)
 }
 
-control.param <- function(backfit, n.fixed) {
+control.param <- function(backfit) {
   control <- list()
-  if ((n.fixed > 0) && (backfit != "only")) {
-    control$backfit.after <- n.fixed
-  }
   if (backfit %in% c("final", "only")) {
     control$final.backfit <- TRUE
   } else if (backfit == "alternating") {
-    if (n.fixed > 0) {
-      control$backfit.after <- 1
-    } else {
-      control$backfit.after <- 2
-    }
+    control$backfit.after <- 2
     control$backfit.every <- 1
     control$final.backfit <- FALSE
   }
