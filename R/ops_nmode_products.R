@@ -5,10 +5,8 @@
 # tensors and tensors of arbitrary dimension, but I am not aware of any good
 # R packages for handling these types of object.
 
-nmode.ops.error <- function(object) {
-  paste("N-mode products are not yet implemented for objects of that class",
-        "and/or dimension.")
-}
+nmode.ops.error <- paste("N-mode products are not yet implemented for",
+                         "objects of that class and/or dimension.")
 
 # X is a m_1 x m_2 (x m_3) matrix (array) and v is an m_n-vector. The n-mode
 #   product multiplies the jth n-slice of X by v_j and then sums the slices
@@ -66,7 +64,7 @@ fullrank.nmode.prod.r1 <- function(X, r1, n) {
     return(nmode.prod.vec(X, unlist(r1), (1:2)[-n]))
   }
 
-  if (is.array(X) && length(dim(X) == 3)) {
+  if (is.array(X) && (length(dim(X)) == 3)) {
     ns <- (1:3)[-n]
     # Go backwards (otherwise indices get messed up).
     return(nmode.prod.vec(nmode.prod.vec(X, r1[[2]], ns[2]), r1[[1]], ns[1]))
