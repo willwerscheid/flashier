@@ -368,7 +368,7 @@ flash.workhorse <- function(data = NULL,
       }
     }
 
-    if (do.nullchk) {
+    if (do.nullchk && get.n.factors(flash) > 0) {
       nullchk.kset <- 1:get.n.factors(flash)
       if (!nullchk.fixed.factors)
         nullchk.kset <- setdiff(nullchk.kset, which.k.fixed(flash))
