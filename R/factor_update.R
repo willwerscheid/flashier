@@ -76,7 +76,9 @@ solve.ebnm <- function(factor, n, flash, output = "flash.data") {
     ebnm.param <- modifyList(ebnm.param, list(g = g,
                                               fixg = TRUE,
                                               output = output))
-  } else if (!is.new(factor) && warmstart.backfits(flash) && !is.null(g)) {
+  } else if (!is.new(factor) && warmstart.backfits(flash)
+             && is.null(ebnm.param$g) && !is.null(g)
+             && warmstart.sanity.check(g, ebnm.args$x, ebnm.args$s)) {
     ebnm.param <- modifyList(ebnm.param, list(g = g))
   }
   ebnm.res <- do.call(ebnm.fn, c(ebnm.args, list(ebnm.param)))
