@@ -15,7 +15,9 @@ wrapup.flash <- function(flash, output.lvl) {
   flash.object$objective   <- get.obj(flash)
   if (flash.object$n.factors > 0) {
     flash.object$pve       <- calc.pve(flash)
-    flash.object$loadings  <- calc.normalized.loadings(flash)
+    normalized.loadings    <- calc.normalized.loadings(flash)
+    flash.object$diagonal  <- normalized.loadings$scale.constants
+    flash.object$loadings  <- normalized.loadings$normalized.loadings
     if (output.lvl > 3)
       flash.object$lfsr    <- calc.lfsr(flash)
     if (output.lvl > 1)
@@ -54,8 +56,8 @@ remove.auxiliary.elements <- function(flash) {
 }
 
 calc.pve <- function(flash) {
-  ldf <- calc.normalized.loadings(flash)
-  S   <- ldf$scale.constant^2
+  ldf <- calc.normalized.loadings(flash, use.EF2 = TRUE)
+  S   <- ldf$scale.constants
 
   tau <- get.tau(flash)
   if (is.tau.simple(flash)) {
@@ -69,14 +71,20 @@ calc.pve <- function(flash) {
   return(S / (sum(S) + var.from.tau))
 }
 
-calc.normalized.loadings <- function(flash) {
+calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   ret <- list()
 
-  EF <- get.EF(flash)
-  norms <- lapply(EF, function(x) {sqrt(colSums(x^2))})
+  if (use.EF2) {
+    loadings <- get.EF2(flash)
+    norms <- lapply(loadings, colSums)
+  } else {
+    loadings <- get.EF(flash)
+    norms <- lapply(loadings, function(x) {sqrt(colSums(x^2))})
+  }
+
   # Zero factors are "normalized" to zero.
   norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
-  L <- mapply(EF, norms, FUN = function(X, y) {
+  L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
   })
 
@@ -93,8 +101,8 @@ calc.normalized.loadings <- function(flash) {
   }
 
   norms <- do.call(rbind, norms)
-  ret$scale.constant <- apply(norms, 2, prod)
-  ret$scale.constant[is.zero(flash)] <- 0
+  ret$scale.constants <- apply(norms, 2, prod)
+  ret$scale.constants[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
 
   return(ret)
