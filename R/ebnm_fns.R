@@ -11,6 +11,10 @@
 # row corresponding to a single sample from the posterior).
 
 ebnm.ash = function(x, s, ash.param) {
+  # ashr takes parameter "outputlevel", not "output".
+  ash.param$outputlevel <- ash.param$output
+  ash.param$output <- NULL
+
   res <- do.call(ashr::ash,
                  c(list(betahat = as.vector(x),
                         sebetahat = as.vector(s)),
