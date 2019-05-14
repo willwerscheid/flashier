@@ -266,7 +266,7 @@ flash.workhorse <- function(data = NULL,
         if (iter == maxiter)
           is.converged <- FALSE
 
-        if (get.obj(factor) > get.obj(flash)
+        if (get.obj(factor) > get.obj(flash) + greedy.tol
             || !is.obj.valid(flash, factor)
             || is.fixed) {
           flash <- add.new.factor.to.flash(factor, flash)
@@ -376,7 +376,7 @@ flash.workhorse <- function(data = NULL,
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
       for (k in nullchk.kset)
-        flash <- nullcheck.factor(flash, k, verbose.lvl)
+        flash <- nullcheck.factor(flash, k, verbose.lvl, greedy.tol)
       if (nullchk.failed(flash)) {
         continue.looping <- TRUE
       } else if (length(nullchk.kset) > 0) {

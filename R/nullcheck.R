@@ -1,4 +1,4 @@
-nullcheck.factor <- function(flash, k, verbose.lvl) {
+nullcheck.factor <- function(flash, k, verbose.lvl, tol) {
   if (!is.valid(flash, k) || is.zero(flash, k))
     return(flash)
 
@@ -6,7 +6,7 @@ nullcheck.factor <- function(flash, k, verbose.lvl) {
   factor <- update.R2.tau.and.obj(factor, flash)
   obj.diff <- get.obj(factor) - get.obj(flash)
 
-  if (obj.diff >= 0) {
+  if (obj.diff >= -tol) {
     flash <- alter.existing.factor(flash, factor)
     flash <- set.nullchk.fail.flag(flash)
     report.nullchk.failure(verbose.lvl, obj.diff, k)
