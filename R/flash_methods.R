@@ -1,3 +1,4 @@
+#' @export
 fitted.flash <- function(x) {
   if (get.dim(x$fit)) {
     x$fit$EF[[1]] %*% t(x$fit$EF[[2]])
