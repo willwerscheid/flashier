@@ -6,17 +6,20 @@
 \usage{
 flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
   prior.sign = NULL, ebnm.fn = ebnm.pn, ebnm.param = list(),
-  greedy.Kmax = 100, backfit.kset = NULL, backfit.order = c("dropout",
-  "sequential", "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
-  backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
-  nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
-  conv.crit.fn = calc.obj.diff, verbose.lvl = 1, verbose.fns = NULL,
-  verbose.colnames = NULL, verbose.colwidths = NULL, output.lvl = 3,
-  EF.init = NULL, fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
+  greedy.Kmax = 100, backfit.kset = NULL,
+  backfit.order = c("dropout", "sequential", "random", "montaigne",
+  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
+  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
+  nullchk.every = NULL, final.nullchk = TRUE,
+  restart.after.nullchk = TRUE, conv.crit.fn = calc.obj.diff,
+  verbose.lvl = 1, verbose.fns = NULL, verbose.colnames = NULL,
+  verbose.colwidths = NULL, output.lvl = 3, EF.init = NULL,
+  fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, greedy.tol = NULL, fixed.maxiter = greedy.maxiter,
-  fixed.reltol = 1, backfit.maxiter = 100, backfit.reltol = 1,
+  greedy.maxiter = 500, greedy.tol = NULL,
+  fixed.maxiter = greedy.maxiter, fixed.reltol = 1,
+  backfit.maxiter = 100, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
   inner.backfit.reltol = backfit.reltol, nonmissing.thresh = NULL,
   seed = 666, use.R = FALSE)
@@ -80,6 +83,9 @@ factor is added.}
 
 \item{final.nullchk}{Whether to perform a final nullcheck.}
 
+\item{restart.after.nullchk}{Whether to continue fitting if the final
+nullcheck fails.}
+
 \item{conv.crit.fn}{The function to use to determine whether convergence has
 occurred. Used for both new factors and backfits.}
 
@@ -137,7 +143,7 @@ factor.}
 newly added fixed factor.}
 
 \item{fixed.reltol}{The convergence tolerance (relative to greedy.tol) when
-optimizing a new fixed factor.}
+optimizing a newly added fixed factor.}
 
 \item{backfit.maxiter}{Maximum iterations for final backfits.}
 

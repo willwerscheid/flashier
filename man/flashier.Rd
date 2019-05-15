@@ -6,8 +6,9 @@
 \usage{
 flashier(data = NULL, S = NULL, var.type = 0,
   prior.type = "point.normal", flash.init = NULL, greedy.Kmax = 30,
-  backfit = c("none", "final", "alternating", "only"), fixed.factors = NULL,
-  ebnm.param = list(), ash.param = list(), verbose.lvl = 1, ...)
+  backfit = c("none", "final", "alternating", "only"),
+  fixed.factors = NULL, ebnm.param = list(), ash.param = list(),
+  verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
