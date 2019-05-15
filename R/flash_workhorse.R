@@ -41,6 +41,9 @@
 #'
 #' @param final.nullchk Whether to perform a final nullcheck.
 #'
+#' @param restart.after.nullchk Whether to continue fitting if the final
+#'   nullcheck fails.
+#'
 #' @param conv.crit.fn The function to use to determine whether convergence has
 #'   occurred. Used for both new factors and backfits.
 #'
@@ -136,6 +139,7 @@ flash.workhorse <- function(data = NULL,
                             nullchk.after = NULL,
                             nullchk.every = NULL,
                             final.nullchk = TRUE,
+                            restart.after.nullchk = TRUE,
                             conv.crit.fn = calc.obj.diff,
                             verbose.lvl = 1,
                             verbose.fns = NULL,
@@ -378,7 +382,8 @@ flash.workhorse <- function(data = NULL,
       for (k in nullchk.kset)
         flash <- nullcheck.factor(flash, k, verbose.lvl, greedy.tol)
       if (nullchk.failed(flash)) {
-        continue.looping <- TRUE
+        if (restart.after.nullchk)
+          continue.looping <- TRUE
       } else if (length(nullchk.kset) > 0) {
         report.nullchk.success(verbose.lvl)
       }
