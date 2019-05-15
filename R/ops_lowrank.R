@@ -55,6 +55,8 @@ lowrank.sc.mult <- function(lowrank, x) {
   return(lowrank)
 }
 
+# This squares each entry of L and each entry of F. It does not square the
+#   entries of LF'.
 lowrank.square <- function(lowrank) {
   if (is.null(lowrank))
     return(NULL)
