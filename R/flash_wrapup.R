@@ -89,15 +89,10 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   })
 
   # Propagate names.
-  if (uses.R(flash)) {
-    data.dimnames <- dimnames(get.R(flash))
-  } else {
-    data.dimnames <- dimnames(get.Y(flash))
-  }
-  if (!is.null(data.dimnames)) {
-    for (n in 1:get.dim(flash)) {
+  data.dimnames <- get.dimnames(flash)
+  for (n in 1:get.dim(flash)) {
+    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
       rownames(L[[n]]) <- data.dimnames[[n]]
-    }
   }
 
   norms <- do.call(rbind, norms)

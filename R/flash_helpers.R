@@ -1,7 +1,6 @@
 # Getters for the main flash object (also used by the smaller factors) --------
 
 get.R                 <- function(f) f[["R"]]
-get.Y                 <- function(f) f[["Y"]]
 get.nonmissing        <- function(f) f[["Z"]]
 get.given.S2          <- function(f) f[["given.S2"]]
 get.given.tau         <- function(f) f[["given.tau"]]
@@ -21,6 +20,12 @@ get.obj               <- function(f) f[["obj"]]
 get.KL                <- function(f) f[["KL"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
 
+get.Y <- function(f, require.fullrank = FALSE) {
+  Y <- f[["Y"]]
+  if (require.fullrank && inherits(Y, "lowrank"))
+    Y <- lowrank.expand(Y)
+  return(Y)
+}
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
   if (is.null(EF[[1]]))
@@ -137,11 +142,22 @@ is.new <- function(f) is.null(get.k(f))
 
 get.n.factors <- function(f) max(0, ncol(f[["EF"]][[1]]))
 get.dims <- function(f) {
-  if (!is.null(get.R(f)))
+  if (uses.R(f))
     return(dim(get.R(f)))
-  return(dim(get.Y(f)))
+  Y <- get.Y(f)
+  if (inherits(Y, "lowrank"))
+    return(sapply(Y, nrow))
+  return(dim(Y))
 }
 get.dim <- function(f) length(get.dims(f))
+get.dimnames <- function(f) {
+  if (uses.R(f))
+    return(dimnames(get.R(f)))
+  Y <- get.Y(f)
+  if (inherits(Y, "lowrank"))
+    return(lapply(Y, rownames))
+  return(dimnames(Y))
+}
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
@@ -264,7 +280,7 @@ get.new.Rsquared <- function(flash, factor = NULL, EF = NULL,
   } else {
     if (is.null(EF))
       EF <- get.new.EF(flash, factor)
-    R2 <- (get.Y(flash) - lowrank.expand(EF))^2
+    R2 <- (get.Y(flash, require.fullrank = TRUE) - lowrank.expand(EF))^2
     if (set.missing.to.zero)
       R2 <- get.nonmissing(flash) * R2
   }
@@ -313,7 +329,7 @@ get.subset.data <- function(f, fix.dim, idx.subset) {
     return(NULL)
   subset.data <- list(idx.subset = idx.subset)
   subset.data$R.subset  <- fullrank.subset(get.R(f), fix.dim, idx.subset)
-  subset.data$Y.subset  <- fullrank.subset(get.Y(f), fix.dim, idx.subset)
+  subset.data$Y.subset  <- full.or.lowrank.subset(get.Y(f), fix.dim, idx.subset)
   subset.data$Z.subset  <- fullrank.subset(get.nonmissing(f), fix.dim, idx.subset)
   subset.data$EF.subset <- lowrank.subset(get.EF(f), fix.dim, idx.subset)
   return(subset.data)

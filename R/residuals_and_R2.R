@@ -25,13 +25,14 @@ calc.residuals <- function(flash, factor = NULL) {
 # Used to initialize tau when tau is simple.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
-  Y   <- get.Y(flash)
   Z   <- get.nonmissing(flash)
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
 
-  if (!uses.R(flash))
+  if (!uses.R(flash)) {
+    Y <- get.Y(flash, require.fullrank = TRUE)
     R <- Z * (Y - lowrank.expand(EF))
+  }
 
   n  <- get.R2.n(flash)
   R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
