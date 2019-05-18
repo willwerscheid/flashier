@@ -42,15 +42,15 @@ nmode.prod.vec <- function(X, v, n) {
   # 3-dimensional tensors:
   if (is.array(X) && length(dim(X) == 3)) {
     if (n == 1 && identical(v, 1))
-      return(apply(X, 3, Matrix::colSums))
+      return(apply(X, 3, colSums))
     if (n == 1)
       return(apply(X, 3, FUN = function(M) {t(v) %*% M}))
     if (n == 2 && identical(v, 1))
-      return(apply(X, 3, Matrix::rowSums))
+      return(apply(X, 3, rowSums))
     if (n == 2)
       return(apply(X, 3, FUN = function(M) {M %*% v}))
     if (n == 3 && identical(v, 1))
-      return(apply(X, 2, Matrix::rowSums))
+      return(apply(X, 2, rowSums))
     if (n == 3)
       return(apply(X, 2, FUN = function(M) {M %*% v}))
   }
@@ -150,6 +150,8 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     # Sum over third (or second) index. Get k m_1 x m_2 (or m_1 x m_3) matrices
     #   stacked on top of one another.
     tmp <- nmode.prod.vec(Z, r1[[2]] * lowrank[[ns[2]]], ns[[2]])
+    if (inherits(tmp, "lowrank"))
+      tmp <- lowrank.expand(tmp)
     # Elementwise multiply by an m_1 x k or m_2 x k matrix, then sum over the
     #   m_ index.
     if (ns[[1]] == 1) {
