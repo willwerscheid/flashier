@@ -86,7 +86,7 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
   L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
-  })
+  }, SIMPLIFY = FALSE)
 
   # Propagate names.
   data.dimnames <- get.dimnames(flash)
