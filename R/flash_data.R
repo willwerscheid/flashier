@@ -39,7 +39,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
     }
   }
 
-  must.be.supported.data.type(data, allow.null = FALSE)
+  must.be.supported.data.type(data, allow.null = FALSE, allow.lowrank = TRUE)
   must.be.supported.data.type(S, allow.vector = TRUE)
   must.be.compatible.data.types(data, S)
   must.be.integer(S.dim, lower = 0, upper = length(dim(data)))

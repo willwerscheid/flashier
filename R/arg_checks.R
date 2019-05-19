@@ -26,14 +26,16 @@ must.be.named.list <- function(x) {
 
 must.be.supported.data.type <- function(X,
                                         allow.null = TRUE,
-                                        allow.vector = FALSE) {
+                                        allow.vector = FALSE,
+                                        allow.lowrank = FALSE) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(X)), ".")
   if (!(inherits(X, "flash.data")
         || is.matrix(X)
         || inherits(X, "Matrix")
         || (is.array(X) && length(dim(X)) == 3)
         || (allow.null && is.null(X))
-        || (allow.vector && is.vector(X))))
+        || (allow.vector && is.vector(X))
+        || (allow.lowrank && inherits(X, "lowrank"))))
     stop(error.msg)
 }
 
@@ -60,28 +62,42 @@ must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
 }
 
 must.not.have.zero.slices <- function(Y) {
-  nz <- (Y != 0)
-  for (n in 1:length(dim(Y))) {
-    n.nonzero <- nmode.prod.vec(nz, 1, n)
-    if (any(n.nonzero == 0))
-      stop("The data matrix must not have any slices (rows, columns) whose",
-           " entries are identically zero.")
+  error.msg <- paste("The data matrix must not have any slices (rows,",
+                     "columns) whose entries are identically zero.")
+  if (inherits(Y, "lowrank")) {
+    for (n in 1:length(Y)) {
+      nz <- (Y[[n]] != 0)
+      if (any(rowSums(nz) == 0) || any(colSums(nz) == 0))
+        stop(error.msg)
+    }
+  } else {
+    nz <- (Y != 0)
+    for (n in 1:length(dim(Y))) {
+      n.nonzero <- nmode.prod.vec(nz, 1, n)
+      if (any(n.nonzero == 0))
+        stop(error.msg)
+    }
   }
 }
 
 dims.must.match <- function(X, Y, Y.dim = NULL) {
   error.msg <- paste("Dimensions of", deparse(substitute(X)), "and",
                      deparse(substitute(Y)), "do not match.")
+  if (inherits(X, "lowrank")) {
+    dim.X <- sapply(X, ncol)
+  } else {
+    dim.X <- dim(X)
+  }
   # If Y.dim is NULL, then Y must be a matrix or array.
   if (is.null(Y.dim)) {
-    if (!is.null(X) && !is.null(Y) && !identical(dim(X), dim(Y)))
+    if (!is.null(X) && !is.null(Y) && !identical(dim.X, dim(Y)))
       stop(error.msg)
   } else {
     # If Y.dim is zero, then Y must be a scalar.
     if (Y.dim == 0 && (!is.vector(Y) || (length(Y) != 1)))
       stop(error.msg)
     # Otherwise, Y must be a vector that can be aligned with X.
-    if (Y.dim > 0 && (!is.vector(Y) || (length(Y) != dim(X)[Y.dim])))
+    if (Y.dim > 0 && (!is.vector(Y) || (length(Y) != dim.X[Y.dim])))
       stop(error.msg)
   }
 }

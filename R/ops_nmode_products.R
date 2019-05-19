@@ -137,7 +137,7 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     if (inherits(Z, "lowrank") && n == 1)
       return(rowSums(lowrank[[1]] * (Z[[1]] %*% crossprod(Z[[2]], u))))
     if (inherits(Z, "lowrank") && n == 2)
-      return(rowSums(lowrank[[2]] * (Z[[2]] %*% crossprod(u, Z[[1]]))))
+      return(rowSums(lowrank[[2]] * (Z[[2]] %*% t(crossprod(u, Z[[1]])))))
     if (n == 1)
       return(Matrix::rowSums(lowrank[[1]] * (Z %*% u)))
     if (n == 2)
