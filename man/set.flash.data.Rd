@@ -19,7 +19,7 @@ only varies across columns and is constant within any given row). If
 
 \item{S.dim}{The dimension along which \code{S} lies when \code{S} is a
 vector. Only necessary when it cannot be inferred from the data (when,
-for example, \code{S} is a square matrix).}
+for example, \code{data} is a square matrix).}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then

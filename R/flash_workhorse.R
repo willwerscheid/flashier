@@ -175,6 +175,8 @@ flash.workhorse <- function(data = NULL,
       stop("R must be used with the requested variance structure.")
     use.R <- TRUE
   }
+  if (!is.null(data) && inherits(data$Y, "lowrank") && use.R)
+    stop("R cannot be used with low-rank Y.")
 
   announce.flash.init(verbose.lvl)
   if (!is.null(flash.init)) {

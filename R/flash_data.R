@@ -10,7 +10,7 @@
 #'
 #' @param S.dim The dimension along which \code{S} lies when \code{S} is a
 #'   vector. Only necessary when it cannot be inferred from the data (when,
-#'   for example, \code{S} is a square matrix).
+#'   for example, \code{data} is a square matrix).
 #'
 #' @export
 
@@ -39,11 +39,58 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
     }
   }
 
+  # If data is a list, attempt to interpret it as a low-rank representation
+  #   of the data.
+  if (is.list(data)) {
+    error.msg <- paste("Data is a list but could not be interpreted as a",
+                       "low-rank representation.")
+
+    which.matrices <- which(sapply(data, is.matrix))
+    if (length(which.matrices) < 2
+        || length(which.matrices) > 3
+        || length(data) - length(which.matrices) > 1) {
+      stop(error.msg)
+    }
+    LR <- data[which.matrices]
+
+    # Transpose matrices if necessary.
+    LR <- lapply(LR, function(mat) {
+      if (ncol(mat) == nrow(mat)) {
+        # A square matrix can't be unambiguously interpreted.
+        stop(error.msg)
+      } else if (ncol(mat) > nrow(mat)) {
+        return(t(mat))
+      } else {
+        return(mat)
+      }
+    })
+
+    if (length(data) > length(which.matrices)) {
+      D <- unlist(data[-which.matrices])
+      if (length(D) < ncol(LR[[1]])) {
+        stop(error.msg)
+      } else {
+        D <- D[1:ncol(LR[[1]])]
+      }
+      LR[[1]] <- t(t(LR[[1]]) * as.vector(D))
+    }
+
+    if (any(sapply(LR, anyNA)))
+      stop("If a low-rank representation of the data is used, then no data can",
+           " be missing.")
+
+    class(LR) <- "lowrank"
+    data <- LR
+    dim.data <- sapply(LR, ncol)
+  } else {
+    dim.data <- dim(data)
+  }
+
   must.be.supported.data.type(data, allow.null = FALSE, allow.lowrank = TRUE)
   must.be.supported.data.type(S, allow.vector = TRUE)
   must.be.compatible.data.types(data, S)
-  must.be.integer(S.dim, lower = 0, upper = length(dim(data)))
-  must.be.valid.var.type(var.type, length(dim(data)))
+  must.be.integer(S.dim, lower = 0, upper = length(dim.data))
+  must.be.valid.var.type(var.type, length(dim.data))
 
   # Set Y and Z.
   flash.data <- list()
@@ -62,7 +109,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
     if (length(S) == 1) {
       S.dim <- 0
     } else {
-      S.dim <- which(length(S) == dim(data))
+      S.dim <- which(length(S) == dim.data)
       if (length(S.dim) == 0)
         stop("S was interpreted as a vector, but couldn't be aligned ",
              "with the data.")
@@ -79,8 +126,8 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
     S2 <- S^2
     if (is.vector(S2)) {
       # Convert S2 to a matrix or array.
-      each <- prod(c(1, dim(data)[1:length(dim(data)) < S.dim]))
-      S2 <- array(rep(S2, each = each), dim = dim(data))
+      each <- prod(c(1, dim.data[1:length(dim.data) < S.dim]))
+      S2 <- array(rep(S2, each = each), dim = dim.data)
     }
     S2[is.na(data)] <- Inf
     flash.data$given.S2 <- S2
