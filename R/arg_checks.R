@@ -18,12 +18,6 @@ must.be.list.of.named.lists <- function(x, valid.fields) {
     stop(error.msg)
 }
 
-must.be.named.list <- function(x) {
-  error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
-  if (!is.list(x) || (length(x) > 0 && is.null(names(x))))
-    stop(error.msg)
-}
-
 must.be.supported.data.type <- function(X,
                                         allow.null = TRUE,
                                         allow.vector = FALSE) {

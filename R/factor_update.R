@@ -28,12 +28,12 @@ update.factor.one.n <- function(factor, n, flash) {
   if (only.update.subset(factor, n, flash)) {
     idx.subset          <- get.idx.subset(factor)
     new.EF              <- get.EF(factor, n)
-    new.EF[idx.subset]  <- ebnm.res$postmean
+    new.EF[idx.subset]  <- ebnm.res$result$PosteriorMean
     new.EF2             <- get.EF2(factor, n)
-    new.EF2[idx.subset] <- ebnm.res$postmean2
+    new.EF2[idx.subset] <- ebnm.res$result$PosteriorMean2
   } else {
-    new.EF  <- ebnm.res$postmean
-    new.EF2 <- ebnm.res$postmean2
+    new.EF  <- ebnm.res$result$PosteriorMean
+    new.EF2 <- ebnm.res$result$PosteriorMean2
   }
 
   factor <- set.EF(factor, new.EF, n)
@@ -66,35 +66,39 @@ solve.ebnm <- function(factor, n, flash, output = "flash.data") {
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
   ebnm.fn    <- get.ebnm.fn(flash, factor, n)
-  ebnm.args  <- calc.ebnm.args(factor, n, flash, output)
   ebnm.param <- get.ebnm.param(flash, factor, n)
+
+  incl.fixed <- add.fixed.to.ebnm.args(factor, n, flash, output)
+  ebnm.args  <- calc.ebnm.args(factor, n, flash, incl.fixed)
+  ebnm.param <- modifyList(ebnm.param, ebnm.args)
 
   g <- get.g(factor, n)
   if ((output != "flash.data") && !is.null(g)) {
-    if (output == "sampler")
-      output <- "post_sampler"
-    ebnm.param <- modifyList(ebnm.param, list(g = g,
-                                              fixg = TRUE,
-                                              output = output))
-  } else if (!is.new(factor) && warmstart.backfits(flash)
-             && is.null(ebnm.param$g) && !is.null(g)
+    ebnm.param <- modifyList(ebnm.param, list(g = g, fixg = TRUE))
+  } else if (!is.new(factor)
+             && warmstart.backfits(flash)
+             && is.null(ebnm.param$g)
+             && !is.null(g)
              && warmstart.sanity.check(g, ebnm.args$x, ebnm.args$s)) {
     ebnm.param <- modifyList(ebnm.param, list(g = g))
   }
-  ebnm.res <- do.call(ebnm.fn, c(ebnm.args, list(ebnm.param)))
+
+  ebnm.param <- modifyList(ebnm.param, list(output = output))
+
+  ebnm.res <- do.call(ebnm.fn, ebnm.param)
 
   if (output == "flash.data") {
-    ebnm.res$KL <- (ebnm.res$penloglik
+    ebnm.res$KL <- (ebnm.res$loglik
                     - normal.means.loglik(ebnm.args$x,
                                           ebnm.args$s,
-                                          ebnm.res$postmean,
-                                          ebnm.res$postmean2))
+                                          ebnm.res$result$PosteriorMean,
+                                          ebnm.res$result$PosteriorMean2))
   }
 
   return(ebnm.res)
 }
 
-calc.ebnm.args <- function(factor, n, flash, output) {
+calc.ebnm.args <- function(factor, n, flash, include.fixed) {
   tau <- get.tau.for.ebnm.calc(flash, tau = get.tau(factor))
   if (n %in% get.fix.dim(factor))
     tau <- full.or.lowrank.subset(tau, n, get.idx.subset(factor))
@@ -102,7 +106,7 @@ calc.ebnm.args <- function(factor, n, flash, output) {
   s2 <- calc.s2(factor, n, flash, tau)
   x  <- calc.x(factor, n, flash, s2, tau)
 
-  if (add.fixed.to.ebnm.args(factor, n, flash, output)) {
+  if (include.fixed) {
     idx.subset         <- get.idx.subset(factor)
     all.x              <- get.EF(factor, n)
     all.x[idx.subset]  <- x

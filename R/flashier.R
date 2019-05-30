@@ -53,14 +53,6 @@
 #'   \code{fixed.factors = c(ones.factor(n = 1), sparse.factors(n = 1,
 #'   nz.idx = 1:10)} will add one mean factor and one sparse factor.
 #'
-#' @param ebnm.param Additional parameters to be passed to \code{ebnm::ebnm}.
-#'   Used by prior types \code{"point.normal"}, \code{"point.laplace"}, and
-#'   \code{"nonzero.mode"}.
-#'
-#' @param ash.param Additional parameters to be passed to \code{ashr::ash}.
-#'   Used by prior types \code{"normal.mixture"}, \code{"uniform.mixture"},
-#'   \code{"nonnegative"}, and \code{"nonpositive"}.
-#'
 #' @param verbose.lvl When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a
 #'   backfit is completed, \code{2} for additional notifications about the
@@ -90,7 +82,7 @@
 flashier <- function(data = NULL,
                      S = NULL,
                      var.type = 0,
-                     prior.type = "point.normal",
+                     prior.type = point.normal(),
                      flash.init = NULL,
                      greedy.Kmax = 30,
                      backfit = c("none",
@@ -98,8 +90,6 @@ flashier <- function(data = NULL,
                                  "alternating",
                                  "only"),
                      fixed.factors = NULL,
-                     ebnm.param = list(),
-                     ash.param = list(),
                      verbose.lvl = 1,
                      ...) {
   if (inherits(data, "flash.data") && !missing(S))
@@ -107,26 +97,34 @@ flashier <- function(data = NULL,
 
   ellipsis <- list(...)
 
+  if (!missing(prior.type)
+      && (!is.null(ellipsis$prior.sign)
+          || !is.null(ellipsis$ebnm.fn)
+          || !is.null(ellipsis$ebnm.param)))
+    stop(paste("If prior.type is specified, then prior.sign, ebnm.fn, and",
+               "ebnm.param cannot be."))
+
   # When available, use existing flash object settings as defaults.
   if (inherits(flash.init, "flash"))
     flash.init <- flash.init$fit
-  if (!is.null(flash.init) && !inherits(flash.init, "flash.fit"))
-    stop("flash.init must be a flash or flash.fit object.")
   if (!is.null(flash.init)) {
-    if (missing(var.type))
-      var.type <- flash.init$est.tau.dim
-    if (missing(prior.type) && is.null(ellipsis$prior.sign))
-      ellipsis$prior.sign <- flash.init$dim.signs
-    if (missing(prior.type) && is.null(ellipsis$ebnm.fn))
-      ellipsis$ebnm.fn <- flash.init$ebnm.fn
-    if (missing(prior.type) && is.null(ellipsis$ebnm.param))
-      ellipsis$ebnm.param <- flash.init$ebnm.param
-  }
-
-  if (!is.null(flash.init) && !identical(var.type, flash.init$est.tau.dim)) {
-    flash.init <- clear.bypass.init.flag(flash.init)
-    if (is.null(data))
-      stop("When changing var.type, data cannot be NULL.")
+    if (!inherits(flash.init, "flash.fit"))
+      stop("flash.init must be a flash or flash.fit object.")
+    if (missing(var.type)) {
+      var.type <- get.est.tau.dim(flash.init)
+    } else if (!identical(var.type, flash.init$est.tau.dim)) {
+      flash.init <- clear.bypass.init.flag(flash.init)
+      if (is.null(data))
+        stop("When changing var.type, data cannot be NULL.")
+    }
+    if (missing(prior.type)) {
+      if (is.null(ellipsis$prior.sign))
+        ellipsis$prior.sign <- flash.init$dim.signs
+      if (is.null(ellipsis$ebnm.fn))
+        ellipsis$ebnm.fn <- flash.init$ebnm.fn
+      if (is.null(ellipsis$ebnm.param))
+        ellipsis$ebnm.param <- flash.init$ebnm.param
+    }
   }
 
   # Bypass set.flash.data if flash.init has the needed fields.
@@ -147,38 +145,26 @@ flashier <- function(data = NULL,
   must.be.integer(greedy.Kmax, lower = 0)
   if (!is.null(fixed.factors))
     must.be.list.of.named.lists(fixed.factors, c("dim", "idx", "vals"))
-  must.be.named.list(ebnm.param)
-  must.be.named.list(ash.param)
   if (!is.character(verbose.lvl))
     must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
   workhorse.param <- list()
 
   # Handle "prior type" parameter.
-  if (!is.null(flash.init) && !missing(prior.type) && !is.list(prior.type)) {
+  if (is.null(flash.init)) {
+    workhorse.param <- c(workhorse.param, prior.param(prior.type, data.dim))
+  } else if (!missing(prior.type)) {
     # The last element of ebnm.fn (and ebnm.param) specifies settings for new
     #   factors. If there is an initial flash object, the existing settings
     #   need to be kept, while the last list element is overridden.
-    new.prior.param <- prior.param(prior.type,
-                                   data.dim,
-                                   ebnm.param,
-                                   ash.param)
     k <- length(flash.init$ebnm.fn)
-    flash.init$ebnm.fn[k] <- new.prior.param$ebnm.fn
-    flash.init$ebnm.param[k] <- new.prior.param$ebnm.param
-    ellipsis$ebnm.fn <- flash.init$ebnm.fn
-    ellipsis$ebnm.param <- flash.init$ebnm.param
-    ellipsis$prior.sign <- new.prior.param$prior.sign
-  } else if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
-    # I can't check that ellipsis$ebnm.param is NULL because I've overloaded
-    #   ebnm.param.
-    workhorse.param <- c(workhorse.param, prior.param(prior.type,
-                                                      data.dim,
-                                                      ebnm.param,
-                                                      ash.param))
-  } else if (!missing(prior.type)) {
-    stop(paste("If prior.type is specified, then prior.sign and ebnm.fn",
-               "cannot be."))
+    flash.init$dim.signs <- flash.init$dim.signs[-k]
+    flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
+    flash.init$ebnm.param <- flash.init$ebnm.param[-k]
+    new.prior.param <- prior.param(prior.type, data.dim)
+    ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
+    ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
+    ellipsis$ebnm.param <- c(flash.init$ebnm.param, new.prior.param$ebnm.param)
   }
 
   # Handle "fixed factors" parameter.
@@ -204,6 +190,7 @@ flashier <- function(data = NULL,
       }
       return(list(dim = dim, idx = idx, vals = vals))
     })
+
     # If flash.init is used, previously fixed factors need to be included.
     #   These fields aren't always populated, so an offset needs to be
     #   used when setting the new fixed factors.
@@ -259,14 +246,18 @@ flashier <- function(data = NULL,
                                     ellipsis)))
 }
 
-prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
-  if (!is.list(prior.type))
-    prior.type <- list(prior.type)
-
+prior.param <- function(prior.type, data.dim) {
   error.msg <- "Invalid argument to prior.type."
 
+  if (!is.list(prior.type))
+    stop(error.msg)
+
+  if (!is.null(names(prior.type[[1]])))
+    prior.type <- list(prior.type)
+
+  # Each top-level list element in prior.type corresponds to a factor.
   prior.type <- lapply(prior.type, function(k) {
-    if (!is.vector(k))
+    if (!is.list(k))
       stop(error.msg)
     if (length(k) == 1)
       k <- rep(k, data.dim)
@@ -275,63 +266,13 @@ prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
     return(as.list(k))
   })
 
-  prior.type <- rapply(prior.type, match.prior.type.args, how = "list")
-  prior.sign <- rapply(prior.type, prior.type.to.prior.sign, how = "list")
-  ebnm.fn    <- rapply(prior.type, prior.type.to.ebnm.fn, how = "list")
-  ebnm.param <- rapply(prior.type, prior.type.to.ebnm.param, how = "list",
-                       ebnm.param = ebnm.param, ash.param = ash.param)
+  prior.sign <- lapply(prior.type, lapply, `[[`, "sign")
+  ebnm.fn    <- lapply(prior.type, lapply, `[[`, "ebnm.fn")
+  ebnm.param <- lapply(prior.type, lapply, `[[`, "ebnm.param")
 
   return(list(prior.sign = prior.sign,
               ebnm.fn = ebnm.fn,
               ebnm.param = ebnm.param))
-}
-
-match.prior.type.args <- function(prior.type = c("point.normal",
-                                                 "point.laplace",
-                                                 "normal.mixture",
-                                                 "uniform.mixture",
-                                                 "nonnegative",
-                                                 "nonpositive",
-                                                 "nonzero.mode")) {
-  return(match.arg(prior.type))
-}
-
-prior.type.to.prior.sign <- function(prior.type) {
-  return(switch(prior.type,
-                nonnegative = 1,
-                nonpositive = -1,
-                0))
-}
-
-prior.type.to.ebnm.fn <- function(prior.type) {
-  return(switch(prior.type,
-                point.normal =,
-                point.laplace =,
-                nonzero.mode = ebnm.pn,
-                ebnm.ash))
-}
-
-prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
-  param <- switch(prior.type,
-                  point.normal = list(prior_type = "point_normal"),
-                  point.laplace = list(prior_type = "point_laplace"),
-                  nonzero.mode = list(prior_type = "point_normal",
-                                      fix_mu = FALSE),
-                  normal.mixture = list(mixcompdist = "normal"),
-                  uniform.mixture = list(mixcompdist = "uniform"),
-                  nonnegative = list(mixcompdist = "+uniform"),
-                  nonpositive = list(mixcompdist = "-uniform"))
-
-  if (!is.null(param[["mixcompdist"]])) {
-    # Additional parameters for ashr::ash.
-    param <- c(param, list(method = "shrink", output = "flash_data"))
-    param <- modifyList(param, ash.param)
-  } else {
-    # Additional parameters for ebnm::ebnm.
-    param <- modifyList(param, ebnm.param)
-  }
-
-  return(param)
 }
 
 control.param <- function(backfit) {

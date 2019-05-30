@@ -1,6 +1,3 @@
-# TODO: Change default to output LFSR after ebnm can do it and after
-#   changing default ash method to "fdr".
-
 wrapup.flash <- function(flash, output.lvl) {
   class(flash) <- "flash.fit"
 
@@ -11,17 +8,16 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object <- list()
 
-  flash.object$n.factors   <- get.n.factors(flash)
-  flash.object$objective   <- get.obj(flash)
+  flash.object$n.factors    <- get.n.factors(flash)
+  flash.object$objective    <- get.obj(flash)
   if (flash.object$n.factors > 0) {
-    flash.object$pve       <- calc.pve(flash)
-    normalized.loadings    <- calc.normalized.loadings(flash)
-    flash.object$diagonal  <- normalized.loadings$scale.constants
-    flash.object$loadings  <- normalized.loadings$normalized.loadings
-    if (output.lvl > 3)
-      flash.object$lfsr    <- calc.lfsr(flash)
+    flash.object$pve        <- calc.pve(flash)
+    normalized.loadings     <- calc.normalized.loadings(flash)
+    flash.object$factor.wts <- normalized.loadings$scale.constants
+    flash.object$loadings   <- normalized.loadings$normalized.loadings
+    flash.object$lfsr       <- calc.lfsr(flash)
     if (output.lvl > 1)
-      flash.object$sampler <- F.sampler(flash)
+      flash.object$sampler  <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {
@@ -121,7 +117,7 @@ lfsr.one.n <- function(flash, k, n) {
     lfsr <- rep(NA, get.dims(flash)[n])
   } else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")
-    lfsr <- ebnm.res$lfsr
+    lfsr <- ebnm.res$result$lfsr
     fix.dim <- get.fix.dim(factor)
     if (!is.null(fix.dim) && (fix.dim == n))
       lfsr[get.fix.idx(factor)] <- NA
