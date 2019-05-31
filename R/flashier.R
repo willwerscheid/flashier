@@ -69,8 +69,10 @@
 #'     \item{\code{objective}}{The variational lower bound achieved by the
 #'       fitted model.}
 #'     \item{\code{pve}}{The proportion of variance explained by each factor.}
-#'     \item{\code{loadings}}{For each factor, the normalized loadings and a
-#'       scaling constant.}
+#'     \item{\code{factor.wts}}{The size of each factor. For example, if the
+#'       EBMF decomposition is written \eqn{Y = LDF'}, then \code{factor.wts}
+#'       gives the diagonal elements of \eqn{D}.}
+#'     \item{\code{loadings}}{The \eqn{\ell 2}-normalized loadings.}
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
 #'       distribution of the (non-normalized) loadings.}

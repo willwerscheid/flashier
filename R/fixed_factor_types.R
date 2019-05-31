@@ -40,10 +40,6 @@ sparse.factors <- function(n, nz.idx) {
   return(ff)
 }
 
-#' Create factor with arbitrarily fixed elements
-#'
-#' @inheritParams ones.factor
-#'
 #' @param vals The values of the fixed loadings. Can be a vector, which is
 #'   interpreted as a single fixed factor, or a matrix, each column of which
 #'   is interpreted as a different fixed factor.

@@ -1,15 +1,47 @@
-#   Custom ebnm functions may also be used. They must accept parameters x (a
-# vector of observations), s (a vector of standard errors), g (an
-# initialization for the prior), fixg (a boolean indicating whether g should be
-# considered fixed), and output. Normally, functions should return a named list
-# containing elements postmean (the posterior mean for the observations),
-# postmean2 (the posterior expected squared values), fitted_g (the fitted
-# prior), and loglik (the log likelihood for the observations given the
-# prior). When output = "sampler", they should instead return a named list
-# containing element post_sampler (a function that takes a single parameter
-# nsamp and returns a matrix with nsamp rows and length(x) columns, with each
-# row corresponding to a single sample from the posterior).
-
+#' Flashier EBNM functions
+#'
+#' Functions used to solve the empirical Bayes normal means problem.
+#'   \code{ebnm.pn} is a wrapper to \code{ebnm::ebnm}. \code{ebnm.ash} calls
+#'   \code{ashr::ash}.
+#'
+#' Custom EBNM functions may also be used. They must accept parameters
+#'   \code{x}, \code{s}, \code{g} (with default \code{g = NULL}),
+#'   \code{fixg} (with default \code{fixg = FALSE}), and \code{output}. When
+#'   \code{output = "flash.data"}, they should result a list containing
+#'   elements \code{fitted_g} (the fitted prior), \code{loglik} (the
+#'   log-likelihood for the observations given the prior), and \code{result},
+#'   which must itself be a list containing elements \code{PosteriorMean}
+#'   (the posterior means for the observations) and \code{PosteriorMean2}
+#'   (the posterior expected squared values). When \code{output = "sampler"},
+#'   they should return a list containing element \code{post_sampler} (a
+#'   function that takes a single parameter \code{nsamp} and returns a matrix
+#'   with \code{nsamp} rows and \code{length(x)} columns, with each row
+#'   corresponding to a single sample from the posterior). Finally, when
+#'   \code{output = "lfsr"}, they should return a list containing element
+#'   \code{result}, which is itself a list containing element \code{lfsr},
+#'   a vector of local false sign rates. For both \code{output = "sampler"}
+#'   and \code{output = "lfsr"}, a \code{NULL} value may be returned without
+#'   otherwise affecting the fitting process.
+#'
+#' @param x A vector of observations.
+#'
+#' @param s A vector of standard errors (or a scalar when all standard errors
+#'   are the same).
+#'
+#' @param g An initialization for the prior.
+#'
+#' @param fixg A boolean indicating whether \code{g} should be considered
+#'   fixed.
+#'
+#' @param output Can be set to \code{"flash.data"} to return summary data used
+#'   to update factors; \code{"sampler"} to return a function that will sample
+#'   from the posterior; or \code{"lfsr"} to return a vector of local false
+#'   sign rates.
+#'
+#' @rdname ebnm.fn
+#'
+#' @export
+#'
 ebnm.pn = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
   output <- switch(output,
                    flash.data = c("result", "fitted_g", "loglik"),
@@ -21,7 +53,10 @@ ebnm.pn = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
   return(res)
 }
 
-
+#' @rdname ebnm.fn
+#'
+#' @export
+#'
 ebnm.ash = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
   output <- switch(output,
                    flash.data = c("PosteriorMean", "PosteriorSD",

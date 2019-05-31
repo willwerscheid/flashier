@@ -5,10 +5,9 @@
 \title{Fit an empirical Bayes matrix/tensor factorization}
 \usage{
 flashier(data = NULL, S = NULL, var.type = 0,
-  prior.type = "point.normal", flash.init = NULL, greedy.Kmax = 30,
+  prior.type = point.normal(), flash.init = NULL, greedy.Kmax = 30,
   backfit = c("none", "final", "alternating", "only"),
-  fixed.factors = NULL, ebnm.param = list(), ash.param = list(),
-  verbose.lvl = 1, ...)
+  fixed.factors = NULL, verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -62,14 +61,6 @@ can be added by concatenating via \code{c()}. For example,
 \code{fixed.factors = c(ones.factor(n = 1), sparse.factors(n = 1,
 nz.idx = 1:10)} will add one mean factor and one sparse factor.}
 
-\item{ebnm.param}{Additional parameters to be passed to \code{ebnm::ebnm}.
-Used by prior types \code{"point.normal"}, \code{"point.laplace"}, and
-\code{"nonzero.mode"}.}
-
-\item{ash.param}{Additional parameters to be passed to \code{ashr::ash}.
-Used by prior types \code{"normal.mixture"}, \code{"uniform.mixture"},
-\code{"nonnegative"}, and \code{"nonpositive"}.}
-
 \item{verbose.lvl}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
 backfit is completed, \code{2} for additional notifications about the
@@ -87,8 +78,10 @@ A \code{flash} object. Contains elements:
     \item{\code{objective}}{The variational lower bound achieved by the
       fitted model.}
     \item{\code{pve}}{The proportion of variance explained by each factor.}
-    \item{\code{loadings}}{For each factor, the normalized loadings and a
-      scaling constant.}
+    \item{\code{factor.wts}}{The size of each factor. For example, if the
+      EBMF decomposition is written \eqn{Y = LDF'}, then \code{factor.wts}
+      gives the diagonal elements of \eqn{D}.}
+    \item{\code{loadings}}{The \eqn{\ell 2}-normalized loadings.}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}
