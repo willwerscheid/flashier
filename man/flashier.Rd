@@ -94,8 +94,10 @@ A \code{flash} object. Contains elements:
       matrices, fitted values can be calculated as \code{f$loadings[[1]]
       \%*\% diag(f$factor.wts) \%*\% t(f$loadings[[2]])} (or, more simply,
       as \code{fitted(f)}).}
-    \item{\code{loading.SEs}}{Posterior standard deviations for loadings.}
+    \item{\code{loading.SDs}}{Posterior standard deviations for loadings.}
     \item{\code{loading.lfsrs}}{Local false sign rates for loadings.}
+    \item{\code{residual.SE}}{Estimated residual standard errors (this
+      includes any variance component given as argument to \code{S}).}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}

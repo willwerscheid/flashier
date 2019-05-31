@@ -15,11 +15,14 @@ wrapup.flash <- function(flash, output.lvl) {
     loadings                   <- calc.normalized.loadings(flash)
     flash.object$factor.wts    <- loadings$scale.constants
     flash.object$loadings      <- loadings$normalized.loadings
-    flash.object$loading.SDs   <- loadings$loading.SEs
+    flash.object$loading.SDs   <- loadings$loading.SDs
     flash.object$loading.lfsrs <- calc.lfsr(flash)
   }
+  if (is.tau.simple(flash)) {
+    flash.object$residual.SE   <- 1 / sqrt(get.tau(flash))
+  }
   if (flash.object$n.factors > 0 && output.lvl > 1) {
-    flash.object$sampler     <- F.sampler(flash)
+    flash.object$sampler       <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {
@@ -89,7 +92,7 @@ calc.normalized.loadings <- function(flash, for.pve = FALSE) {
     L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
       X / rep(y^2, each = nrow(X))
     })
-    SE <- mapply(L2, L, FUN = function(EX2, EX) {sqrt(EX2 - EX^2)})
+    SD <- mapply(L2, L, FUN = function(EX2, EX) {sqrt(EX2 - EX^2)})
   }
 
   # Propagate names.
@@ -109,7 +112,7 @@ calc.normalized.loadings <- function(flash, for.pve = FALSE) {
   ret$scale.constants[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
   if (!for.pve)
-    ret$loading.SEs <- SE
+    ret$loading.SDs <- SD
 
   return(ret)
 }
