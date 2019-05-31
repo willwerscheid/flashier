@@ -24,22 +24,31 @@ only varies across columns and is constant within any given row). If
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 \code{S} accounts for all residual variance. Otherwise, a rank-one
 variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the dimensions
-along which the residual variance is permitted to vary. For example,
-\code{var.type = 1} estimates row-specific residual variances, while
-\code{var.type = c(1, 2)} estimates an arbitrary rank-one matrix. If
-\code{var.type = 0}, then the residual variance is assumed to be constant
-across all observations.}
+by \code{S}). \code{var.type} then gives the modes along which the
+residual variance is permitted to vary. For example, \code{var.type = 1}
+estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+estimates an arbitrary rank-one matrix. If \code{var.type = 0}, then the
+residual variance is assumed to be constant across all observations.}
 
 \item{prior.type}{Indicates the class of distributions that the priors are
-assumed to belong to. Can be a vector of length 1, a vector with one
-element for each dimension, or a list of vectors. In the last case,
-the first list element gives the class(es) for the first factor, the
-second gives the class(es) for the second factor, and so on. The last
-list element is then re-used as often as necessary. Options include
-\code{"point.normal"}, \code{"point.laplace"}, \code{"normal.mixture"},
-\code{"uniform.mixture"}, \code{"nonnegative"}, \code{"nonpositive"}, and
-\code{"nonzero.mode"}.}
+  assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
+  \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
+  tensors). Each list element must be a prior type created by one of the
+  convenience functions \code{\link{normal}}, \code{\link{point.normal}},
+  \code{\link{point.laplace}}, \code{\link{nonzero.mode}},
+  \code{\link{normal.mix}}, \code{\link{uniform.mix}},
+  \code{\link{nonnegative}}, or \code{\link{nonpositive}}, or a custom
+  prior type of a similar form (see \code{\link{normal}} for details).
+  For example, the default \code{prior.type = point.normal()} fits a
+  (different) point-normal prior for each factor and each mode, while
+  \code{prior.type = c(nonnegative(), normal.mix())} fits a mixture of
+  uniforms with nonnegative support to each set of row loadings and a
+  mixture of normals to each set of column loadings.
+
+  \code{prior.type} can also be a list of lists, in which case the first
+  list specifies the class(es) for the first factor, the second specifies
+  the class(es) for the second factor, and so on. The last list element is
+  then re-used as often as necessary.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
@@ -78,10 +87,10 @@ A \code{flash} object. Contains elements:
     \item{\code{objective}}{The variational lower bound achieved by the
       fitted model.}
     \item{\code{pve}}{The proportion of variance explained by each factor.}
-    \item{\code{factor.wts}}{The size of each factor. For example, if the
+    \item{\code{factor.wts}}{The weight of each factor. For example, if the
       EBMF decomposition is written \eqn{Y = LDF'}, then \code{factor.wts}
       gives the diagonal elements of \eqn{D}.}
-    \item{\code{loadings}}{The \eqn{\ell 2}-normalized loadings.}
+    \item{\code{loadings}}{The \eqn{L2}-normalized loadings.}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}

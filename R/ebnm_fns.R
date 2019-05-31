@@ -67,7 +67,7 @@ ebnm.ash = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
   res <- ashr::ash(betahat = as.vector(x), sebetahat = as.vector(s),
                    g = g, fixg = fixg, outputlevel = output, ...)
 
-  if (!is.null(res$result)) {
+  if (!is.null(res$result) && !is.null(res$result$PosteriorMean)) {
     res$result$PosteriorMean2 <- (res$result$PosteriorMean^2
                                   + res$result$PosteriorSD^2)
   }
