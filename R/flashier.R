@@ -75,13 +75,18 @@
 #'   \describe{
 #'     \item{\code{n.factors}}{The total number of factors in the fitted
 #'       model.}
-#'     \item{\code{objective}}{The variational lower bound achieved by the
+#'     \item{\code{elbo}}{The variational lower bound achieved by the
 #'       fitted model.}
 #'     \item{\code{pve}}{The proportion of variance explained by each factor.}
-#'     \item{\code{factor.wts}}{The weight of each factor. For example, if the
-#'       EBMF decomposition is written \eqn{Y = LDF'}, then \code{factor.wts}
-#'       gives the diagonal elements of \eqn{D}.}
-#'     \item{\code{loadings}}{The \eqn{L2}-normalized loadings.}
+#'     \item{\code{loadings, factor.wts}}{Posterior means for loadings. Since
+#'       the model is
+#'       not identifiable, each column of loadings is \eqn{L2}-normalized. The
+#'       normalization constant is given by \code{factor.wts}. Thus, for
+#'       matrices, fitted values can be calculated as \code{f$loadings[[1]]
+#'       \%*\% diag(f$factor.wts) \%*\% t(f$loadings[[2]])} (or, more simply,
+#'       as \code{fitted(f)}).}
+#'     \item{\code{loading.SEs}}{Posterior standard deviations for loadings.}
+#'     \item{\code{loading.lfsrs}}{Local false sign rates for loadings.}
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
 #'       distribution of the (non-normalized) loadings.}

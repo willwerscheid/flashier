@@ -8,16 +8,18 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object <- list()
 
-  flash.object$n.factors    <- get.n.factors(flash)
-  flash.object$objective    <- get.obj(flash)
+  flash.object$n.factors       <- get.n.factors(flash)
+  flash.object$elbo            <- get.obj(flash)
   if (flash.object$n.factors > 0) {
-    flash.object$pve        <- calc.pve(flash)
-    normalized.loadings     <- calc.normalized.loadings(flash)
-    flash.object$factor.wts <- normalized.loadings$scale.constants
-    flash.object$loadings   <- normalized.loadings$normalized.loadings
-    flash.object$lfsr       <- calc.lfsr(flash)
-    if (output.lvl > 1)
-      flash.object$sampler  <- F.sampler(flash)
+    flash.object$pve           <- calc.pve(flash)
+    loadings                   <- calc.normalized.loadings(flash)
+    flash.object$factor.wts    <- loadings$scale.constants
+    flash.object$loadings      <- loadings$normalized.loadings
+    flash.object$loading.SDs   <- loadings$loading.SEs
+    flash.object$loading.lfsrs <- calc.lfsr(flash)
+  }
+  if (flash.object$n.factors > 0 && output.lvl > 1) {
+    flash.object$sampler     <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {
@@ -52,7 +54,7 @@ remove.auxiliary.elements <- function(flash) {
 }
 
 calc.pve <- function(flash) {
-  ldf <- calc.normalized.loadings(flash, use.EF2 = TRUE)
+  ldf <- calc.normalized.loadings(flash, for.pve = TRUE)
   S   <- ldf$scale.constants
 
   tau <- get.tau(flash)
@@ -67,10 +69,10 @@ calc.pve <- function(flash) {
   return(S / (sum(S) + var.from.tau))
 }
 
-calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
+calc.normalized.loadings <- function(flash, for.pve = FALSE) {
   ret <- list()
 
-  if (use.EF2) {
+  if (for.pve) {
     loadings <- get.EF2(flash)
     norms <- lapply(loadings, colSums)
   } else {
@@ -83,6 +85,12 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
   })
+  if (!for.pve) {
+    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
+      X / rep(y^2, each = nrow(X))
+    })
+    SE <- mapply(L2, L, FUN = function(EX2, EX) {sqrt(EX2 - EX^2)})
+  }
 
   # Propagate names.
   if (uses.R(flash)) {
@@ -100,6 +108,8 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   ret$scale.constants <- apply(norms, 2, prod)
   ret$scale.constants[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
+  if (!for.pve)
+    ret$loading.SEs <- SE
 
   return(ret)
 }
