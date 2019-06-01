@@ -27,7 +27,7 @@ variance structure will be estimated (and added to any variance specified
 by \code{S}). \code{var.type} then gives the modes along which the
 residual variance is permitted to vary. For example, \code{var.type = 1}
 estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-estimates an arbitrary rank-one matrix. If \code{var.type = 0}, then the
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 residual variance is assumed to be constant across all observations.}
 
 \item{prior.type}{Indicates the class of distributions that the priors are
@@ -61,7 +61,7 @@ If \code{"alternating"}, a backfit will be performed after each
 factor is added. Set \code{backfit = "only"} to backfit \code{flash.init}
 without adding additional factors.}
 
-\item{fixed.factors}{Adds factors with fixed loadings. Current options
+\item{fixed.factors}{Adds factors with fixed loadings. Options
 include mean factors (where all row or column loadings are fixed at 1),
 factors with known sparsity patterns, and factors with arbitrarily fixed
 elements. See \code{\link{ones.factor}}, \code{\link{sparse.factors}},
@@ -88,8 +88,8 @@ A \code{flash} object. Contains elements:
       fitted model.}
     \item{\code{pve}}{The proportion of variance explained by each factor.}
     \item{\code{loadings, factor.wts}}{Posterior means for loadings. Since
-      the model is
-      not identifiable, each column of loadings is \eqn{L2}-normalized. The
+      the model is not identifiable,
+      each column of loadings is \eqn{L2}-normalized. The
       normalization constant is given by \code{factor.wts}. Thus, for
       matrices, fitted values can be calculated as \code{f$loadings[[1]]
       \%*\% diag(f$factor.wts) \%*\% t(f$loadings[[2]])} (or, more simply,
@@ -97,11 +97,14 @@ A \code{flash} object. Contains elements:
     \item{\code{loading.SDs}}{Posterior standard deviations for loadings.}
     \item{\code{loading.lfsrs}}{Local false sign rates for loadings.}
     \item{\code{residual.SE}}{Estimated residual standard errors (this
-      includes any variance component given as argument to \code{S}).}
+      includes any variance component given as an argument to \code{S}).}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}
-    \item{\code{fit}}{A \code{flash.fit} object.}
+    \item{\code{fit}}{A \code{flash.fit} object. Used by \code{flashier}
+      when fitting is not performed all at once, but incrementally via
+      repeated calls to \code{flashier} (with the intermediate \code{flash}
+      or \code{flash.fit} objects given as arguments to \code{flash.init}).}
   }
 }
 \description{

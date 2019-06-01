@@ -18,14 +18,16 @@
 #'   \code{nonpositive} class uses components \eqn{Unif(-a_j, 0)}.
 #'
 #' Custom prior types can also be created. These should be lists containing
-#'   exactly one element, which is itself a list containing fields
+#'   exactly one element, which itself must be a list containing fields
 #'   \code{ebnm.fn}, \code{ebnm.param}, and \code{sign}. That is, they should
 #'   be of form \code{custom.prior = list(list(ebnm.fn = my.ebnm.fn,
 #'   ebnm.param = my.ebnm.param, sign = my.sign))}. \code{ebnm.fn} gives
-#'   the function used to solve the empirical Bayes normal means problem
-#'   (typically \code{ebnm.pn}, which is a wrapper to \code{ebnm::ebnm}, or
-#'   \code{ebnm.ash}, a wrapper to \code{ashr::ash}). \code{ebnm.param}
-#'   lists any additional parameters to be passed to \code{ebnm.fn} (this
+#'   the function used to solve the empirical Bayes normal means problem.
+#'   Typically, this will be \code{ebnm.pn}, which is a wrapper to
+#'   \code{ebnm::ebnm}, or \code{ebnm.ash}, a wrapper to \code{ashr::ash},
+#'   but custom functions may also be used. For details, see
+#'   \code{\link{ebnm.pn}}.
+#'   \code{ebnm.param} lists any additional parameters to be passed to \code{ebnm.fn} (this
 #'   field is useful when multiple prior types share the same \code{ebnm.fn}).
 #'   \code{sign} should be set to +1 for classes of distributions with
 #'   nonnegative support, -1 for classes with nonpositive support, and 0 for

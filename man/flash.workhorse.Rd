@@ -39,7 +39,7 @@ variance structure will be estimated (and added to any variance specified
 by \code{S}). \code{var.type} then gives the modes along which the
 residual variance is permitted to vary. For example, \code{var.type = 1}
 estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-estimates an arbitrary rank-one matrix. If \code{var.type = 0}, then the
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 residual variance is assumed to be constant across all observations.}
 
 \item{prior.sign}{A vector or list of vectors indicating the sign(s) of
