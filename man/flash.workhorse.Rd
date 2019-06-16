@@ -21,8 +21,8 @@ flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
   fixed.maxiter = greedy.maxiter, fixed.reltol = 1,
   backfit.maxiter = 100, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
-  inner.backfit.reltol = backfit.reltol, nonmissing.thresh = NULL,
-  seed = 666, use.R = FALSE)
+  inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
+  nonmissing.thresh = NULL, seed = 666, use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -153,6 +153,8 @@ greedy.tol.}
 
 \item{inner.backfit.reltol}{Convergence tolerance for intermediary backfits,
 relative to greedy.tol.}
+
+\item{nullchk.reltol}{Tolerance for nullchecks, relative to greedy.tol.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be

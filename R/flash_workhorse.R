@@ -107,6 +107,8 @@
 #' @param inner.backfit.reltol Convergence tolerance for intermediary backfits,
 #'   relative to greedy.tol.
 #'
+#' @param nullchk.reltol Tolerance for nullchecks, relative to greedy.tol.
+#'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
 #'   nonmissing in a given matrix or array slice in order to estimate the
@@ -163,6 +165,7 @@ flash.workhorse <- function(data = NULL,
                             backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.reltol = backfit.reltol,
+                            nullchk.reltol = 1,
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
@@ -379,8 +382,9 @@ flash.workhorse <- function(data = NULL,
 
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
+      nullchk.tol <- greedy.tol * nullchk.reltol
       for (k in nullchk.kset)
-        flash <- nullcheck.factor(flash, k, verbose.lvl, greedy.tol)
+        flash <- nullcheck.factor(flash, k, verbose.lvl, nullchk.tol)
       if (nullchk.failed(flash)) {
         if (restart.after.nullchk)
           continue.looping <- TRUE
