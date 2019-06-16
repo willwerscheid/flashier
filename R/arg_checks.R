@@ -54,11 +54,15 @@ must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
 }
 
 must.not.have.zero.slices <- function(Y) {
+  # Skip this test for tensors.
+  if (length(dim(Y)) > 2)
+    return()
+
   nz <- (Y != 0)
   for (n in 1:length(dim(Y))) {
     n.nonzero <- nmode.prod.vec(nz, 1, n)
     if (any(n.nonzero == 0))
-      stop("The data matrix must not have any slices (rows, columns) whose",
+      stop("The data matrix must not have any rows or columns whose",
            " entries are identically zero.")
   }
 }

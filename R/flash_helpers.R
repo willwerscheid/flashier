@@ -1,3 +1,5 @@
+get.fit <- function(f) f[["flash.fit"]]
+
 # Getters for the main flash object (also used by the smaller factors) --------
 
 get.R                 <- function(f) f[["R"]]
@@ -536,7 +538,7 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 # Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
   if (inherits(f, "flash"))
-    f <- f$fit
+    f <- get.fit(f)
 
   flash      <- list()
   flash$EL   <- f$EF[[1]]

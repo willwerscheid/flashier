@@ -8,21 +8,22 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object <- list()
 
-  flash.object$n.factors       <- get.n.factors(flash)
-  flash.object$elbo            <- get.obj(flash)
+  flash.object$n.factors        <- get.n.factors(flash)
   if (flash.object$n.factors > 0) {
-    flash.object$pve           <- calc.pve(flash)
-    loadings                   <- calc.normalized.loadings(flash)
-    flash.object$factor.wts    <- loadings$scale.constants
-    flash.object$loadings      <- loadings$normalized.loadings
-    flash.object$loading.SDs   <- loadings$loading.SDs
-    flash.object$loading.lfsrs <- calc.lfsr(flash)
+    flash.object$pve            <- calc.pve(flash)
+    loadings                    <- calc.normalized.loadings(flash)
+    flash.object$loadings.scale <- loadings$scale.constants
+    flash.object$loadings.pm    <- loadings$normalized.loadings
+    flash.object$loadings.psd   <- loadings$loading.SDs
+    flash.object$loadings.lfsr  <- calc.lfsr(flash)
   }
   if (is.tau.simple(flash)) {
-    flash.object$residual.SE   <- 1 / sqrt(get.tau(flash))
+    flash.object$residual.sd    <- 1 / sqrt(get.tau(flash))
   }
+  flash.object$fitted.g         <- get.g.by.mode(flash)
+  flash.object$elbo             <- get.obj(flash)
   if (flash.object$n.factors > 0 && output.lvl > 1) {
-    flash.object$sampler       <- F.sampler(flash)
+    flash.object$sampler        <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {
@@ -33,7 +34,7 @@ wrapup.flash <- function(flash, output.lvl) {
     flash <- set.bypass.init.flag(flash)
   }
 
-  flash.object$fit <- flash
+  flash.object$flash.fit <- flash
 
   class(flash.object) <- "flash"
 
@@ -87,12 +88,14 @@ calc.normalized.loadings <- function(flash, for.pve = FALSE) {
   norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
   L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
-  })
+  }, SIMPLIFY = FALSE)
   if (!for.pve) {
     L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
       X / rep(y^2, each = nrow(X))
-    })
-    SD <- mapply(L2, L, FUN = function(EX2, EX) {sqrt(EX2 - EX^2)})
+    }, SIMPLIFY = FALSE)
+    SD <- mapply(L2, L,
+                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+                 SIMPLIFY = FALSE)
   }
 
   # Propagate names.
@@ -140,4 +143,17 @@ lfsr.one.n <- function(flash, k, n) {
     }
   }
   return(lfsr)
+}
+
+get.g.by.mode <- function(flash) {
+  g.by.factor <- get.g(flash)
+  g.by.mode <- lapply(1:get.dim(flash), FUN = function(n) {
+    lapply(g.by.factor, FUN = function(g.k) {
+      if (length(g.k) == 0)
+        return(NULL)
+      else
+        return(g.k[[n]])
+    })
+  })
+  return(g.by.mode)
 }

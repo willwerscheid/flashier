@@ -25,7 +25,7 @@ test_that("sampler works correctly when there are zero factors", {
 })
 
 test_that("zero factors are dealt with correctly when normalizing loadings", {
-  expect_equal(f$factor.wts[1], 0)
-  expect_equal(f$loadings[[1]][, 1], rep(0, n))
-  expect_equal(f$loadings[[2]][, 1], rep(0, p))
+  expect_equal(f$loadings.scale[1], 0)
+  expect_equal(f$loadings.pm[[1]][, 1], rep(0, n))
+  expect_equal(f$loadings.pm[[2]][, 1], rep(0, p))
 })

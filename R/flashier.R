@@ -127,7 +127,7 @@ flashier <- function(data = NULL,
 
   # When available, use existing flash object settings as defaults.
   if (inherits(flash.init, "flash"))
-    flash.init <- flash.init$fit
+    flash.init <- get.fit(flash.init)
   if (!is.null(flash.init)) {
     if (!inherits(flash.init, "flash.fit"))
       stop("flash.init must be a flash or flash.fit object.")
