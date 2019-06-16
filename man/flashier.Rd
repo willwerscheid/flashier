@@ -5,9 +5,9 @@
 \title{Fit an empirical Bayes matrix/tensor factorization}
 \usage{
 flashier(data = NULL, S = NULL, var.type = 0,
-  prior.type = point.normal(), flash.init = NULL, greedy.Kmax = 30,
-  backfit = c("none", "final", "alternating", "only"),
-  fixed.factors = NULL, verbose.lvl = 1, ...)
+  prior.class = prior.point.normal(), flash.init = NULL,
+  greedy.Kmax = 30, backfit = c("none", "final", "alternating",
+  "only"), fixed.factors = NULL, verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -30,22 +30,25 @@ estimates row-specific residual variances, while \code{var.type = c(1, 2)}
 optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 residual variance is assumed to be constant across all observations.}
 
-\item{prior.type}{Indicates the class of distributions that the priors are
+\item{prior.class}{Indicates the class of distributions that the priors are
   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
   \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-  tensors). Each list element must be a prior type created by one of the
-  convenience functions \code{\link{normal}}, \code{\link{point.normal}},
-  \code{\link{point.laplace}}, \code{\link{nonzero.mode}},
-  \code{\link{normal.mix}}, \code{\link{uniform.mix}},
-  \code{\link{nonnegative}}, or \code{\link{nonpositive}}, or a custom
-  prior type of a similar form (see \code{\link{normal}} for details).
-  For example, the default \code{prior.type = point.normal()} fits a
+  tensors). Each list element must be a prior class defined by one of the
+  convenience functions \code{\link{prior.normal}},
+  \code{\link{prior.point.normal}},
+  \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
+  \code{\link{prior.normal.mix}}, \code{\link{prior.uniform.mix}},
+  \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
+  or a custom prior type of a similar form (see \code{\link{prior.normal}}
+  for details).
+  For example, the default \code{prior.class = prior.point.normal()} fits a
   (different) point-normal prior for each factor and each mode, while
-  \code{prior.type = c(nonnegative(), normal.mix())} fits a mixture of
+  \code{prior.class = c(prior.nonnegative(), prior.normal.mix())} fits a
+  mixture of
   uniforms with nonnegative support to each set of row loadings and a
   mixture of normals to each set of column loadings.
 
-  \code{prior.type} can also be a list of lists, in which case the first
+  \code{prior.class} can also be a list of lists, in which case the first
   list specifies the class(es) for the first factor, the second specifies
   the class(es) for the second factor, and so on. The last list element is
   then re-used as often as necessary.}

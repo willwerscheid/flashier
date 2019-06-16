@@ -22,22 +22,25 @@
 #'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 #'   residual variance is assumed to be constant across all observations.
 #'
-#' @param prior.type Indicates the class of distributions that the priors are
+#' @param prior.class Indicates the class of distributions that the priors are
 #'   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
 #'   \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-#'   tensors). Each list element must be a prior type created by one of the
-#'   convenience functions \code{\link{normal}}, \code{\link{point.normal}},
-#'   \code{\link{point.laplace}}, \code{\link{nonzero.mode}},
-#'   \code{\link{normal.mix}}, \code{\link{uniform.mix}},
-#'   \code{\link{nonnegative}}, or \code{\link{nonpositive}}, or a custom
-#'   prior type of a similar form (see \code{\link{normal}} for details).
-#'   For example, the default \code{prior.type = point.normal()} fits a
+#'   tensors). Each list element must be a prior class defined by one of the
+#'   convenience functions \code{\link{prior.normal}},
+#'   \code{\link{prior.point.normal}},
+#'   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
+#'   \code{\link{prior.normal.mix}}, \code{\link{prior.uniform.mix}},
+#'   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
+#'   or a custom prior type of a similar form (see \code{\link{prior.normal}}
+#'   for details).
+#'   For example, the default \code{prior.class = prior.point.normal()} fits a
 #'   (different) point-normal prior for each factor and each mode, while
-#'   \code{prior.type = c(nonnegative(), normal.mix())} fits a mixture of
+#'   \code{prior.class = c(prior.nonnegative(), prior.normal.mix())} fits a
+#'   mixture of
 #'   uniforms with nonnegative support to each set of row loadings and a
 #'   mixture of normals to each set of column loadings.
 #'
-#'   \code{prior.type} can also be a list of lists, in which case the first
+#'   \code{prior.class} can also be a list of lists, in which case the first
 #'   list specifies the class(es) for the first factor, the second specifies
 #'   the class(es) for the second factor, and so on. The last list element is
 #'   then re-used as often as necessary.
@@ -103,7 +106,7 @@
 flashier <- function(data = NULL,
                      S = NULL,
                      var.type = 0,
-                     prior.type = point.normal(),
+                     prior.class = prior.point.normal(),
                      flash.init = NULL,
                      greedy.Kmax = 30,
                      backfit = c("none",
@@ -118,11 +121,11 @@ flashier <- function(data = NULL,
 
   ellipsis <- list(...)
 
-  if (!missing(prior.type)
+  if (!missing(prior.class)
       && (!is.null(ellipsis$prior.sign)
           || !is.null(ellipsis$ebnm.fn)
           || !is.null(ellipsis$ebnm.param)))
-    stop(paste("If prior.type is specified, then prior.sign, ebnm.fn, and",
+    stop(paste("If prior.class is specified, then prior.sign, ebnm.fn, and",
                "ebnm.param cannot be."))
 
   # When available, use existing flash object settings as defaults.
@@ -138,7 +141,7 @@ flashier <- function(data = NULL,
       if (is.null(data))
         stop("When changing var.type, data cannot be NULL.")
     }
-    if (missing(prior.type)) {
+    if (missing(prior.class)) {
       if (is.null(ellipsis$prior.sign))
         ellipsis$prior.sign <- flash.init$dim.signs
       if (is.null(ellipsis$ebnm.fn))
@@ -173,8 +176,8 @@ flashier <- function(data = NULL,
 
   # Handle "prior type" parameter.
   if (is.null(flash.init)) {
-    workhorse.param <- c(workhorse.param, prior.param(prior.type, data.dim))
-  } else if (!missing(prior.type)) {
+    workhorse.param <- c(workhorse.param, prior.param(prior.class, data.dim))
+  } else if (!missing(prior.class)) {
     # The last element of ebnm.fn (and ebnm.param) specifies settings for new
     #   factors. If there is an initial flash object, the existing settings
     #   need to be kept, while the last list element is overridden.
@@ -182,7 +185,7 @@ flashier <- function(data = NULL,
     flash.init$dim.signs <- flash.init$dim.signs[-k]
     flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
     flash.init$ebnm.param <- flash.init$ebnm.param[-k]
-    new.prior.param <- prior.param(prior.type, data.dim)
+    new.prior.param <- prior.param(prior.class, data.dim)
     ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
     ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
     ellipsis$ebnm.param <- c(flash.init$ebnm.param, new.prior.param$ebnm.param)
@@ -267,17 +270,17 @@ flashier <- function(data = NULL,
                                     ellipsis)))
 }
 
-prior.param <- function(prior.type, data.dim) {
-  error.msg <- "Invalid argument to prior.type."
+prior.param <- function(prior.class, data.dim) {
+  error.msg <- "Invalid argument to prior.class."
 
-  if (!is.list(prior.type))
+  if (!is.list(prior.class))
     stop(error.msg)
 
-  if (!is.null(names(prior.type[[1]])))
-    prior.type <- list(prior.type)
+  if (!is.null(names(prior.class[[1]])))
+    prior.class <- list(prior.class)
 
-  # Each top-level list element in prior.type corresponds to a factor.
-  prior.type <- lapply(prior.type, function(k) {
+  # Each top-level list element in prior.class corresponds to a factor.
+  prior.class <- lapply(prior.class, function(k) {
     if (!is.list(k))
       stop(error.msg)
     if (length(k) == 1)
@@ -287,9 +290,9 @@ prior.param <- function(prior.type, data.dim) {
     return(as.list(k))
   })
 
-  prior.sign <- lapply(prior.type, lapply, `[[`, "sign")
-  ebnm.fn    <- lapply(prior.type, lapply, `[[`, "ebnm.fn")
-  ebnm.param <- lapply(prior.type, lapply, `[[`, "ebnm.param")
+  prior.sign <- lapply(prior.class, lapply, `[[`, "sign")
+  ebnm.fn    <- lapply(prior.class, lapply, `[[`, "ebnm.fn")
+  ebnm.param <- lapply(prior.class, lapply, `[[`, "ebnm.param")
 
   return(list(prior.sign = prior.sign,
               ebnm.fn = ebnm.fn,
