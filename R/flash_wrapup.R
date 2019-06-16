@@ -18,7 +18,7 @@ wrapup.flash <- function(flash, output.lvl) {
     flash.object$loadings.lfsr  <- calc.lfsr(flash)
   }
   if (is.tau.simple(flash)) {
-    flash.object$residual.sd    <- 1 / sqrt(get.tau(flash))
+    flash.object$residuals.sd   <- 1 / sqrt(get.tau(flash))
   }
   flash.object$fitted.g         <- get.g.by.mode(flash)
   flash.object$elbo             <- get.obj(flash)

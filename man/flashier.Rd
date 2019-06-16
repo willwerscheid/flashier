@@ -67,10 +67,10 @@ without adding additional factors.}
 \item{fixed.factors}{Adds factors with fixed loadings. Options
 include mean factors (where all row or column loadings are fixed at 1),
 factors with known sparsity patterns, and factors with arbitrarily fixed
-elements. See \code{\link{ones.factor}}, \code{\link{sparse.factors}},
+elements. See \code{\link{fixed.ones}}, \code{\link{fixed.sparse}},
 and \code{\link{fixed.factors}} for usage. Multiple types of fixed factors
 can be added by concatenating via \code{c()}. For example,
-\code{fixed.factors = c(ones.factor(n = 1), sparse.factors(n = 1,
+\code{fixed.factors = c(fixed.ones(n = 1), fixed.sparse(n = 1,
 nz.idx = 1:10)} will add one mean factor and one sparse factor.}
 
 \item{verbose.lvl}{When and how to display progress updates. Set to
@@ -87,27 +87,29 @@ A \code{flash} object. Contains elements:
   \describe{
     \item{\code{n.factors}}{The total number of factors in the fitted
       model.}
+    \item{\code{pve}}{The proportion of variance explained by each factor.}
+    \item{\code{loadings.scale, loadings.pm}}{Posterior means for loadings.
+      Since the model is not identifiable,
+      each column of loadings is \eqn{L2}-normalized. The
+      normalization constant is given by \code{loadings.scale}. Thus, for
+      matrices, fitted values can be calculated as \code{f$loadings.pm[[1]]
+      \%*\% diag(f$loadings.scale) \%*\% t(f$loadings.pm[[2]])} (or, more
+      simply, as \code{fitted(f)}).}
+    \item{\code{loadings.psd}}{Posterior standard deviations for loadings.}
+    \item{\code{loadings.lfsr}}{Local false sign rates for loadings.}
+    \item{\code{residuals.sd}}{Estimated residual standard deviations (this
+      includes any variance component given as an argument to \code{S}).}
+    \item{\code{fitted.g}}{The fitted priors for each mode and factor.}
     \item{\code{elbo}}{The variational lower bound achieved by the
       fitted model.}
-    \item{\code{pve}}{The proportion of variance explained by each factor.}
-    \item{\code{loadings, factor.wts}}{Posterior means for loadings. Since
-      the model is not identifiable,
-      each column of loadings is \eqn{L2}-normalized. The
-      normalization constant is given by \code{factor.wts}. Thus, for
-      matrices, fitted values can be calculated as \code{f$loadings[[1]]
-      \%*\% diag(f$factor.wts) \%*\% t(f$loadings[[2]])} (or, more simply,
-      as \code{fitted(f)}).}
-    \item{\code{loading.SDs}}{Posterior standard deviations for loadings.}
-    \item{\code{loading.lfsrs}}{Local false sign rates for loadings.}
-    \item{\code{residual.SE}}{Estimated residual standard errors (this
-      includes any variance component given as an argument to \code{S}).}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}
-    \item{\code{fit}}{A \code{flash.fit} object. Used by \code{flashier}
-      when fitting is not performed all at once, but incrementally via
-      repeated calls to \code{flashier} (with the intermediate \code{flash}
-      or \code{flash.fit} objects given as arguments to \code{flash.init}).}
+    \item{\code{flash.fit}}{A \code{flash.fit} object. Used by
+      \code{flashier} when fitting is not performed all at once, but
+      incrementally via repeated calls to \code{flashier} (with the
+      intermediate \code{flash} or \code{flash.fit} objects given as
+      arguments to \code{flash.init}).}
   }
 }
 \description{
