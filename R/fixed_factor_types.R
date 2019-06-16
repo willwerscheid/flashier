@@ -1,13 +1,13 @@
 #' Flashier fixed factors
 #'
 #' Functions for creating different types of fixed factors. Note that loadings
-#'   can only be fixed along one mode (e.g., rows, columns) at a time.
-#'   \code{ones.factor} creates a factor whose loadings along one mode are all
-#'   fixed at 1. This type of factor can be used (for example) to estimate
-#'   row and column means. \code{sparse.factors} creates one or more factors
-#'   with some loadings fixed at zero (and with all other loadings to be
-#'   estimated). \code{fixed.factors} creates one or more factors with loadings
-#'   fixed at arbitrarily specified values.
+#'   can only be fixed along one mode (rows, columns) at a time.
+#'   \code{fixed.ones} creates a factor whose loadings along one mode are all
+#'   fixed at 1. This type of factor can be used to estimate
+#'   row and column means. \code{fixed.sparse} creates one or more factors
+#'   with some loadings fixed at zero and with all other loadings to be
+#'   estimated. \code{fixed.factors} is a more general function which creates
+#'   one or more factors with loadings fixed at arbitrarily specified values.
 #'
 #' @param n The mode of the fixed loadings. For matrices, \code{n = 1}
 #'   indicates that row loadings will be fixed. \code{n = 2} designates
@@ -17,7 +17,7 @@
 #'
 #' @export
 #'
-ones.factor <- function(n) {
+fixed.ones <- function(n) {
   return(list(list(dim = n, vals = 1)))
 }
 
@@ -31,7 +31,7 @@ ones.factor <- function(n) {
 #'
 #' @export
 #'
-sparse.factors <- function(n, nz.idx) {
+fixed.sparse <- function(n, nz.idx) {
   if (!is.list(nz.idx))
     nz.idx <- list(nz.idx)
   ff <- lapply(nz.idx, function(elem) {
