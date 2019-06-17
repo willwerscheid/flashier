@@ -41,56 +41,48 @@ as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.normal <- function(...) {
   return(as.prior(prior_type = "normal", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.point.normal <- function(...) {
   return(as.prior(prior_type = "point_normal", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.point.laplace <- function(...) {
   return(as.prior(prior_type = "point_laplace", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.nonzero.mode <- function(...) {
   return(as.prior(prior_type = "point_normal", mode = "estimate", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.normal.mix <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "normal", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.uniform.mix <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "uniform", ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.nonnegative <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "+uniform", sign = 1, ...))
 }
 
 #' @rdname prior.classes
-#' @importFrom ebnm ebnm
 #' @export
 prior.nonpositive <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "-uniform", sign = -1, ...))
