@@ -3,7 +3,6 @@
 S3method(fitted,flash)
 S3method(print,flash)
 export(as.prior)
-export(ebnm.ash)
 export(fixed.factors)
 export(fixed.ones)
 export(fixed.sparse)

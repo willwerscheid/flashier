@@ -20,16 +20,15 @@
 #' Custom prior classes can be created using the function \code{as.prior}.
 #'
 #' @param ebnm.fn The function used to solve the empirical Bayes normal means
-#'   problem. Typically, this will be \code{ebnm::ebnm} or \code{ebnm.ash},
-#'   which is a wrapper to \code{ashr::ash}, but custom functions may also be
-#'   used. For details, see \code{\link{ebnm.ash}}.
+#'   problem. Typically, this will be \code{ebnm::ebnm}, but custom functions
+#'   may also be used as long as they have the same signature as
+#'   \code{ebnm::ebnm}.
 #'
 #' @param sign Should be set to +1 for classes of distributions with
 #'   nonnegative support and -1 for classes with nonpositive support. Only used
 #'   when initializing new factors.
 #'
-#' @param ... Additional parameters to be passed to the function used to solve
-#'   the empirical Bayes normal means problem.
+#' @param ... Additional parameters to be passed to \code{ebnm::ebnm}.
 
 #' @rdname prior.classes
 #' @importFrom ebnm ebnm
@@ -37,7 +36,7 @@
 as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
   return(list(list(sign = sign,
                    ebnm.fn = function(x, s, g, fixg, output) {
-                     ebnm.fn(x, s = s, g = g, fixg = fixg, output = output, ...)
+                     ebnm.fn(x, s, g_init = g, fix_g = fixg, output = output, ...)
                    })))
 }
 
@@ -45,50 +44,50 @@ as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
 #' @importFrom ebnm ebnm
 #' @export
 prior.normal <- function(...) {
-  return(as.prior(ebnm, prior_type = "normal", ...))
+  return(as.prior(prior_type = "normal", ...))
 }
 
 #' @rdname prior.classes
 #' @importFrom ebnm ebnm
 #' @export
 prior.point.normal <- function(...) {
-  return(as.prior(ebnm, prior_type = "point_normal", ...))
+  return(as.prior(prior_type = "point_normal", ...))
 }
 
 #' @rdname prior.classes
 #' @importFrom ebnm ebnm
 #' @export
 prior.point.laplace <- function(...) {
-  return(as.prior(ebnm, prior_type = "point_laplace", ...))
+  return(as.prior(prior_type = "point_laplace", ...))
 }
 
 #' @rdname prior.classes
 #' @importFrom ebnm ebnm
 #' @export
 prior.nonzero.mode <- function(...) {
-  return(as.prior(ebnm, prior_type = "point_normal", fix_mu = FALSE, ...))
+  return(as.prior(prior_type = "point_normal", fix_mu = FALSE, ...))
 }
 
 #' @rdname prior.classes
 #' @export
 prior.normal.mix <- function(...) {
-  return(as.prior(ebnm.ash, mixcompdist = "normal", ...))
+  return(as.prior(prior_type = "ash", mixcompdist = "normal", ...))
 }
 
 #' @rdname prior.classes
 #' @export
 prior.uniform.mix <- function(...) {
-  return(as.prior(ebnm.ash, mixcompdist = "uniform", ...))
+  return(as.prior(prior_type = "ash", mixcompdist = "uniform", ...))
 }
 
 #' @rdname prior.classes
 #' @export
 prior.nonnegative <- function(...) {
-  return(as.prior(ebnm.ash, mixcompdist = "+uniform", sign = 1, ...))
+  return(as.prior(prior_type = "ash", mixcompdist = "+uniform", sign = 1, ...))
 }
 
 #' @rdname prior.classes
 #' @export
 prior.nonpositive <- function(...) {
-  return(as.prior(ebnm.ash, mixcompdist = "-uniform", sign = -1, ...))
+  return(as.prior(prior_type = "ash", mixcompdist = "-uniform", sign = -1, ...))
 }

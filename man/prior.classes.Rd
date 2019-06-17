@@ -32,16 +32,15 @@ prior.nonpositive(...)
 }
 \arguments{
 \item{ebnm.fn}{The function used to solve the empirical Bayes normal means
-problem. Typically, this will be \code{ebnm::ebnm} or \code{ebnm.ash},
-which is a wrapper to \code{ashr::ash}, but custom functions may also be
-used. For details, see \code{\link{ebnm.ash}}.}
+problem. Typically, this will be \code{ebnm::ebnm}, but custom functions
+may also be used as long as they have the same signature as
+\code{ebnm::ebnm}.}
 
 \item{sign}{Should be set to +1 for classes of distributions with
 nonnegative support and -1 for classes with nonpositive support. Only used
 when initializing new factors.}
 
-\item{...}{Additional parameters to be passed to the function used to solve
-the empirical Bayes normal means problem.}
+\item{...}{Additional parameters to be passed to \code{ebnm::ebnm}.}
 }
 \description{
 Classes of distributions from which priors on loadings are to be estimated.

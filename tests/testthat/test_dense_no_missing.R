@@ -39,7 +39,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                                                 flashr.res$fit,
                                                 var_type = "constant")
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
-               f.b$elbo)
+               f.b$elbo, tol = 0.001)
 })
 
 f.b <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
@@ -77,7 +77,7 @@ test_that ("the backfit objective agrees with flashr after one iteration (using 
                                                 flashr.res$fit,
                                                 var_type = "constant")
   expect_equal(flashr:::flash_get_objective(flash_set_data(M), flashr.res),
-               f.b$elbo)
+               f.b$elbo, tol = 0.001)
 })
 
 f.b <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
