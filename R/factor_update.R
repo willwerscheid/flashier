@@ -60,7 +60,9 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
-solve.ebnm <- function(factor, n, flash, output = "flash.data") {
+default.output <- function() return(c("result", "fitted_g", "loglik"))
+
+solve.ebnm <- function(factor, n, flash, output = default.output()) {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
@@ -70,7 +72,7 @@ solve.ebnm <- function(factor, n, flash, output = "flash.data") {
   ebnm.args  <- calc.ebnm.args(factor, n, flash, incl.fixed)
 
   prev.g <- get.g(factor, n)
-  if ((output != "flash.data") && !is.null(prev.g)) {
+  if (!identical(output, default.output()) && !is.null(prev.g)) {
     g    <- prev.g
     fixg <- TRUE
   } else if (!is.new(factor)
@@ -86,7 +88,7 @@ solve.ebnm <- function(factor, n, flash, output = "flash.data") {
 
   ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
 
-  if (output == "flash.data") {
+  if (identical(output, default.output())) {
     ebnm.res$KL <- (ebnm.res$loglik
                     - normal.means.loglik(ebnm.args$x,
                                           ebnm.args$s,
@@ -208,5 +210,6 @@ use.subsetted.flash.data <- function(factor, n) {
 
 add.fixed.to.ebnm.args <- function(factor, n, flash, output) {
   return((n %in% get.fix.dim(factor))
-          && (use.fixed.to.est.g(flash) || (output != "flash.data")))
+          && (use.fixed.to.est.g(flash)
+              || !identical(output, default.output())))
 }

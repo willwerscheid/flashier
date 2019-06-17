@@ -42,27 +42,18 @@
 #'
 #' @export
 #'
-ebnm.pn = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
-  output <- switch(output,
-                   flash.data = c("result", "fitted_g", "loglik"),
-                   sampler = "post_sampler",
-                   lfsr = "lfsr")
-
-  res <- ebnm::ebnm(x = x, s = s, g = g, fixg = fixg, output = output, ...)
-
-  return(res)
+ebnm.pn = function(x, s, g, fixg, output, ...) {
+  return(ebnm::ebnm(x = x, s = s, g = g, fixg = fixg, output = output, ...))
 }
 
 #' @rdname ebnm.fn
 #'
 #' @export
 #'
-ebnm.ash = function(x, s, g = NULL, fixg = FALSE, output = "flash.data", ...) {
-  output <- switch(output,
-                   flash.data = c("PosteriorMean", "PosteriorSD",
-                                  "fitted_g", "loglik"),
-                   sampler = "post_sampler",
-                   lfsr = "lfsr")
+ebnm.ash = function(x, s, g, fixg, output, ...) {
+  if (identical(output, default.output())) {
+    output <- c("PosteriorMean", "PosteriorSD", "fitted_g", "loglik")
+  }
 
   res <- ashr::ash(betahat = as.vector(x), sebetahat = as.vector(s),
                    g = g, fixg = fixg, outputlevel = output, ...)
