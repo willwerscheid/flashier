@@ -11,9 +11,8 @@ Description: Methods for matrix factorization based on "Empirical
 Depends: R (>= 3.4)
 Imports:
     Matrix,
-    ebnm (>= 0.1-18)
+    ebnm (>= 0.1-19)
 Suggests:
-    ashr (>= 2.2-32),
     testthat,
     knitr,
     rmarkdown
