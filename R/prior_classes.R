@@ -69,24 +69,28 @@ prior.nonzero.mode <- function(...) {
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.normal.mix <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "normal", ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.uniform.mix <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "uniform", ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.nonnegative <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "+uniform", sign = 1, ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.nonpositive <- function(...) {
   return(as.prior(prior_type = "ash", mixcompdist = "-uniform", sign = -1, ...))
