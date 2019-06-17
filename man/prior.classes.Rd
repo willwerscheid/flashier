@@ -12,7 +12,7 @@
 \alias{prior.nonpositive}
 \title{Flashier prior classes}
 \usage{
-as.prior(ebnm.fn, sign = 0, ...)
+as.prior(ebnm.fn = ebnm, sign = 0, ...)
 
 prior.normal(...)
 
@@ -32,10 +32,9 @@ prior.nonpositive(...)
 }
 \arguments{
 \item{ebnm.fn}{The function used to solve the empirical Bayes normal means
-problem. Typically, this will be \code{ebnm.pn}, which is a wrapper to
-\code{ebnm::ebnm}, or \code{ebnm.ash}, a wrapper to \code{ashr::ash}, but
-custom functions may also be used. For details, see \code{\link{ebnm.pn}}
-and \code{\link{ebnm.ash}}.}
+problem. Typically, this will be \code{ebnm::ebnm} or \code{ebnm.ash},
+which is a wrapper to \code{ashr::ash}, but custom functions may also be
+used. For details, see \code{\link{ebnm.ash}}.}
 
 \item{sign}{Should be set to +1 for classes of distributions with
 nonnegative support and -1 for classes with nonpositive support. Only used

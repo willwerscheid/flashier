@@ -10,9 +10,9 @@ Description: Methods for matrix factorization based on "Empirical
     <https://arxiv.org/abs/1802.06931>).
 Depends: R (>= 3.4)
 Imports:
-    Matrix
+    Matrix,
+    ebnm (>= 0.1-18)
 Suggests:
-    ebnm (>= 0.1-18),
     ashr (>= 2.2-32),
     testthat,
     knitr,

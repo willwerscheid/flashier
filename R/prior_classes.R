@@ -20,10 +20,9 @@
 #' Custom prior classes can be created using the function \code{as.prior}.
 #'
 #' @param ebnm.fn The function used to solve the empirical Bayes normal means
-#'   problem. Typically, this will be \code{ebnm.pn}, which is a wrapper to
-#'   \code{ebnm::ebnm}, or \code{ebnm.ash}, a wrapper to \code{ashr::ash}, but
-#'   custom functions may also be used. For details, see \code{\link{ebnm.pn}}
-#'   and \code{\link{ebnm.ash}}.
+#'   problem. Typically, this will be \code{ebnm::ebnm} or \code{ebnm.ash},
+#'   which is a wrapper to \code{ashr::ash}, but custom functions may also be
+#'   used. For details, see \code{\link{ebnm.ash}}.
 #'
 #' @param sign Should be set to +1 for classes of distributions with
 #'   nonnegative support and -1 for classes with nonpositive support. Only used
@@ -33,8 +32,9 @@
 #'   the empirical Bayes normal means problem.
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
-as.prior <- function(ebnm.fn, sign = 0, ...) {
+as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
   return(list(list(sign = sign,
                    ebnm.fn = function(x, s, g, fixg, output) {
                      ebnm.fn(x, s = s, g = g, fixg = fixg, output = output, ...)
@@ -42,27 +42,31 @@ as.prior <- function(ebnm.fn, sign = 0, ...) {
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.normal <- function(...) {
-  return(as.prior(ebnm.pn, prior_type = "normal", ...))
+  return(as.prior(ebnm, prior_type = "normal", ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.point.normal <- function(...) {
-  return(as.prior(ebnm.pn, prior_type = "point_normal", ...))
+  return(as.prior(ebnm, prior_type = "point_normal", ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.point.laplace <- function(...) {
-  return(as.prior(ebnm.pn, prior_type = "point_laplace", ...))
+  return(as.prior(ebnm, prior_type = "point_laplace", ...))
 }
 
 #' @rdname prior.classes
+#' @importFrom ebnm ebnm
 #' @export
 prior.nonzero.mode <- function(...) {
-  return(as.prior(ebnm.pn, prior_type = "point_normal", fix_mu = FALSE, ...))
+  return(as.prior(ebnm, prior_type = "point_normal", fix_mu = FALSE, ...))
 }
 
 #' @rdname prior.classes

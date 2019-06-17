@@ -3,7 +3,7 @@ context("init_factor")
 set.seed(666)
 
 ebnm.fn.pn <- function(x, s, g, fixg, output) {
-  ebnm.pn(x, s, g, fixg, output, prior_type = "point_normal")
+  ebnm::ebnm(x, s, g, fixg, output, prior_type = "point_normal")
 }
 init.flash.test <- function(flash.init,
                             data = data,
