@@ -65,7 +65,7 @@ prior.point.laplace <- function(...) {
 #' @importFrom ebnm ebnm
 #' @export
 prior.nonzero.mode <- function(...) {
-  return(as.prior(prior_type = "point_normal", fix_mu = FALSE, ...))
+  return(as.prior(prior_type = "point_normal", mode = "estimate", ...))
 }
 
 #' @rdname prior.classes
