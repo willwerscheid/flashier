@@ -12,9 +12,8 @@ Depends: R (>= 3.4)
 Imports:
     Matrix
 Suggests:
-    ebnm (>= 0.1-17),
-    ashr (>= 2.2-27),
-    mixsqp (>= 0.1.92),
+    ebnm (>= 0.1-18),
+    ashr (>= 2.2-32),
     testthat,
     knitr,
     rmarkdown
