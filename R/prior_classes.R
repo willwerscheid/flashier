@@ -23,14 +23,24 @@
 #'   problem. Typically, this will be \code{ebnm.pn}, which is a wrapper to
 #'   \code{ebnm::ebnm}, or \code{ebnm.ash}, a wrapper to \code{ashr::ash}, but
 #'   custom functions may also be used. For details, see \code{\link{ebnm.pn}}
-#'   and \code{\link{ebnm.ash}}
+#'   and \code{\link{ebnm.ash}}.
 #'
 #' @param sign Should be set to +1 for classes of distributions with
 #'   nonnegative support and -1 for classes with nonpositive support. Only used
 #'   when initializing new factors.
 #'
-#' @param ... Additional parameters to be passed to \code{ebnm.fn}.
-#'
+#' @param ... Additional parameters to be passed to the function used to solve
+#'   the empirical Bayes normal means problem.
+
+#' @rdname prior.classes
+#' @export
+as.prior <- function(ebnm.fn, sign = 0, ...) {
+  return(list(list(sign = sign,
+                   ebnm.fn = function(x, s, g, fixg, output) {
+                     ebnm.fn(x, s = s, g = g, fixg = fixg, output = output, ...)
+                   })))
+}
+
 #' @rdname prior.classes
 #' @export
 prior.normal <- function(...) {
@@ -77,13 +87,4 @@ prior.nonnegative <- function(...) {
 #' @export
 prior.nonpositive <- function(...) {
   return(as.prior(ebnm.ash, mixcompdist = "-uniform", sign = -1, ...))
-}
-
-#' @rdname prior.classes
-#' @export
-as.prior <- function(ebnm.fn, sign = 0, ...) {
-  return(list(list(sign = sign,
-                   ebnm.fn = function(x, s, g, fixg, output) {
-                     ebnm.fn(x, s = s, g = g, fixg = fixg, output = output, ...)
-                   })))
 }
