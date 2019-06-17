@@ -66,26 +66,25 @@ solve.ebnm <- function(factor, n, flash, output = "flash.data") {
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
 
   ebnm.fn    <- get.ebnm.fn(flash, factor, n)
-  ebnm.param <- get.ebnm.param(flash, factor, n)
-
   incl.fixed <- add.fixed.to.ebnm.args(factor, n, flash, output)
   ebnm.args  <- calc.ebnm.args(factor, n, flash, incl.fixed)
-  ebnm.param <- modifyList(ebnm.param, ebnm.args)
 
-  g <- get.g(factor, n)
-  if ((output != "flash.data") && !is.null(g)) {
-    ebnm.param <- modifyList(ebnm.param, list(g = g, fixg = TRUE))
+  prev.g <- get.g(factor, n)
+  if ((output != "flash.data") && !is.null(prev.g)) {
+    g    <- prev.g
+    fixg <- TRUE
   } else if (!is.new(factor)
              && warmstart.backfits(flash)
-             && is.null(ebnm.param$g)
-             && !is.null(g)
-             && warmstart.sanity.check(g, ebnm.args$x, ebnm.args$s)) {
-    ebnm.param <- modifyList(ebnm.param, list(g = g))
+             && !is.null(prev.g)
+             && warmstart.sanity.check(prev.g, ebnm.args$x, ebnm.args$s)) {
+    g    <- prev.g
+    fixg <- FALSE
+  } else {
+    g    <- NULL
+    fixg <- FALSE
   }
 
-  ebnm.param <- modifyList(ebnm.param, list(output = output))
-
-  ebnm.res <- do.call(ebnm.fn, ebnm.param)
+  ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
 
   if (output == "flash.data") {
     ebnm.res$KL <- (ebnm.res$loglik

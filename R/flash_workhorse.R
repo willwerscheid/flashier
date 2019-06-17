@@ -11,9 +11,6 @@
 #' @param ebnm.fn A list of lists giving the functions to be used to solve the
 #'   Empirical Bayes normal means problem when updating each factor.
 #'
-#' @param ebnm.param A list of lists giving the parameters to be passed to the
-#'   functions in \code{ebnm.fn}.
-#'
 #' @param backfit.kset Which factors to backfit. The - operator can be used to
 #'   instead specify which factors not to backfit. For example,
 #'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
@@ -126,7 +123,6 @@ flash.workhorse <- function(data = NULL,
                             var.type = 0,
                             prior.sign = NULL,
                             ebnm.fn = ebnm.pn,
-                            ebnm.param = list(),
                             greedy.Kmax = 100,
                             backfit.kset = NULL,
                             backfit.order = c("dropout",
@@ -200,7 +196,6 @@ flash.workhorse <- function(data = NULL,
                       est.tau.dim = var.type,
                       dim.signs = prior.sign,
                       ebnm.fn = ebnm.fn,
-                      ebnm.param = ebnm.param,
                       warmstart.backfits = warmstart.backfits,
                       fix.dim = fix.dim,
                       fix.idx = fix.idx,

@@ -2,6 +2,7 @@
 
 S3method(fitted,flash)
 S3method(print,flash)
+export(as.prior)
 export(ebnm.ash)
 export(ebnm.pn)
 export(fixed.factors)

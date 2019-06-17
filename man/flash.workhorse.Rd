@@ -5,12 +5,11 @@
 \title{A horse that works for \code{\link{flashier}}}
 \usage{
 flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
-  prior.sign = NULL, ebnm.fn = ebnm.pn, ebnm.param = list(),
-  greedy.Kmax = 100, backfit.kset = NULL,
-  backfit.order = c("dropout", "sequential", "random", "montaigne",
-  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
-  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
-  nullchk.every = NULL, final.nullchk = TRUE,
+  prior.sign = NULL, ebnm.fn = ebnm.pn, greedy.Kmax = 100,
+  backfit.kset = NULL, backfit.order = c("dropout", "sequential",
+  "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
+  backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
+  nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
   restart.after.nullchk = TRUE, conv.crit.fn = calc.obj.diff,
   verbose.lvl = 1, verbose.fns = NULL, verbose.colnames = NULL,
   verbose.colwidths = NULL, output.lvl = 3, EF.init = NULL,
@@ -48,9 +47,6 @@ used when initializing factors.}
 
 \item{ebnm.fn}{A list of lists giving the functions to be used to solve the
 Empirical Bayes normal means problem when updating each factor.}
-
-\item{ebnm.param}{A list of lists giving the parameters to be passed to the
-functions in \code{ebnm.fn}.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
 are not counted.}

@@ -82,11 +82,6 @@ get.ebnm.fn.k <- function(f, k) {
     return(f[["ebnm.fn"]])
   return(f[["ebnm.fn"]][[k]])
 }
-get.ebnm.param.k <- function(f, k) {
-  if (!is.list(f[["ebnm.param"]]))
-    return(NULL)
-  return(f[["ebnm.param"]][[k]])
-}
 get.g <- function(f, n = NULL) {
   if (is.null(n))
     return(f[["g"]])
@@ -182,16 +177,6 @@ get.ebnm.fn <- function(flash, factor, n) {
     return(ebnm.fn)
   return(ebnm.fn[[n]])
 }
-get.ebnm.param <- function(flash, factor, n) {
-  if (is.new(factor)) {
-    ebnm.param <- get.ebnm.param.k(flash, get.next.k(flash))
-  } else {
-    ebnm.param <- get.ebnm.param.k(flash, get.k(factor))
-  }
-  if (length(ebnm.param) == 0 || !is.null(names(ebnm.param)))
-    return(ebnm.param)
-  return(ebnm.param[[n]])
-}
 extend.ebnm.lists <- function(flash) {
   k <- get.n.factors(flash)
   l <- length(flash[["ebnm.fn"]])
@@ -199,8 +184,6 @@ extend.ebnm.lists <- function(flash) {
   if (extend.by > 0) {
     flash[["ebnm.fn"]] <- c(flash[["ebnm.fn"]],
                             rep(flash[["ebnm.fn"]][l], extend.by))
-    flash[["ebnm.param"]] <- c(flash[["ebnm.param"]],
-                               rep(flash[["ebnm.param"]][l], extend.by))
   }
   return(flash)
 }

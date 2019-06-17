@@ -125,10 +125,9 @@ flashier <- function(data = NULL,
 
   if (!missing(prior.class)
       && (!is.null(ellipsis$prior.sign)
-          || !is.null(ellipsis$ebnm.fn)
-          || !is.null(ellipsis$ebnm.param)))
-    stop(paste("If prior.class is specified, then prior.sign, ebnm.fn, and",
-               "ebnm.param cannot be."))
+          || !is.null(ellipsis$ebnm.fn)))
+    stop(paste("If prior.class is specified, then prior.sign and ebnm.fn ",
+               "cannot be."))
 
   # When available, use existing flash object settings as defaults.
   if (inherits(flash.init, "flash"))
@@ -148,8 +147,6 @@ flashier <- function(data = NULL,
         ellipsis$prior.sign <- flash.init$dim.signs
       if (is.null(ellipsis$ebnm.fn))
         ellipsis$ebnm.fn <- flash.init$ebnm.fn
-      if (is.null(ellipsis$ebnm.param))
-        ellipsis$ebnm.param <- flash.init$ebnm.param
     }
   }
 
@@ -180,17 +177,15 @@ flashier <- function(data = NULL,
   if (is.null(flash.init)) {
     workhorse.param <- c(workhorse.param, prior.param(prior.class, data.dim))
   } else if (!missing(prior.class)) {
-    # The last element of ebnm.fn (and ebnm.param) specifies settings for new
-    #   factors. If there is an initial flash object, the existing settings
-    #   need to be kept, while the last list element is overridden.
+    # The last element of ebnm.fn specifies settings for new factors. If there
+    #   is an initial flash object, the existing settings need to be kept,
+    #   while the last list element is overridden.
     k <- length(flash.init$ebnm.fn)
     flash.init$dim.signs <- flash.init$dim.signs[-k]
     flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
-    flash.init$ebnm.param <- flash.init$ebnm.param[-k]
     new.prior.param <- prior.param(prior.class, data.dim)
     ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
     ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
-    ellipsis$ebnm.param <- c(flash.init$ebnm.param, new.prior.param$ebnm.param)
   }
 
   # Handle "fixed factors" parameter.
@@ -294,11 +289,9 @@ prior.param <- function(prior.class, data.dim) {
 
   prior.sign <- lapply(prior.class, lapply, `[[`, "sign")
   ebnm.fn    <- lapply(prior.class, lapply, `[[`, "ebnm.fn")
-  ebnm.param <- lapply(prior.class, lapply, `[[`, "ebnm.param")
 
   return(list(prior.sign = prior.sign,
-              ebnm.fn = ebnm.fn,
-              ebnm.param = ebnm.param))
+              ebnm.fn = ebnm.fn))
 }
 
 control.param <- function(backfit) {

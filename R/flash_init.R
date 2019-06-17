@@ -4,7 +4,6 @@ init.flash <- function(flash.init,
                        est.tau.dim,
                        dim.signs,
                        ebnm.fn,
-                       ebnm.param,
                        warmstart.backfits,
                        fix.dim,
                        fix.idx,
@@ -79,7 +78,6 @@ init.flash <- function(flash.init,
 
   flash$dim.signs  <- dim.signs
   flash$ebnm.fn    <- ebnm.fn
-  flash$ebnm.param <- ebnm.param
 
   flash <- extend.ebnm.lists(flash)
 
