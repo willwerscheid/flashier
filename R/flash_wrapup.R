@@ -133,8 +133,8 @@ lfsr.one.n <- function(flash, k, n) {
     lfsr <- rep(NA, get.dims(flash)[n])
   } else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")
-    if (!is.null(ebnm.res$result) && !is.null(ebnm.res$result$lfsr)) {
-      lfsr <- ebnm.res$result$lfsr
+    if (!is.null(ebnm.res$posterior) && !is.null(ebnm.res$posterior$lfsr)) {
+      lfsr <- ebnm.res$posterior$lfsr
       fix.dim <- get.fix.dim(factor)
       if (!is.null(fix.dim) && (fix.dim == n))
         lfsr[get.fix.idx(factor)] <- NA
