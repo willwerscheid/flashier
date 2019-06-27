@@ -89,6 +89,16 @@ solve.ebnm <- function(factor, n, flash, output = default.output()) {
     fixg <- FALSE
   }
 
+  # This code block can be removed when ebnm is able to handle SEs equal to
+  #   zero.
+  if (identical(output, "lfsr")) {
+    s.orig <- ebnm.args$s
+    if (any(s.orig <= 0)) {
+      ebnm.args$x <- ebnm.args$x[s.orig > 0]
+      ebnm.args$s <- ebnm.args$s[s.orig > 0]
+    }
+  }
+
   ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
 
   if (identical(output, default.output())) {
@@ -97,6 +107,15 @@ solve.ebnm <- function(factor, n, flash, output = default.output()) {
                                           ebnm.args$s,
                                           ebnm.res$posterior$mean,
                                           ebnm.res$posterior$second_moment))
+  }
+
+  # This code block can also be removed after ebnm has been updated.
+  if (identical(output, "lfsr")) {
+    if (any(s.orig <= 0)) {
+      lfsr <- rep(NA, length(s.orig))
+      lfsr[s.orig > 0] <- ebnm.res$posterior$lfsr
+      ebnm.res <- list(posterior = data.frame(lfsr = lfsr))
+    }
   }
 
   return(ebnm.res)
