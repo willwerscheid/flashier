@@ -389,12 +389,8 @@ flash.workhorse <- function(data = NULL,
     }
   }
 
-  if (!is.converged)
-    warning("Flash fit has not converged. Try backfitting the returned fit, ",
-            "setting backfit.tol and backfit.maxiter as needed.")
-
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl)
+  flash <- wrapup.flash(flash, output.lvl, is.converged)
 
   report.completion(verbose.lvl)
   return(flash)

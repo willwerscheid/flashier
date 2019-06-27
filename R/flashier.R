@@ -88,11 +88,13 @@
 #'       simply, as \code{fitted(f)}).}
 #'     \item{\code{loadings.psd}}{Posterior standard deviations for loadings.}
 #'     \item{\code{loadings.lfsr}}{Local false sign rates for loadings.}
-#'     \item{\code{residuals.sd}}{Estimated residual standard deviations (this
-#'       includes any variance component given as an argument to \code{S}).}
+#'     \item{\code{residuals.sd}}{Estimated residual standard deviations (these
+#'       include any variance component given as an argument to \code{S}).}
 #'     \item{\code{fitted.g}}{The fitted priors for each mode and factor.}
 #'     \item{\code{elbo}}{The variational lower bound achieved by the
 #'       fitted model.}
+#'     \item{\code{convergence.status}}{A character string indicating whether
+#'       the fitting algorithm has converged.}
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
 #'       distribution of the (non-normalized) loadings.}
