@@ -22,25 +22,25 @@
 #'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 #'   residual variance is assumed to be constant across all observations.
 #'
-#' @param prior.class Indicates the class of distributions that the priors are
+#' @param prior.family Indicates the family of distributions that the priors are
 #'   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
 #'   \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
 #'   tensors). Each list element must be a prior class defined by one of the
 #'   convenience functions \code{\link{prior.normal}},
 #'   \code{\link{prior.point.normal}},
 #'   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-#'   \code{\link{prior.normal.mix}}, \code{\link{prior.uniform.mix}},
+#'   \code{\link{prior.normal.mix}}, \code{\link{prior.unimodal}},
 #'   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
 #'   or a custom prior type of a similar form (see \code{\link{prior.normal}}
 #'   for details).
-#'   For example, the default \code{prior.class = prior.point.normal()} fits a
+#'   For example, the default \code{prior.family = prior.point.normal()} fits a
 #'   (different) point-normal prior for each factor and each mode, while
-#'   \code{prior.class = c(prior.nonnegative(), prior.normal.mix())} fits a
+#'   \code{prior.family = c(prior.nonnegative(), prior.normal.mix())} fits a
 #'   mixture of
 #'   uniforms with nonnegative support to each set of row loadings and a
 #'   mixture of normals to each set of column loadings.
 #'
-#'   \code{prior.class} can also be a list of lists, in which case the first
+#'   \code{prior.family} can also be a list of lists, in which case the first
 #'   list specifies the class(es) for the first factor, the second specifies
 #'   the class(es) for the second factor, and so on. The last list element is
 #'   then re-used as often as necessary.
@@ -108,7 +108,7 @@
 flashier <- function(data = NULL,
                      S = NULL,
                      var.type = 0,
-                     prior.class = prior.point.normal(),
+                     prior.family = prior.point.normal(),
                      flash.init = NULL,
                      greedy.Kmax = 30,
                      backfit = c("none",
@@ -123,10 +123,10 @@ flashier <- function(data = NULL,
 
   ellipsis <- list(...)
 
-  if (!missing(prior.class)
+  if (!missing(prior.family)
       && (!is.null(ellipsis$prior.sign)
           || !is.null(ellipsis$ebnm.fn)))
-    stop(paste("If prior.class is specified, then prior.sign and ebnm.fn ",
+    stop(paste("If prior.family is specified, then prior.sign and ebnm.fn ",
                "cannot be."))
 
   # When available, use existing flash object settings as defaults.
@@ -142,7 +142,7 @@ flashier <- function(data = NULL,
       if (is.null(data))
         stop("When changing var.type, data cannot be NULL.")
     }
-    if (missing(prior.class)) {
+    if (missing(prior.family)) {
       if (is.null(ellipsis$prior.sign))
         ellipsis$prior.sign <- flash.init$dim.signs
       if (is.null(ellipsis$ebnm.fn))
@@ -175,15 +175,15 @@ flashier <- function(data = NULL,
 
   # Handle "prior type" parameter.
   if (is.null(flash.init)) {
-    workhorse.param <- c(workhorse.param, prior.param(prior.class, data.dim))
-  } else if (!missing(prior.class)) {
+    workhorse.param <- c(workhorse.param, prior.param(prior.family, data.dim))
+  } else if (!missing(prior.family)) {
     # The last element of ebnm.fn specifies settings for new factors. If there
     #   is an initial flash object, the existing settings need to be kept,
     #   while the last list element is overridden.
     k <- length(flash.init$ebnm.fn)
     flash.init$dim.signs <- flash.init$dim.signs[-k]
     flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
-    new.prior.param <- prior.param(prior.class, data.dim)
+    new.prior.param <- prior.param(prior.family, data.dim)
     ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
     ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
   }
@@ -267,17 +267,17 @@ flashier <- function(data = NULL,
                                     ellipsis)))
 }
 
-prior.param <- function(prior.class, data.dim) {
-  error.msg <- "Invalid argument to prior.class."
+prior.param <- function(prior.family, data.dim) {
+  error.msg <- "Invalid argument to prior.family."
 
-  if (!is.list(prior.class))
+  if (!is.list(prior.family))
     stop(error.msg)
 
-  if (!is.null(names(prior.class[[1]])))
-    prior.class <- list(prior.class)
+  if (!is.null(names(prior.family[[1]])))
+    prior.family <- list(prior.family)
 
-  # Each top-level list element in prior.class corresponds to a factor.
-  prior.class <- lapply(prior.class, function(k) {
+  # Each top-level list element in prior.family corresponds to a factor.
+  prior.family <- lapply(prior.family, function(k) {
     if (!is.list(k))
       stop(error.msg)
     if (length(k) == 1)
@@ -287,8 +287,8 @@ prior.param <- function(prior.class, data.dim) {
     return(as.list(k))
   })
 
-  prior.sign <- lapply(prior.class, lapply, `[[`, "sign")
-  ebnm.fn    <- lapply(prior.class, lapply, `[[`, "ebnm.fn")
+  prior.sign <- lapply(prior.family, lapply, `[[`, "sign")
+  ebnm.fn    <- lapply(prior.family, lapply, `[[`, "ebnm.fn")
 
   return(list(prior.sign = prior.sign,
               ebnm.fn = ebnm.fn))

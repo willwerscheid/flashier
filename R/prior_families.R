@@ -1,6 +1,6 @@
-#' Flashier prior classes
+#' Flashier prior families
 #'
-#' Classes of distributions from which priors on loadings are to be estimated.
+#' Families of distributions from which priors on loadings are to be estimated.
 #'
 #' \code{prior.normal} is estimated from the class of normal distributions
 #'   \eqn{N(0, 1/a)}. \code{prior.point.normal} is estimated from the
@@ -12,7 +12,7 @@
 #'
 #' \code{prior.normal.mix} is estimated from the class of scale mixtures of
 #'   normals \eqn{\pi_0 \delta(0) + \pi_1 N(0, 1/a_1) + \ldots +
-#'   \pi_m N(0, 1/a_m)}. \code{prior.uniform.mix} replaces
+#'   \pi_m N(0, 1/a_m)}. \code{prior.unimodal} replaces
 #'   \eqn{N(0, 1/a_j)} with \eqn{Unif(-a_j, a_j)}; \code{prior.nonnegative}
 #'   uses mixture components \eqn{Unif(0, a_j)}; and
 #'   \code{prior.nonpositive} uses components \eqn{Unif(-a_j, 0)}.
@@ -30,7 +30,7 @@
 #'
 #' @param ... Additional parameters to be passed to \code{ebnm::ebnm}.
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @importFrom ebnm ebnm
 #' @export
 as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
@@ -40,50 +40,50 @@ as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
                    })))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.normal <- function(...) {
-  return(as.prior(prior_type = "normal", ...))
+  return(as.prior(prior_family = "normal", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.point.normal <- function(...) {
-  return(as.prior(prior_type = "point_normal", ...))
+  return(as.prior(prior_family = "point_normal", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.point.laplace <- function(...) {
-  return(as.prior(prior_type = "point_laplace", ...))
+  return(as.prior(prior_family = "point_laplace", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.nonzero.mode <- function(...) {
-  return(as.prior(prior_type = "point_normal", mode = "estimate", ...))
+  return(as.prior(prior_family = "point_normal", mode = "estimate", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
-prior.normal.mix <- function(...) {
-  return(as.prior(prior_type = "ash", mixcompdist = "normal", ...))
+prior.normal.scale.mix <- function(...) {
+  return(as.prior(prior_family = "normal_scale_mixture", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
-prior.uniform.mix <- function(...) {
-  return(as.prior(prior_type = "ash", mixcompdist = "uniform", ...))
+prior.unimodal <- function(...) {
+  return(as.prior(prior_family = "unimodal", ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.nonnegative <- function(...) {
-  return(as.prior(prior_type = "ash", mixcompdist = "+uniform", sign = 1, ...))
+  return(as.prior(prior_family = "unimodal_nonnegative", sign = 1, ...))
 }
 
-#' @rdname prior.classes
+#' @rdname prior.families
 #' @export
 prior.nonpositive <- function(...) {
-  return(as.prior(prior_type = "ash", mixcompdist = "-uniform", sign = -1, ...))
+  return(as.prior(prior_family = "unimodal_nonpositive", sign = -1, ...))
 }

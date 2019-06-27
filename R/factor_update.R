@@ -28,12 +28,12 @@ update.factor.one.n <- function(factor, n, flash) {
   if (only.update.subset(factor, n, flash)) {
     idx.subset          <- get.idx.subset(factor)
     new.EF              <- get.EF(factor, n)
-    new.EF[idx.subset]  <- ebnm.res$result$PosteriorMean
+    new.EF[idx.subset]  <- ebnm.res$posterior$mean
     new.EF2             <- get.EF2(factor, n)
-    new.EF2[idx.subset] <- ebnm.res$result$PosteriorMean2
+    new.EF2[idx.subset] <- ebnm.res$posterior$second_moment
   } else {
-    new.EF  <- ebnm.res$result$PosteriorMean
-    new.EF2 <- ebnm.res$result$PosteriorMean2
+    new.EF  <- ebnm.res$posterior$mean
+    new.EF2 <- ebnm.res$posterior$second_moment
   }
 
   factor <- set.EF(factor, new.EF, n)
@@ -60,7 +60,10 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
-default.output <- function() return(c("result", "fitted_g", "loglik"))
+default.output <- function() {
+  return(c("posterior_mean", "posterior_second_moment",
+           "fitted_g", "log_likelihood"))
+}
 
 solve.ebnm <- function(factor, n, flash, output = default.output()) {
   fix.dim <- get.fix.dim(factor)
@@ -89,11 +92,11 @@ solve.ebnm <- function(factor, n, flash, output = default.output()) {
   ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
 
   if (identical(output, default.output())) {
-    ebnm.res$KL <- (ebnm.res$loglik
+    ebnm.res$KL <- (ebnm.res$log_likelihood
                     - normal.means.loglik(ebnm.args$x,
                                           ebnm.args$s,
-                                          ebnm.res$result$PosteriorMean,
-                                          ebnm.res$result$PosteriorMean2))
+                                          ebnm.res$posterior$mean,
+                                          ebnm.res$posterior$second_moment))
   }
 
   return(ebnm.res)
