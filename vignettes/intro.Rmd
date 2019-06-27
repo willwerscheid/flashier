@@ -149,31 +149,33 @@ plot.tissue.loadings(gtex.kron.plus.1)
 
 ## Prior types
 
-The point-normal priors used so far can be fit quickly, but describe a limited class of distributions. More flexible classes of priors can be estimated using package `ashr`. In `flashier`, parameter `prior.class` accepts arguments `prior.normal.mix()`, which allows priors to take form
+The point-normal priors used so far can be fit quickly, but describe a limited class of distributions. More flexible classes of priors can be estimated using package `ashr`. In `flashier`, parameter `prior.family` accepts arguments `prior.normal.scale.mix()`, which allows priors to take form
 $$ g \sim \pi_1 N(0, \sigma^2_1) + \ldots + \pi_m N(0, \sigma^2_m),$$
-and `prior.uniform.mix()`, which gives priors the form
+and `prior.unimodal.symmetric()`, which gives priors the form
 $$ g \sim \pi_1 \text{Unif}[-a_1, a_1] + \ldots + \pi_m \text{Unif}[-a_m, a_m]. $$
 In both cases, `ashr` attempts to set the number of mixture components $m$ large enough to be able to obtain a reasonable approximation to any scale mixture of normals, or, in the uniform case, any unimodal distribution that is symmetric about zero.
 
 ```{r gtex.normalmix}
 pn.time <- system.time(
   gtex.pn <- flashier(gtex, greedy.Kmax = 5, 
-                      prior.class = prior.point.normal(), verbose.lvl = 0)
+                      prior.family = prior.point.normal(), verbose.lvl = 0)
 )
 normalmix.time <- system.time(
   gtex.normalmix <- flashier(gtex, greedy.Kmax = 5, 
-                             prior.class = prior.normal.mix(), verbose.lvl = 0)
+                             prior.family = prior.normal.scale.mix(),
+                             verbose.lvl = 0)
 )
 unimix.time <- system.time(
   gtex.unimix <- flashier(gtex, greedy.Kmax = 5, 
-                          prior.class = prior.uniform.mix(), verbose.lvl = 0)
+                          prior.family = prior.unimodal.symmetric(), 
+                          verbose.lvl = 0)
 )
 c(gtex.pn$elbo, gtex.normalmix$elbo, gtex.unimix$elbo)
 c(pn.time[3], normalmix.time[3], unimix.time[3])
 
 ```
 
-Other possible settings for `prior.class` include `prior.nonnegative()`, which fits mixtures of nonnegative uniforms,
+Other possible settings for `prior.family` include `prior.nonnegative()`, which fits mixtures of nonnegative uniforms,
 $$ g \sim \pi_1 \text{Unif}[0, a_1] + \ldots + \pi_m \text{Unif}[0, a_m], $$
 and `prior.nonpositive()`, both of which call into `ashr`. Two other prior types, `prior.point.laplace()` and `prior.nonzero.mode()`, call into package `ebnm` (as does the default prior type `prior.point.normal()`). The first fits priors of form
 $$ g \sim \pi_0 \delta_0 + (1 - \pi_0) \text{Laplace}(0, b), $$
@@ -183,18 +185,18 @@ The latter can be especially useful for fitting a "mean" factor such as the firs
 
 ```{r gtex.w.mean}
 gtex.w.mean <- flashier(gtex, greedy.Kmax = 5, 
-                        prior.class = list(prior.nonzero.mode(),
-                                           prior.point.normal()), 
+                        prior.family = list(prior.nonzero.mode(),
+                                            prior.point.normal()), 
                         verbose.lvl = 0)
 c(gtex.pn$elbo, gtex.w.mean$elbo)
 ```
 
-Note the syntax: when `prior.class` takes a list as argument, the first element is used to fit the first factor, the second is used to fit the second, and so on; the last element is then re-used as often as necessary. One can also assign different prior types to the different factor matrices $F_1$ and $F_2$. For instance, one can obtain nonnegative loadings on tissues (columns) and arbitrary loadings on tests (rows) via the following call. Note that `prior.class` is a vector here rather than a list. (And, when the class of priors is different both across factors and between loading matrices, `prior.class` will accept a list of vectors as argument.)
+Note the syntax: when `prior.family` takes a list as argument, the first element is used to fit the first factor, the second is used to fit the second, and so on; the last element is then re-used as often as necessary. One can also assign different prior types to the different factor matrices $F_1$ and $F_2$. For instance, one can obtain nonnegative loadings on tissues (columns) and arbitrary loadings on tests (rows) via the following call. Note that `prior.family` is a vector here rather than a list. (And, when the class of priors is different both across factors and between loading matrices, `prior.family` will accept a list of vectors as argument.)
 
 ```{r gtex.nn}
 gtex.nonnegative <- flashier(gtex, greedy.Kmax = 5, 
-                             prior.class = c(prior.point.normal(),
-                                             prior.nonnegative()), 
+                             prior.family = c(prior.point.normal(),
+                                              prior.nonnegative()), 
                              verbose.lvl = 0)
 gtex.nonnegative$elbo
 plot.tissue.loadings(gtex.nonnegative)

@@ -170,8 +170,8 @@ To illustrate some of these issues, I fit 3 factors with nonnegative loadings on
 
 ```{r nonneg}
 gtex.nonnegative <- flashier(gtex, greedy.Kmax = 3, var.type = 1,
-                             prior.class = c(prior.normal.mix(),
-                                             prior.nonnegative()))
+                             prior.family = c(prior.normal.scale.mix(),
+                                              prior.nonnegative()))
 ```
 
 By default, `flashier` backfits using warmstarts.
@@ -209,11 +209,11 @@ greedy.Kmax <- 6
 fit <- NULL
 for (k in 1:greedy.Kmax) {
   nn.fit <- flashier(gtex, flash.init = fit, greedy.Kmax = 1, var.type = 1,
-                     prior.class = prior.nonnegative(),
+                     prior.family = prior.nonnegative(),
                      output.lvl = 0, verbose.lvl = 0)
   np.fit <- flashier(gtex, flash.init = fit, greedy.Kmax = 1, var.type = 1,
-                     prior.class = c(prior.nonnegative(), 
-                                     prior.nonpositive()),
+                     prior.family = c(prior.nonnegative(), 
+                                      prior.nonpositive()),
                      output.lvl = 0, verbose.lvl = 0)
   if (nn.fit$obj > np.fit$obj) {
     cat("Nonnegative factor added. Objective: ",

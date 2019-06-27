@@ -8,6 +8,7 @@
 \alias{prior.nonzero.mode}
 \alias{prior.normal.scale.mix}
 \alias{prior.unimodal}
+\alias{prior.unimodal.symmetric}
 \alias{prior.nonnegative}
 \alias{prior.nonpositive}
 \title{Flashier prior families}
@@ -25,6 +26,8 @@ prior.nonzero.mode(...)
 prior.normal.scale.mix(...)
 
 prior.unimodal(...)
+
+prior.unimodal.symmetric(...)
 
 prior.nonnegative(...)
 
@@ -46,20 +49,23 @@ when initializing new factors.}
 Families of distributions from which priors on loadings are to be estimated.
 }
 \details{
-\code{prior.normal} is estimated from the class of normal distributions
+\code{prior.normal} is estimated from the family of normal distributions
   \eqn{N(0, 1/a)}. \code{prior.point.normal} is estimated from the
-  two-parameter class \eqn{\pi \delta(0) + (1-\pi) N(0, 1/a)}.
+  two-parameter family \eqn{\pi \delta(0) + (1-\pi) N(0, 1/a)}.
   \code{prior.point.laplace} replaces the normal slab with a Laplace slab,
   and \code{prior.nonzero.mode} adds a third parameter \eqn{\mu},
-  so that the prior is estimated from the class \eqn{\pi \delta(\mu) +
+  so that the prior is estimated from the family \eqn{\pi \delta(\mu) +
   (1-\pi) N(\mu, 1/a)}.
 
-\code{prior.normal.mix} is estimated from the class of scale mixtures of
-  normals \eqn{\pi_0 \delta(0) + \pi_1 N(0, 1/a_1) + \ldots +
-  \pi_m N(0, 1/a_m)}. \code{prior.unimodal} replaces
+\code{prior.scale.normal.mix} is estimated from the family of scale mixtures
+  of normals \eqn{\pi_0 \delta(0) + \pi_1 N(0, 1/a_1) + \ldots +
+  \pi_m N(0, 1/a_m)}. \code{prior.unimodal.symmetric} replaces
   \eqn{N(0, 1/a_j)} with \eqn{Unif(-a_j, a_j)}; \code{prior.nonnegative}
   uses mixture components \eqn{Unif(0, a_j)}; and
-  \code{prior.nonpositive} uses components \eqn{Unif(-a_j, 0)}.
+  \code{prior.nonpositive} uses components \eqn{Unif(-a_j, 0)}. Finally,
+  \code{prior.unimodal} is (approximately) estimated from the general family
+  of unimodal distributions with mode zero by using both components
+  \eqn{Unif(-a_j, 0)} and components \eqn{Unif(0, a_j)}.
 
 Custom prior classes can be created using the function \code{as.prior}.
 }
