@@ -233,7 +233,6 @@ flash.workhorse <- function(data = NULL,
 
       announce.factor.init(verbose.lvl)
       factor <- init.factor(flash, init.fn, init.tol, init.maxiter)
-      gc()
 
       if (is.fixed) {
         maxiter <- fixed.maxiter
@@ -363,8 +362,6 @@ flash.workhorse <- function(data = NULL,
                               k = k, backfit = TRUE)
           }
         }
-
-        gc()
       }
 
       if (iter == maxiter)
