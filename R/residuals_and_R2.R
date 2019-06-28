@@ -25,7 +25,6 @@ calc.residuals <- function(flash, factor = NULL) {
 # Used to initialize tau when tau is simple.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
-  Y   <- get.Y(flash)
   Z   <- get.nonmissing(flash)
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
@@ -42,6 +41,7 @@ calc.R2 <- function(flash) {
     }
   } else {
     if (!uses.R(flash)) {
+      Y <- get.Y(flash, require.fullrank = TRUE)
       R <- Z * (Y - lowrank.expand(EF))
     }
     R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
@@ -89,11 +89,15 @@ calc.delta.R2 <- function(factor, flash) {
                                  lowrank.sc.mult(EFprod.mat, 2))
   } else { # !is.new.factor && !uses.R(flash)
     EF.less.k        <- lowrank.drop.k(get.EF(flash), k)
-    newprod.mat      <- lowranks.prod(new.EF, EF.less.k, broadcast = TRUE)
-    oldprod.mat      <- lowranks.prod(old.EF, EF.less.k, broadcast = TRUE)
-    EFprod.delta.mat <- lowrank.delta.mat(newprod.mat, oldprod.mat)
-    ugly.mat <- lowranks.combine(EF2.delta.mat,
-                                 lowrank.sc.mult(EFprod.delta.mat, 2))
+    if (is.null(EF.less.k)) {
+      ugly.mat <- NULL
+    } else {
+      newprod.mat      <- lowranks.prod(new.EF, EF.less.k, broadcast = TRUE)
+      oldprod.mat      <- lowranks.prod(old.EF, EF.less.k, broadcast = TRUE)
+      EFprod.delta.mat <- lowrank.delta.mat(newprod.mat, oldprod.mat)
+      ugly.mat <- lowranks.combine(EF2.delta.mat,
+                                   lowrank.sc.mult(EFprod.delta.mat, 2))
+    }
   }
 
   if (uses.R(flash)) {

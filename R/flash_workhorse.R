@@ -1,7 +1,3 @@
-# TODO: Change default backfit.order (and maxiter) after flashr comparison
-#   tests have been removed. Change warmstart default to FALSE until issues
-#   with ashr are fixed.
-
 #' A horse that works for \code{\link{flashier}}
 #'
 #' Caveat emptor.
@@ -15,8 +11,9 @@
 #' @param ebnm.fn A list of lists giving the functions to be used to solve the
 #'   Empirical Bayes normal means problem when updating each factor.
 #'
-#' @param ebnm.param A list of lists giving the parameters to be passed to the
-#'   functions in \code{ebnm.fn}.
+#' @param backfit.kset Which factors to backfit. The - operator can be used to
+#'   instead specify which factors not to backfit. For example,
+#'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
 #'
 #' @param backfit.order How to determine the order in which to backfit factors.
 #'   \code{"montaigne"} goes after the factor that promises to yield the
@@ -41,6 +38,9 @@
 #'
 #' @param final.nullchk Whether to perform a final nullcheck.
 #'
+#' @param restart.after.nullchk Whether to continue fitting if the final
+#'   nullcheck fails.
+#'
 #' @param conv.crit.fn The function to use to determine whether convergence has
 #'   occurred. Used for both new factors and backfits.
 #'
@@ -54,7 +54,7 @@
 #'
 #' @param output.lvl What to include in the returned flash object. 0 = raw fit
 #'   only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
-#'   and sampler.
+#'   and sampler; 4 = raw fit, sampler, and lfsr (currently in beta).
 #'
 #' @param EF.init A list of matrices, one for each dimension. Each matrix
 #'   should have k columns, one for each factor. New factors are initialized
@@ -83,19 +83,28 @@
 #'   occur before initialization is considered complete.
 #'
 #' @param greedy.maxiter The maximum number of iterations when optimizing a
-#'   new factor.
+#'   greedily added factor.
 #'
-#' @param greedy.tol The convergence tolerance when optimizing a new factor.
+#' @param greedy.tol The convergence tolerance when optimizing a greedily added
+#'   factor.
 #'
-#' @param backfit.maxiter The maximum number of iterations when performing a
-#'   final backfit.
+#' @param fixed.maxiter The maximum number of iterations when optimizing a
+#'   newly added fixed factor.
 #'
-#' @param backfit.tol The convergence tolerance when performing a final
-#'   backfit.
+#' @param fixed.reltol The convergence tolerance (relative to greedy.tol) when
+#'   optimizing a newly added fixed factor.
+#'
+#' @param backfit.maxiter Maximum iterations for final backfits.
+#'
+#' @param backfit.reltol Convergence tolerance for final backfits, relative to
+#'   greedy.tol.
 #'
 #' @param inner.backfit.maxiter Maximum iterations for intermediary backfits.
 #'
-#' @param inner.backfit.tol Convergence tolerance for intermediary backfits.
+#' @param inner.backfit.reltol Convergence tolerance for intermediary backfits,
+#'   relative to greedy.tol.
+#'
+#' @param nullchk.reltol Tolerance for nullchecks, relative to greedy.tol.
 #'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
@@ -109,16 +118,16 @@
 #'   fitting process. This usually requires much more memory and seldom offers
 #'   much improvement in runtime.
 #'
-flash.workhorse <- function(data,
+flash.workhorse <- function(data = NULL,
                             flash.init = NULL,
                             var.type = 0,
                             prior.sign = NULL,
-                            ebnm.fn = flashr:::ebnm_pn,
-                            ebnm.param = list(),
+                            ebnm.fn = ebnm::ebnm,
                             greedy.Kmax = 100,
-                            backfit.order = c("sequential",
+                            backfit.kset = NULL,
+                            backfit.order = c("dropout",
+                                              "sequential",
                                               "random",
-                                              "dropout",
                                               "montaigne",
                                               "parallel"),
                             warmstart.backfits = TRUE,
@@ -128,6 +137,7 @@ flash.workhorse <- function(data,
                             nullchk.after = NULL,
                             nullchk.every = NULL,
                             final.nullchk = TRUE,
+                            restart.after.nullchk = TRUE,
                             conv.crit.fn = calc.obj.diff,
                             verbose.lvl = 1,
                             verbose.fns = NULL,
@@ -145,20 +155,27 @@ flash.workhorse <- function(data,
                             init.tol = 1e-2,
                             greedy.maxiter = 500,
                             greedy.tol = NULL,
+                            fixed.maxiter = greedy.maxiter,
+                            fixed.reltol = 1,
                             backfit.maxiter = 100,
                             backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.reltol = backfit.reltol,
+                            nullchk.reltol = 1,
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
   backfit.order <- match.arg(backfit.order)
-  if (force.use.R(data, var.type)) {
+
+  ## data should be NULL when bypassing initialization.
+  if (!is.null(data) && force.use.R(data, var.type)) {
     if (!missing(use.R) && !use.R)
       stop("R must be used with the requested variance structure.")
     use.R <- TRUE
   }
+  if (!is.null(data) && inherits(data$Y, "lowrank") && use.R)
+    stop("R cannot be used with low-rank Y.")
 
   announce.flash.init(verbose.lvl)
   if (!is.null(flash.init)) {
@@ -181,7 +198,6 @@ flash.workhorse <- function(data,
                       est.tau.dim = var.type,
                       dim.signs = prior.sign,
                       ebnm.fn = ebnm.fn,
-                      ebnm.param = ebnm.param,
                       warmstart.backfits = warmstart.backfits,
                       fix.dim = fix.dim,
                       fix.idx = fix.idx,
@@ -195,43 +211,46 @@ flash.workhorse <- function(data,
     report.tol.setting(verbose.lvl, greedy.tol)
   }
 
-  total.factors.added <- get.n.factors(flash)
-  max.factors.to.add  <- greedy.Kmax + get.n.fixed(flash)
+  total.factors.added <- 0
+  max.factors.to.add  <- greedy.Kmax + get.n.fixed.to.add(flash)
   when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
-
-  # At least one round of backfitting and nullchecking should be performed
-  #   when a non-empty flash object is passed in.
-  curr.rnd.factors.added <- get.n.factors(flash)
 
   if (verbose.lvl == -1)
     print.tab.delim.table.header(verbose.colnames)
 
-  something.changed <- TRUE
-  is.converged      <- TRUE
+  continue.looping <- TRUE
+  is.converged     <- TRUE
 
-  while (something.changed) {
-    something.changed <- FALSE
+  while (continue.looping) {
+    continue.looping <- FALSE
     flash <- clear.flags(flash)
 
-    greedy.complete <- (total.factors.added >= max.factors.to.add)
-    if (!greedy.complete) {
+    continue.adding <- (total.factors.added < max.factors.to.add)
+    if (continue.adding) {
+      is.fixed <- is.next.fixed(flash)
       announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
       announce.factor.init(verbose.lvl)
       factor <- init.factor(flash, init.fn, init.tol, init.maxiter)
       gc()
 
-      if (is.fixed(factor)) {
-        flash <- add.new.factor.to.flash(factor, flash)
-      } else if (greedy.maxiter > 0) {
+      if (is.fixed) {
+        maxiter <- fixed.maxiter
+        tol     <- greedy.tol * fixed.reltol
+      } else {
+        maxiter <- greedy.maxiter
+        tol     <- greedy.tol
+      }
+
+      if (maxiter > 0) {
         announce.factor.opt(verbose.lvl)
         print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                            backfit = FALSE)
 
         iter <- 0
         conv.crit <- Inf
-        while (conv.crit > greedy.tol && iter < greedy.maxiter) {
+        while (conv.crit > tol && iter < maxiter) {
           iter <- iter + 1
 
           old.f    <- factor
@@ -249,51 +268,60 @@ flash.workhorse <- function(data,
                             get.next.k(flash), backfit = FALSE)
         }
 
-        if (iter == greedy.maxiter)
+        if (iter == maxiter)
           is.converged <- FALSE
 
-        if (get.obj(factor) > get.obj(flash) || !is.obj.valid(flash, factor)) {
+        if (get.obj(factor) > get.obj(flash) + greedy.tol
+            || !is.obj.valid(flash, factor)
+            || is.fixed) {
           flash <- add.new.factor.to.flash(factor, flash)
         } else {
           flash <- set.greedy.fail.flag(flash)
         }
-
-        gc()
+      } else if (is.fixed) {
+        # Add fixed factors even when maxiter = 0.
+        flash <- add.new.factor.to.flash(factor, flash)
       }
 
       if (greedy.failed(flash)) {
-        greedy.complete <- TRUE
+        continue.adding <- FALSE
       } else {
-        something.changed      <- TRUE
-        total.factors.added    <- total.factors.added + 1
-        curr.rnd.factors.added <- curr.rnd.factors.added + 1
+        continue.looping    <- TRUE
+        total.factors.added <- total.factors.added + 1
       }
 
-      report.add.factor.result(verbose.lvl, greedy.complete, get.obj(flash))
+      report.add.factor.result(verbose.lvl, greedy.failed(flash),
+                               get.obj(flash))
     }
 
-    if (greedy.complete) {
-      do.backfit <- final.backfit && (curr.rnd.factors.added > 0)
-      do.nullchk <- final.nullchk && (curr.rnd.factors.added > 0)
-      maxiter    <- backfit.maxiter
-      tol        <- greedy.tol * backfit.reltol
-      curr.rnd.factors.added <- 0
-    } else {
+    if (continue.adding) {
       do.backfit <- total.factors.added %in% when.to.backfit
       do.nullchk <- total.factors.added %in% when.to.nullchk
       maxiter    <- inner.backfit.maxiter
       tol        <- greedy.tol * inner.backfit.reltol
+    } else {
+      do.backfit <- final.backfit
+      do.nullchk <- final.nullchk
+      maxiter    <- backfit.maxiter
+      tol        <- greedy.tol * backfit.reltol
     }
 
     if (do.backfit) {
-      announce.backfit(verbose.lvl, n.factors = get.n.factors(flash))
+      kset <- 1:get.n.factors(flash)
+      conv.crit <- rep(Inf, get.n.factors(flash))
+      if (!is.null(backfit.kset)) {
+        # Remove any k that haven't been added yet.
+        ksubset <- intersect(backfit.kset, c(kset, -kset))
+        kset <- kset[ksubset]
+        conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
+      }
+
+      announce.backfit(verbose.lvl, n.factors = length(kset))
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
       iter <- 0
       old.obj <- get.obj(flash)
-      conv.crit <- rep(Inf, get.n.factors(flash))
-      kset <- 1:get.n.factors(flash)
       while (iter < maxiter && max(conv.crit) > tol) {
         is.converged <- TRUE
         iter <- iter + 1
@@ -344,33 +372,30 @@ flash.workhorse <- function(data,
 
       if (get.obj(flash) > old.obj) {
         report.backfit.complete(verbose.lvl, get.obj(flash))
-        something.changed <- TRUE
       }
     }
 
-    if (do.nullchk) {
+    if (do.nullchk && get.n.factors(flash) > 0) {
       nullchk.kset <- 1:get.n.factors(flash)
       if (!nullchk.fixed.factors)
         nullchk.kset <- setdiff(nullchk.kset, which.k.fixed(flash))
 
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
+      nullchk.tol <- greedy.tol * nullchk.reltol
       for (k in nullchk.kset)
-        flash <- nullcheck.factor(flash, k, verbose.lvl)
+        flash <- nullcheck.factor(flash, k, verbose.lvl, nullchk.tol)
       if (nullchk.failed(flash)) {
-        something.changed <- TRUE
+        if (restart.after.nullchk)
+          continue.looping <- TRUE
       } else if (length(nullchk.kset) > 0) {
         report.nullchk.success(verbose.lvl)
       }
     }
   }
 
-  if (!is.converged)
-    warning("Flash fit has not converged. Try backfitting the returned fit, ",
-            "setting backfit.tol and backfit.maxiter as needed.")
-
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl)
+  flash <- wrapup.flash(flash, output.lvl, is.converged)
 
   report.completion(verbose.lvl)
   return(flash)

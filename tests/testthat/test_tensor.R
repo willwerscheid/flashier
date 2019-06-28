@@ -11,46 +11,46 @@ LF2 <- 5 * (rnorm(m) %o% rnorm(n) %o% rnorm(p))
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(m * n * p)
 
-f <- flashier(M, greedy.Kmax = 2, use.R = TRUE)
+f <- flashier(M, greedy.Kmax = 2, use.R = TRUE, verbose.lvl = 0)
 
 test_that("matrix factor initialization is correct (using R)", {
   expect_equal(f$n.factors, 2)
-  expect_equal(lowrank.expand(get.EF(f$fit)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
-                final.nullchk = FALSE)
+f.b <- flashier(flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE, verbose.lvl = 0)
 
 test_that ("the backfit objective improves after one iteration (using R)", {
-  expect_true(f.b$obj > f$obj)
+  expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flashier(M, flash.init = f, backfit = "only")
+f.b2 <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
 
 test_that ("the final backfit objective improves again (using R)", {
-  expect_true(f.b2$obj > f.b$obj)
+  expect_true(f.b2$elbo > f.b$elbo)
 })
 
 missing <- sample(1:length(M), floor(0.1 * length(M)))
 M.missing <- M
 M.missing[missing] <- NA
 
-f <- flashier(M.missing, greedy.Kmax = 2, use.R = FALSE)
+f <- flashier(M.missing, greedy.Kmax = 2, use.R = FALSE, verbose.lvl = 0)
 
 test_that("matrix factor initialization is correct (using Y, with missing)", {
   expect_equal(f$n.factors, 2)
-  expect_equal(lowrank.expand(get.EF(f$fit)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(M, flash.init = f, backfit = "only", backfit.maxiter = 1,
-                final.nullchk = FALSE)
+f.b <- flashier(flash.init = f, backfit = "only", backfit.maxiter = 1,
+                final.nullchk = FALSE, verbose.lvl = 0)
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
-  expect_true(f.b$obj > f$obj)
+  expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flashier(M, flash.init = f, backfit = "only")
+f.b2 <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
 
 test_that ("the final backfit objective improves again (using Y, with missing)", {
-  expect_true(f.b2$obj > f.b$obj)
+  expect_true(f.b2$elbo > f.b$elbo)
 })

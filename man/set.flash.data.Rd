@@ -9,7 +9,11 @@ set.flash.data(data, S = NULL, S.dim = NULL, var.type = NULL)
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}.}
+obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+representation as returned by, for example, \code{\link{svd}},
+\code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
+\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
+\code{flash.init} is used.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}
@@ -18,18 +22,17 @@ only varies across columns and is constant within any given row). If
 
 \item{S.dim}{The dimension along which \code{S} lies when \code{S} is a
 vector. Only necessary when it cannot be inferred from the data (when,
-for example, \code{S} is a square matrix).}
+for example, \code{data} is a square matrix).}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 \code{S} accounts for all residual variance. Otherwise, a rank-one
 variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the dimensions
-along which the residual variance is permitted to vary. For example,
-\code{var.type = 1} estimates row-specific residual variances, while
-\code{var.type = c(1, 2)} estimates an arbitrary rank-one matrix. If
-\code{var.type = 0}, then the residual variance is assumed to be constant
-across all observations.}
+by \code{S}). \code{var.type} then gives the modes along which the
+residual variance is permitted to vary. For example, \code{var.type = 1}
+estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+residual variance is assumed to be constant across all observations.}
 }
 \description{
 Converts matrices or arrays of observations and standard errors into the

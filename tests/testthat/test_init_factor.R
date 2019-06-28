@@ -2,14 +2,15 @@ context("init_factor")
 
 set.seed(666)
 
+ebnm.fn.pn <- function(x, s, g, fixg, output) {
+  ebnm::ebnm(x, s, g, fixg, output, prior_family = "point_normal")
+}
 init.flash.test <- function(flash.init,
                             data = data,
                             EF.init = NULL,
                             est.tau.dim = 0,
                             dim.signs = NULL,
-                            ebnm.fn = list(ebnm.pn, ebnm.pn),
-                            ebnm.param = list(list(prior_type = "point_normal"),
-                                              list(prior_type = "point_normal")),
+                            ebnm.fn = list(ebnm.fn.pn, ebnm.fn.pn),
                             warmstart.backfits = TRUE,
                             fix.dim = NULL,
                             fix.idx = NULL,
@@ -18,7 +19,7 @@ init.flash.test <- function(flash.init,
                             nonmissing.thresh = NULL,
                             use.R = TRUE) {
   return(init.flash(flash.init, data, EF.init, est.tau.dim, dim.signs,
-                    ebnm.fn, ebnm.param, warmstart.backfits,
+                    ebnm.fn, warmstart.backfits,
                     fix.dim, fix.idx, fix.vals, use.fixed.to.est.g,
                     nonmissing.thresh, use.R))
 }
@@ -64,7 +65,7 @@ test_that("matrix factor initialization is correct for Y with missing data", {
   expect_equal(outer(f.init[[1]], f.init[[2]]), correct.result, tol = 1e-3)
 })
 
-A <- array(5, dim = c(4, 3, 2)) + 0.001 * rnorm(24)
+A      <- array(5, dim = c(4, 3, 2)) + 0.001 * rnorm(24)
 data.A <- set.flash.data(A)
 
 test_that("tensor factor initialization is correct for R (no missing data)", {

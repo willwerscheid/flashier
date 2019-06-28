@@ -15,22 +15,24 @@ test_that("r1 product is the same for general matrices and arrays", {
 
 lowrank.M <- list(matrix(1:10, ncol = 2),
                   matrix(11:16, ncol = 2))
+class(lowrank.M) <- "lowrank"
 lowrank.A <- c(lowrank.M,
                list(matrix(1, nrow = 1, ncol = 2)))
+class(lowrank.A) <- "lowrank"
 v1 <- 1:5
 v2 <- 6:8
 
 test_that("r1 product is the same for low-rank matrices and arrays", {
   correct.result.1 <- as.vector(lowrank.M[[1]] %*% t(lowrank.M[[2]]) %*% v2)
-  expect_equal(lowrank.nmode.prod.r1(lowrank.M, list(v2), 1),
+  expect_equal(nmode.prod.r1(lowrank.M, list(v2), 1),
                correct.result.1)
-  expect_equal(lowrank.nmode.prod.r1(lowrank.A, list(v2, 1), 1),
+  expect_equal(nmode.prod.r1(lowrank.A, list(v2, 1), 1),
                correct.result.1)
 
   correct.result.2 <- as.vector(v1 %*% lowrank.M[[1]] %*% t(lowrank.M[[2]]))
-  expect_equal(lowrank.nmode.prod.r1(lowrank.M, list(v1), 2),
+  expect_equal(nmode.prod.r1(lowrank.M, list(v1), 2),
                correct.result.2)
-  expect_equal(lowrank.nmode.prod.r1(lowrank.A, list(v1, 1), 2),
+  expect_equal(nmode.prod.r1(lowrank.A, list(v1, 1), 2),
                correct.result.2)
 })
 

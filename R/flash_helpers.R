@@ -1,7 +1,8 @@
+get.fit <- function(f) f[["flash.fit"]]
+
 # Getters for the main flash object (also used by the smaller factors) --------
 
 get.R                 <- function(f) f[["R"]]
-get.Y                 <- function(f) f[["Y"]]
 get.nonmissing        <- function(f) f[["Z"]]
 get.given.S2          <- function(f) f[["given.S2"]]
 get.given.tau         <- function(f) f[["given.tau"]]
@@ -21,6 +22,12 @@ get.obj               <- function(f) f[["obj"]]
 get.KL                <- function(f) f[["KL"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
 
+get.Y <- function(f, require.fullrank = FALSE) {
+  Y <- f[["Y"]]
+  if (require.fullrank && inherits(Y, "lowrank"))
+    Y <- lowrank.expand(Y)
+  return(Y)
+}
 get.EF <- function(f, n = NULL) {
   EF <- f[["EF"]]
   if (is.null(EF[[1]]))
@@ -80,11 +87,6 @@ get.ebnm.fn.k <- function(f, k) {
     return(f[["ebnm.fn"]])
   return(f[["ebnm.fn"]][[k]])
 }
-get.ebnm.param.k <- function(f, k) {
-  if (!is.list(f[["ebnm.param"]]))
-    return(NULL)
-  return(f[["ebnm.param"]][[k]])
-}
 get.g <- function(f, n = NULL) {
   if (is.null(n))
     return(f[["g"]])
@@ -119,7 +121,6 @@ get.exclusions <- function(f, n = NULL) {
 # Additional getters that are only used by factors ----------------------------
 
 get.k          <- function(f) f[["k"]]
-is.fixed       <- function(f) f[["is.fixed"]]
 get.R.subset   <- function(f) f[["subset.data"]][["R.subset"]]
 get.Y.subset   <- function(f) f[["subset.data"]][["Y.subset"]]
 get.Z.subset   <- function(f) f[["subset.data"]][["Z.subset"]]
@@ -138,14 +139,26 @@ is.new <- function(f) is.null(get.k(f))
 
 get.n.factors <- function(f) max(0, ncol(f[["EF"]][[1]]))
 get.dims <- function(f) {
-  if (!is.null(get.R(f)))
+  if (uses.R(f))
     return(dim(get.R(f)))
-  return(dim(get.Y(f)))
+  Y <- get.Y(f)
+  if (inherits(Y, "lowrank"))
+    return(sapply(Y, nrow))
+  return(dim(Y))
 }
 get.dim <- function(f) length(get.dims(f))
+get.dimnames <- function(f) {
+  if (uses.R(f))
+    return(dimnames(get.R(f)))
+  Y <- get.Y(f)
+  if (inherits(Y, "lowrank"))
+    return(lapply(Y, rownames))
+  return(dimnames(Y))
+}
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
+any.missing <- function(f) !identical(get.nonmissing(f), 1)
 is.obj.valid <- function(flash, factor = NULL) {
   valid <- is.valid(flash)
   if (!is.null(factor))
@@ -180,16 +193,6 @@ get.ebnm.fn <- function(flash, factor, n) {
     return(ebnm.fn)
   return(ebnm.fn[[n]])
 }
-get.ebnm.param <- function(flash, factor, n) {
-  if (is.new(factor)) {
-    ebnm.param <- get.ebnm.param.k(flash, get.next.k(flash))
-  } else {
-    ebnm.param <- get.ebnm.param.k(flash, get.k(factor))
-  }
-  if (length(ebnm.param) == 0 || !is.null(names(ebnm.param)))
-    return(ebnm.param)
-  return(ebnm.param[[n]])
-}
 extend.ebnm.lists <- function(flash) {
   k <- get.n.factors(flash)
   l <- length(flash[["ebnm.fn"]])
@@ -197,8 +200,6 @@ extend.ebnm.lists <- function(flash) {
   if (extend.by > 0) {
     flash[["ebnm.fn"]] <- c(flash[["ebnm.fn"]],
                             rep(flash[["ebnm.fn"]][l], extend.by))
-    flash[["ebnm.param"]] <- c(flash[["ebnm.param"]],
-                               rep(flash[["ebnm.param"]][l], extend.by))
   }
   return(flash)
 }
@@ -264,15 +265,15 @@ get.new.Rsquared <- function(flash, factor = NULL, EF = NULL,
   } else {
     if (is.null(EF))
       EF <- get.new.EF(flash, factor)
-    R2 <- (get.Y(flash) - lowrank.expand(EF))^2
+    R2 <- (get.Y(flash, require.fullrank = TRUE) - lowrank.expand(EF))^2
     if (set.missing.to.zero)
       R2 <- get.nonmissing(flash) * R2
   }
   return(R2)
 }
 
-get.n.fixed <- function(f) {
-  return(sum(unlist(get.fix.dim(f) > 0)))
+get.n.fixed.to.add <- function(f) {
+  return(sum(which.k.fixed(f) > get.n.factors(f)))
 }
 which.k.fixed <- function(f) {
   fix.dim <- get.fix.dim(f)
@@ -313,7 +314,7 @@ get.subset.data <- function(f, fix.dim, idx.subset) {
     return(NULL)
   subset.data <- list(idx.subset = idx.subset)
   subset.data$R.subset  <- fullrank.subset(get.R(f), fix.dim, idx.subset)
-  subset.data$Y.subset  <- fullrank.subset(get.Y(f), fix.dim, idx.subset)
+  subset.data$Y.subset  <- full.or.lowrank.subset(get.Y(f), fix.dim, idx.subset)
   subset.data$Z.subset  <- fullrank.subset(get.nonmissing(f), fix.dim, idx.subset)
   subset.data$EF.subset <- lowrank.subset(get.EF(f), fix.dim, idx.subset)
   return(subset.data)
@@ -535,8 +536,8 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 
 # Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
-  if (is(f, "flash"))
-    f <- f$fit
+  if (inherits(f, "flash"))
+    f <- get.fit(f)
 
   flash      <- list()
   flash$EL   <- f$EF[[1]]

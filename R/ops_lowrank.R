@@ -7,7 +7,7 @@
 as.lowrank <- function(r1) {
   if (is.null(r1))
     return(NULL)
-  if (is(r1, "r1")) {
+  if (inherits(r1, "r1")) {
     lowrank <- lapply(r1, matrix, ncol = 1)
     class(lowrank) <- "lowrank"
     return(lowrank)
@@ -19,7 +19,7 @@ as.lowrank <- function(r1) {
 lowrank.expand <- function(lowrank) {
   if (is.null(lowrank))
     return(0)
-  if (is.matrix(lowrank) || is(lowrank, "Matrix"))
+  if (is.matrix(lowrank) || inherits(lowrank, "Matrix"))
     return(tcrossprod(lowrank[[1]], lowrank[[2]]))
 
   K   <- ncol(lowrank[[1]])
@@ -41,7 +41,7 @@ lowrank.subset <- function(lowrank, n, subset) {
 }
 
 lowrank.drop.k <- function(lowrank, k) {
-  if (is.null(lowrank))
+  if (is.null(lowrank) || ncol(lowrank[[1]]) == 1)
     return(NULL)
   lowrank <- lapply(lowrank, function(X) X[, -k, drop = FALSE])
   class(lowrank) <- "lowrank"
@@ -55,6 +55,8 @@ lowrank.sc.mult <- function(lowrank, x) {
   return(lowrank)
 }
 
+# This squares each entry of L and each entry of F. It does not square the
+#   entries of LF'.
 lowrank.square <- function(lowrank) {
   if (is.null(lowrank))
     return(NULL)
@@ -86,7 +88,7 @@ lowranks.combine <- function(lr1, lr2) {
 lowrank.delta.mat <- function(new.lr, old.lr) {
   k <- ncol(new.lr[[1]])
   lowrank <- mapply(cbind, new.lr, old.lr, SIMPLIFY = FALSE)
-  if (k > 0)
+  if (!is.null(k) && k > 0)
     lowrank[[1]][, (k + 1):(2 * k)] <- -lowrank[[1]][, (k + 1):(2 * k)]
   class(lowrank) <- "lowrank"
   return(lowrank)

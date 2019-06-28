@@ -4,7 +4,6 @@ init.flash <- function(flash.init,
                        est.tau.dim,
                        dim.signs,
                        ebnm.fn,
-                       ebnm.param,
                        warmstart.backfits,
                        fix.dim,
                        fix.idx,
@@ -79,7 +78,6 @@ init.flash <- function(flash.init,
 
   flash$dim.signs  <- dim.signs
   flash$ebnm.fn    <- ebnm.fn
-  flash$ebnm.param <- ebnm.param
 
   flash <- extend.ebnm.lists(flash)
 
@@ -128,7 +126,7 @@ init.kron.nonmissing <- function(flash) {
 }
 
 init.log.2pi.s2 <- function(tau) {
-  return(sum(log(2 * pi / tau)))
+  return(sum(log(2 * pi / tau[tau > 0])))
 }
 
 # Default threshold of nonmissingness required to estimate loadings -----------

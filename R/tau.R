@@ -287,7 +287,7 @@ optimize.noisy <- function(R2, S2, wts = 1) {
 get.tau.for.ebnm.calc <- function(flash, tau = NULL) {
   if (is.null(tau))
     tau <- get.tau(flash)
-  if (is(tau, "r1"))
+  if (inherits(tau, "r1"))
     return(r1.to.lowrank(tau, flash))
   if (!is.tau.simple(flash))
     return(tau)

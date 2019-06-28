@@ -4,26 +4,33 @@
 \alias{flash.workhorse}
 \title{A horse that works for \code{\link{flashier}}}
 \usage{
-flash.workhorse(data, flash.init = NULL, var.type = 0, prior.sign = NULL,
-  ebnm.fn = flashr:::ebnm_pn, ebnm.param = list(), greedy.Kmax = 100,
-  backfit.order = c("sequential", "random", "dropout", "montaigne",
-  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
-  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
-  nullchk.every = NULL, final.nullchk = TRUE,
-  conv.crit.fn = calc.obj.diff, verbose.lvl = 1, verbose.fns = NULL,
-  verbose.colnames = NULL, verbose.colwidths = NULL, output.lvl = 3,
-  EF.init = NULL, fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
+flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
+  prior.sign = NULL, ebnm.fn = ebnm::ebnm, greedy.Kmax = 100,
+  backfit.kset = NULL, backfit.order = c("dropout", "sequential",
+  "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
+  backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
+  nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
+  restart.after.nullchk = TRUE, conv.crit.fn = calc.obj.diff,
+  verbose.lvl = 1, verbose.fns = NULL, verbose.colnames = NULL,
+  verbose.colwidths = NULL, output.lvl = 3, EF.init = NULL,
+  fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, greedy.tol = NULL, backfit.maxiter = 100,
-  backfit.tol = greedy.tol, inner.backfit.maxiter = backfit.maxiter,
-  inner.backfit.tol = backfit.tol, nonmissing.thresh = NULL, seed = 666,
-  use.R = FALSE)
+  greedy.maxiter = 500, greedy.tol = NULL,
+  fixed.maxiter = greedy.maxiter, fixed.reltol = 1,
+  backfit.maxiter = 100, backfit.reltol = 1,
+  inner.backfit.maxiter = backfit.maxiter,
+  inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
+  nonmissing.thresh = NULL, seed = 666, use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}.}
+obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+representation as returned by, for example, \code{\link{svd}},
+\code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
+\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
+\code{flash.init} is used.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
@@ -31,12 +38,11 @@ obtained from \code{set.flash.data}.}
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 \code{S} accounts for all residual variance. Otherwise, a rank-one
 variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the dimensions
-along which the residual variance is permitted to vary. For example,
-\code{var.type = 1} estimates row-specific residual variances, while
-\code{var.type = c(1, 2)} estimates an arbitrary rank-one matrix. If
-\code{var.type = 0}, then the residual variance is assumed to be constant
-across all observations.}
+by \code{S}). \code{var.type} then gives the modes along which the
+residual variance is permitted to vary. For example, \code{var.type = 1}
+estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+residual variance is assumed to be constant across all observations.}
 
 \item{prior.sign}{A vector or list of vectors indicating the sign(s) of
 the priors (-1 for nonpositive, 1 for nonnegative, and 0 otherwise). Only
@@ -45,11 +51,15 @@ used when initializing factors.}
 \item{ebnm.fn}{A list of lists giving the functions to be used to solve the
 Empirical Bayes normal means problem when updating each factor.}
 
-\item{ebnm.param}{A list of lists giving the parameters to be passed to the
-functions in \code{ebnm.fn}.}
+\item{greedy.Kmax}{The maximum number of factors to be added. This will not
+necessarily be the total number of factors added by \code{flashier}, since
+factors are only added as long as they increase the variational lower
+bound on the log likelihood for the model. Fixed factors are not counted
+towards this limit.}
 
-\item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
-are not counted.}
+\item{backfit.kset}{Which factors to backfit. The - operator can be used to
+instead specify which factors not to backfit. For example,
+\code{backfit.kset = -(1:2)} will backfit all factors but the first two.}
 
 \item{backfit.order}{How to determine the order in which to backfit factors.
 \code{"montaigne"} goes after the factor that promises to yield the
@@ -74,6 +84,9 @@ factor is added.}
 
 \item{final.nullchk}{Whether to perform a final nullcheck.}
 
+\item{restart.after.nullchk}{Whether to continue fitting if the final
+nullcheck fails.}
+
 \item{conv.crit.fn}{The function to use to determine whether convergence has
 occurred. Used for both new factors and backfits.}
 
@@ -93,7 +106,7 @@ output after each factor update.}
 
 \item{output.lvl}{What to include in the returned flash object. 0 = raw fit
 only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
-and sampler.}
+and sampler; 4 = raw fit, sampler, and lfsr (currently in beta).}
 
 \item{EF.init}{A list of matrices, one for each dimension. Each matrix
 should have k columns, one for each factor. New factors are initialized
@@ -122,19 +135,28 @@ factors.}
 occur before initialization is considered complete.}
 
 \item{greedy.maxiter}{The maximum number of iterations when optimizing a
-new factor.}
+greedily added factor.}
 
-\item{greedy.tol}{The convergence tolerance when optimizing a new factor.}
+\item{greedy.tol}{The convergence tolerance when optimizing a greedily added
+factor.}
 
-\item{backfit.maxiter}{The maximum number of iterations when performing a
-final backfit.}
+\item{fixed.maxiter}{The maximum number of iterations when optimizing a
+newly added fixed factor.}
 
-\item{backfit.tol}{The convergence tolerance when performing a final
-backfit.}
+\item{fixed.reltol}{The convergence tolerance (relative to greedy.tol) when
+optimizing a newly added fixed factor.}
+
+\item{backfit.maxiter}{Maximum iterations for final backfits.}
+
+\item{backfit.reltol}{Convergence tolerance for final backfits, relative to
+greedy.tol.}
 
 \item{inner.backfit.maxiter}{Maximum iterations for intermediary backfits.}
 
-\item{inner.backfit.tol}{Convergence tolerance for intermediary backfits.}
+\item{inner.backfit.reltol}{Convergence tolerance for intermediary backfits,
+relative to greedy.tol.}
+
+\item{nullchk.reltol}{Tolerance for nullchecks, relative to greedy.tol.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be
