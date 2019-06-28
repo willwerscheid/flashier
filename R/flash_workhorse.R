@@ -11,9 +11,6 @@
 #' @param ebnm.fn A list of lists giving the functions to be used to solve the
 #'   Empirical Bayes normal means problem when updating each factor.
 #'
-#' @param ebnm.param A list of lists giving the parameters to be passed to the
-#'   functions in \code{ebnm.fn}.
-#'
 #' @param backfit.kset Which factors to backfit. The - operator can be used to
 #'   instead specify which factors not to backfit. For example,
 #'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
@@ -107,6 +104,8 @@
 #' @param inner.backfit.reltol Convergence tolerance for intermediary backfits,
 #'   relative to greedy.tol.
 #'
+#' @param nullchk.reltol Tolerance for nullchecks, relative to greedy.tol.
+#'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
 #'   nonmissing in a given matrix or array slice in order to estimate the
@@ -123,8 +122,7 @@ flash.workhorse <- function(data = NULL,
                             flash.init = NULL,
                             var.type = 0,
                             prior.sign = NULL,
-                            ebnm.fn = ebnm.pn,
-                            ebnm.param = list(),
+                            ebnm.fn = ebnm::ebnm,
                             greedy.Kmax = 100,
                             backfit.kset = NULL,
                             backfit.order = c("dropout",
@@ -163,6 +161,7 @@ flash.workhorse <- function(data = NULL,
                             backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.reltol = backfit.reltol,
+                            nullchk.reltol = 1,
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
@@ -199,7 +198,6 @@ flash.workhorse <- function(data = NULL,
                       est.tau.dim = var.type,
                       dim.signs = prior.sign,
                       ebnm.fn = ebnm.fn,
-                      ebnm.param = ebnm.param,
                       warmstart.backfits = warmstart.backfits,
                       fix.dim = fix.dim,
                       fix.idx = fix.idx,
@@ -381,8 +379,9 @@ flash.workhorse <- function(data = NULL,
 
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
+      nullchk.tol <- greedy.tol * nullchk.reltol
       for (k in nullchk.kset)
-        flash <- nullcheck.factor(flash, k, verbose.lvl, greedy.tol)
+        flash <- nullcheck.factor(flash, k, verbose.lvl, nullchk.tol)
       if (nullchk.failed(flash)) {
         if (restart.after.nullchk)
           continue.looping <- TRUE
@@ -392,12 +391,8 @@ flash.workhorse <- function(data = NULL,
     }
   }
 
-  if (!is.converged)
-    warning("Flash fit has not converged. Try backfitting the returned fit, ",
-            "setting backfit.tol and backfit.maxiter as needed.")
-
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl)
+  flash <- wrapup.flash(flash, output.lvl, is.converged)
 
   report.completion(verbose.lvl)
   return(flash)

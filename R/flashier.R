@@ -16,22 +16,35 @@
 #'   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 #'   \code{S} accounts for all residual variance. Otherwise, a rank-one
 #'   variance structure will be estimated (and added to any variance specified
-#'   by \code{S}). \code{var.type} then gives the dimensions
-#'   along which the residual variance is permitted to vary. For example,
-#'   \code{var.type = 1} estimates row-specific residual variances, while
-#'   \code{var.type = c(1, 2)} estimates an arbitrary rank-one matrix. If
-#'   \code{var.type = 0}, then the residual variance is assumed to be constant
-#'   across all observations.
+#'   by \code{S}). \code{var.type} then gives the modes along which the
+#'   residual variance is permitted to vary. For example, \code{var.type = 1}
+#'   estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+#'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+#'   residual variance is assumed to be constant across all observations.
 #'
-#' @param prior.type Indicates the class of distributions that the priors are
-#'   assumed to belong to. Can be a vector of length 1, a vector with one
-#'   element for each dimension, or a list of vectors. In the last case,
-#'   the first list element gives the class(es) for the first factor, the
-#'   second gives the class(es) for the second factor, and so on. The last
-#'   list element is then re-used as often as necessary. Options include
-#'   \code{"point.normal"}, \code{"point.laplace"}, \code{"normal.mixture"},
-#'   \code{"uniform.mixture"}, \code{"nonnegative"}, \code{"nonpositive"}, and
-#'   \code{"nonzero.mode"}.
+#' @param prior.family Indicates the family of distributions that the priors are
+#'   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
+#'   \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
+#'   tensors). Each list element must be a prior class defined by one of the
+#'   convenience functions \code{\link{prior.normal}},
+#'   \code{\link{prior.point.normal}},
+#'   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
+#'   \code{\link{prior.normal.mix}}, \code{\link{prior.unimodal}},
+#'   \code{\link{prior.symmetric.unimodal}},
+#'   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
+#'   or a custom prior type of a similar form (see \code{\link{prior.normal}}
+#'   for details).
+#'   For example, the default \code{prior.family = prior.point.normal()} fits a
+#'   (different) point-normal prior for each factor and each mode, while
+#'   \code{prior.family = c(prior.nonnegative(), prior.normal.mix())} fits a
+#'   mixture of
+#'   uniforms with nonnegative support to each set of row loadings and a
+#'   mixture of normals to each set of column loadings.
+#'
+#'   \code{prior.family} can also be a list of lists, in which case the first
+#'   list specifies the class(es) for the first factor, the second specifies
+#'   the class(es) for the second factor, and so on. The last list element is
+#'   then re-used as often as necessary.
 #'
 #' @param flash.init An initial \code{flash} or \code{flash.fit} object.
 #'
@@ -44,22 +57,14 @@
 #'   factor is added. Set \code{backfit = "only"} to backfit \code{flash.init}
 #'   without adding additional factors.
 #'
-#' @param fixed.factors Adds factors with fixed loadings. Current options
+#' @param fixed.factors Adds factors with fixed loadings. Options
 #'   include mean factors (where all row or column loadings are fixed at 1),
 #'   factors with known sparsity patterns, and factors with arbitrarily fixed
-#'   elements. See \code{\link{ones.factor}}, \code{\link{sparse.factors}},
+#'   elements. See \code{\link{fixed.ones}}, \code{\link{fixed.sparse}},
 #'   and \code{\link{fixed.factors}} for usage. Multiple types of fixed factors
 #'   can be added by concatenating via \code{c()}. For example,
-#'   \code{fixed.factors = c(ones.factor(n = 1), sparse.factors(n = 1,
+#'   \code{fixed.factors = c(fixed.ones(n = 1), fixed.sparse(n = 1,
 #'   nz.idx = 1:10)} will add one mean factor and one sparse factor.
-#'
-#' @param ebnm.param Additional parameters to be passed to \code{ebnm::ebnm}.
-#'   Used by prior types \code{"point.normal"}, \code{"point.laplace"}, and
-#'   \code{"nonzero.mode"}.
-#'
-#' @param ash.param Additional parameters to be passed to \code{ashr::ash}.
-#'   Used by prior types \code{"normal.mixture"}, \code{"uniform.mixture"},
-#'   \code{"nonnegative"}, and \code{"nonpositive"}.
 #'
 #' @param verbose.lvl When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a
@@ -74,15 +79,31 @@
 #'   \describe{
 #'     \item{\code{n.factors}}{The total number of factors in the fitted
 #'       model.}
-#'     \item{\code{objective}}{The variational lower bound achieved by the
-#'       fitted model.}
 #'     \item{\code{pve}}{The proportion of variance explained by each factor.}
-#'     \item{\code{loadings}}{For each factor, the normalized loadings and a
-#'       scaling constant.}
+#'     \item{\code{loadings.scale, loadings.pm}}{Posterior means for loadings.
+#'       Since the model is not identifiable,
+#'       each column of loadings is \eqn{L2}-normalized. The
+#'       normalization constant is given by \code{loadings.scale}. Thus, for
+#'       matrices, fitted values can be calculated as \code{f$loadings.pm[[1]]
+#'       \%*\% diag(f$loadings.scale) \%*\% t(f$loadings.pm[[2]])} (or, more
+#'       simply, as \code{fitted(f)}).}
+#'     \item{\code{loadings.psd}}{Posterior standard deviations for loadings.}
+#'     \item{\code{loadings.lfsr}}{Local false sign rates for loadings.}
+#'     \item{\code{residuals.sd}}{Estimated residual standard deviations (these
+#'       include any variance component given as an argument to \code{S}).}
+#'     \item{\code{fitted.g}}{The fitted priors for each mode and factor.}
+#'     \item{\code{elbo}}{The variational lower bound achieved by the
+#'       fitted model.}
+#'     \item{\code{convergence.status}}{A character string indicating whether
+#'       the fitting algorithm has converged.}
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
 #'       distribution of the (non-normalized) loadings.}
-#'     \item{\code{fit}}{A \code{flash.fit} object.}
+#'     \item{\code{flash.fit}}{A \code{flash.fit} object. Used by
+#'       \code{flashier} when fitting is not performed all at once, but
+#'       incrementally via repeated calls to \code{flashier} (with the
+#'       intermediate \code{flash} or \code{flash.fit} objects given as
+#'       arguments to \code{flash.init}).}
 #'   }
 #'
 #' @export
@@ -90,7 +111,7 @@
 flashier <- function(data = NULL,
                      S = NULL,
                      var.type = 0,
-                     prior.type = "point.normal",
+                     prior.family = prior.point.normal(),
                      flash.init = NULL,
                      greedy.Kmax = 30,
                      backfit = c("none",
@@ -98,8 +119,6 @@ flashier <- function(data = NULL,
                                  "alternating",
                                  "only"),
                      fixed.factors = NULL,
-                     ebnm.param = list(),
-                     ash.param = list(),
                      verbose.lvl = 1,
                      ...) {
   if (inherits(data, "flash.data") && !missing(S))
@@ -107,26 +126,31 @@ flashier <- function(data = NULL,
 
   ellipsis <- list(...)
 
+  if (!missing(prior.family)
+      && (!is.null(ellipsis$prior.sign)
+          || !is.null(ellipsis$ebnm.fn)))
+    stop(paste("If prior.family is specified, then prior.sign and ebnm.fn ",
+               "cannot be."))
+
   # When available, use existing flash object settings as defaults.
   if (inherits(flash.init, "flash"))
-    flash.init <- flash.init$fit
-  if (!is.null(flash.init) && !inherits(flash.init, "flash.fit"))
-    stop("flash.init must be a flash or flash.fit object.")
+    flash.init <- get.fit(flash.init)
   if (!is.null(flash.init)) {
-    if (missing(var.type))
-      var.type <- flash.init$est.tau.dim
-    if (missing(prior.type) && is.null(ellipsis$prior.sign))
-      ellipsis$prior.sign <- flash.init$dim.signs
-    if (missing(prior.type) && is.null(ellipsis$ebnm.fn))
-      ellipsis$ebnm.fn <- flash.init$ebnm.fn
-    if (missing(prior.type) && is.null(ellipsis$ebnm.param))
-      ellipsis$ebnm.param <- flash.init$ebnm.param
-  }
-
-  if (!is.null(flash.init) && !identical(var.type, flash.init$est.tau.dim)) {
-    flash.init <- clear.bypass.init.flag(flash.init)
-    if (is.null(data))
-      stop("When changing var.type, data cannot be NULL.")
+    if (!inherits(flash.init, "flash.fit"))
+      stop("flash.init must be a flash or flash.fit object.")
+    if (missing(var.type)) {
+      var.type <- get.est.tau.dim(flash.init)
+    } else if (!identical(var.type, flash.init$est.tau.dim)) {
+      flash.init <- clear.bypass.init.flag(flash.init)
+      if (is.null(data))
+        stop("When changing var.type, data cannot be NULL.")
+    }
+    if (missing(prior.family)) {
+      if (is.null(ellipsis$prior.sign))
+        ellipsis$prior.sign <- flash.init$dim.signs
+      if (is.null(ellipsis$ebnm.fn))
+        ellipsis$ebnm.fn <- flash.init$ebnm.fn
+    }
   }
 
   # Bypass set.flash.data if flash.init has the needed fields.
@@ -147,38 +171,24 @@ flashier <- function(data = NULL,
   must.be.integer(greedy.Kmax, lower = 0)
   if (!is.null(fixed.factors))
     must.be.list.of.named.lists(fixed.factors, c("dim", "idx", "vals"))
-  must.be.named.list(ebnm.param)
-  must.be.named.list(ash.param)
   if (!is.character(verbose.lvl))
     must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
   workhorse.param <- list()
 
   # Handle "prior type" parameter.
-  if (!is.null(flash.init) && !missing(prior.type) && !is.list(prior.type)) {
-    # The last element of ebnm.fn (and ebnm.param) specifies settings for new
-    #   factors. If there is an initial flash object, the existing settings
-    #   need to be kept, while the last list element is overridden.
-    new.prior.param <- prior.param(prior.type,
-                                   data.dim,
-                                   ebnm.param,
-                                   ash.param)
+  if (is.null(flash.init)) {
+    workhorse.param <- c(workhorse.param, prior.param(prior.family, data.dim))
+  } else if (!missing(prior.family)) {
+    # The last element of ebnm.fn specifies settings for new factors. If there
+    #   is an initial flash object, the existing settings need to be kept,
+    #   while the last list element is overridden.
     k <- length(flash.init$ebnm.fn)
-    flash.init$ebnm.fn[k] <- new.prior.param$ebnm.fn
-    flash.init$ebnm.param[k] <- new.prior.param$ebnm.param
-    ellipsis$ebnm.fn <- flash.init$ebnm.fn
-    ellipsis$ebnm.param <- flash.init$ebnm.param
-    ellipsis$prior.sign <- new.prior.param$prior.sign
-  } else if (is.null(ellipsis$prior.sign) && is.null(ellipsis$ebnm.fn)) {
-    # I can't check that ellipsis$ebnm.param is NULL because I've overloaded
-    #   ebnm.param.
-    workhorse.param <- c(workhorse.param, prior.param(prior.type,
-                                                      data.dim,
-                                                      ebnm.param,
-                                                      ash.param))
-  } else if (!missing(prior.type)) {
-    stop(paste("If prior.type is specified, then prior.sign and ebnm.fn",
-               "cannot be."))
+    flash.init$dim.signs <- flash.init$dim.signs[-k]
+    flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
+    new.prior.param <- prior.param(prior.family, data.dim)
+    ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
+    ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
   }
 
   # Handle "fixed factors" parameter.
@@ -204,6 +214,7 @@ flashier <- function(data = NULL,
       }
       return(list(dim = dim, idx = idx, vals = vals))
     })
+
     # If flash.init is used, previously fixed factors need to be included.
     #   These fields aren't always populated, so an offset needs to be
     #   used when setting the new fixed factors.
@@ -259,14 +270,18 @@ flashier <- function(data = NULL,
                                     ellipsis)))
 }
 
-prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
-  if (!is.list(prior.type))
-    prior.type <- list(prior.type)
+prior.param <- function(prior.family, data.dim) {
+  error.msg <- "Invalid argument to prior.family."
 
-  error.msg <- "Invalid argument to prior.type."
+  if (!is.list(prior.family))
+    stop(error.msg)
 
-  prior.type <- lapply(prior.type, function(k) {
-    if (!is.vector(k))
+  if (!is.null(names(prior.family[[1]])))
+    prior.family <- list(prior.family)
+
+  # Each top-level list element in prior.family corresponds to a factor.
+  prior.family <- lapply(prior.family, function(k) {
+    if (!is.list(k))
       stop(error.msg)
     if (length(k) == 1)
       k <- rep(k, data.dim)
@@ -275,63 +290,11 @@ prior.param <- function(prior.type, data.dim, ebnm.param, ash.param) {
     return(as.list(k))
   })
 
-  prior.type <- rapply(prior.type, match.prior.type.args, how = "list")
-  prior.sign <- rapply(prior.type, prior.type.to.prior.sign, how = "list")
-  ebnm.fn    <- rapply(prior.type, prior.type.to.ebnm.fn, how = "list")
-  ebnm.param <- rapply(prior.type, prior.type.to.ebnm.param, how = "list",
-                       ebnm.param = ebnm.param, ash.param = ash.param)
+  prior.sign <- lapply(prior.family, lapply, `[[`, "sign")
+  ebnm.fn    <- lapply(prior.family, lapply, `[[`, "ebnm.fn")
 
   return(list(prior.sign = prior.sign,
-              ebnm.fn = ebnm.fn,
-              ebnm.param = ebnm.param))
-}
-
-match.prior.type.args <- function(prior.type = c("point.normal",
-                                                 "point.laplace",
-                                                 "normal.mixture",
-                                                 "uniform.mixture",
-                                                 "nonnegative",
-                                                 "nonpositive",
-                                                 "nonzero.mode")) {
-  return(match.arg(prior.type))
-}
-
-prior.type.to.prior.sign <- function(prior.type) {
-  return(switch(prior.type,
-                nonnegative = 1,
-                nonpositive = -1,
-                0))
-}
-
-prior.type.to.ebnm.fn <- function(prior.type) {
-  return(switch(prior.type,
-                point.normal =,
-                point.laplace =,
-                nonzero.mode = ebnm.pn,
-                ebnm.ash))
-}
-
-prior.type.to.ebnm.param <- function(prior.type, ebnm.param, ash.param) {
-  param <- switch(prior.type,
-                  point.normal = list(prior_type = "point_normal"),
-                  point.laplace = list(prior_type = "point_laplace"),
-                  nonzero.mode = list(prior_type = "point_normal",
-                                      fix_mu = FALSE),
-                  normal.mixture = list(mixcompdist = "normal"),
-                  uniform.mixture = list(mixcompdist = "uniform"),
-                  nonnegative = list(mixcompdist = "+uniform"),
-                  nonpositive = list(mixcompdist = "-uniform"))
-
-  if (!is.null(param[["mixcompdist"]])) {
-    # Additional parameters for ashr::ash.
-    param <- c(param, list(method = "shrink", output = "flash_data"))
-    param <- modifyList(param, ash.param)
-  } else {
-    # Additional parameters for ebnm::ebnm.
-    param <- modifyList(param, ebnm.param)
-  }
-
-  return(param)
+              ebnm.fn = ebnm.fn))
 }
 
 control.param <- function(backfit) {

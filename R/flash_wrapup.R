@@ -1,7 +1,4 @@
-# TODO: Change default to output LFSR after ebnm can do it and after
-#   changing default ash method to "fdr".
-
-wrapup.flash <- function(flash, output.lvl) {
+wrapup.flash <- function(flash, output.lvl, is.converged) {
   class(flash) <- "flash.fit"
 
   if (output.lvl == 0) {
@@ -11,17 +8,33 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object <- list()
 
-  flash.object$n.factors   <- get.n.factors(flash)
-  flash.object$objective   <- get.obj(flash)
+  flash.object$n.factors        <- get.n.factors(flash)
+
   if (flash.object$n.factors > 0) {
-    flash.object$pve       <- calc.pve(flash)
-    normalized.loadings    <- calc.normalized.loadings(flash)
-    flash.object$diagonal  <- normalized.loadings$scale.constants
-    flash.object$loadings  <- normalized.loadings$normalized.loadings
-    if (output.lvl > 3)
-      flash.object$lfsr    <- calc.lfsr(flash)
-    if (output.lvl > 1)
-      flash.object$sampler <- F.sampler(flash)
+    flash.object$pve            <- calc.pve(flash)
+    loadings                    <- calc.normalized.loadings(flash)
+    flash.object$loadings.scale <- loadings$scale.constants
+    flash.object$loadings.pm    <- loadings$normalized.loadings
+    flash.object$loadings.psd   <- loadings$loading.SDs
+    flash.object$loadings.lfsr  <- calc.lfsr(flash)
+  }
+
+  if (is.tau.simple(flash)) {
+    flash.object$residuals.sd <- 1 / sqrt(get.tau(flash))
+  }
+
+  flash.object$fitted.g <- get.g.by.mode(flash)
+  flash.object$elbo     <- get.obj(flash)
+
+  if (is.converged) {
+    flash.object$convergence.status <- "converged"
+  } else {
+    flash.object$convergence.status <- paste("did not converge (reached",
+                                             "maximum number of iterations)")
+  }
+
+  if (flash.object$n.factors > 0 && output.lvl > 1) {
+    flash.object$sampler <- F.sampler(flash)
   }
 
   if (output.lvl < 3) {
@@ -32,7 +45,7 @@ wrapup.flash <- function(flash, output.lvl) {
     flash <- set.bypass.init.flag(flash)
   }
 
-  flash.object$fit <- flash
+  flash.object$flash.fit <- flash
 
   class(flash.object) <- "flash"
 
@@ -56,7 +69,7 @@ remove.auxiliary.elements <- function(flash) {
 }
 
 calc.pve <- function(flash) {
-  ldf <- calc.normalized.loadings(flash, use.EF2 = TRUE)
+  ldf <- calc.normalized.loadings(flash, for.pve = TRUE)
   S   <- ldf$scale.constants
 
   tau <- get.tau(flash)
@@ -71,10 +84,10 @@ calc.pve <- function(flash) {
   return(S / (sum(S) + var.from.tau))
 }
 
-calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
+calc.normalized.loadings <- function(flash, for.pve = FALSE) {
   ret <- list()
 
-  if (use.EF2) {
+  if (for.pve) {
     loadings <- get.EF2(flash)
     norms <- lapply(loadings, colSums)
   } else {
@@ -87,6 +100,14 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
   }, SIMPLIFY = FALSE)
+  if (!for.pve) {
+    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
+      X / rep(y^2, each = nrow(X))
+    }, SIMPLIFY = FALSE)
+    SD <- mapply(L2, L,
+                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+                 SIMPLIFY = FALSE)
+  }
 
   # Propagate names.
   data.dimnames <- get.dimnames(flash)
@@ -99,6 +120,8 @@ calc.normalized.loadings <- function(flash, use.EF2 = FALSE) {
   ret$scale.constants <- apply(norms, 2, prod)
   ret$scale.constants[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
+  if (!for.pve)
+    ret$loading.SDs <- SD
 
   return(ret)
 }
@@ -116,10 +139,27 @@ lfsr.one.n <- function(flash, k, n) {
     lfsr <- rep(NA, get.dims(flash)[n])
   } else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")
-    lfsr <- ebnm.res$lfsr
-    fix.dim <- get.fix.dim(factor)
-    if (!is.null(fix.dim) && (fix.dim == n))
-      lfsr[get.fix.idx(factor)] <- NA
+    if (!is.null(ebnm.res$posterior) && !is.null(ebnm.res$posterior$lfsr)) {
+      lfsr <- ebnm.res$posterior$lfsr
+      fix.dim <- get.fix.dim(factor)
+      if (!is.null(fix.dim) && (fix.dim == n))
+        lfsr[get.fix.idx(factor)] <- NA
+    } else {
+      lfsr <- NULL
+    }
   }
   return(lfsr)
+}
+
+get.g.by.mode <- function(flash) {
+  g.by.factor <- get.g(flash)
+  g.by.mode <- lapply(1:get.dim(flash), FUN = function(n) {
+    lapply(g.by.factor, FUN = function(g.k) {
+      if (length(g.k) == 0)
+        return(NULL)
+      else
+        return(g.k[[n]])
+    })
+  })
+  return(g.by.mode)
 }

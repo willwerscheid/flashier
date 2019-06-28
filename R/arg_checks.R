@@ -18,12 +18,6 @@ must.be.list.of.named.lists <- function(x, valid.fields) {
     stop(error.msg)
 }
 
-must.be.named.list <- function(x) {
-  error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
-  if (!is.list(x) || (length(x) > 0 && is.null(names(x))))
-    stop(error.msg)
-}
-
 must.be.supported.data.type <- function(X,
                                         allow.null = TRUE,
                                         allow.vector = FALSE,
@@ -62,8 +56,12 @@ must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
 }
 
 must.not.have.zero.slices <- function(Y) {
-  error.msg <- paste("The data matrix must not have any slices (rows,",
-                     "columns) whose entries are identically zero.")
+  # Skip this test for tensors.
+  if (length(dim(Y)) > 2)
+  return()
+
+  error.msg <- paste("The data matrix must not have any rows or",
+                     "columns whose entries are identically zero.")
   if (inherits(Y, "lowrank")) {
     for (n in 1:length(Y)) {
       nz <- (Y[[n]] != 0)

@@ -5,12 +5,11 @@
 \title{A horse that works for \code{\link{flashier}}}
 \usage{
 flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
-  prior.sign = NULL, ebnm.fn = ebnm.pn, ebnm.param = list(),
-  greedy.Kmax = 100, backfit.kset = NULL,
-  backfit.order = c("dropout", "sequential", "random", "montaigne",
-  "parallel"), warmstart.backfits = TRUE, backfit.after = NULL,
-  backfit.every = NULL, final.backfit = FALSE, nullchk.after = NULL,
-  nullchk.every = NULL, final.nullchk = TRUE,
+  prior.sign = NULL, ebnm.fn = ebnm::ebnm, greedy.Kmax = 100,
+  backfit.kset = NULL, backfit.order = c("dropout", "sequential",
+  "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
+  backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
+  nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
   restart.after.nullchk = TRUE, conv.crit.fn = calc.obj.diff,
   verbose.lvl = 1, verbose.fns = NULL, verbose.colnames = NULL,
   verbose.colwidths = NULL, output.lvl = 3, EF.init = NULL,
@@ -21,8 +20,8 @@ flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
   fixed.maxiter = greedy.maxiter, fixed.reltol = 1,
   backfit.maxiter = 100, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
-  inner.backfit.reltol = backfit.reltol, nonmissing.thresh = NULL,
-  seed = 666, use.R = FALSE)
+  inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
+  nonmissing.thresh = NULL, seed = 666, use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -36,12 +35,11 @@ obtained from \code{set.flash.data}. Can be \code{NULL} if
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
 \code{S} accounts for all residual variance. Otherwise, a rank-one
 variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the dimensions
-along which the residual variance is permitted to vary. For example,
-\code{var.type = 1} estimates row-specific residual variances, while
-\code{var.type = c(1, 2)} estimates an arbitrary rank-one matrix. If
-\code{var.type = 0}, then the residual variance is assumed to be constant
-across all observations.}
+by \code{S}). \code{var.type} then gives the modes along which the
+residual variance is permitted to vary. For example, \code{var.type = 1}
+estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+residual variance is assumed to be constant across all observations.}
 
 \item{prior.sign}{A vector or list of vectors indicating the sign(s) of
 the priors (-1 for nonpositive, 1 for nonnegative, and 0 otherwise). Only
@@ -49,9 +47,6 @@ used when initializing factors.}
 
 \item{ebnm.fn}{A list of lists giving the functions to be used to solve the
 Empirical Bayes normal means problem when updating each factor.}
-
-\item{ebnm.param}{A list of lists giving the parameters to be passed to the
-functions in \code{ebnm.fn}.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
 are not counted.}
@@ -154,6 +149,8 @@ greedy.tol.}
 
 \item{inner.backfit.reltol}{Convergence tolerance for intermediary backfits,
 relative to greedy.tol.}
+
+\item{nullchk.reltol}{Tolerance for nullchecks, relative to greedy.tol.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be
