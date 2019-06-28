@@ -25,25 +25,26 @@ calc.residuals <- function(flash, factor = NULL) {
 # Used to initialize tau when tau is simple.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
+  Y   <- get.Y(flash, require.fullrank = TRUE)
   Z   <- get.nonmissing(flash)
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
   n   <- get.R2.n(flash)
 
+  if (!uses.R(flash)) {
+    R <- Z * (Y - lowrank.expand(EF))
+  }
+
   # Calculating R2 using only R requires a lot of memory. It's better to do
   #   this using C++.
-  if (is.null(EF) && get.dim(flash) == 2) {
+  if (is.null(EF) && !inherits(R, "Matrix") && get.dim(flash) == 2) {
     # TODO: implement for tensors.
     if (n == 1) {
-      R2 <- calc_R2_rowsums_rcpp(Y)
+      R2 <- calc_R2_rowsums_rcpp(R)
     } else {
-      R2 <- calc_R2_colsums_rcpp(Y)
+      R2 <- calc_R2_colsums_rcpp(R)
     }
   } else {
-    if (!uses.R(flash)) {
-      Y <- get.Y(flash, require.fullrank = TRUE)
-      R <- Z * (Y - lowrank.expand(EF))
-    }
     R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
            + premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
            - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n))
