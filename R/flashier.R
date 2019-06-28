@@ -4,7 +4,10 @@
 #'
 #' @param data The observations. Can be a matrix, sparse matrix of class
 #'   \code{Matrix}, three-dimensional array, or \code{flash.data} object
-#'   obtained from \code{set.flash.data}. Can be \code{NULL} if
+#'   obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+#'   representation as returned by, for example, \code{\link{svd}},
+#'   \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
+#'   \code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
 #'   \code{flash.init} is used.
 #'
 #' @param S The standard errors. Can be a matrix, scalar (if standard errors
@@ -22,34 +25,42 @@
 #'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
 #'   residual variance is assumed to be constant across all observations.
 #'
-#' @param prior.family Indicates the family of distributions that the priors are
+#' @param prior.family Indicates the family of distributions that the priors on
+#'   the loadings are
 #'   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
 #'   \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-#'   tensors). Each list element must be a prior class defined by one of the
+#'   tensors). Each list element must be a prior family defined by one of the
 #'   convenience functions \code{\link{prior.normal}},
 #'   \code{\link{prior.point.normal}},
 #'   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-#'   \code{\link{prior.normal.mix}}, \code{\link{prior.unimodal}},
+#'   \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
 #'   \code{\link{prior.symmetric.unimodal}},
 #'   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
 #'   or a custom prior type of a similar form (see \code{\link{prior.normal}}
 #'   for details).
 #'   For example, the default \code{prior.family = prior.point.normal()} fits a
 #'   (different) point-normal prior for each factor and each mode, while
-#'   \code{prior.family = c(prior.nonnegative(), prior.normal.mix())} fits a
-#'   mixture of
-#'   uniforms with nonnegative support to each set of row loadings and a
-#'   mixture of normals to each set of column loadings.
+#'   \code{prior.family = c(prior.nonnegative(), prior.scale.normal.mix())}
+#'   fits a unimodal distribution with mode zero and nonnegative support to
+#'   each set of row loadings and a scale mixture of normals with mean zero to
+#'   each set of column loadings.
 #'
 #'   \code{prior.family} can also be a list of lists, in which case the first
-#'   list specifies the class(es) for the first factor, the second specifies
-#'   the class(es) for the second factor, and so on. The last list element is
-#'   then re-used as often as necessary.
+#'   list specifies the family or families for the first factor, the second
+#'   specifies the family or families for the second factor, and so on. The
+#'   last list element is then re-used as often as necessary.
+#'   For example, \code{prior.family = list(prior.nonzero.mode(),
+#'   prior.scale.normal.mix())} will fit point-normal priors with nonzero
+#'   means for the first factor and scale mixtures of normals for every
+#'   subsequent factor.
 #'
 #' @param flash.init An initial \code{flash} or \code{flash.fit} object.
 #'
-#' @param greedy.Kmax The maximum number of factors to be added. Fixed factors
-#'   are not counted.
+#' @param greedy.Kmax The maximum number of factors to be added. This will not
+#'   necessarily be the total number of factors added by \code{flashier}, since
+#'   factors are only added as long as they increase the variational lower
+#'   bound on the log likelihood for the model. Fixed factors are not counted
+#'   towards this limit.
 #'
 #' @param backfit Whether and how to backfit. If \code{"final"}, then a single
 #'   backfit is performed after as many factors as possible have been added.
@@ -105,6 +116,9 @@
 #'       intermediate \code{flash} or \code{flash.fit} objects given as
 #'       arguments to \code{flash.init}).}
 #'   }
+#'
+#' @examples
+#' # TODO
 #'
 #' @export
 #'

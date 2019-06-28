@@ -26,7 +26,10 @@ flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}. Can be \code{NULL} if
+obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+representation as returned by, for example, \code{\link{svd}},
+\code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
+\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
 \code{flash.init} is used.}
 
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
@@ -48,8 +51,11 @@ used when initializing factors.}
 \item{ebnm.fn}{A list of lists giving the functions to be used to solve the
 Empirical Bayes normal means problem when updating each factor.}
 
-\item{greedy.Kmax}{The maximum number of factors to be added. Fixed factors
-are not counted.}
+\item{greedy.Kmax}{The maximum number of factors to be added. This will not
+necessarily be the total number of factors added by \code{flashier}, since
+factors are only added as long as they increase the variational lower
+bound on the log likelihood for the model. Fixed factors are not counted
+towards this limit.}
 
 \item{backfit.kset}{Which factors to backfit. The - operator can be used to
 instead specify which factors not to backfit. For example,

@@ -9,7 +9,10 @@ set.flash.data(data, S = NULL, S.dim = NULL, var.type = NULL)
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
 \code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{set.flash.data}. Can be \code{NULL} if
+obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+representation as returned by, for example, \code{\link{svd}},
+\code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
+\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
 \code{flash.init} is used.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
