@@ -40,40 +40,31 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   }
 
   # If data is a list, attempt to interpret it as a low-rank representation
-  #   of the data.
+  #   of the data. Must have fields d, u, and v.
   if (is.list(data)) {
     error.msg <- paste("Data is a list but could not be interpreted as a",
                        "low-rank representation.")
 
-    which.matrices <- which(sapply(data, is.matrix))
-    if (length(which.matrices) < 2
-        || length(which.matrices) > 3
-        || length(data) - length(which.matrices) > 1) {
+    if (is.null(data$d) || is.null(data$u) || is.null(data$v)) {
       stop(error.msg)
     }
-    LR <- data[which.matrices]
 
-    # Transpose matrices if necessary.
-    LR <- lapply(LR, function(mat) {
-      if (ncol(mat) == nrow(mat)) {
-        # A square matrix can't be unambiguously interpreted.
-        stop(error.msg)
-      } else if (ncol(mat) > nrow(mat)) {
-        return(t(mat))
-      } else {
-        return(mat)
-      }
-    })
-
-    if (length(data) > length(which.matrices)) {
-      D <- unlist(data[-which.matrices])
-      if (length(D) < ncol(LR[[1]])) {
-        stop(error.msg)
-      } else {
-        D <- D[1:ncol(LR[[1]])]
-      }
-      LR[[1]] <- t(t(LR[[1]]) * as.vector(D))
+    if (!is.matrix(data$u) || !is.matrix(data$v)
+        || !identical(ncol(data$u), ncol(data$v))) {
+      stop(error.msg)
     }
+
+    K <- ncol(data$u)
+
+    if (!is.numeric(data$d) || (length(data$d) < K)) {
+      stop(error.msg)
+    }
+
+    LR <- list(data$u, data$v)
+    D  <- data$d[1:K]
+
+    LR[[1]] <- t(t(LR[[1]]) * sqrt(D))
+    LR[[2]] <- t(t(LR[[2]]) * sqrt(D))
 
     if (any(sapply(LR, anyNA)))
       stop("If a low-rank representation of the data is used, then no data can",
