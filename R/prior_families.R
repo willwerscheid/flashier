@@ -142,5 +142,5 @@ mixsqp.defaults <- function() {
 }
 
 nlm.defaults <- function() {
-  return(list(iterlim = 5))
+  return(list(iterlim = 10))
 }
