@@ -122,7 +122,7 @@ prior.nonpositive <- function(...) {
 as.prior.args <- function(prior.family, optmethod, ...) {
   args <- list(...)
 
-  args$prior.family <- prior.family
+  args$prior_family <- prior.family
 
   if (is.null(args$control)) {
     args$control <- list()
