@@ -46,53 +46,101 @@ as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
 #' @rdname prior.families
 #' @export
 prior.normal <- function(...) {
-  return(as.prior(prior_family = "normal", ...))
+  args <- as.prior.args(prior.family = "normal",
+                        optmethod = "optimize", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.point.normal <- function(...) {
-  return(as.prior(prior_family = "point_normal", ...))
+  args <- as.prior.args(prior.family = "point_normal",
+                        optmethod = "nlm", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.point.laplace <- function(...) {
-  return(as.prior(prior_family = "point_laplace", ...))
+  args <- as.prior.args(prior.family = "point_laplace",
+                        optmethod = "nlm", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.nonzero.mode <- function(...) {
-  return(as.prior(prior_family = "point_normal", mode = "estimate", ...))
+  args <- as.prior.args(prior.family = "point_normal",
+                        optmethod = "nlm",
+                        mode = "estimate", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.normal.scale.mix <- function(...) {
-  return(as.prior(prior_family = "normal_scale_mixture", ...))
+  args <- as.prior.args(prior.family = "normal_scale_mixture",
+                        optmethod = "mixsqp", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.unimodal <- function(...) {
-  return(as.prior(prior_family = "unimodal", ...))
+  args <- as.prior.args(prior.family = "unimodal",
+                        optmethod = "mixsqp", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.unimodal.symmetric <- function(...) {
-  return(as.prior(prior_family = "unimodal_symmetric", ...))
+  args <- as.prior.args(prior.family = "unimodal_symmetric",
+                        optmethod = "mixsqp", ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.nonnegative <- function(...) {
-  return(as.prior(prior_family = "unimodal_nonnegative", sign = 1, ...))
+  args <- as.prior.args(prior.family = "unimodal_nonnegative",
+                        optmethod = "mixsqp",
+                        sign = 1, ...)
+  return(do.call(as.prior, args))
 }
 
 #' @rdname prior.families
 #' @export
 prior.nonpositive <- function(...) {
-  return(as.prior(prior_family = "unimodal_nonpositive", sign = -1, ...))
+  args <- as.prior.args(prior.family = "unimodal_nonpositive",
+                        optmethod = "mixsqp",
+                        sign = -1, ...)
+  return(do.call(as.prior, args))
+}
+
+# Add default control parameters to priors.
+as.prior.args <- function(prior.family, optmethod, ...) {
+  args <- list(...)
+
+  args$prior.family <- prior.family
+
+  if (is.null(args$control)) {
+    args$control <- list()
+  }
+
+  if (identical(optmethod, "nlm")) {
+    args$control <- modifyList(nlm.defaults(), args$control)
+  } else if (identical(optmethod, "mixsqp")) {
+    args$control <- modifyList(mixsqp.defaults(), args$control)
+  }
+
+  return(args)
+}
+
+mixsqp.defaults <- function() {
+  return(list(maxiter.sqp = 10))
+}
+
+nlm.defaults <- function() {
+  return(list(iterlim = 5))
 }
