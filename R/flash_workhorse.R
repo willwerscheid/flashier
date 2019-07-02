@@ -309,8 +309,13 @@ flash.workhorse <- function(data = NULL,
       kset <- 1:get.n.factors(flash)
       conv.crit <- rep(Inf, get.n.factors(flash))
       if (!is.null(backfit.kset)) {
-        # Remove any k that haven't been added yet.
-        ksubset <- intersect(backfit.kset, c(kset, -kset))
+        if (is.function(backfit.kset)) {
+          next.kset <- backfit.kset(get.n.factors(flash))
+          # Remove any k that haven't been added yet.
+          ksubset <- intersect(next.kset, c(kset, -kset))
+        } else {
+          ksubset <- intersect(backfit.kset, c(kset, -kset))
+        }
         kset <- kset[ksubset]
         conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
       }

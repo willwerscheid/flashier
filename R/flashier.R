@@ -65,7 +65,9 @@
 #' @param backfit Whether and how to backfit. If \code{"final"}, then a single
 #'   backfit is performed after as many factors as possible have been added.
 #'   If \code{"alternating"}, a backfit will be performed after each
-#'   factor is added. Set \code{backfit = "only"} to backfit \code{flash.init}
+#'   factor is added. \code{"first.factor"} is similar to \code{"alternating"},
+#'   but only backfits the first factor and the most recently added factor.
+#'   Set \code{backfit = "only"} to backfit \code{flash.init}
 #'   without adding additional factors.
 #'
 #' @param fixed.factors Adds factors with fixed loadings. Options
@@ -131,6 +133,7 @@ flashier <- function(data = NULL,
                      backfit = c("none",
                                  "final",
                                  "alternating",
+                                 "first.factor",
                                  "only"),
                      fixed.factors = NULL,
                      verbose.lvl = 1,
@@ -315,10 +318,13 @@ control.param <- function(backfit) {
   control <- list()
   if (backfit %in% c("final", "only")) {
     control$final.backfit <- TRUE
-  } else if (backfit == "alternating") {
+  } else if (backfit %in% c("alternating", "first.factor")) {
     control$backfit.after <- 2
     control$backfit.every <- 1
     control$final.backfit <- FALSE
+    if (backfit == "first.factor") {
+      control$backfit.kset <- function(n.factors) c(1, n.factors)
+    }
   }
   return(control)
 }

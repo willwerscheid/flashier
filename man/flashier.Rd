@@ -7,7 +7,7 @@
 flashier(data = NULL, S = NULL, var.type = 0,
   prior.family = prior.point.normal(), flash.init = NULL,
   greedy.Kmax = 30, backfit = c("none", "final", "alternating",
-  "only"), fixed.factors = NULL, verbose.lvl = 1, ...)
+  "first.factor", "only"), fixed.factors = NULL, verbose.lvl = 1, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -73,7 +73,9 @@ towards this limit.}
 \item{backfit}{Whether and how to backfit. If \code{"final"}, then a single
 backfit is performed after as many factors as possible have been added.
 If \code{"alternating"}, a backfit will be performed after each
-factor is added. Set \code{backfit = "only"} to backfit \code{flash.init}
+factor is added. \code{"first.factor"} is similar to \code{"alternating"},
+but only backfits the first factor and the most recently added factor.
+Set \code{backfit = "only"} to backfit \code{flash.init}
 without adding additional factors.}
 
 \item{fixed.factors}{Adds factors with fixed loadings. Options
