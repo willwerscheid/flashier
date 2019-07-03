@@ -118,6 +118,8 @@
 #'   fitting process. This usually requires much more memory and seldom offers
 #'   much improvement in runtime.
 #'
+#' @importFrom parallel makeCluster stopCluster
+#'
 flash.workhorse <- function(data = NULL,
                             flash.init = NULL,
                             var.type = 0,
@@ -324,6 +326,10 @@ flash.workhorse <- function(data = NULL,
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
+      if (backfit.order == "parallel") {
+        cl <- parallel::makeCluster(getOption("cl.cores", 4))
+      }
+
       iter <- 0
       old.obj <- get.obj(flash)
       while (iter < maxiter && max(conv.crit) > tol) {
@@ -350,7 +356,7 @@ flash.workhorse <- function(data = NULL,
 
         if (backfit.order == "parallel") {
           old.f <- flash
-          flash <- update.factors.parallel(flash, kset)
+          flash <- update.factors.parallel(flash, kset, cl)
           info  <- calc.update.info(flash, old.f,
                                     conv.crit.fn, verbose.fns)
           conv.crit <- abs(get.conv.crit(info))
@@ -367,6 +373,10 @@ flash.workhorse <- function(data = NULL,
                               k = k, backfit = TRUE)
           }
         }
+      }
+
+      if (backfit.order == "parallel") {
+        parallel::stopCluster(cl)
       }
 
       if (iter == maxiter)

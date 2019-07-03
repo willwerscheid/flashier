@@ -154,7 +154,7 @@ calc.s2 <- function(factor, n, flash, tau) {
 
   factor.EF2 <- get.EF2(factor)
   if (n %in% get.fix.dim(factor))
-    factor.EF2 <- r1.subset(factor.EF2, n,  get.idx.subset(factor))
+    factor.EF2 <- r1.subset(factor.EF2, n, get.idx.subset(factor))
 
   if (is.tau.lowrank(flash)) {
     s2 <- 1 / premult.nmode.prod.r1(Z, tau, factor.EF2[-n], n)
@@ -216,8 +216,12 @@ calc.x <- function(factor, n, flash, s2, tau) {
       x <- x - nmode.prod.r1(flash.EF.tau, factor.EF[-n], n)
     }
   }
+
   x <- s2 * x
-  x[is.infinite(s2)] <- 0
+
+  if (any(is.infinite(s2))) {
+    x[is.infinite(s2)] <- 0
+  }
 
   return(x)
 }

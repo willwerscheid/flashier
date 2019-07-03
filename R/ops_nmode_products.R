@@ -105,6 +105,16 @@ nmode.prod.r1 <- function(X, r1, n) {
   stop(nmode.ops.error)
 }
 
+nmode.prod.mat <- function(X, Y, n) {
+  # Matrices and sparse matrices:
+  if (is.matrix(X) || inherits(X, "Matrix")) {
+    if (n == 1)
+      return(t(t(Y) %*% X))
+    if (n == 2)
+      return(X %*% Y)
+  }
+}
+
 # The following calculates the n-mode product between the matrix or tensor
 #   X * LF (where LF is low-rank and multiplication is elementwise) and an r1
 #   object. The idea is both to avoid forming a large matrix (or tensor) and
