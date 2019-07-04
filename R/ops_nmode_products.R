@@ -105,14 +105,20 @@ nmode.prod.r1 <- function(X, r1, n) {
   stop(nmode.ops.error)
 }
 
-nmode.prod.mat <- function(X, Y, n) {
+nmode.prod.lowrank <- function(X, Y, n) {
   # Matrices and sparse matrices:
   if (is.matrix(X) || inherits(X, "Matrix")) {
     if (n == 1)
-      return(t(t(Y) %*% X))
+      return(as.matrix(X %*% Y[[1]]))
     if (n == 2)
-      return(X %*% Y)
+      return(t(as.matrix(t(Y[[1]]) %*% X)))
   }
+
+  if (is.array(X) && (length(dim(X)) == 3)) {
+    stop("N-mode products of tensors and matrices have not yet been implemented.")
+  }
+
+  stop(nmode.ops.error)
 }
 
 # The following calculates the n-mode product between the matrix or tensor

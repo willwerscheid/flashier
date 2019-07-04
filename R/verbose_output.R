@@ -26,6 +26,14 @@ announce.backfit <- function(verbose.lvl, n.factors) {
     cat("Backfitting", n.factors, "factors...\n")
 }
 
+report.backfit.progress <- function(verbose.lvl, iter) {
+  if (verbose.lvl == 1) {
+    if (iter %% 10 == 0 ) {
+      cat(iter, "backfitting iterations complete...\n")
+    }
+  }
+}
+
 report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0)
     cat("An update to factor ", k, " decreased the objective by ",

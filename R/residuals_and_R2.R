@@ -22,25 +22,53 @@ calc.residuals <- function(flash, factor = NULL) {
   return(R)
 }
 
-# Used to initialize tau when tau is simple.
+calc.Y2 <- function(flash) {
+  Y <- get.Y(flash)
+  if (inherits(Y, "lowrank") && store.R2.as.scalar(flash)) {
+    Y2 <- sum(Reduce(`*`, lapply(Y, crossprod)))
+  } else {
+    Y  <- get.Y(flash, require.fullrank = TRUE)
+    n  <- get.R2.n(flash)
+    Y2 <- nmode.prod.r1(Y^2, r1.ones(flash), n)
+  }
+
+  if (store.R2.as.scalar(flash))
+    Y2 <- sum(Y2)
+
+  return(Y2)
+}
+
+# Mainly used to initialize tau, but also used for parallel backfits.
 calc.R2 <- function(flash) {
   R   <- get.R(flash)
+  Y   <- get.Y(flash)
+  Y2  <- get.Y2(flash)
   Z   <- get.nonmissing(flash)
   EF  <- get.EF(flash)
   EF2 <- get.EF2(flash)
+  n   <- get.R2.n(flash)
 
-  if (!uses.R(flash)) {
-    Y <- get.Y(flash, require.fullrank = TRUE)
-    R <- Z * (Y - lowrank.expand(EF))
+  if (uses.R(flash)) {
+    R2 <- nmode.prod.r1(R^2, r1.ones(flash), n)
+  } else {
+    if (!is.null(EF)) {
+      R2 <- premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
+      R2 <- R2 - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n)
+      R2 <- R2 - 2 * premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
+      if (!any.missing(flash) && store.R2.as.scalar(flash)) {
+        R2 <- sum(R2) + sum(Reduce(`*`, lapply(EF, crossprod)))
+      } else {
+        R2 <- R2 + premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
+      }
+    } else {
+      R2 <- 0
+    }
+    R2 <- R2 + Y2
   }
 
-  n  <- get.R2.n(flash)
-  R2 <- (nmode.prod.r1(R^2, r1.ones(flash), n)
-         + premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
-         - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n))
-
-  if (store.R2.as.scalar(flash))
+  if (store.R2.as.scalar(flash)) {
     R2 <- sum(R2)
+  }
 
   return(R2)
 }

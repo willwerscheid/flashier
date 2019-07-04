@@ -18,7 +18,8 @@
 #' @param backfit.order How to determine the order in which to backfit factors.
 #'   \code{"montaigne"} goes after the factor that promises to yield the
 #'   largest increase in the variational lower bound. Il faut courir au plus
-#'   pressé.
+#'   pressé. The number of cores used by \code{"parallel"} can be set via the
+#'   command \code{options("cl.cores", n.cores)}.
 #'
 #' @param warmstart.backfits Whether to use the current prior parameters to
 #'   initialize the solution to the empirical Bayes normal means problem.
@@ -208,6 +209,27 @@ flash.workhorse <- function(data = NULL,
                       nonmissing.thresh = nonmissing.thresh,
                       use.R = use.R)
 
+  # For parallel backfits to be worthwhile, there must be an efficient way to
+  #   calculate R2 (that is, more efficient than explicitly forming the n x p
+  #   matrix of residuals). When the estimated variance is not constant across
+  #   all entries or if there is any missing data, then (at minimum) a n x k^2
+  #   or p x k^2 matrix must be created, so it must be true that
+  #   k^2 << max(n, p) for parallelization to yield any real benefits. But for
+  #   small k, serial backfits are fast and yield monotonic increases in the
+  #   ELBO, so parallelization is best avoided.
+  if (backfit.order == "parallel") {
+    if (any.missing(flash)) {
+      stop("Parallel backfits have not been implemented for missing data.")
+    }
+    if (!store.R2.as.scalar(flash)) {
+      stop("Parallel backfits can only be performed when the estimated ",
+           "variance is constant across all entries.")
+    }
+    if (use.R) {
+      stop("Parallel backfits require use.R = FALSE.")
+    }
+  }
+
   if (is.null(greedy.tol)) {
     greedy.tol <- set.default.tol(flash)
     report.tol.setting(verbose.lvl, greedy.tol)
@@ -327,7 +349,8 @@ flash.workhorse <- function(data = NULL,
                          backfit = TRUE)
 
       if (backfit.order == "parallel") {
-        cl <- parallel::makeCluster(getOption("cl.cores", 4))
+        cl <- parallel::makeCluster(getOption("cl.cores", 2L),
+                                    type = getOption("cl.type", "PSOCK"))
       }
 
       iter <- 0
@@ -359,6 +382,7 @@ flash.workhorse <- function(data = NULL,
           flash <- update.factors.parallel(flash, kset, cl)
           info  <- calc.update.info(flash, old.f,
                                     conv.crit.fn, verbose.fns)
+          # Since decreases in the objective are possible, use absolute values.
           conv.crit <- abs(get.conv.crit(info))
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
@@ -373,6 +397,8 @@ flash.workhorse <- function(data = NULL,
                               k = k, backfit = TRUE)
           }
         }
+
+        report.backfit.progress(verbose.lvl, iter)
       }
 
       if (backfit.order == "parallel") {

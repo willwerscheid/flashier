@@ -14,6 +14,7 @@ get.tau               <- function(f) f[["tau"]]
 use.fixed.to.est.g    <- function(f) f[["use.fixed.to.est.g"]]
 get.n.nonmissing      <- function(f) f[["n.nonmissing"]]
 get.kron.nonmissing   <- function(f) f[["kron.nonmissing"]]
+get.Y2                <- function(f) f[["Y2"]]
 get.R2                <- function(f) f[["R2"]]
 get.delta.R2          <- function(f) f[["delta.R2"]]
 get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
@@ -435,6 +436,10 @@ set.obj <- function(f, obj) {
 }
 set.n.nonmissing <- function(f, n.nonmissing) {
   f[["n.nonmissing"]] <- n.nonmissing
+  return(f)
+}
+set.Y2 <- function(f, Y2) {
+  f[["Y2"]] <- Y2
   return(f)
 }
 set.R2 <- function(f, R2) {
