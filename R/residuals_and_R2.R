@@ -49,26 +49,36 @@ calc.R2 <- function(flash) {
 
   if (uses.R(flash)) {
     R2 <- nmode.prod.r1(R^2, r1.ones(flash), n)
+
     if (store.R2.as.scalar(flash)) {
       R2 <- sum(R2)
     }
   } else {
-    if (!is.null(EF)) {
-      R2 <- premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
-      R2 <- R2 - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n)
-      R2 <- R2 - 2 * premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
-      if (!any.missing(flash) && store.R2.as.scalar(flash)) {
-        R2 <- sum(R2) + sum(Reduce(`*`, lapply(EF, crossprod)))
-      } else {
-        R2 <- R2 + premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
-        if (store.R2.as.scalar(flash)) {
-          R2 <- sum(R2)
-        }
-      }
+    if (is.null(EF)) {
+      Y.EF <- 0
+      EFsq <- 0
     } else {
-      R2 <- 0
+      Y.EF <- premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
+      if (!any.missing(flash) && store.R2.as.scalar(flash)) {
+        EFsq <- sum(Reduce(`*`, lapply(EF, crossprod)))
+      } else {
+        EFsq <- premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
+      }
     }
-    R2 <- R2 + Y2
+
+    if (store.R2.as.scalar(flash)) {
+      R2 <- Y2 - 2 * sum(Y.EF) + sum(EFsq)
+    } else {
+      R2 <- Y2 - 2 * Y.EF + EFsq
+    }
+  }
+
+  tmp <- premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
+  tmp <- tmp - premult.nmode.prod.r1(Z, lowrank.square(EF), r1.ones(flash), n)
+  if (store.R2.as.scalar(flash)) {
+    R2 <- R2 + sum(tmp)
+  } else {
+    R2 <- R2 + tmp
   }
 
   return(R2)
