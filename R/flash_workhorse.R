@@ -19,7 +19,9 @@
 #'   \code{"montaigne"} goes after the factor that promises to yield the
 #'   largest increase in the variational lower bound. Il faut courir au plus
 #'   pressé. The number of cores used by \code{"parallel"} can be set via the
-#'   command \code{options("cl.cores", n.cores)}.
+#'   command \code{options("cl.cores", n.cores)}. The type of multicore
+#'   cluster can be set via \code{options("cl.type", type)}. Typically,
+#'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
 #'
 #' @param warmstart.backfits Whether to use the current prior parameters to
 #'   initialize the solution to the empirical Bayes normal means problem.
@@ -350,7 +352,8 @@ flash.workhorse <- function(data = NULL,
 
       if (backfit.order == "parallel") {
         cl <- parallel::makeCluster(getOption("cl.cores", 2L),
-                                    type = getOption("cl.type", "PSOCK"))
+                                    type = getOption("cl.type", "PSOCK"),
+                                    useXDR = FALSE)
       }
 
       iter <- 0

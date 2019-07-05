@@ -30,15 +30,7 @@ solve.ebnm.parallel <- function(n, flash, kset, cl) {
   # TODO: add kset argument
 
   ebnm.args <- calc.all.ebnm.args(n, flash)
-
-  ebnm.res <- parLapply(cl, ebnm.args, function(k) {
-    res    <- k$ebnm.fn(x = k$x, s = k$s, g = k$g, fixg = FALSE, output = k$output)
-    res$KL <- res$log_likelihood - normal.means.loglik(k$x,
-                                                       k$s,
-                                                       res$posterior$mean,
-                                                       res$posterior$second_moment)
-    return(res)
-  })
+  ebnm.res  <- parallel::parLapply(cl, ebnm.args, parallel.ebnm.fn)
 
   return(ebnm.res)
 }
@@ -57,6 +49,15 @@ calc.all.ebnm.args <- function(n, flash) {
          g = get.g.k(flash, k, n),
          output = default.output())
   }))
+}
+
+parallel.ebnm.fn <- function(k) {
+  res    <- k$ebnm.fn(x = k$x, s = k$s, g = k$g, fixg = FALSE, output = k$output)
+  res$KL <- res$log_likelihood - normal.means.loglik(k$x,
+                                                     k$s,
+                                                     res$posterior$mean,
+                                                     res$posterior$second_moment)
+  return(res)
 }
 
 # Returns a k-vector.
