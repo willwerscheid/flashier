@@ -12,7 +12,7 @@ update.factors.parallel <- function(flash, kset, cl) {
     flash <- set.EF(flash, sapply(ebnm.res, function(k) k$posterior$mean), n)
     flash <- set.EF2(flash, sapply(ebnm.res, function(k) k$posterior$second_moment), n)
     flash <- set.KL(flash, sapply(ebnm.res, function(k) k$KL), n)
-    flash <- set.g(flash, lapply(ebnm.res, `[[`, "fitted_g"), n)
+    flash <- set.g(flash, lapply(ebnm.res, function(k) k$fitted_g), n)
   }
 
   flash <- init.tau(flash)

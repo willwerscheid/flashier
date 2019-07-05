@@ -26,9 +26,9 @@ announce.backfit <- function(verbose.lvl, n.factors) {
     cat("Backfitting", n.factors, "factors...\n")
 }
 
-report.backfit.progress <- function(verbose.lvl, iter) {
+report.backfit.progress <- function(verbose.lvl, iter, every) {
   if (verbose.lvl == 1) {
-    if (iter %% 10 == 0 ) {
+    if (iter %% every == 0 ) {
       cat(iter, "backfitting iterations complete...\n")
     }
   }

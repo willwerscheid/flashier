@@ -401,7 +401,7 @@ flash.workhorse <- function(data = NULL,
           }
         }
 
-        report.backfit.progress(verbose.lvl, iter)
+        report.backfit.progress(verbose.lvl, iter, every = 10)
       }
 
       if (backfit.order == "parallel") {
