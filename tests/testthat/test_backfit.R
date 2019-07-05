@@ -11,3 +11,16 @@ test_that("ELBOs for different backfits make sense", {
   expect_true(fl.alt$elbo > fl.ff$elbo)
   expect_true(fl.ff$elbo > fl.none$elbo)
 })
+
+fl.none <- flashier(gtex, greedy.Kmax = 5, backfit = "none", verbose.lvl = 0)
+fl.p <- flashier(flash.init = fl.none, backfit = "only", backfit.order = "parallel",
+                 verbose.lvl = 0)
+
+test_that("ELBO for parallel backfit makes sense", {
+  expect_true(fl.p$elbo > fl.none$elbo)
+})
+
+test_that("parallel backfit goes to convergence", {
+  fl.pb <- flashier(flash.init = fl.p, backfit = "only", verbose.lvl = 0)
+  expect_equal(fl.p$elbo, fl.pb$elbo, tol = 0.001)
+})
