@@ -233,6 +233,16 @@ flash.workhorse <- function(data = NULL,
     if (use.R) {
       stop("Parallel backfits require use.R = FALSE.")
     }
+    if (length(which.k.fixed(flash)) > 0) {
+      if (length(intersect(which.k.fixed(flash), backfit.kset)) > 0) {
+        stop("Parallel backfits have not yet been implemented for fixed ",
+             "factors.")
+      }
+      if (is.null(backfit.kset)) {
+        warning("Parallel backfits have not yet been implemented for fixed ",
+                "factors, so they will be removed from backfit.kset.")
+      }
+    }
   }
 
   if (is.null(greedy.tol)) {

@@ -1,6 +1,13 @@
 #' @importFrom parallel stopCluster
 #'
 update.factors.parallel <- function(flash, kset, cl) {
+  # Remove zero factors and fixed factors.
+  kset <- setdiff(kset, which(is.zero(flash)))
+  kset <- setdiff(kset, which.k.fixed(flash))
+
+  is.zero <- is.zero(flash)
+  is.valid <- is.valid(flash)
+
   for (n in 1:get.dim(flash)) {
     ebnm.res <- try(solve.ebnm.parallel(n, flash, kset, cl))
     if (inherits(ebnm.res, "try-error")) {
@@ -8,17 +15,32 @@ update.factors.parallel <- function(flash, kset, cl) {
       stop("Error encountered while backfitting mode ", n, " loadings.")
     }
 
-    flash <- set.EF(flash, sapply(ebnm.res, function(k) k$posterior$mean), n)
-    flash <- set.EF2(flash, sapply(ebnm.res, function(k) k$posterior$second_moment), n)
-    flash <- set.KL(flash, sapply(ebnm.res, function(k) k$KL), n)
-    flash <- set.g(flash, lapply(ebnm.res, function(k) k$fitted_g), n)
+    EF  <- get.EF(flash, n)
+    EF2 <- get.EF2(flash, n)
+    KL  <- get.KL(flash)[[n]]
+    g   <- get.g(flash, n)
+
+    EF[, kset]  <- sapply(ebnm.res, function(k) k$posterior$mean)
+    EF2[, kset] <- sapply(ebnm.res, function(k) k$posterior$second_moment)
+    KL[kset]    <- sapply(ebnm.res, function(k) k$KL)
+    g[kset]     <- lapply(ebnm.res, function(k) k$fitted_g)
+
+    flash <- set.EF(flash, EF, n)
+    flash <- set.EF2(flash, EF2, n)
+    flash <- set.KL(flash, KL, n)
+    flash <- set.g(flash, g, n)
+
+    is.zero[kset] <- (is.zero[kset]
+                      | sapply(ebnm.res, function(k) all(k$posterior$mean == 0)))
   }
+
+  is.valid[kset] <- TRUE
+
+  flash <- set.is.zero(flash, is.zero)
+  flash <- set.is.valid(flash, is.valid)
 
   flash <- init.tau(flash)
   flash <- set.obj(flash, calc.obj(flash))
-  # TODO: set is.valid, is.zero
-
-  # TODO: better convergence criteria?
 
   return(flash)
 }
@@ -26,9 +48,8 @@ update.factors.parallel <- function(flash, kset, cl) {
 #' @importFrom parallel parLapply
 #'
 solve.ebnm.parallel <- function(n, flash, kset, cl) {
-  # TODO: add kset argument
-
   ebnm.args <- calc.all.ebnm.args(n, flash)
+  ebnm.args <- ebnm.args[kset]
   ebnm.res  <- parallel::parLapply(cl, ebnm.args, parallel.ebnm.fn)
 
   return(ebnm.res)
@@ -38,8 +59,6 @@ calc.all.ebnm.args <- function(n, flash) {
   s2  <- calc.all.s2(n, flash)
   x   <- calc.all.x(n, flash, s2)
   s   <- sqrt(s2)
-
-  # TODO: handle fixed factors, include.fixed option, handle exclusions
 
   return(lapply(1:ncol(x), function(k) {
     list(ebnm.fn = get.ebnm.fn.k(flash, k)[[n]],
