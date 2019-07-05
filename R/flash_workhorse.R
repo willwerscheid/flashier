@@ -220,6 +220,9 @@ flash.workhorse <- function(data = NULL,
   #   small k, serial backfits are fast and yield monotonic increases in the
   #   ELBO, so parallelization is best avoided.
   if (backfit.order == "parallel") {
+    if (get.dim(flash) > 2) {
+      stop("Parallel backfits have not yet been implemented for tensors.")
+    }
     if (any.missing(flash)) {
       stop("Parallel backfits have not been implemented for missing data.")
     }

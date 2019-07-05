@@ -1,7 +1,6 @@
 #' @importFrom parallel stopCluster
 #'
 update.factors.parallel <- function(flash, kset, cl) {
-  # TODO: check that this works for tensors, sparse and lowrank
   for (n in 1:get.dim(flash)) {
     ebnm.res <- try(solve.ebnm.parallel(n, flash, kset, cl))
     if (inherits(ebnm.res, "try-error")) {

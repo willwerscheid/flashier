@@ -114,8 +114,17 @@ nmode.prod.lowrank <- function(X, Y, n) {
       return(t(as.matrix(t(Y[[1]]) %*% X)))
   }
 
-  if (is.array(X) && (length(dim(X)) == 3)) {
-    stop("N-mode products of tensors and matrices have not yet been implemented.")
+  # Low-rank matrix representations:
+  if (inherits(X, "lowrank") && (length(X) == 2)) {
+    if (n == 1)
+      return(X[[1]] %*% (t(X[[2]]) %*% Y[[1]]))
+    if (n == 2)
+      return(X[[2]] %*% (t(X[[1]]) %*% Y[[1]]))
+  }
+
+  if ((is.array(X) && (length(dim(X)) == 3))
+      || (inherits(X, "lowrank") && (length(X) == 3))) {
+    stop("N-mode products of tensors with matrices have not yet been implemented.")
   }
 
   stop(nmode.ops.error)
