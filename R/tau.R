@@ -40,7 +40,7 @@ update.tau <- function(factor, flash) {
 # Mainly used to initialize tau, but also used for parallel backfits.
 init.simple.tau <- function(flash) {
   if (is.null(get.Y2(flash)) && !uses.R(flash)) {
-    flash   <- set.Y2(flash, calc.Y2(flash))
+    flash <- set.Y2(flash, calc.Y2(flash))
   }
   flash   <- set.R2(flash, calc.R2(flash))
   est.tau <- estimate.simple.tau(flash)

@@ -30,10 +30,9 @@ calc.Y2 <- function(flash) {
     Y  <- get.Y(flash, require.fullrank = TRUE)
     n  <- get.R2.n(flash)
     Y2 <- nmode.prod.r1(Y^2, r1.ones(flash), n)
+    if (store.R2.as.scalar(flash))
+      Y2 <- sum(Y2)
   }
-
-  if (store.R2.as.scalar(flash))
-    Y2 <- sum(Y2)
 
   return(Y2)
 }
@@ -50,6 +49,9 @@ calc.R2 <- function(flash) {
 
   if (uses.R(flash)) {
     R2 <- nmode.prod.r1(R^2, r1.ones(flash), n)
+    if (store.R2.as.scalar(flash)) {
+      R2 <- sum(R2)
+    }
   } else {
     if (!is.null(EF)) {
       R2 <- premult.nmode.prod.r1(Z, EF2, r1.ones(flash), n)
@@ -59,15 +61,14 @@ calc.R2 <- function(flash) {
         R2 <- sum(R2) + sum(Reduce(`*`, lapply(EF, crossprod)))
       } else {
         R2 <- R2 + premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
+        if (store.R2.as.scalar(flash)) {
+          R2 <- sum(R2)
+        }
       }
     } else {
       R2 <- 0
     }
     R2 <- R2 + Y2
-  }
-
-  if (store.R2.as.scalar(flash)) {
-    R2 <- sum(R2)
   }
 
   return(R2)
