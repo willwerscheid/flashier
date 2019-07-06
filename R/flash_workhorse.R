@@ -333,15 +333,15 @@ flash.workhorse <- function(data = NULL,
     }
 
     if (continue.adding) {
-      do.backfit <- total.factors.added %in% when.to.backfit
-      do.nullchk <- total.factors.added %in% when.to.nullchk
-      maxiter    <- inner.backfit.maxiter
-      tol        <- greedy.tol * inner.backfit.reltol
+      do.backfit  <- total.factors.added %in% when.to.backfit
+      do.nullchk  <- total.factors.added %in% when.to.nullchk
+      maxiter     <- inner.backfit.maxiter
+      backfit.tol <- greedy.tol * inner.backfit.reltol
     } else {
-      do.backfit <- final.backfit
-      do.nullchk <- final.nullchk
-      maxiter    <- backfit.maxiter
-      tol        <- greedy.tol * backfit.reltol
+      do.backfit  <- final.backfit
+      do.nullchk  <- final.nullchk
+      maxiter     <- backfit.maxiter
+      backfit.tol <- greedy.tol * backfit.reltol
     }
 
     if (do.backfit) {
@@ -364,6 +364,12 @@ flash.workhorse <- function(data = NULL,
                          backfit = TRUE)
 
       if (backfit.order == "parallel") {
+        # Remove zero factors and fixed factors.
+        kset <- setdiff(kset, which(is.zero(flash)))
+        kset <- setdiff(kset, which.k.fixed(flash))
+
+        backfit.tol <- backfit.tol * length(kset)
+
         cl <- parallel::makeCluster(getOption("cl.cores", 2L),
                                     type = getOption("cl.type", "PSOCK"),
                                     useXDR = FALSE)
@@ -371,7 +377,7 @@ flash.workhorse <- function(data = NULL,
 
       iter <- 0
       old.obj <- get.obj(flash)
-      while (iter < maxiter && max(conv.crit) > tol) {
+      while (iter < maxiter && max(conv.crit) > backfit.tol) {
         is.converged <- TRUE
         iter <- iter + 1
 
@@ -386,11 +392,11 @@ flash.workhorse <- function(data = NULL,
             tmp <- conv.crit
             # Settle for second best.
             tmp[kset] <- 0
-            if (max(tmp) > tol)
+            if (max(tmp) > backfit.tol)
               kset <- which.max(tmp)
           }
         } else if (backfit.order == "dropout") {
-          kset <- kset[conv.crit[kset] > tol]
+          kset <- kset[conv.crit[kset] > backfit.tol]
         }
 
         if (backfit.order == "parallel") {

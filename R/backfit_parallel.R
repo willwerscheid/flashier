@@ -1,10 +1,6 @@
 #' @importFrom parallel stopCluster
 #'
 update.factors.parallel <- function(flash, kset, cl) {
-  # Remove zero factors and fixed factors.
-  kset <- setdiff(kset, which(is.zero(flash)))
-  kset <- setdiff(kset, which.k.fixed(flash))
-
   is.zero <- is.zero(flash)
   is.valid <- is.valid(flash)
 
