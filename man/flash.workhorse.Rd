@@ -4,7 +4,7 @@
 \alias{flash.workhorse}
 \title{A horse that works for \code{\link{flashier}}}
 \usage{
-flash.workhorse(data = NULL, flash.init = NULL, var.type = 0,
+flash.workhorse(data = NULL, init = NULL, var.type = 0,
   prior.sign = NULL, ebnm.fn = ebnm::ebnm, greedy.Kmax = 100,
   backfit.kset = NULL, backfit.order = c("dropout", "sequential",
   "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
@@ -30,9 +30,9 @@ obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
 \code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
-\code{flash.init} is used.}
+\code{init} is used.}
 
-\item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
+\item{init}{An initial \code{flash} or \code{flash.fit} object.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
 Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then

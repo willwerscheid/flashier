@@ -6,7 +6,7 @@
 \usage{
 flashier(data = NULL, S = NULL, prior.family = prior.point.normal(),
   var.type = 0L, fit = c("greedy", "full", "backfit.only"),
-  flash.init = NULL, greedy.Kmax = 50L, fixed.factors = NULL,
+  init = NULL, fixed.factors = NULL, greedy.Kmax = 50L,
   verbose.lvl = 1L, ...)
 }
 \arguments{
@@ -16,7 +16,7 @@ obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
 \code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
-\code{flash.init} is used.}
+\code{init} is used.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}
@@ -67,16 +67,10 @@ adds as many as \code{greedy.Kmax} factors, optimizing each newly added
 factor in one go without returning to optimize previously added factors.
 When \code{fit = "full"}, \code{flashier} will perform a final "backfit"
 where all factors are cyclically updated until convergence. Set
-\code{fit = "backfit.only"} to backfit \code{flash.init} without adding
-any additional factors.}
+\code{fit = "backfit.only"} to backfit \code{init} without greedily
+adding factors.}
 
-\item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
-
-\item{greedy.Kmax}{The maximum number of factors to be added. This will not
-necessarily be the total number of factors added by \code{flashier}, since
-factors are only added as long as they increase the variational lower
-bound on the log likelihood for the model. Fixed factors are not counted
-towards this limit.}
+\item{init}{An initial \code{flash} or \code{flash.fit} object.}
 
 \item{fixed.factors}{Adds factors with fixed loadings. Options
 include mean factors (where all row or column loadings are fixed at 1),
@@ -86,6 +80,12 @@ and \code{\link{fixed.factors}} for usage. Multiple types of fixed factors
 can be added by concatenating via \code{c()}. For example,
 \code{fixed.factors = c(fixed.ones(n = 1), fixed.sparse(n = 1,
 nz.idx = 1:10)} will add one mean factor and one sparse factor.}
+
+\item{greedy.Kmax}{The maximum number of factors to be added. This will not
+necessarily be the total number of factors added by \code{flashier}, since
+factors are only added as long as they increase the variational lower
+bound on the log likelihood for the model. Fixed factors are not counted
+towards this limit.}
 
 \item{verbose.lvl}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
@@ -125,7 +125,7 @@ A \code{flash} object. Contains elements:
       \code{flashier} when fitting is not performed all at once, but
       incrementally via repeated calls to \code{flashier} (with the
       intermediate \code{flash} or \code{flash.fit} objects given as
-      arguments to \code{flash.init}).}
+      arguments to \code{init}).}
   }
 }
 \description{

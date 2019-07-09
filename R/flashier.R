@@ -8,7 +8,7 @@
 #'   representation as returned by, for example, \code{\link{svd}},
 #'   \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
 #'   \code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
-#'   \code{flash.init} is used.
+#'   \code{init} is used.
 #'
 #' @param S The standard errors. Can be a matrix, scalar (if standard errors
 #'   are the same for all observations), or vector (if, for example, \code{S}
@@ -59,16 +59,10 @@
 #'   factor in one go without returning to optimize previously added factors.
 #'   When \code{fit = "full"}, \code{flashier} will perform a final "backfit"
 #'   where all factors are cyclically updated until convergence. Set
-#'   \code{fit = "backfit.only"} to backfit \code{flash.init} without adding
-#'   any additional factors.
+#'   \code{fit = "backfit.only"} to backfit \code{init} without greedily
+#'   adding factors.
 #'
-#' @param flash.init An initial \code{flash} or \code{flash.fit} object.
-#'
-#' @param greedy.Kmax The maximum number of factors to be added. This will not
-#'   necessarily be the total number of factors added by \code{flashier}, since
-#'   factors are only added as long as they increase the variational lower
-#'   bound on the log likelihood for the model. Fixed factors are not counted
-#'   towards this limit.
+#' @param init An initial \code{flash} or \code{flash.fit} object.
 #'
 #' @param fixed.factors Adds factors with fixed loadings. Options
 #'   include mean factors (where all row or column loadings are fixed at 1),
@@ -78,6 +72,12 @@
 #'   can be added by concatenating via \code{c()}. For example,
 #'   \code{fixed.factors = c(fixed.ones(n = 1), fixed.sparse(n = 1,
 #'   nz.idx = 1:10)} will add one mean factor and one sparse factor.
+#'
+#' @param greedy.Kmax The maximum number of factors to be added. This will not
+#'   necessarily be the total number of factors added by \code{flashier}, since
+#'   factors are only added as long as they increase the variational lower
+#'   bound on the log likelihood for the model. Fixed factors are not counted
+#'   towards this limit.
 #'
 #' @param verbose.lvl When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a
@@ -116,7 +116,7 @@
 #'       \code{flashier} when fitting is not performed all at once, but
 #'       incrementally via repeated calls to \code{flashier} (with the
 #'       intermediate \code{flash} or \code{flash.fit} objects given as
-#'       arguments to \code{flash.init}).}
+#'       arguments to \code{init}).}
 #'   }
 #'
 #' @examples
@@ -131,9 +131,9 @@ flashier <- function(data = NULL,
                      fit = c("greedy",
                              "full",
                              "backfit.only"),
-                     flash.init = NULL,
-                     greedy.Kmax = 50L,
+                     init = NULL,
                      fixed.factors = NULL,
+                     greedy.Kmax = 50L,
                      verbose.lvl = 1L,
                      ...) {
   if (inherits(data, "flash.data") && !missing(S))
@@ -148,33 +148,33 @@ flashier <- function(data = NULL,
                "cannot be."))
 
   # When available, use existing flash object settings as defaults.
-  if (inherits(flash.init, "flash"))
-    flash.init <- get.fit(flash.init)
-  if (!is.null(flash.init)) {
-    if (!inherits(flash.init, "flash.fit"))
-      stop("flash.init must be a flash or flash.fit object.")
+  if (inherits(init, "flash"))
+    init <- get.fit(init)
+  if (!is.null(init)) {
+    if (!inherits(init, "flash.fit"))
+      stop("init must be a flash or flash.fit object.")
     if (missing(var.type)) {
-      var.type <- get.est.tau.dim(flash.init)
-    } else if (!identical(var.type, flash.init$est.tau.dim)) {
-      flash.init <- clear.bypass.init.flag(flash.init)
+      var.type <- get.est.tau.dim(init)
+    } else if (!identical(var.type, init$est.tau.dim)) {
+      init <- clear.bypass.init.flag(init)
       if (is.null(data))
         stop("When changing var.type, data cannot be NULL.")
     }
     if (missing(prior.family)) {
       if (is.null(ellipsis$prior.sign))
-        ellipsis$prior.sign <- flash.init$dim.signs
+        ellipsis$prior.sign <- init$dim.signs
       if (is.null(ellipsis$ebnm.fn))
-        ellipsis$ebnm.fn <- flash.init$ebnm.fn
+        ellipsis$ebnm.fn <- init$ebnm.fn
     }
   }
 
-  # Bypass set.flash.data if flash.init has the needed fields.
-  if (bypass.init(flash.init)) {
+  # Bypass set.flash.data if init has the needed fields.
+  if (bypass.init(init)) {
     if (!is.null(data) || !is.null(S))
       warning("Flash object does not need to be re-initialized. Ignoring",
               " data (and/or S).")
     data <- NULL
-    dims <- get.dims(flash.init)
+    dims <- get.dims(init)
   } else {
     data <- set.flash.data(data, S, var.type = var.type)
     dims <- get.dims(data)
@@ -192,18 +192,18 @@ flashier <- function(data = NULL,
   workhorse.param <- list()
 
   # Handle "prior type" parameter.
-  if (is.null(flash.init)) {
+  if (is.null(init)) {
     workhorse.param <- c(workhorse.param, prior.param(prior.family, data.dim))
   } else if (!missing(prior.family)) {
     # The last element of ebnm.fn specifies settings for new factors. If there
     #   is an initial flash object, the existing settings need to be kept,
     #   while the last list element is overridden.
-    k <- length(flash.init$ebnm.fn)
-    flash.init$dim.signs <- flash.init$dim.signs[-k]
-    flash.init$ebnm.fn <- flash.init$ebnm.fn[-k]
+    k <- length(init$ebnm.fn)
+    init$dim.signs <- init$dim.signs[-k]
+    init$ebnm.fn <- init$ebnm.fn[-k]
     new.prior.param <- prior.param(prior.family, data.dim)
-    ellipsis$prior.sign <- c(flash.init$dim.signs, new.prior.param$prior.sign)
-    ellipsis$ebnm.fn <- c(flash.init$ebnm.fn, new.prior.param$ebnm.fn)
+    ellipsis$prior.sign <- c(init$dim.signs, new.prior.param$prior.sign)
+    ellipsis$ebnm.fn <- c(init$ebnm.fn, new.prior.param$ebnm.fn)
   }
 
   # Handle "fixed factors" parameter.
@@ -230,16 +230,16 @@ flashier <- function(data = NULL,
       return(list(dim = dim, idx = idx, vals = vals))
     })
 
-    # If flash.init is used, previously fixed factors need to be included.
+    # If init is used, previously fixed factors need to be included.
     #   These fields aren't always populated, so an offset needs to be
     #   used when setting the new fixed factors.
     ellipsis$fix.dim <- ellipsis$fix.idx <- ellipsis$fix.vals <- list()
-    if (!is.null(get.fix.dim(flash.init))) {
-      ellipsis$fix.dim  <- get.fix.dim(flash.init)
-      ellipsis$fix.idx  <- get.fix.idx(flash.init)
-      ellipsis$fix.vals <- get.fix.vals(flash.init)
+    if (!is.null(get.fix.dim(init))) {
+      ellipsis$fix.dim  <- get.fix.dim(init)
+      ellipsis$fix.idx  <- get.fix.idx(init)
+      ellipsis$fix.vals <- get.fix.vals(init)
     }
-    kset <- get.n.factors(flash.init) + 1:length(fixed.factors)
+    kset <- get.n.factors(init) + 1:length(fixed.factors)
     ellipsis$fix.dim[kset]  <- lapply(fixed.factors, `[[`, "dim")
     ellipsis$fix.idx[kset]  <- lapply(fixed.factors, `[[`, "idx")
     ellipsis$fix.vals[kset] <- lapply(fixed.factors, `[[`, "vals")
@@ -250,8 +250,8 @@ flashier <- function(data = NULL,
     fit <- match.arg(fit)
     if (fit == "greedy") {
       ellipsis$final.backfit <- FALSE
-    } else if (fit == "backfit") {
-      if (is.null(flash.init) && is.null(fixed.factors) && is.null(ellipsis$fix.dim))
+    } else if (fit == "backfit.only") {
+      if (is.null(init) && is.null(fixed.factors) && is.null(ellipsis$fix.dim))
         stop("There's nothing to backfit. Did you mean to set fit = \"full\"?")
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
         stop("Cannot set fit to \"backfit\" with greedy.Kmax > 0.")
@@ -281,7 +281,7 @@ flashier <- function(data = NULL,
   }
 
   return(do.call(flash.workhorse, c(list(data,
-                                         flash.init = flash.init,
+                                         init = init,
                                          var.type = var.type,
                                          greedy.Kmax = greedy.Kmax),
                                     workhorse.param,

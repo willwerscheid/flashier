@@ -124,7 +124,7 @@
 #' @importFrom parallel makeCluster stopCluster
 #'
 flash.workhorse <- function(data = NULL,
-                            flash.init = NULL,
+                            init = NULL,
                             var.type = 0,
                             prior.sign = NULL,
                             ebnm.fn = ebnm::ebnm,
@@ -183,21 +183,21 @@ flash.workhorse <- function(data = NULL,
     stop("R cannot be used with low-rank Y.")
 
   announce.flash.init(verbose.lvl)
-  if (!is.null(flash.init)) {
+  if (!is.null(init)) {
     if (missing(fix.dim))
-      fix.dim <- flash.init$fix.dim
+      fix.dim <- init$fix.dim
     if (missing(fix.idx))
-      fix.idx <- flash.init$fix.idx
+      fix.idx <- init$fix.idx
     if (missing(fix.vals))
-      fix.vals <- flash.init$fix.vals
+      fix.vals <- init$fix.vals
     if (missing(warmstart.backfits))
-      warmstart.backfits <- flash.init$warmstart.backfits
+      warmstart.backfits <- init$warmstart.backfits
     if (missing(use.fixed.to.est.g))
-      use.fixed.to.est.g <- flash.init$use.fixed.to.est.g
+      use.fixed.to.est.g <- init$use.fixed.to.est.g
     if (missing(nonmissing.thresh))
-      nonmissing.thresh <- flash.init$nonmissing.thresh
+      nonmissing.thresh <- init$nonmissing.thresh
   }
-  flash <- init.flash(flash.init,
+  flash <- init.flash(init,
                       data = data,
                       EF.init = EF.init,
                       est.tau.dim = var.type,

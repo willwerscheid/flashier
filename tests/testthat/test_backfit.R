@@ -13,7 +13,7 @@ data(gtex)
 # })
 
 fl.none <- flashier(gtex, greedy.Kmax = 5, fit = "greedy", verbose.lvl = 0)
-fl.p <- flashier(flash.init = fl.none, fit = "backfit", backfit.order = "parallel",
+fl.p <- flashier(init = fl.none, fit = "backfit", backfit.order = "parallel",
                  verbose.lvl = 0)
 
 test_that("ELBO for parallel backfit makes sense", {
@@ -21,6 +21,6 @@ test_that("ELBO for parallel backfit makes sense", {
 })
 
 test_that("parallel backfit goes to convergence", {
-  fl.pb <- flashier(flash.init = fl.p, fit = "backfit", verbose.lvl = 0)
+  fl.pb <- flashier(init = fl.p, fit = "backfit", verbose.lvl = 0)
   expect_equal(fl.p$elbo, fl.pb$elbo, tol = 0.001)
 })
