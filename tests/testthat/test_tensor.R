@@ -18,14 +18,14 @@ test_that("matrix factor initialization is correct (using R)", {
   expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(flash.init = f, backfit = "only", backfit.maxiter = 1,
+f.b <- flashier(flash.init = f, fit = "backfit", backfit.maxiter = 1,
                 final.nullchk = FALSE, verbose.lvl = 0)
 
 test_that ("the backfit objective improves after one iteration (using R)", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
+f.b2 <- flashier(flash.init = f, fit = "backfit", verbose.lvl = 0)
 
 test_that ("the final backfit objective improves again (using R)", {
   expect_true(f.b2$elbo > f.b$elbo)
@@ -42,14 +42,14 @@ test_that("matrix factor initialization is correct (using Y, with missing)", {
   expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flashier(flash.init = f, backfit = "only", backfit.maxiter = 1,
+f.b <- flashier(flash.init = f, fit = "backfit", backfit.maxiter = 1,
                 final.nullchk = FALSE, verbose.lvl = 0)
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flashier(flash.init = f, backfit = "only", verbose.lvl = 0)
+f.b2 <- flashier(flash.init = f, fit = "backfit", verbose.lvl = 0)
 
 test_that ("the final backfit objective improves again (using Y, with missing)", {
   expect_true(f.b2$elbo > f.b$elbo)

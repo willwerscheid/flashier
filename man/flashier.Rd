@@ -4,10 +4,10 @@
 \alias{flashier}
 \title{Fit an empirical Bayes matrix/tensor factorization}
 \usage{
-flashier(data = NULL, S = NULL, var.type = 0,
-  prior.family = prior.point.normal(), flash.init = NULL,
-  greedy.Kmax = 30, backfit = c("none", "final", "alternating",
-  "first.factor", "only"), fixed.factors = NULL, verbose.lvl = 1, ...)
+flashier(data = NULL, S = NULL, prior.family = prior.point.normal(),
+  var.type = 0L, fit = c("greedy", "full", "backfit.only"),
+  flash.init = NULL, greedy.Kmax = 50L, fixed.factors = NULL,
+  verbose.lvl = 1L, ...)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -22,16 +22,6 @@ representation as returned by, for example, \code{\link{svd}},
 are the same for all observations), or vector (if, for example, \code{S}
 only varies across columns and is constant within any given row). If
 \code{NULL}, all residual variance will be estimated.}
-
-\item{var.type}{Describes the structure of the estimated residual variance.
-Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
-\code{S} accounts for all residual variance. Otherwise, a rank-one
-variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the modes along which the
-residual variance is permitted to vary. For example, \code{var.type = 1}
-estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-optimizes over all rank-one matrices. If \code{var.type = 0}, then the
-residual variance is assumed to be constant across all observations.}
 
 \item{prior.family}{Indicates the family of distributions that the priors on
   the loadings are
@@ -62,6 +52,24 @@ residual variance is assumed to be constant across all observations.}
   means for the first factor and scale mixtures of normals for every
   subsequent factor.}
 
+\item{var.type}{Describes the structure of the estimated residual variance.
+Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
+\code{S} accounts for all residual variance. Otherwise, a rank-one
+variance structure will be estimated (and added to any variance specified
+by \code{S}). \code{var.type} then gives the modes along which the
+residual variance is permitted to vary. For example, \code{var.type = 1}
+estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+residual variance is assumed to be constant across all observations.}
+
+\item{fit}{Fitting method. When \code{fit = "greedy"}, \code{flashier}
+adds as many as \code{greedy.Kmax} factors, optimizing each newly added
+factor in one go without returning to optimize previously added factors.
+When \code{fit = "full"}, \code{flashier} will perform a final "backfit"
+where all factors are cyclically updated until convergence. Set
+\code{fit = "backfit.only"} to backfit \code{flash.init} without adding
+any additional factors.}
+
 \item{flash.init}{An initial \code{flash} or \code{flash.fit} object.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. This will not
@@ -69,14 +77,6 @@ necessarily be the total number of factors added by \code{flashier}, since
 factors are only added as long as they increase the variational lower
 bound on the log likelihood for the model. Fixed factors are not counted
 towards this limit.}
-
-\item{backfit}{Whether and how to backfit. If \code{"final"}, then a single
-backfit is performed after as many factors as possible have been added.
-If \code{"alternating"}, a backfit will be performed after each
-factor is added. \code{"first.factor"} is similar to \code{"alternating"},
-but only backfits the first factor and the most recently added factor.
-Set \code{backfit = "only"} to backfit \code{flash.init}
-without adding additional factors.}
 
 \item{fixed.factors}{Adds factors with fixed loadings. Options
 include mean factors (where all row or column loadings are fixed at 1),

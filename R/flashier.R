@@ -15,16 +15,6 @@
 #'   only varies across columns and is constant within any given row). If
 #'   \code{NULL}, all residual variance will be estimated.
 #'
-#' @param var.type Describes the structure of the estimated residual variance.
-#'   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
-#'   \code{S} accounts for all residual variance. Otherwise, a rank-one
-#'   variance structure will be estimated (and added to any variance specified
-#'   by \code{S}). \code{var.type} then gives the modes along which the
-#'   residual variance is permitted to vary. For example, \code{var.type = 1}
-#'   estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-#'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
-#'   residual variance is assumed to be constant across all observations.
-#'
 #' @param prior.family Indicates the family of distributions that the priors on
 #'   the loadings are
 #'   assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
@@ -54,6 +44,24 @@
 #'   means for the first factor and scale mixtures of normals for every
 #'   subsequent factor.
 #'
+#' @param var.type Describes the structure of the estimated residual variance.
+#'   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
+#'   \code{S} accounts for all residual variance. Otherwise, a rank-one
+#'   variance structure will be estimated (and added to any variance specified
+#'   by \code{S}). \code{var.type} then gives the modes along which the
+#'   residual variance is permitted to vary. For example, \code{var.type = 1}
+#'   estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+#'   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+#'   residual variance is assumed to be constant across all observations.
+#'
+#' @param fit Fitting method. When \code{fit = "greedy"}, \code{flashier}
+#'   adds as many as \code{greedy.Kmax} factors, optimizing each newly added
+#'   factor in one go without returning to optimize previously added factors.
+#'   When \code{fit = "full"}, \code{flashier} will perform a final "backfit"
+#'   where all factors are cyclically updated until convergence. Set
+#'   \code{fit = "backfit.only"} to backfit \code{flash.init} without adding
+#'   any additional factors.
+#'
 #' @param flash.init An initial \code{flash} or \code{flash.fit} object.
 #'
 #' @param greedy.Kmax The maximum number of factors to be added. This will not
@@ -61,14 +69,6 @@
 #'   factors are only added as long as they increase the variational lower
 #'   bound on the log likelihood for the model. Fixed factors are not counted
 #'   towards this limit.
-#'
-#' @param backfit Whether and how to backfit. If \code{"final"}, then a single
-#'   backfit is performed after as many factors as possible have been added.
-#'   If \code{"alternating"}, a backfit will be performed after each
-#'   factor is added. \code{"first.factor"} is similar to \code{"alternating"},
-#'   but only backfits the first factor and the most recently added factor.
-#'   Set \code{backfit = "only"} to backfit \code{flash.init}
-#'   without adding additional factors.
 #'
 #' @param fixed.factors Adds factors with fixed loadings. Options
 #'   include mean factors (where all row or column loadings are fixed at 1),
@@ -126,17 +126,15 @@
 #'
 flashier <- function(data = NULL,
                      S = NULL,
-                     var.type = 0,
                      prior.family = prior.point.normal(),
+                     var.type = 0L,
+                     fit = c("greedy",
+                             "full",
+                             "backfit.only"),
                      flash.init = NULL,
-                     greedy.Kmax = 30,
-                     backfit = c("none",
-                                 "final",
-                                 "alternating",
-                                 "first.factor",
-                                 "only"),
+                     greedy.Kmax = 50L,
                      fixed.factors = NULL,
-                     verbose.lvl = 1,
+                     verbose.lvl = 1L,
                      ...) {
   if (inherits(data, "flash.data") && !missing(S))
     warning("Data has already been set. Ignoring S.")
@@ -247,20 +245,23 @@ flashier <- function(data = NULL,
     ellipsis$fix.vals[kset] <- lapply(fixed.factors, `[[`, "vals")
   }
 
-  # Handle "backfit" parameter.
-  if (is.null(ellipsis$final.backfit)
-      && is.null(ellipsis$backfit.after)
-      && is.null(ellipsis$backfit.every)) {
-    backfit <- match.arg(backfit)
-    if (backfit == "only") {
+  # Handle "fit" parameter.
+  if (is.null(ellipsis$final.backfit)) {
+    fit <- match.arg(fit)
+    if (fit == "greedy") {
+      ellipsis$final.backfit <- FALSE
+    } else if (fit == "backfit") {
+      if (is.null(flash.init) && is.null(fixed.factors) && is.null(ellipsis$fix.dim))
+        stop("There's nothing to backfit. Did you mean to set fit = \"full\"?")
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
-        stop("Cannot set backfit to \"only\" with greedy.Kmax > 0.")
+        stop("Cannot set fit to \"backfit\" with greedy.Kmax > 0.")
       greedy.Kmax <- 0
+      ellipsis$final.backfit <- TRUE
+    } else if (fit == "full") {
+      ellipsis$final.backfit <- TRUE
     }
-    workhorse.param <- c(workhorse.param, control.param(backfit))
-  } else if (!missing(backfit)) {
-    stop(paste("If backfit is specified, then final.backfit,",
-               "backfit.after, and backfit.every cannot be."))
+  } else if (!missing(fit)) {
+    stop(paste("If fit is specified, then final.backfit cannot be."))
   }
 
   # Handle "verbose.lvl" parameter.
@@ -312,21 +313,6 @@ prior.param <- function(prior.family, data.dim) {
 
   return(list(prior.sign = prior.sign,
               ebnm.fn = ebnm.fn))
-}
-
-control.param <- function(backfit) {
-  control <- list()
-  if (backfit %in% c("final", "only")) {
-    control$final.backfit <- TRUE
-  } else if (backfit %in% c("alternating", "first.factor")) {
-    control$backfit.after <- 2
-    control$backfit.every <- 1
-    control$final.backfit <- FALSE
-    if (backfit == "first.factor") {
-      control$backfit.kset <- function(n.factors) c(1, n.factors)
-    }
-  }
-  return(control)
 }
 
 verbose.param <- function(verbose, data.dim) {

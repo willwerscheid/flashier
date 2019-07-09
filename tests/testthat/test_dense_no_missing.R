@@ -27,13 +27,13 @@ test_that("matrix factor initialization is correct (using Y)", {
 # Uncomment this test once ebnm can handle SEs equal to zero.
 #
 # f <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
-#               fix.vals = list(rep(1, n), LL[1:5]), backfit = "only",
+#               fix.vals = list(rep(1, n), LL[1:5]), fit = "backfit",
 #               verbose.lvl = 0)
 #
 #
 # f2 <- flashier(M, fix.dim = list(1, 1), fix.idx = list(1:n, 1:5),
 #                fix.vals = list(rep(1, n), LL[1:5]),
-#                backfit = "only",
+#                fit = "backfit",
 #                use.fixed.to.est.g = TRUE,
 #                verbose.lvl = 0)
 #
@@ -43,7 +43,7 @@ test_that("matrix factor initialization is correct (using Y)", {
 
 test_that("nullcheck works as expected", {
   f <- flashier(M, fix.dim = list(1, 1, 1), fix.idx = list(1:n, 1:5, 1:n),
-                fix.vals = list(rep(1, n), LL[1:5], 1:n), backfit = "only",
+                fix.vals = list(rep(1, n), LL[1:5], 1:n), fit = "backfit",
                 nullchk.fixed = TRUE, verbose.lvl = 0)
   expect_equal(is.zero(f$flash.fit), c(FALSE, FALSE, TRUE))
 })

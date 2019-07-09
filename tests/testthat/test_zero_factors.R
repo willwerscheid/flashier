@@ -15,7 +15,7 @@ M <- LF + 0.1 * rnorm(n * p)
 # Factor 3 will be removed here:
 f <- flashier(M, greedy.Kmax = 2,
               fixed.factors = fixed.factors(1, 1:n),
-              backfit = "final", backfit.reltol = 100,
+              fit = "full", backfit.reltol = 100,
               nullchk.fixed = TRUE, verbose.lvl = 0)
 
 test_that("sampler works correctly when there are zero factors", {

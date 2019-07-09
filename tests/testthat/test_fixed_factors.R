@@ -22,7 +22,7 @@ test_that("Fixed factors are correctly added to a new flash object", {
 })
 
 fl <- flashier(flash.init = fl, fixed.factors = fixed.sparse(n = 1, 1:3),
-                backfit = "only", verbose.lvl = 0)
+               fit = "backfit", verbose.lvl = 0)
 
 test_that("Fixed factors are correctly added to an existing flash object", {
   expect_equal(fl$flash.fit$EF[[1]][4:n, 4], rep(0, n - 3))
