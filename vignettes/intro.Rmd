@@ -1,7 +1,7 @@
 ---
 title: "Introduction to flashier"
 author: "Jason Willwerscheid"
-date: "11/29/2018"
+date: "07/15/2019"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{flashier intro}
@@ -10,8 +10,8 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo= TRUE, collapse = TRUE, comment = "#>",
-                      fig.width = 6, fig.height = 6)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
+                      fig.width = 6, fig.height = 6, warning = FALSE)
 library(flashier)
 library(ggplot2)
 ```
@@ -147,7 +147,7 @@ c(kronecker.time[3], kron.plus.1.time[3])
 plot.tissue.loadings(gtex.kron.plus.1)
 ```
 
-## Prior types
+## Prior families
 
 The point-normal priors used so far can be fit quickly, but describe a limited class of distributions. More flexible classes of priors can be estimated using package `ashr`. In `flashier`, parameter `prior.family` accepts arguments `prior.normal.scale.mix()`, which allows priors to take form
 $$ g \sim \pi_1 N(0, \sigma^2_1) + \ldots + \pi_m N(0, \sigma^2_m),$$
@@ -206,19 +206,15 @@ plot.tissue.loadings(gtex.nonnegative)
 
 `flashier` fits models greedily by updating a first factor to optimize the variational lower bound, then adding and updating a second factor while leaving the first factor fixed, and so on. Optionally, one may choose to "backfit" a model by iteratively updating factors one at a time until convergence. Factors that are added early on can, so to speak, use information contained in subsequent factors to improve the overall model fit. The improvement can be considerable.
 
-Basic fitting strategies can be specified via the `backfit` parameter. When `backfit = "final"`, `flashier` greedily adds as many factors as possible, then backfits all of the factors in one go. If one initially decides not to backfit by using the default `backfit = "none"`, then the resulting fit can be backfit in a second call by setting `flash.init` to the returned flash object and setting `backfit` to `"only"`. Finally, `backfit = "alternating"` alternates between adding a single factor greedily and backfitting all factors added so far.
+Basic fitting strategies can be specified via the `fit` parameter. When `fit = "full"`, `flashier` greedily adds as many factors as possible, then backfits all of the factors in one go. If one initially decides not to backfit by using the default `fit = "greedy"`, then the resulting fit can be backfit in a second call by setting `init` to the returned flash object and setting `fit` to `"backfit.only"`.
 
 ```{r backfit}
 final.bf.time <- system.time(
   gtex.final.bf <- flashier(gtex, greedy.Kmax = 5, var.type = 1, 
-                            backfit = "final", verbose.lvl = 0)
+                            fit = "full", verbose.lvl = 0)
 )
-alternating.bf.time <- system.time(
-  gtex.alternating.bf <- flashier(gtex, greedy.Kmax = 5, var.type = 1, 
-                                  backfit = "alternating", verbose.lvl = 0)
-)
-c(gtex.byrow$elbo, gtex.final.bf$elbo, gtex.alternating.bf$elbo)
-c(byrow.time[3], final.bf.time[3], alternating.bf.time[3])
+c(gtex.byrow$elbo, gtex.final.bf$elbo)
+c(byrow.time[3], final.bf.time[3])
 ```
 
 ## Sampling from the posterior

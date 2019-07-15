@@ -251,7 +251,8 @@ flashier <- function(data = NULL,
     if (fit == "greedy") {
       ellipsis$final.backfit <- FALSE
     } else if (fit == "backfit.only") {
-      if (is.null(init) && is.null(fixed.factors) && is.null(ellipsis$fix.dim))
+      if (is.null(init) && is.null(fixed.factors) && is.null(ellipsis$fix.dim)
+          && is.null(ellipsis$EF.init))
         stop("There's nothing to backfit. Did you mean to set fit = \"full\"?")
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
         stop("Cannot set fit to \"backfit\" with greedy.Kmax > 0.")

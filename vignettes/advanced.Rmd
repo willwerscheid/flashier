@@ -1,7 +1,7 @@
 ---
 title: "Advanced flashier"
 author: "Jason Willwerscheid"
-date: "11/29/2018"
+date: "07/15/2019"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{advanced flashier}
@@ -11,7 +11,7 @@ vignette: >
   
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
-                      warning = FALSE, fig.width = 6, fig.height = 6)
+                      fig.width = 6, fig.height = 6, warning = FALSE)
 library(flashier)
 ```
   
@@ -28,13 +28,14 @@ One might instead like to add several factors at once (without optimizing) and t
 svd.factors <- svd(gtex, nu = 5, nv = 5)
 EF.init <- list(rep(svd.factors$d[1:5], each = nrow(gtex)) * svd.factors$u,
 svd.factors$v)
+class(EF.init) <- "lowrank"
 svd.time <- system.time(
-gtex.svd <- flashier(gtex, var.type = 1, EF.init = EF.init, backfit = "only",
-verbose.lvl = 0)
+  gtex.svd <- flashier(gtex, var.type = 1, EF.init = EF.init, fit = "backfit.only",
+                       verbose.lvl = 0)
 )
 greedy.time <- system.time(
-gtex.greedy <- flashier(gtex, greedy.Kmax = 5, var.type = 1, backfit = "final",
-verbose.lvl = 0)
+  gtex.greedy <- flashier(gtex, greedy.Kmax = 5, var.type = 1, fit = "full",
+                          verbose.lvl = 0)
 )
 c(gtex.svd$elbo, gtex.greedy$elbo)
 c(svd.time[3], greedy.time[3])
@@ -51,7 +52,7 @@ factor3.tissues <- pmatch(c("Whole", "Spleen", "Lung", "Cells_EBV"), tissues)
 factor4.tissues <- pmatch(c("Heart_A", "Heart_L", "Muscle"), tissues)
 factor5.tissues <- pmatch(c("Esophagus_Muc", "Skin_N", "Skin_S"), tissues)
 
-gtex.fixed <- flashier(gtex, greedy.Kmax = 2, var.type = 1, backfit = "final",
+gtex.fixed <- flashier(gtex, greedy.Kmax = 2, var.type = 1, fit = "full",
                        fixed.factors = fixed.sparse(n = 2,
                                                     nz.idx = list(factor3.tissues,
                                                                   factor4.tissues,
@@ -178,8 +179,8 @@ By default, `flashier` backfits using warmstarts.
 
 ```{r warmstarts}
 warmstarts.time <- system.time(
-  gtex.warmstarts <- flashier(gtex, flash.init = gtex.nonnegative,
-                              backfit = "only", warmstart.backfits = TRUE)
+  gtex.warmstarts <- flashier(gtex, init = gtex.nonnegative,
+                              fit = "backfit.only", warmstart.backfits = TRUE)
 )
 ```
 
@@ -187,8 +188,8 @@ I can turn warmstarts off as follows.
 
 ```{r no.warmstarts}
 no.warmstarts.time <- system.time(
-  gtex.no.warmstarts <- flashier(gtex, flash.init = gtex.nonnegative,
-                                 backfit = "only", warmstart.backfits = FALSE)
+  gtex.no.warmstarts <- flashier(gtex, init = gtex.nonnegative,
+                                 fit = "backfit.only", warmstart.backfits = FALSE)
 )
 ```
 
@@ -206,26 +207,26 @@ As an example, I implement "same-sign" priors. The idea, suggested to me by Matt
 
 ```{r same.sign}
 greedy.Kmax <- 6
-fit <- NULL
+fl <- NULL
 for (k in 1:greedy.Kmax) {
-  nn.fit <- flashier(gtex, flash.init = fit, greedy.Kmax = 1, var.type = 1,
+  nn.fl <- flashier(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
                      prior.family = prior.nonnegative(),
                      output.lvl = 0, verbose.lvl = 0)
-  np.fit <- flashier(gtex, flash.init = fit, greedy.Kmax = 1, var.type = 1,
+  np.fl <- flashier(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
                      prior.family = c(prior.nonnegative(), 
                                       prior.nonpositive()),
                      output.lvl = 0, verbose.lvl = 0)
-  if (nn.fit$obj > np.fit$obj) {
+  if (nn.fl$obj > np.fl$obj) {
     cat("Nonnegative factor added. Objective: ",
-        formatC(nn.fit$obj, format = "f", digits = 2), "\n", sep = "")
-    fit <- nn.fit
+        formatC(nn.fl$obj, format = "f", digits = 2), "\n", sep = "")
+    fl <- nn.fl
   } else {
     cat("Nonpositive factor added. Objective: ",
-        formatC(np.fit$obj, format = "f", digits = 2), "\n", sep = "")
-    fit <- np.fit
+        formatC(np.fl$obj, format = "f", digits = 2), "\n", sep = "")
+    fl <- np.fl
   }
 }
 # A final call to get a nice "flash" object rather than a "flash.fit" object.
-gtex.same.signs <- flashier(flash.init = fit, greedy.Kmax = 0)
+gtex.same.signs <- flashier(init = fl, greedy.Kmax = 0)
 plot.tissue.loadings(gtex.same.signs)
 ```
