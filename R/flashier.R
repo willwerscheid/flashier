@@ -275,10 +275,12 @@ flashier <- function(data = NULL,
              || is.null(ellipsis$verbose.colwidths)) {
     stop(paste("If one of verbose.fns, verbose.colnames, and",
                "verbose.colwidths is specified, then all must be."))
-  } else if (!(missing(verbose.lvl) || verbose.lvl %in% c(-1, 3))) {
+  } else if (missing(verbose.lvl)) {
+    ellipsis$verbose.lvl <- 3
+  } else if (!(verbose.lvl %in% c(-1, 3))) {
     stop("Custom verbose output cannot be specified with verbose.lvl < 3")
   } else {
-    ellipsis$verbose.lvl <- 3
+    ellipsis$verbose.lvl <- verbose.lvl
   }
 
   return(do.call(flash.workhorse, c(list(data,
@@ -353,7 +355,7 @@ look.up.verbose.fns <- function(verbose, data.dim) {
     }
     if (chars[[1]] == "O") {
       if (!is.null(n))
-        warning("Dimension ignored for verbose objective input.")
+        warning("Dimension ignored for verbose objective output.")
       return(calc.obj.diff)
     } else if (chars[[1]] == "L") {
       return(function(new, old, k) calc.max.chg.EF(new, old, k, n))
