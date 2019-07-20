@@ -136,7 +136,7 @@ gtex.verbose2 <- flashier(gtex, greedy.Kmax = 2, var.type = 1,
 
 ## Using a different convergence criterion
 
-The default behavior is to iterate until the variational lower bound increases by no more than $np \sqrt{\epsilon}$ (where $\epsilon$ denotes machine epsilon). The convergence criterion is set by the `conv.crit.fn` parameter, and tolerances are set by parameters `greedy.tol`, `backfit.reltol` (for the final backfit), and `inner.backfit.reltol` (for intermediary backfits). 
+The default behavior is to iterate until the variational lower bound increases by no more than $np \sqrt{\epsilon}$ (where $\epsilon$ denotes machine epsilon). The convergence criterion is set by the `conv.crit.fn` parameter, and tolerances are set by parameters `tol`, `backfit.reltol` (for the final backfit), and `inner.backfit.reltol` (for intermediary backfits). 
 
 If one is primarily interested in tissue loadings in the `gtex` dataset, then one might like to stop optimization when their normalized absolute values no longer change by more than, say, .001.
 
@@ -144,7 +144,7 @@ If one is primarily interested in tissue loadings in the `gtex` dataset, then on
 gtex.conv.crit <- flashier(gtex, greedy.Kmax = 2, var.type = 1,
                            conv.crit.fn = function(new, old, k) {
                              flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
-                           }, greedy.tol = 1e-3, verbose.lvl = "O L2")
+                           }, tol = 1e-3, verbose.lvl = "O L2")
 ```
 
 

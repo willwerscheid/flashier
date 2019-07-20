@@ -16,9 +16,8 @@ flash.workhorse(data = NULL, init = NULL, var.type = 0,
   fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, greedy.tol = NULL,
-  fixed.maxiter = greedy.maxiter, fixed.reltol = 1,
-  backfit.maxiter = 100, backfit.reltol = 1,
+  greedy.maxiter = 500, tol = NULL, fixed.maxiter = greedy.maxiter,
+  fixed.reltol = 1, backfit.maxiter = 100, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
   inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
   nonmissing.thresh = NULL, seed = 666, use.R = FALSE)
@@ -140,26 +139,25 @@ occur before initialization is considered complete.}
 \item{greedy.maxiter}{The maximum number of iterations when optimizing a
 greedily added factor.}
 
-\item{greedy.tol}{The convergence tolerance when optimizing a greedily added
-factor.}
+\item{tol}{The convergence tolerance.}
 
 \item{fixed.maxiter}{The maximum number of iterations when optimizing a
 newly added fixed factor.}
 
-\item{fixed.reltol}{The convergence tolerance (relative to greedy.tol) when
+\item{fixed.reltol}{The convergence tolerance (relative to tol) when
 optimizing a newly added fixed factor.}
 
 \item{backfit.maxiter}{Maximum iterations for final backfits.}
 
 \item{backfit.reltol}{Convergence tolerance for final backfits, relative to
-greedy.tol.}
+tol.}
 
 \item{inner.backfit.maxiter}{Maximum iterations for intermediary backfits.}
 
 \item{inner.backfit.reltol}{Convergence tolerance for intermediary backfits,
-relative to greedy.tol.}
+relative to tol.}
 
-\item{nullchk.reltol}{Tolerance for nullchecks, relative to greedy.tol.}
+\item{nullchk.reltol}{Tolerance for nullchecks, relative to tol.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be

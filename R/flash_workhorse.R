@@ -88,26 +88,25 @@
 #' @param greedy.maxiter The maximum number of iterations when optimizing a
 #'   greedily added factor.
 #'
-#' @param greedy.tol The convergence tolerance when optimizing a greedily added
-#'   factor.
+#' @param tol The convergence tolerance.
 #'
 #' @param fixed.maxiter The maximum number of iterations when optimizing a
 #'   newly added fixed factor.
 #'
-#' @param fixed.reltol The convergence tolerance (relative to greedy.tol) when
+#' @param fixed.reltol The convergence tolerance (relative to tol) when
 #'   optimizing a newly added fixed factor.
 #'
 #' @param backfit.maxiter Maximum iterations for final backfits.
 #'
 #' @param backfit.reltol Convergence tolerance for final backfits, relative to
-#'   greedy.tol.
+#'   tol.
 #'
 #' @param inner.backfit.maxiter Maximum iterations for intermediary backfits.
 #'
 #' @param inner.backfit.reltol Convergence tolerance for intermediary backfits,
-#'   relative to greedy.tol.
+#'   relative to tol.
 #'
-#' @param nullchk.reltol Tolerance for nullchecks, relative to greedy.tol.
+#' @param nullchk.reltol Tolerance for nullchecks, relative to tol.
 #'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
@@ -159,7 +158,7 @@ flash.workhorse <- function(data = NULL,
                             init.maxiter = 100,
                             init.tol = 1e-2,
                             greedy.maxiter = 500,
-                            greedy.tol = NULL,
+                            tol = NULL,
                             fixed.maxiter = greedy.maxiter,
                             fixed.reltol = 1,
                             backfit.maxiter = 100,
@@ -245,9 +244,9 @@ flash.workhorse <- function(data = NULL,
     }
   }
 
-  if (is.null(greedy.tol)) {
-    greedy.tol <- set.default.tol(flash)
-    report.tol.setting(verbose.lvl, greedy.tol)
+  if (is.null(tol)) {
+    tol <- set.default.tol(flash)
+    report.tol.setting(verbose.lvl, tol)
   }
 
   total.factors.added <- 0
@@ -275,10 +274,10 @@ flash.workhorse <- function(data = NULL,
 
       if (is.fixed) {
         maxiter <- fixed.maxiter
-        tol     <- greedy.tol * fixed.reltol
+        add.tol <- tol * fixed.reltol
       } else {
         maxiter <- greedy.maxiter
-        tol     <- greedy.tol
+        add.tol <- tol
       }
 
       if (maxiter > 0) {
@@ -288,7 +287,7 @@ flash.workhorse <- function(data = NULL,
 
         iter <- 0
         conv.crit <- Inf
-        while (conv.crit > tol && iter < maxiter) {
+        while (conv.crit > add.tol && iter < maxiter) {
           iter <- iter + 1
 
           old.f    <- factor
@@ -309,7 +308,7 @@ flash.workhorse <- function(data = NULL,
         if (iter == maxiter)
           is.converged <- FALSE
 
-        if (get.obj(factor) > get.obj(flash) + greedy.tol
+        if (get.obj(factor) > get.obj(flash) + tol
             || !is.obj.valid(flash, factor)
             || is.fixed) {
           flash <- add.new.factor.to.flash(factor, flash)
@@ -336,12 +335,12 @@ flash.workhorse <- function(data = NULL,
       do.backfit  <- total.factors.added %in% when.to.backfit
       do.nullchk  <- total.factors.added %in% when.to.nullchk
       maxiter     <- inner.backfit.maxiter
-      backfit.tol <- greedy.tol * inner.backfit.reltol
+      backfit.tol <- tol * inner.backfit.reltol
     } else {
       do.backfit  <- final.backfit
       do.nullchk  <- final.nullchk
       maxiter     <- backfit.maxiter
-      backfit.tol <- greedy.tol * backfit.reltol
+      backfit.tol <- tol * backfit.reltol
     }
 
     if (do.backfit) {
@@ -367,8 +366,6 @@ flash.workhorse <- function(data = NULL,
         # Remove zero factors and fixed factors.
         kset <- setdiff(kset, which(is.zero(flash)))
         kset <- setdiff(kset, which.k.fixed(flash))
-
-        backfit.tol <- backfit.tol * length(kset)
 
         cl <- parallel::makeCluster(getOption("cl.cores", 2L),
                                     type = getOption("cl.type", "PSOCK"),
@@ -442,7 +439,7 @@ flash.workhorse <- function(data = NULL,
 
       announce.nullchk(verbose.lvl, n.factors = length(nullchk.kset))
 
-      nullchk.tol <- greedy.tol * nullchk.reltol
+      nullchk.tol <- tol * nullchk.reltol
       for (k in nullchk.kset)
         flash <- nullcheck.factor(flash, k, verbose.lvl, nullchk.tol)
       if (nullchk.failed(flash)) {
