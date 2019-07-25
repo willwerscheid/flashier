@@ -166,6 +166,8 @@ flash.workhorse <- function(data = NULL,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.reltol = backfit.reltol,
                             nullchk.reltol = 1,
+                            extrapolate.greedy = TRUE,
+                            extrapolate.control = list(),
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
@@ -254,6 +256,8 @@ flash.workhorse <- function(data = NULL,
   when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
+  extrapolate.param <- set.extrapolate.param(extrapolate.control)
+
   if (verbose.lvl == -1)
     print.tab.delim.table.header(verbose.colnames)
 
@@ -287,11 +291,29 @@ flash.workhorse <- function(data = NULL,
 
         iter <- 0
         conv.crit <- Inf
+        if (extrapolate.greedy) {
+          old.f <- factor
+          extrapolate.param <- init.beta(extrapolate.param)
+        }
         while (conv.crit > add.tol && iter < maxiter) {
           iter <- iter + 1
 
-          old.f    <- factor
-          factor   <- update.factor(factor, flash)
+          if (extrapolate.greedy) {
+            proposed.factor <- extrapolate.factor(factor, old.f, extrapolate.param)
+            proposed.factor <- update.factor(proposed.factor, flash)
+          }
+
+          old.f <- factor
+          if (!extrapolate.greedy) {
+            factor <- update.factor(factor, flash)
+          } else if (get.obj(proposed.factor) - get.obj(factor) < tol) {
+            factor <- update.factor(factor, flash)
+            extrapolate.param <- decelerate(extrapolate.param)
+          } else {
+            factor <- proposed.factor
+            extrapolate.param <- accelerate(extrapolate.param)
+          }
+
           obj.diff <- get.obj(factor) - get.obj(old.f)
           if (is.obj.valid(old.f) && obj.diff < 0
               && identical(get.exclusions(old.f), get.exclusions(factor))) {
