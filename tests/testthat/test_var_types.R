@@ -27,7 +27,7 @@ test_that("by column S + by column estimation works", {
   expect_equal(f$flash.fit$tau[-(1:10)], f$flash.fit$est.tau[-(1:10)])
 })
 
-test_that("kroncker variance estimation works", {
+test_that("kronecker variance estimation works", {
   Y <- matrix(10, nrow = 100, ncol = 100) + 0.1 * rnorm(100 * 100)
   f <- flashier(Y, var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
   tau.mat <- r1.expand(f$flash.fit$tau)
