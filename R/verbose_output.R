@@ -21,16 +21,17 @@ report.add.factor.result <- function(verbose.lvl, greedy.complete, obj) {
   }
 }
 
-announce.backfit <- function(verbose.lvl, n.factors) {
+announce.backfit <- function(verbose.lvl, n.factors, tol) {
   if (verbose.lvl > 0)
-    cat("Backfitting", n.factors, "factors...\n")
+    cat(paste0("Backfitting ", n.factors, " factors (target tolerance: ",
+               formatC(tol, format = "e", digits = 2), "):\n"))
 }
 
-report.backfit.progress <- function(verbose.lvl, iter, every) {
-  if (verbose.lvl == 1) {
-    if (iter %% every == 0 ) {
-      cat(iter, "backfitting iterations complete...\n")
-    }
+report.backfit.progress <- function(verbose.lvl, tol) {
+  if (verbose.lvl > 0 && verbose.lvl < 3) {
+      cat("  Tolerance of",
+          formatC(tol, format = "e", digits = 2),
+          "reached...\n")
   }
 }
 

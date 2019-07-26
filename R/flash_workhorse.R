@@ -396,7 +396,7 @@ flash.workhorse <- function(data = NULL,
         conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
       }
 
-      announce.backfit(verbose.lvl, n.factors = length(kset))
+      announce.backfit(verbose.lvl, n.factors = length(kset), backfit.tol)
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
@@ -412,6 +412,7 @@ flash.workhorse <- function(data = NULL,
 
       iter <- 0
       old.obj <- get.obj(flash)
+      next.tol.target <- NULL
       if (backfit.method == "extrapolate") {
         extrapolate.param <- init.beta(extrapolate.param)
         old.f <- flash
@@ -475,7 +476,13 @@ flash.workhorse <- function(data = NULL,
           }
         }
 
-        report.backfit.progress(verbose.lvl, iter, every = 10)
+        if (is.null(next.tol.target)) {
+          next.tol.target <- 10^floor(log10(max(conv.crit)))
+        }
+        if (max(conv.crit) < next.tol.target) {
+          report.backfit.progress(verbose.lvl, next.tol.target)
+          next.tol.target <- next.tol.target / 10
+        }
       }
 
       if (backfit.method == "parallel") {
