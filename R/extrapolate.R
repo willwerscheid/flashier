@@ -19,6 +19,7 @@ extrapolate.f <- function(f, old.f, par) {
   if (is.list(get.tau(f))) {
     tau <- mapply(extrapolate, get.tau(f), get.tau(old.f),
                   MoreArgs = list(beta = beta), SIMPLIFY = FALSE)
+    # Ensure that tau > 0.
     tau <- lapply(tau, function(tau) pmax(tau, epsilon))
   } else {
     tau <- extrapolate(get.tau(f), get.tau(old.f), beta)

@@ -11,14 +11,27 @@
 #' @param ebnm.fn A list of lists giving the functions to be used to solve the
 #'   Empirical Bayes normal means problem when updating each factor.
 #'
+#' @param extrapolate.greedy Whether to use an extrapolation technique
+#'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
+#'   and fixed factors.
+#'
 #' @param backfit.kset Which factors to backfit. The - operator can be used to
 #'   instead specify which factors not to backfit. For example,
 #'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
 #'
-#' @param backfit.method How to determine the order in which to backfit factors.
-#'   \code{"montaigne"} goes after the factor that promises to yield the
-#'   largest increase in the variational lower bound. Il faut courir au plus
-#'   pressé. The number of cores used by \code{"parallel"} can be set via the
+#' @param backfit.method \code{"sequential"} updates each factor in order, one
+#'   at a time. \code{"extrapolate"} does the same but uses an acceleration
+#'   technique inspired by Ang and Gillis (2019). The extrapolation parameters
+#'   can be set via \code{extrapolate.control}. \code{"dropout"} is similar to
+#'   \code{"sequential"}, but stops updating individual factors once they are
+#'   no longer changing very much. \code{"montaigne"} goes after the factor that
+#'   promises to yield the largest increase in the variational lower bound.
+#'   Il faut courir au plus pressé. \code{"random"} updates each factor one at
+#'   a time, but re-orders them randomly after each backfit iteration.
+#'   \code{"parallel"} does a simultaneous update of all factors. Unlike other
+#'   methods, parallel backfits are not guaranteed to yield monotonic increases
+#'   in the variational lower bound.
+#'   The number of cores used by \code{"parallel"} can be set via the
 #'   command \code{options("cl.cores", n.cores)}. The type of multicore
 #'   cluster can be set via \code{options("cl.type", type)}. Typically,
 #'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
@@ -107,6 +120,8 @@
 #'   relative to tol.
 #'
 #' @param nullchk.reltol Tolerance for nullchecks, relative to tol.
+#'
+#' @param extrapolate.control Extrapolation parameters. TODO: describe.
 #'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
