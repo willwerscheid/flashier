@@ -129,10 +129,11 @@ flash.workhorse <- function(data = NULL,
                             ebnm.fn = ebnm::ebnm,
                             greedy.Kmax = 100,
                             backfit.kset = NULL,
-                            backfit.order = c("dropout",
+                            backfit.order = c("extrapolate",
                                               "sequential",
-                                              "random",
+                                              "dropout",
                                               "montaigne",
+                                              "random",
                                               "parallel"),
                             warmstart.backfits = TRUE,
                             backfit.after = NULL,
@@ -299,7 +300,7 @@ flash.workhorse <- function(data = NULL,
           iter <- iter + 1
 
           if (extrapolate.greedy) {
-            proposed.factor <- extrapolate.factor(factor, old.f, extrapolate.param)
+            proposed.factor <- extrapolate.f(factor, old.f, extrapolate.param)
             proposed.factor <- update.factor(proposed.factor, flash)
           }
 
@@ -396,6 +397,10 @@ flash.workhorse <- function(data = NULL,
 
       iter <- 0
       old.obj <- get.obj(flash)
+      if (backfit.order == "extrapolate") {
+        extrapolate.param <- init.beta(extrapolate.param)
+        old.f <- flash
+      }
       while (iter < maxiter && max(conv.crit) > backfit.tol) {
         is.converged <- TRUE
         iter <- iter + 1
@@ -418,9 +423,25 @@ flash.workhorse <- function(data = NULL,
           kset <- kset[conv.crit[kset] > backfit.tol]
         }
 
-        if (backfit.order == "parallel") {
-          old.f <- flash
-          flash <- update.factors.parallel(flash, kset, cl)
+        if (backfit.order %in% c("extrapolate", "parallel")) {
+          if (backfit.order == "extrapolate") {
+            proposed.f <- extrapolate.f(flash, old.f, extrapolate.param)
+            proposed.f <- update.all.factors(proposed.f)
+
+            old.f <- flash
+
+            if (get.obj(proposed.f) - get.obj(flash) < tol) {
+              flash <- update.all.factors(flash)
+              extrapolate.param <- decelerate(extrapolate.param)
+            } else {
+              flash <- proposed.f
+              extrapolate.param <- accelerate(extrapolate.param)
+            }
+          } else if (backfit.order == "parallel") {
+            old.f <- flash
+            flash <- update.factors.parallel(flash, kset, cl)
+          }
+
           info  <- calc.update.info(flash, old.f,
                                     conv.crit.fn, verbose.fns)
           # Since decreases in the objective are possible, use absolute values.
