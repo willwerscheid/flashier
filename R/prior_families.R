@@ -46,12 +46,18 @@ as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
 ebnm.nowarn <- function(...) {
   withCallingHandlers(res <- ebnm(...),
                       warning = function(w) {
-                        if (startsWith(conditionMessage(w),
-                                       "Optimization failed to converge. Results"))
-                          invokeRestart("muffleWarning")
+                        if (any(startsWith(conditionMessage(w), ignored.warnings)))
+                            invokeRestart("muffleWarning")
                       })
   return(res)
 }
+
+# Since maxiter.sqp is intentionally set to be very small (to speed up fitting time),
+#   ignore the ashr warning about reaching the maximum number of iterations.
+# Also ignore the ebnm warning about setting mode and scale with fixg. This pops up
+#   when calculating LFSR or samplers using nonzero.mode prior families.
+ignored.warnings <- c("Optimization failed to converge. Results",
+                      "mode and scale parameters are ignored")
 
 #' @rdname prior.families
 #' @export
