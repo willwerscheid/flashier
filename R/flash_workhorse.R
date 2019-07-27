@@ -473,8 +473,11 @@ flash.workhorse <- function(data = NULL,
 
           info <- calc.update.info(flash, old.f,
                                    conv.crit.fn, verbose.fns)
-          # Since decreases in the objective are possible, use absolute values.
-          conv.crit <- abs(get.conv.crit(info))
+          conv.crit <- get.conv.crit(info)
+          if (backfit.method == "parallel") {
+            # Since decreases in the ELBO are possible, use absolute values.
+            conv.crit <- abs(conv.crit)
+          }
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
         } else {
