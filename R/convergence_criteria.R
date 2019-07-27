@@ -36,6 +36,10 @@ get.new.obj <- function(new, old, k) {
   return(get.obj(new))
 }
 
+display.obj <- function(new, old, k) {
+  return(formatC(get.new.obj(new, old, k), format = "f", digits = 2))
+}
+
 calc.obj.diff <- function(new, old, k) {
   if (!is.obj.valid(old) || !is.obj.valid(new))
     return(Inf)

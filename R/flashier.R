@@ -353,10 +353,14 @@ look.up.verbose.fns <- function(verbose, data.dim) {
     } else {
       n <- NULL
     }
-    if (chars[[1]] == "O") {
+    if (chars[[1]] %in% c("O", "D")) {
       if (!is.null(n))
         warning("Dimension ignored for verbose objective output.")
-      return(calc.obj.diff)
+      if (chars[[1]] == "O") {
+        return(display.obj)
+      } else {
+        return(calc.obj.diff)
+      }
     } else if (chars[[1]] == "L") {
       return(function(new, old, k) calc.max.chg.EF(new, old, k, n))
     } else if (chars[[1]] == "W") {
@@ -377,6 +381,8 @@ look.up.verbose.colnames <- function(verbose) {
   names <- lapply(verbose, function(symbol) {
     chars <- unlist(strsplit(symbol, ""))
     if (chars[[1]] == "O")
+      return("Objective")
+    if (chars[[1]] == "D")
       return("Obj Diff")
     if (chars[[1]] == "L") {
       name <- "Max Chg"
@@ -404,7 +410,9 @@ look.up.verbose.colnames <- function(verbose) {
 look.up.verbose.colwidths <- function(verbose) {
   widths <- lapply(verbose, function(symbol) {
     char <- substring(symbol, 1, 1)
-    if (char %in% c("O", "L", "S"))
+    if (char == "O")
+      return(16)
+    if (char %in% c("D", "L", "S"))
       return(13)
     if (char %in% c("W", "E"))
       return(9)

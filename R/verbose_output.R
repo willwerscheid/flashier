@@ -23,15 +23,21 @@ report.add.factor.result <- function(verbose.lvl, greedy.complete, obj) {
 
 announce.backfit <- function(verbose.lvl, n.factors, tol) {
   if (verbose.lvl > 0)
-    cat(paste0("Backfitting ", n.factors, " factors (target tolerance: ",
+    cat(paste0("Backfitting ", n.factors, " factors (tolerance: ",
                formatC(tol, format = "e", digits = 2), "):\n"))
 }
 
 report.backfit.progress <- function(verbose.lvl, tol) {
   if (verbose.lvl > 0 && verbose.lvl < 3) {
-      cat("  Tolerance of",
-          formatC(tol, format = "e", digits = 2),
-          "reached...\n")
+      cat(paste0("  Difference between iterations is within ",
+          formatC(tol, format = "e", digits = 1),
+          "...\n"))
+  }
+}
+
+report.maxiter.reached <- function(verbose.lvl) {
+  if (verbose.lvl > 0 && verbose.lvl < 3) {
+    cat("  Maximum number of iterations reached.\n")
   }
 }
 

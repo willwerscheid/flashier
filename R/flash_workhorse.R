@@ -489,8 +489,10 @@ flash.workhorse <- function(data = NULL,
         parallel::stopCluster(cl)
       }
 
-      if (iter == maxiter)
+      if (iter == maxiter) {
         is.converged <- FALSE
+        report.maxiter.reached(verbose.lvl)
+      }
 
       if (get.obj(flash) > old.obj) {
         report.backfit.complete(verbose.lvl, get.obj(flash))
