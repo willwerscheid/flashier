@@ -43,7 +43,6 @@ as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
 }
 
 #' @importFrom ebnm ebnm
-#' @export
 ebnm.nowarn <- function(...) {
   withCallingHandlers(res <- ebnm(...),
                       warning = function(w) {

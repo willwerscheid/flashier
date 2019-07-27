@@ -1,4 +1,4 @@
-#' Fit an empirical Bayes matrix/tensor factorization
+#' Empirical Bayes matrix/tensor factorization
 #'
 #' TODO: Describe model. Add reference.
 #'

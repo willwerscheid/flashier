@@ -17,8 +17,9 @@ flash.workhorse(data = NULL, init = NULL, var.type = 0,
   fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, tol = NULL, fixed.maxiter = greedy.maxiter,
-  fixed.reltol = 1, backfit.maxiter = 100, backfit.reltol = 1,
+  maxiter = 500, tol = NULL, greedy.maxiter = maxiter,
+  greedy.reltol = 1, fixed.maxiter = maxiter, fixed.reltol = 1,
+  backfit.maxiter = maxiter, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
   inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
   extrapolate.control = list(), nonmissing.thresh = NULL, seed = 666,
@@ -151,10 +152,21 @@ factors.}
 \item{init.tol}{The maximum absolute change in normalized loadings that can
 occur before initialization is considered complete.}
 
+\item{maxiter}{The maximum number of iterations when adding a factor or
+backfitting. To set different maximums for each type of fit, use
+parameters \code{greedy.maxiter}, \code{fixed.maxiter},
+\code{backfit.maxiter}, and \code{inner.backfit.maxiter}.}
+
+\item{tol}{The convergence tolerance. Different tolerances can be used for
+each type of fit by setting relative tolerances via parameters
+\code{greedy.reltol}, \code{fixed.reltol}, \code{backfit.reltol},
+and \code{inner.backfit.reltol}.}
+
 \item{greedy.maxiter}{The maximum number of iterations when optimizing a
 greedily added factor.}
 
-\item{tol}{The convergence tolerance.}
+\item{greedy.reltol}{The convergence tolerance (relative to tol) when
+optimizing a greedily added factor.}
 
 \item{fixed.maxiter}{The maximum number of iterations when optimizing a
 newly added fixed factor.}

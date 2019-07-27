@@ -13,7 +13,7 @@
 \alias{prior.nonpositive}
 \title{Flashier prior families}
 \usage{
-as.prior(ebnm.fn = ebnm, sign = 0, ...)
+as.prior(ebnm.fn = ebnm.nowarn, sign = 0, ...)
 
 prior.normal(...)
 
