@@ -24,7 +24,7 @@ report.add.factor.result <- function(verbose.lvl, greedy.complete, obj) {
 announce.backfit <- function(verbose.lvl, n.factors, tol) {
   if (verbose.lvl > 0)
     cat(paste0("Backfitting ", n.factors, " factors (tolerance: ",
-               formatC(tol, format = "e", digits = 2), "):\n"))
+               formatC(tol, format = "e", digits = 2), ")...\n"))
 }
 
 report.backfit.progress <- function(verbose.lvl, tol) {
