@@ -34,13 +34,24 @@
 #' @param ... Additional parameters to be passed to \code{ebnm::ebnm}.
 
 #' @rdname prior.families
-#' @importFrom ebnm ebnm
 #' @export
-as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
+as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
   return(list(list(sign = sign,
                    ebnm.fn = function(x, s, g, fixg, output) {
                      ebnm.fn(x, s, g_init = g, fix_g = fixg, output = output, ...)
                    })))
+}
+
+#' @importFrom ebnm ebnm
+#' @export
+ebnm.nowarn <- function(...) {
+  withCallingHandlers(res <- ebnm(...),
+                      warning = function(w) {
+                        if (startsWith(conditionMessage(w),
+                                       "Optimization failed to converge. Results"))
+                          invokeRestart("muffleWarning")
+                      })
+  return(res)
 }
 
 #' @rdname prior.families
