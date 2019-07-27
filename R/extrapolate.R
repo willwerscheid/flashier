@@ -53,15 +53,13 @@ decelerate <- function(par) {
   return(par)
 }
 
-default.extrapolate.param <- function() {
-  return(list(beta.init = 0.5,
-              beta.increase = 1.2,
-              beta.decrease = 0.5,
-              beta.max = 2))
-}
+default.extrapolate.param <- list(beta.init = 0.5,
+                                  beta.increase = 1.2,
+                                  beta.decrease = 0.5,
+                                  beta.max = 2)
 
 set.extrapolate.param <- function(control) {
-  par <- default.extrapolate.param()
+  par <- default.extrapolate.param
   if (!all(names(control) %in% names(par))) {
     stop("Unrecognized extrapolation control parameter.")
   }

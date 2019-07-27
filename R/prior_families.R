@@ -145,18 +145,14 @@ as.prior.args <- function(prior.family, optmethod, ...) {
   }
 
   if (identical(optmethod, "nlm")) {
-    args$control <- modifyList(nlm.defaults(), args$control)
+    args$control <- modifyList(nlm.defaults, args$control)
   } else if (identical(optmethod, "mixsqp")) {
-    args$control <- modifyList(mixsqp.defaults(), args$control)
+    args$control <- modifyList(mixsqp.defaults, args$control)
   }
 
   return(args)
 }
 
-mixsqp.defaults <- function() {
-  return(list(maxiter.sqp = 10))
-}
+mixsqp.defaults <- list(maxiter.sqp = 10)
 
-nlm.defaults <- function() {
-  return(list(iterlim = 10))
-}
+nlm.defaults <- list(iterlim = 10)

@@ -61,7 +61,7 @@ calc.all.ebnm.args <- function(n, flash) {
          x = x[, k],
          s = s[k],
          g = get.g.k(flash, k, n),
-         output = default.output())
+         output = default.output)
   }))
 }
 
