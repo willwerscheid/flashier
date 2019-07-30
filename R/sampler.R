@@ -1,4 +1,4 @@
-F.sampler <- function(flash) {
+build.sampler <- function(flash) {
   # Beware of unfulfilled promise leak.
   force(flash)
 
@@ -19,10 +19,10 @@ F.sampler <- function(flash) {
 all.post.samplers <- function(flash) {
   return(lapply(1:get.dim(flash),
                 function(n) lapply(1:get.n.factors(flash),
-                                   function(k) post.sampler(flash, k, n))))
+                                   function(k) one.post.sampler(flash, k, n))))
 }
 
-post.sampler <- function(flash, k, n) {
+one.post.sampler <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
   if (is.zero(factor)) {
     sampler <- function(nsamp) {matrix(0,

@@ -1,4 +1,18 @@
-update.existing.factor <- function(flash, k, iter, verbose.lvl) {
+update.all.factors <- function(flash) {
+  for (k in 1:get.n.factors(flash)) {
+    factor <- extract.factor(flash, k)
+    factor <- update.factor(factor, flash, update.tau = FALSE)
+    factor <- set.to.valid(factor)
+    flash  <- insert.factor(flash, factor, update.tau = FALSE)
+  }
+
+  flash <- init.tau(flash)
+  flash <- set.obj(flash, calc.obj(flash))
+
+  return(flash)
+}
+
+update.one.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 
   if (!is.zero(old.factor)) {
@@ -7,7 +21,7 @@ update.existing.factor <- function(flash, k, iter, verbose.lvl) {
     if (get.obj(factor) > get.obj(flash)
         || !is.obj.valid(flash, factor)
         || !identical(get.exclusions(old.factor), get.exclusions(factor))) {
-      flash <- alter.existing.factor(flash, factor)
+      flash <- insert.factor(flash, factor)
     } else {
       obj.diff <- get.obj(factor) - get.obj(flash)
       report.backfit.obj.decrease(verbose.lvl, obj.diff, k)
@@ -36,7 +50,7 @@ extract.factor <- function(flash, k) {
   return(factor)
 }
 
-alter.existing.factor <- function(flash, factor) {
+insert.factor <- function(flash, factor, update.tau = TRUE) {
   k <- get.k(factor)
 
   if (uses.R(flash))
@@ -46,11 +60,14 @@ alter.existing.factor <- function(flash, factor) {
   flash <- set.EF2k(flash, k, get.EF2(factor))
   flash <- set.KLk(flash, k, get.KL(factor))
   flash <- set.gk(flash, k, get.g(factor))
-  flash <- set.tau(flash, get.tau(factor))
-  flash <- set.obj(flash, get.obj(factor))
-  if (is.tau.simple(flash)) {
-    flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
-    flash <- set.est.tau(flash, get.est.tau(factor))
+
+  if (update.tau) {
+    flash <- set.tau(flash, get.tau(factor))
+    flash <- set.obj(flash, get.obj(factor))
+    if (is.tau.simple(flash)) {
+      flash <- set.R2(flash, get.R2(flash) + get.delta.R2(factor))
+      flash <- set.est.tau(flash, get.est.tau(factor))
+    }
   }
 
   if (is.zero(factor))

@@ -13,7 +13,7 @@ data(gtex)
 # })
 
 fl.none <- flashier(gtex, greedy.Kmax = 5, fit = "greedy", verbose.lvl = 0)
-fl.p <- flashier(init = fl.none, fit = "backfit", backfit.order = "parallel",
+fl.p <- flashier(init = fl.none, fit = "backfit", backfit.method = "parallel",
                  verbose.lvl = 0)
 
 test_that("ELBO for parallel backfit makes sense", {

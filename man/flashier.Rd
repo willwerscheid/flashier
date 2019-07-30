@@ -2,7 +2,7 @@
 % Please edit documentation in R/flashier.R
 \name{flashier}
 \alias{flashier}
-\title{Fit an empirical Bayes matrix/tensor factorization}
+\title{Empirical Bayes matrix/tensor factorization}
 \usage{
 flashier(data = NULL, S = NULL, prior.family = prior.point.normal(),
   var.type = 0L, fit = c("greedy", "full", "backfit.only"),

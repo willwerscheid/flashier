@@ -60,12 +60,7 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
-default.output <- function() {
-  return(c("posterior_mean", "posterior_second_moment",
-           "fitted_g", "log_likelihood"))
-}
-
-solve.ebnm <- function(factor, n, flash, output = default.output()) {
+solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))
     factor <- add.subset.data(factor, flash, fix.dim, get.idx.subset(factor))
@@ -75,7 +70,7 @@ solve.ebnm <- function(factor, n, flash, output = default.output()) {
   ebnm.args  <- calc.ebnm.args(factor, n, flash, incl.fixed)
 
   prev.g <- get.g(factor, n)
-  if (!identical(output, default.output()) && !is.null(prev.g)) {
+  if (!identical(output, default.ebnm.output) && !is.null(prev.g)) {
     g    <- prev.g
     fixg <- TRUE
   } else if (!is.new(factor)
@@ -101,7 +96,7 @@ solve.ebnm <- function(factor, n, flash, output = default.output()) {
 
   ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
 
-  if (identical(output, default.output())) {
+  if (identical(output, default.ebnm.output)) {
     ebnm.res$KL <- (ebnm.res$log_likelihood
                     - normal.means.loglik(ebnm.args$x,
                                           ebnm.args$s,
@@ -237,5 +232,5 @@ use.subsetted.flash.data <- function(factor, n) {
 add.fixed.to.ebnm.args <- function(factor, n, flash, output) {
   return((n %in% get.fix.dim(factor))
           && (use.fixed.to.est.g(flash)
-              || !identical(output, default.output())))
+              || !identical(output, default.ebnm.output)))
 }

@@ -7,7 +7,7 @@ nullcheck.factor <- function(flash, k, verbose.lvl, tol) {
   obj.diff <- get.obj(factor) - get.obj(flash)
 
   if (obj.diff >= -tol) {
-    flash <- alter.existing.factor(flash, factor)
+    flash <- insert.factor(flash, factor)
     flash <- set.nullchk.fail.flag(flash)
     report.nullchk.failure(verbose.lvl, obj.diff, k)
   }

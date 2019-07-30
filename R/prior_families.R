@@ -34,9 +34,8 @@
 #' @param ... Additional parameters to be passed to \code{ebnm::ebnm}.
 
 #' @rdname prior.families
-#' @importFrom ebnm ebnm
 #' @export
-as.prior <- function(ebnm.fn = ebnm, sign = 0, ...) {
+as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
   return(list(list(sign = sign,
                    ebnm.fn = function(x, s, g, fixg, output) {
                      ebnm.fn(x, s, g_init = g, fix_g = fixg, output = output, ...)
@@ -129,18 +128,10 @@ as.prior.args <- function(prior.family, optmethod, ...) {
   }
 
   if (identical(optmethod, "nlm")) {
-    args$control <- modifyList(nlm.defaults(), args$control)
+    args$control <- modifyList(nlm.defaults, args$control)
   } else if (identical(optmethod, "mixsqp")) {
-    args$control <- modifyList(mixsqp.defaults(), args$control)
+    args$control <- modifyList(mixsqp.defaults, args$control)
   }
 
   return(args)
-}
-
-mixsqp.defaults <- function() {
-  return(list(maxiter.sqp = 10))
-}
-
-nlm.defaults <- function() {
-  return(list(iterlim = 10))
 }

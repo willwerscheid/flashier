@@ -11,14 +11,27 @@
 #' @param ebnm.fn A list of lists giving the functions to be used to solve the
 #'   Empirical Bayes normal means problem when updating each factor.
 #'
+#' @param extrapolate.greedy Whether to use an extrapolation technique
+#'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
+#'   and fixed factors.
+#'
 #' @param backfit.kset Which factors to backfit. The - operator can be used to
 #'   instead specify which factors not to backfit. For example,
 #'   \code{backfit.kset = -(1:2)} will backfit all factors but the first two.
 #'
-#' @param backfit.order How to determine the order in which to backfit factors.
-#'   \code{"montaigne"} goes after the factor that promises to yield the
-#'   largest increase in the variational lower bound. Il faut courir au plus
-#'   pressé. The number of cores used by \code{"parallel"} can be set via the
+#' @param backfit.method \code{"sequential"} updates each factor in order, one
+#'   at a time. \code{"extrapolate"} does the same but uses an acceleration
+#'   technique inspired by Ang and Gillis (2019). The extrapolation parameters
+#'   can be set via \code{extrapolate.control}. \code{"dropout"} is similar to
+#'   \code{"sequential"}, but stops updating individual factors once they are
+#'   no longer changing very much. \code{"montaigne"} goes after the factor that
+#'   promises to yield the largest increase in the variational lower bound.
+#'   Il faut courir au plus pressé. \code{"random"} updates each factor one at
+#'   a time, but re-orders them randomly after each backfit iteration.
+#'   \code{"parallel"} does a simultaneous update of all factors. Unlike other
+#'   methods, parallel backfits are not guaranteed to yield monotonic increases
+#'   in the variational lower bound.
+#'   The number of cores used by \code{"parallel"} can be set via the
 #'   command \code{options("cl.cores", n.cores)}. The type of multicore
 #'   cluster can be set via \code{options("cl.type", type)}. Typically,
 #'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
@@ -85,10 +98,21 @@
 #' @param init.tol The maximum absolute change in normalized loadings that can
 #'   occur before initialization is considered complete.
 #'
+#' @param maxiter The maximum number of iterations when adding a factor or
+#'   backfitting. To set different maximums for each type of fit, use
+#'   parameters \code{greedy.maxiter}, \code{fixed.maxiter},
+#'   \code{backfit.maxiter}, and \code{inner.backfit.maxiter}.
+#'
+#' @param tol The convergence tolerance. Different tolerances can be used for
+#'   each type of fit by setting relative tolerances via parameters
+#'   \code{greedy.reltol}, \code{fixed.reltol}, \code{backfit.reltol},
+#'   and \code{inner.backfit.reltol}.
+#'
 #' @param greedy.maxiter The maximum number of iterations when optimizing a
 #'   greedily added factor.
 #'
-#' @param tol The convergence tolerance.
+#' @param greedy.reltol  The convergence tolerance (relative to tol) when
+#'   optimizing a greedily added factor.
 #'
 #' @param fixed.maxiter The maximum number of iterations when optimizing a
 #'   newly added fixed factor.
@@ -107,6 +131,8 @@
 #'   relative to tol.
 #'
 #' @param nullchk.reltol Tolerance for nullchecks, relative to tol.
+#'
+#' @param extrapolate.control Extrapolation parameters. TODO: describe.
 #'
 #' @param nonmissing.thresh A vector of thresholds, one for each mode. Each
 #'   threshold sets the (weighted) proportion of data that must be
@@ -128,12 +154,14 @@ flash.workhorse <- function(data = NULL,
                             prior.sign = NULL,
                             ebnm.fn = ebnm::ebnm,
                             greedy.Kmax = 100,
+                            extrapolate.greedy = TRUE,
                             backfit.kset = NULL,
-                            backfit.order = c("dropout",
-                                              "sequential",
-                                              "random",
-                                              "montaigne",
-                                              "parallel"),
+                            backfit.method = c("extrapolate",
+                                               "sequential",
+                                               "dropout",
+                                               "montaigne",
+                                               "random",
+                                               "parallel"),
                             warmstart.backfits = TRUE,
                             backfit.after = NULL,
                             backfit.every = NULL,
@@ -157,22 +185,25 @@ flash.workhorse <- function(data = NULL,
                             init.fn = NULL,
                             init.maxiter = 100,
                             init.tol = 1e-2,
-                            greedy.maxiter = 500,
+                            maxiter = 500,
                             tol = NULL,
-                            fixed.maxiter = greedy.maxiter,
+                            greedy.maxiter = maxiter,
+                            greedy.reltol = 1,
+                            fixed.maxiter = maxiter,
                             fixed.reltol = 1,
-                            backfit.maxiter = 100,
+                            backfit.maxiter = maxiter,
                             backfit.reltol = 1,
                             inner.backfit.maxiter = backfit.maxiter,
                             inner.backfit.reltol = backfit.reltol,
                             nullchk.reltol = 1,
+                            extrapolate.control = list(),
                             nonmissing.thresh = NULL,
                             seed = 666,
                             use.R = FALSE) {
   set.seed(seed)
-  backfit.order <- match.arg(backfit.order)
+  backfit.method <- match.arg(backfit.method)
 
-  ## data should be NULL when bypassing initialization.
+  # data should be NULL when bypassing initialization.
   if (!is.null(data) && force.use.R(data, var.type)) {
     if (!missing(use.R) && !use.R)
       stop("R must be used with the requested variance structure.")
@@ -218,7 +249,7 @@ flash.workhorse <- function(data = NULL,
   #   k^2 << max(n, p) for parallelization to yield any real benefits. But for
   #   small k, serial backfits are fast and yield monotonic increases in the
   #   ELBO, so parallelization is best avoided.
-  if (backfit.order == "parallel") {
+  if (backfit.method == "parallel") {
     if (get.dim(flash) > 2) {
       stop("Parallel backfits have not yet been implemented for tensors.")
     }
@@ -254,6 +285,8 @@ flash.workhorse <- function(data = NULL,
   when.to.backfit <- as.Kset(backfit.after, backfit.every, max.factors.to.add)
   when.to.nullchk <- as.Kset(nullchk.after, nullchk.every, max.factors.to.add)
 
+  extrapolate.param <- set.extrapolate.param(extrapolate.control)
+
   if (verbose.lvl == -1)
     print.tab.delim.table.header(verbose.colnames)
 
@@ -277,7 +310,7 @@ flash.workhorse <- function(data = NULL,
         add.tol <- tol * fixed.reltol
       } else {
         maxiter <- greedy.maxiter
-        add.tol <- tol
+        add.tol <- tol * greedy.reltol
       }
 
       if (maxiter > 0) {
@@ -287,11 +320,29 @@ flash.workhorse <- function(data = NULL,
 
         iter <- 0
         conv.crit <- Inf
+        if (extrapolate.greedy) {
+          old.f <- factor
+          extrapolate.param <- init.beta(extrapolate.param)
+        }
         while (conv.crit > add.tol && iter < maxiter) {
           iter <- iter + 1
 
-          old.f    <- factor
-          factor   <- update.factor(factor, flash)
+          if (extrapolate.greedy) {
+            proposed.factor <- extrapolate.f(factor, old.f, extrapolate.param)
+            proposed.factor <- update.factor(proposed.factor, flash)
+          }
+
+          old.f <- factor
+          if (!extrapolate.greedy) {
+            factor <- update.factor(factor, flash)
+          } else if (get.obj(proposed.factor) - get.obj(factor) < tol) {
+            factor <- update.factor(factor, flash)
+            extrapolate.param <- decelerate(extrapolate.param)
+          } else {
+            factor <- proposed.factor
+            extrapolate.param <- accelerate(extrapolate.param)
+          }
+
           obj.diff <- get.obj(factor) - get.obj(old.f)
           if (is.obj.valid(old.f) && obj.diff < 0
               && identical(get.exclusions(old.f), get.exclusions(factor))) {
@@ -358,11 +409,11 @@ flash.workhorse <- function(data = NULL,
         conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
       }
 
-      announce.backfit(verbose.lvl, n.factors = length(kset))
+      announce.backfit(verbose.lvl, n.factors = length(kset), backfit.tol)
       print.table.header(verbose.lvl, verbose.colnames, verbose.colwidths,
                          backfit = TRUE)
 
-      if (backfit.order == "parallel") {
+      if (backfit.method == "parallel") {
         # Remove zero factors and fixed factors.
         kset <- setdiff(kset, which(is.zero(flash)))
         kset <- setdiff(kset, which.k.fixed(flash))
@@ -374,13 +425,18 @@ flash.workhorse <- function(data = NULL,
 
       iter <- 0
       old.obj <- get.obj(flash)
+      next.tol.target <- NULL
+      if (backfit.method == "extrapolate") {
+        extrapolate.param <- init.beta(extrapolate.param)
+        old.f <- flash
+      }
       while (iter < maxiter && max(conv.crit) > backfit.tol) {
         is.converged <- TRUE
         iter <- iter + 1
 
-        if (backfit.order == "random") {
+        if (backfit.method == "random") {
           kset <- sample(kset)
-        } else if (backfit.order == "montaigne") {
+        } else if (backfit.method == "montaigne") {
           # Il faut courir au plus pressé.
           last.max <- kset
           kset <- which.max(conv.crit)
@@ -392,23 +448,42 @@ flash.workhorse <- function(data = NULL,
             if (max(tmp) > backfit.tol)
               kset <- which.max(tmp)
           }
-        } else if (backfit.order == "dropout") {
+        } else if (backfit.method == "dropout") {
           kset <- kset[conv.crit[kset] > backfit.tol]
         }
 
-        if (backfit.order == "parallel") {
-          old.f <- flash
-          flash <- update.factors.parallel(flash, kset, cl)
-          info  <- calc.update.info(flash, old.f,
-                                    conv.crit.fn, verbose.fns)
-          # Since decreases in the objective are possible, use absolute values.
-          conv.crit <- abs(get.conv.crit(info))
+        if (backfit.method %in% c("extrapolate", "parallel")) {
+          if (backfit.method == "extrapolate") {
+            proposed.f <- extrapolate.f(flash, old.f, extrapolate.param)
+            proposed.f <- update.all.factors(proposed.f)
+
+            old.f <- flash
+
+            if (get.obj(proposed.f) - get.obj(flash) < tol) {
+              flash <- update.all.factors(flash)
+              extrapolate.param <- decelerate(extrapolate.param)
+            } else {
+              flash <- proposed.f
+              extrapolate.param <- accelerate(extrapolate.param)
+            }
+          } else if (backfit.method == "parallel") {
+            old.f <- flash
+            flash <- update.factors.parallel(flash, kset, cl)
+          }
+
+          info <- calc.update.info(flash, old.f,
+                                   conv.crit.fn, verbose.fns)
+          conv.crit <- get.conv.crit(info)
+          if (backfit.method == "parallel") {
+            # Since decreases in the ELBO are possible, use absolute values.
+            conv.crit <- abs(conv.crit)
+          }
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
         } else {
           for (k in kset) {
             old.f <- flash
-            flash <- update.existing.factor(flash, k, iter, verbose.lvl)
+            flash <- update.one.factor(flash, k, iter, verbose.lvl)
             info  <- calc.update.info(flash, old.f,
                                       conv.crit.fn, verbose.fns, k)
             conv.crit[k] <- get.conv.crit(info)
@@ -417,15 +492,27 @@ flash.workhorse <- function(data = NULL,
           }
         }
 
-        report.backfit.progress(verbose.lvl, iter, every = 10)
+        if (is.null(next.tol.target)) {
+          if (max(conv.crit) > 0) {
+            next.tol.target <- 10^floor(log10(max(conv.crit)))
+          } else {
+            next.tol.target <- 0
+          }
+        }
+        if (next.tol.target > 0 && max(conv.crit) < next.tol.target) {
+          report.backfit.progress(verbose.lvl, next.tol.target)
+          next.tol.target <- next.tol.target / 10
+        }
       }
 
-      if (backfit.order == "parallel") {
+      if (backfit.method == "parallel") {
         parallel::stopCluster(cl)
       }
 
-      if (iter == maxiter)
+      if (iter == maxiter) {
         is.converged <- FALSE
+        report.maxiter.reached(verbose.lvl)
+      }
 
       if (get.obj(flash) > old.obj) {
         report.backfit.complete(verbose.lvl, get.obj(flash))

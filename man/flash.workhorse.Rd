@@ -6,8 +6,9 @@
 \usage{
 flash.workhorse(data = NULL, init = NULL, var.type = 0,
   prior.sign = NULL, ebnm.fn = ebnm::ebnm, greedy.Kmax = 100,
-  backfit.kset = NULL, backfit.order = c("dropout", "sequential",
-  "random", "montaigne", "parallel"), warmstart.backfits = TRUE,
+  extrapolate.greedy = TRUE, backfit.kset = NULL,
+  backfit.method = c("extrapolate", "sequential", "dropout", "montaigne",
+  "random", "parallel"), warmstart.backfits = TRUE,
   backfit.after = NULL, backfit.every = NULL, final.backfit = FALSE,
   nullchk.after = NULL, nullchk.every = NULL, final.nullchk = TRUE,
   restart.after.nullchk = TRUE, conv.crit.fn = calc.obj.diff,
@@ -16,11 +17,13 @@ flash.workhorse(data = NULL, init = NULL, var.type = 0,
   fix.dim = NULL, fix.idx = NULL, fix.vals = NULL,
   use.fixed.to.est.g = FALSE, nullchk.fixed.factors = FALSE,
   init.fn = NULL, init.maxiter = 100, init.tol = 0.01,
-  greedy.maxiter = 500, tol = NULL, fixed.maxiter = greedy.maxiter,
-  fixed.reltol = 1, backfit.maxiter = 100, backfit.reltol = 1,
+  maxiter = 500, tol = NULL, greedy.maxiter = maxiter,
+  greedy.reltol = 1, fixed.maxiter = maxiter, fixed.reltol = 1,
+  backfit.maxiter = maxiter, backfit.reltol = 1,
   inner.backfit.maxiter = backfit.maxiter,
   inner.backfit.reltol = backfit.reltol, nullchk.reltol = 1,
-  nonmissing.thresh = NULL, seed = 666, use.R = FALSE)
+  extrapolate.control = list(), nonmissing.thresh = NULL, seed = 666,
+  use.R = FALSE)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -56,14 +59,27 @@ factors are only added as long as they increase the variational lower
 bound on the log likelihood for the model. Fixed factors are not counted
 towards this limit.}
 
+\item{extrapolate.greedy}{Whether to use an extrapolation technique
+inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
+and fixed factors.}
+
 \item{backfit.kset}{Which factors to backfit. The - operator can be used to
 instead specify which factors not to backfit. For example,
 \code{backfit.kset = -(1:2)} will backfit all factors but the first two.}
 
-\item{backfit.order}{How to determine the order in which to backfit factors.
-\code{"montaigne"} goes after the factor that promises to yield the
-largest increase in the variational lower bound. Il faut courir au plus
-pressé. The number of cores used by \code{"parallel"} can be set via the
+\item{backfit.method}{\code{"sequential"} updates each factor in order, one
+at a time. \code{"extrapolate"} does the same but uses an acceleration
+technique inspired by Ang and Gillis (2019). The extrapolation parameters
+can be set via \code{extrapolate.control}. \code{"dropout"} is similar to
+\code{"sequential"}, but stops updating individual factors once they are
+no longer changing very much. \code{"montaigne"} goes after the factor that
+promises to yield the largest increase in the variational lower bound.
+Il faut courir au plus pressé. \code{"random"} updates each factor one at
+a time, but re-orders them randomly after each backfit iteration.
+\code{"parallel"} does a simultaneous update of all factors. Unlike other
+methods, parallel backfits are not guaranteed to yield monotonic increases
+in the variational lower bound.
+The number of cores used by \code{"parallel"} can be set via the
 command \code{options("cl.cores", n.cores)}. The type of multicore
 cluster can be set via \code{options("cl.type", type)}. Typically,
 \code{cl.type = "FORK"} is more efficient on Unix-likes.}
@@ -136,10 +152,21 @@ factors.}
 \item{init.tol}{The maximum absolute change in normalized loadings that can
 occur before initialization is considered complete.}
 
+\item{maxiter}{The maximum number of iterations when adding a factor or
+backfitting. To set different maximums for each type of fit, use
+parameters \code{greedy.maxiter}, \code{fixed.maxiter},
+\code{backfit.maxiter}, and \code{inner.backfit.maxiter}.}
+
+\item{tol}{The convergence tolerance. Different tolerances can be used for
+each type of fit by setting relative tolerances via parameters
+\code{greedy.reltol}, \code{fixed.reltol}, \code{backfit.reltol},
+and \code{inner.backfit.reltol}.}
+
 \item{greedy.maxiter}{The maximum number of iterations when optimizing a
 greedily added factor.}
 
-\item{tol}{The convergence tolerance.}
+\item{greedy.reltol}{The convergence tolerance (relative to tol) when
+optimizing a greedily added factor.}
 
 \item{fixed.maxiter}{The maximum number of iterations when optimizing a
 newly added fixed factor.}
@@ -158,6 +185,8 @@ tol.}
 relative to tol.}
 
 \item{nullchk.reltol}{Tolerance for nullchecks, relative to tol.}
+
+\item{extrapolate.control}{Extrapolation parameters. TODO: describe.}
 
 \item{nonmissing.thresh}{A vector of thresholds, one for each mode. Each
 threshold sets the (weighted) proportion of data that must be

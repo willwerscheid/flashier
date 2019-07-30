@@ -34,7 +34,7 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
   }
 
   if (flash.object$n.factors > 0 && output.lvl > 1) {
-    flash.object$sampler <- F.sampler(flash)
+    flash.object$sampler <- build.sampler(flash)
   }
 
   if (output.lvl < 3) {
