@@ -1,3 +1,17 @@
+default.extrapolate.param <- list(beta.init = 0.5,
+                                  beta.increase = 1.2,
+                                  beta.decrease = 0.5,
+                                  beta.max = 2)
+
+set.extrapolate.param <- function(control) {
+  par <- default.extrapolate.param
+  if (!all(names(control) %in% names(par))) {
+    stop("Unrecognized extrapolation control parameter.")
+  }
+  par <- modifyList(par, control)
+  return(par)
+}
+
 extrapolate <- function(new, old, beta) {
   return(new + beta * (new - old))
 }
@@ -50,19 +64,5 @@ accelerate <- function(par) {
 
 decelerate <- function(par) {
   par$beta <- par$beta * par$beta.decrease
-  return(par)
-}
-
-default.extrapolate.param <- list(beta.init = 0.5,
-                                  beta.increase = 1.2,
-                                  beta.decrease = 0.5,
-                                  beta.max = 2)
-
-set.extrapolate.param <- function(control) {
-  par <- default.extrapolate.param
-  if (!all(names(control) %in% names(par))) {
-    stop("Unrecognized extrapolation control parameter.")
-  }
-  par <- modifyList(par, control)
   return(par)
 }

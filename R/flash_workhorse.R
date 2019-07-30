@@ -483,7 +483,7 @@ flash.workhorse <- function(data = NULL,
         } else {
           for (k in kset) {
             old.f <- flash
-            flash <- update.existing.factor(flash, k, iter, verbose.lvl)
+            flash <- update.one.factor(flash, k, iter, verbose.lvl)
             info  <- calc.update.info(flash, old.f,
                                       conv.crit.fn, verbose.fns, k)
             conv.crit[k] <- get.conv.crit(info)

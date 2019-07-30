@@ -3,7 +3,7 @@ update.all.factors <- function(flash) {
     factor <- extract.factor(flash, k)
     factor <- update.factor(factor, flash, update.tau = FALSE)
     factor <- set.to.valid(factor)
-    flash  <- alter.existing.factor(flash, factor, update.tau = FALSE)
+    flash  <- insert.factor(flash, factor, update.tau = FALSE)
   }
 
   flash <- init.tau(flash)
@@ -12,7 +12,7 @@ update.all.factors <- function(flash) {
   return(flash)
 }
 
-update.existing.factor <- function(flash, k, iter, verbose.lvl) {
+update.one.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 
   if (!is.zero(old.factor)) {
@@ -21,7 +21,7 @@ update.existing.factor <- function(flash, k, iter, verbose.lvl) {
     if (get.obj(factor) > get.obj(flash)
         || !is.obj.valid(flash, factor)
         || !identical(get.exclusions(old.factor), get.exclusions(factor))) {
-      flash <- alter.existing.factor(flash, factor)
+      flash <- insert.factor(flash, factor)
     } else {
       obj.diff <- get.obj(factor) - get.obj(flash)
       report.backfit.obj.decrease(verbose.lvl, obj.diff, k)
@@ -50,7 +50,7 @@ extract.factor <- function(flash, k) {
   return(factor)
 }
 
-alter.existing.factor <- function(flash, factor, update.tau = TRUE) {
+insert.factor <- function(flash, factor, update.tau = TRUE) {
   k <- get.k(factor)
 
   if (uses.R(flash))
