@@ -21,10 +21,16 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
 
   if (is.tau.simple(flash)) {
     flash.object$residuals.sd <- 1 / sqrt(get.tau(flash))
+  } else if (is.list(get.tau(flash))) {
+    flash.object$residuals.sd <- lapply(get.tau(flash),
+                                        function(tau) 1 / sqrt(tau))
   }
 
-  flash.object$fitted.g <- get.g.by.mode(flash)
-  flash.object$elbo     <- get.obj(flash)
+  if (flash.object$n.factors > 0) {
+    flash.object$fitted.g <- get.g.by.mode(flash)
+  }
+
+  flash.object$elbo <- get.obj(flash)
 
   if (is.converged) {
     flash.object$convergence.status <- "converged"
