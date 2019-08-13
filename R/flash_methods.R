@@ -1,8 +1,7 @@
 #' @export
 fitted.flash <- function(x) {
-  f <- get.fit(x)
-  if (length(f$EF) == 2) {
-    f$EF[[1]] %*% t(f$EF[[2]])
+  if (length(x$loadings.pm) == 2) {
+    return(x$loadings.pm[[1]] %*% diag(x$loadings.scale) %*% t(x$loadings.pm[[2]]))
   } else {
     stop("S3 method \"fitted\" not yet implemented for tensors.")
   }
