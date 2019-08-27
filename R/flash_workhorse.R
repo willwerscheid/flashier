@@ -497,13 +497,13 @@ flash.workhorse <- function(data = NULL,
         }
 
         if (is.null(next.tol.target)) {
-          if (max(conv.crit) > 0) {
+          if (max(conv.crit) > 0 && max(conv.crit) < Inf) {
             next.tol.target <- 10^floor(log10(max(conv.crit)))
           } else {
-            next.tol.target <- 0
+            next.tol.target <- NULL
           }
         }
-        if (next.tol.target > 0 && max(conv.crit) < next.tol.target) {
+        if (!is.null(next.tol.target) > 0 && max(conv.crit) < next.tol.target) {
           report.backfit.progress(verbose.lvl, next.tol.target)
           next.tol.target <- next.tol.target / 10
         }
