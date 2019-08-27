@@ -18,8 +18,8 @@ init.flash <- function(flash.init,
   }
 
   if (!is.null(EF.init)) {
-    flash$EF  <- lowranks.combine(flash$EF, EF.init)
-    flash$EF2 <- lowranks.combine(flash$EF2, lowrank.square(EF.init))
+    flash$EF  <- lowranks.combine(get.EF(flash), EF.init)
+    flash$EF2 <- lowranks.combine(get.EF2(flash), lowrank.square(EF.init))
   }
 
   flash$est.tau.dim <- est.tau.dim
@@ -29,7 +29,7 @@ init.flash <- function(flash.init,
     nonmissing <- get.nonmissing(data)
 
     if (use.R) {
-      flash$R <- nonmissing * (Y - lowrank.expand(flash$EF))
+      flash$R <- nonmissing * (Y - lowrank.expand(get.EF(flash)))
     } else {
       flash$Y <- Y
     }
@@ -60,18 +60,18 @@ init.flash <- function(flash.init,
     EF.init.k <- ncol(EF.init[[1]])
 
     EF.init.KL <- rep(list(rep(0, EF.init.k)), get.dim(flash))
-    if (!is.null(flash$KL)) {
-      flash$KL <- mapply(c, flash$KL, EF.init.KL)
+    if (!is.null(get.KL(flash))) {
+      flash$KL <- mapply(c, get.KL(flash), EF.init.KL)
     } else {
       flash$KL <- EF.init.KL
     }
 
-    flash$g <- c(flash$g,
+    flash$g <- c(get.g(flash),
                  rep(list(rep(list(NULL), get.dim(flash))), EF.init.k))
 
-    flash$is.valid   <- c(flash$is.valid, rep(FALSE, EF.init.k))
-    flash$is.zero    <- c(flash$is.zero, rep(FALSE, EF.init.k))
-    flash$exclusions <- c(flash$exclusions,
+    flash$is.valid   <- c(is.valid(flash), rep(FALSE, EF.init.k))
+    flash$is.zero    <- c(is.zero(flash), rep(FALSE, EF.init.k))
+    flash$exclusions <- c(get.exclusions(flash),
                           rep(list(rep(list(integer(0)), get.dim(flash))),
                               EF.init.k))
   }
