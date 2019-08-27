@@ -40,6 +40,10 @@ extrapolate.f <- function(f, old.f, par) {
     tau <- pmax(tau, epsilon)
   }
 
+  if (!is.tau.lowrank(f)) {
+    tau <- tau * get.nonmissing(f)
+  }
+
   class(EF)  <- class(get.EF(f))
   class(EF2) <- class(get.EF2(f))
   class(tau) <- class(get.tau(f))
