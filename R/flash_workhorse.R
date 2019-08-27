@@ -184,7 +184,7 @@ flash.workhorse <- function(data = NULL,
                             nullchk.fixed.factors = FALSE,
                             init.fn = NULL,
                             init.maxiter = 100,
-                            init.tol = 1e-2,
+                            init.tol = NULL,
                             maxiter = 500,
                             tol = NULL,
                             greedy.maxiter = maxiter,
@@ -278,6 +278,10 @@ flash.workhorse <- function(data = NULL,
   if (is.null(tol)) {
     tol <- set.default.tol(flash)
     report.tol.setting(verbose.lvl, tol)
+  }
+
+  if (is.null(init.tol)) {
+    init.tol <- 1 / max(get.dims(flash))
   }
 
   total.factors.added <- 0
