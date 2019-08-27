@@ -1,6 +1,6 @@
 #' @export
 fitted.flash <- function(x) {
-  if (fl$n.factors == 0) {
+  if (x$n.factors == 0) {
     stop("Flash object does not have any factors.")
   }
   if (length(x$loadings.pm) == 2) {
