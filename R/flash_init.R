@@ -18,6 +18,13 @@ init.flash <- function(flash.init,
   }
 
   if (!is.null(EF.init)) {
+    # Allow an svd object here.
+    if (all(c("u", "d", "v") %in% names(EF.init))) {
+      EF.init <- list(t(t(EF.init$u) * sqrt(EF.init$d)),
+                      t(t(EF.init$v) * sqrt(EF.init$d)))
+      class(EF.init) <- "lowrank"
+    }
+
     flash$EF  <- lowranks.combine(get.EF(flash), EF.init)
     flash$EF2 <- lowranks.combine(get.EF2(flash), lowrank.square(EF.init))
   }
