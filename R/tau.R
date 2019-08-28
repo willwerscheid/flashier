@@ -283,7 +283,7 @@ optimize.noisy <- function(R2, S2, wts = 1) {
     return(0)
   opt.res <- optimize(function(x) {
     sum(log(wts * x + S2)) + sum(R2 / (wts * x + S2))
-  }, interval = c(0, interval.max))
+  }, interval = c(0, interval.max), tol = sqrt(.Machine$double.eps))
   return(opt.res$minimum)
 }
 
