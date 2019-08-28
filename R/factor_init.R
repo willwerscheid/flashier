@@ -9,6 +9,35 @@
 #   return(list(as.vector(res$W), as.vector(res$H)))
 # }
 
+#' @export
+#'
+init.fn.softImpute <- function(flash, tol, maxiter) {
+  if (get.dim(flash) > 2)
+    stop("softImpute cannot be used with tensors.")
+
+  if (inherits(get.Y(flash), "lowrank"))
+    stop("softImpute cannot be used with low-rank matrix representations.")
+
+  if (uses.R(flash)) {
+    R <- get.R(flash)
+  } else {
+    R <- get.Y(flash) - lowrank.expand(get.EF(flash))
+  }
+
+  if (any.missing(flash)) {
+    R[get.nonmissing(flash) == 0] <- NA
+  }
+
+  suppressWarnings({
+    si.res <- softImpute::softImpute(R, rank.max = 1, type = "als", lambda = 0)
+  })
+
+  EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))
+  class(EF) <- "r1"
+
+  return(EF)
+}
+
 init.factor <- function(flash, init.fn, tol, maxiter) {
   factor <- list()
 
