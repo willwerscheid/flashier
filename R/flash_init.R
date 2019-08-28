@@ -49,6 +49,11 @@ init.flash <- function(flash.init,
     flash$given.tau     <- get.given.tau(data)
     flash$given.tau.dim <- get.given.tau.dim(data)
 
+    if (any.missing(flash) && is.var.type.noisy.kron(flash)) {
+      stop("The noisy Kronecker variance structure has not yet been implemented ",
+           "for missing data.")
+    }
+
     # Precomputations.
     if (is.tau.simple(flash)) {
       flash$n.nonmissing <- init.n.nonmissing(flash, get.R2.n(flash))
