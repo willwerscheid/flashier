@@ -19,13 +19,13 @@ test_that("matrix factor initialization is correct (using R)", {
 })
 
 f.b <- flashier(init = f, fit = "backfit", backfit.maxiter = 1,
-                final.nullchk = FALSE, verbose.lvl = 0)
+                final.nullchk = FALSE, verbose.lvl = 0, backfit.method = "sequential")
 
 test_that ("the backfit objective improves after one iteration (using R)", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flashier(init = f, fit = "backfit", verbose.lvl = 0)
+f.b2 <- flashier(init = f, fit = "backfit", verbose.lvl = 0, backfit.method = "sequential")
 
 test_that ("the final backfit objective improves again (using R)", {
   expect_true(f.b2$elbo > f.b$elbo)
