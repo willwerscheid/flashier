@@ -174,6 +174,7 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
   EF2 <- get.new.EF2(flash, factor)
 
   R2 <- get.new.Rsquared(flash, factor, EF)
+  R2 <- pmax(R2, sqrt(.Machine$double.eps))
 
   max.chg <- Inf
   iter <- 0
