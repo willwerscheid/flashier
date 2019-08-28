@@ -29,7 +29,10 @@ get.new.obj <- function(new, old, k) {
 }
 
 display.obj <- function(new, old, k) {
-  return(formatC(get.new.obj(new, old, k), format = "f", digits = 2))
+  obj <- get.new.obj(new, old, k)
+  if (is.na(obj))
+    return("NA")
+  return(formatC(obj, format = "f", digits = 2))
 }
 
 calc.obj.diff <- function(new, old, k) {
