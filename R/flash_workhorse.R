@@ -241,6 +241,15 @@ flash.workhorse <- function(data = NULL,
                       nonmissing.thresh = nonmissing.thresh,
                       use.R = use.R)
 
+  if (uses.R(flash)) {
+    if (!missing(extrapolate.greedy) && extrapolate.greedy) {
+      stop("Greedy extrapolation has not yet been implemented for variance ",
+           "structures that store R.")
+    } else {
+      extrapolate.greedy <- FALSE
+    }
+  }
+
   # For parallel backfits to be worthwhile, there must be an efficient way to
   #   calculate R2 (that is, more efficient than explicitly forming the n x p
   #   matrix of residuals). When the estimated variance is not constant across
@@ -458,13 +467,13 @@ flash.workhorse <- function(data = NULL,
 
         if (backfit.method %in% c("extrapolate", "parallel")) {
           if (backfit.method == "extrapolate") {
-            proposed.f <- extrapolate.f(flash, old.f, extrapolate.param)
-            proposed.f <- update.all.factors(proposed.f)
+            proposed.f <- extrapolate.f(flash, old.f, extrapolate.param, data)
+            proposed.f <- update.all.factors(proposed.f, data)
 
             old.f <- flash
 
             if (get.obj(proposed.f) - get.obj(flash) < tol) {
-              flash <- update.all.factors(flash)
+              flash <- update.all.factors(flash, data)
               extrapolate.param <- decelerate(extrapolate.param)
             } else {
               flash <- proposed.f

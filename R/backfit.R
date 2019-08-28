@@ -1,10 +1,15 @@
-update.all.factors <- function(flash) {
+update.all.factors <- function(flash, data) {
   for (k in 1:get.n.factors(flash)) {
     factor <- extract.factor(flash, k)
-    factor <- update.factor(factor, flash, update.tau = FALSE)
-    factor <- set.to.valid(factor)
-    flash  <- insert.factor(flash, factor, update.tau = FALSE)
+    if (!is.zero(factor)) {
+      factor <- update.factor(factor, flash, update.tau = FALSE)
+      factor <- set.to.valid(factor)
+      flash  <- insert.factor(flash, factor, update.tau = FALSE)
+    }
   }
+
+  if (uses.R(flash))
+    flash <- set.R(flash, get.Y(data) - lowrank.expand(get.EF(flash)))
 
   flash <- init.tau(flash)
   flash <- set.obj(flash, calc.obj(flash))
