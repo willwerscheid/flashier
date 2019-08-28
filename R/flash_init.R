@@ -37,9 +37,9 @@ init.flash <- function(flash.init,
 
     if (use.R) {
       flash$R <- nonmissing * (Y - lowrank.expand(get.EF(flash)))
-    } else {
-      flash$Y <- Y
     }
+
+    flash$Y <- Y
 
     if (is.null(nonmissing))
       nonmissing <- 1

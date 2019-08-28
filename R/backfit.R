@@ -1,4 +1,4 @@
-update.all.factors <- function(flash, data) {
+update.all.factors <- function(flash) {
   for (k in 1:get.n.factors(flash)) {
     factor <- extract.factor(flash, k)
     if (!is.zero(factor)) {
@@ -9,7 +9,7 @@ update.all.factors <- function(flash, data) {
   }
 
   if (uses.R(flash))
-    flash <- set.R(flash, get.Y(data) - lowrank.expand(get.EF(flash)))
+    flash <- set.R(flash, get.Y(flash) - lowrank.expand(get.EF(flash)))
 
   flash <- init.tau(flash)
   flash <- set.obj(flash, calc.obj(flash))

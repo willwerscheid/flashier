@@ -17,7 +17,7 @@ extrapolate <- function(new, old, beta) {
 }
 
 # Works for both factor and flash objects.
-extrapolate.f <- function(f, old.f, par, data = NULL) {
+extrapolate.f <- function(f, old.f, par) {
   beta <- par$beta
   epsilon <- 1e-10
 
@@ -52,8 +52,8 @@ extrapolate.f <- function(f, old.f, par, data = NULL) {
   f <- set.EF2(f, EF2)
   f <- set.tau(f, tau)
 
-  if (!is.null(data) && uses.R(f))
-    f <- set.R(f, get.Y(data) - lowrank.expand(get.EF(f)))
+  if (uses.R(f))
+    f <- set.R(f, get.Y(f) - lowrank.expand(get.EF(f)))
 
   return(f)
 }
