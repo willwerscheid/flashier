@@ -27,3 +27,22 @@ zero.factor <- function(flash, k) {
 
   return(factor)
 }
+
+#' @export
+remove.factors <- function(fl, kset, output.lvl = 3) {
+  if (inherits(fl, "flash")) {
+    fit <- get.fit(fl)
+  } else if (inherits(fl, "flash.fit")) {
+    fit <- fl
+  } else {
+    stop("Parameter fl must be a flash or flash.fit object.")
+  }
+
+  for (k in kset) {
+    fit <- nullcheck.factor(fit, k, verbose.lvl = 0, tol = Inf)
+  }
+
+  flash <- wrapup.flash(flash, output.lvl, is.converged = TRUE)
+
+  return(flash)
+}

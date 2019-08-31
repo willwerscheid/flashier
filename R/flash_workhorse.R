@@ -72,9 +72,9 @@
 #'   only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
 #'   and sampler; 4 = raw fit, sampler, and lfsr (currently in beta).
 #'
-#' @param EF.init A list of matrices, one for each dimension. Each matrix
-#'   should have k columns, one for each factor. New factors are initialized
-#'   at these values.
+#' @param EF.init An SVD-like object or a list of matrices, one for each
+#'   dimension. Each matrix should have k columns, one for each factor. New
+#'   factors are initialized at these values.
 #'
 #' @param fix.dim A list of integers, one for each fixed factor. Specifies the
 #'   dimension along which the factor is (partially) fixed.
@@ -227,6 +227,7 @@ flash.workhorse <- function(data = NULL,
     if (missing(nonmissing.thresh))
       nonmissing.thresh <- init$nonmissing.thresh
   }
+
   flash <- init.flash(init,
                       data = data,
                       EF.init = EF.init,
@@ -479,7 +480,7 @@ flash.workhorse <- function(data = NULL,
               flash <- proposed.f
               extrapolate.param <- accelerate(extrapolate.param)
             }
-          } else if (backfit.method == "parallel") {
+          } else { # if backfit.method == "parallel"
             old.f <- flash
             flash <- update.factors.parallel(flash, kset, cl)
           }
@@ -494,6 +495,7 @@ flash.workhorse <- function(data = NULL,
           print.table.entry(verbose.lvl, verbose.colwidths, iter, info,
                             k = "all", backfit = TRUE)
         } else {
+          # Backfit methods other than "parallel" and "extrapolate".
           for (k in kset) {
             old.f <- flash
             flash <- update.one.factor(flash, k, iter, verbose.lvl)
@@ -507,12 +509,13 @@ flash.workhorse <- function(data = NULL,
 
         if (is.null(next.tol.target)) {
           if (max(conv.crit) > 0 && max(conv.crit) < Inf) {
+            # Set the first target.
             next.tol.target <- 10^floor(log10(max(conv.crit)))
           } else {
             next.tol.target <- NULL
           }
-        }
-        if (!is.null(next.tol.target) > 0 && max(conv.crit) < next.tol.target) {
+        } else if (max(conv.crit) < next.tol.target) {
+          # Report progress and set the next target.
           report.backfit.progress(verbose.lvl, next.tol.target)
           next.tol.target <- next.tol.target / 10
         }
@@ -570,10 +573,14 @@ force.use.R <- function(data, var.type) {
 }
 
 as.Kset <- function(after, every, maxiter) {
-  if (is.null(every))
+  if (is.null(every)) {
     return(after)
+  }
+
   max.after <- max(c(0, after))
+
   n.every <- floor((maxiter - max.after) / every)
   every.iters <- max.after + every * (1:n.every)
+
   return(c(after, every.iters))
 }

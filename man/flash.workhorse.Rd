@@ -126,9 +126,9 @@ output after each factor update.}
 only; 1 = trimmed fit, no sampler; 2 trimmed fit and sampler; 3 = raw fit
 and sampler; 4 = raw fit, sampler, and lfsr (currently in beta).}
 
-\item{EF.init}{A list of matrices, one for each dimension. Each matrix
-should have k columns, one for each factor. New factors are initialized
-at these values.}
+\item{EF.init}{An SVD-like object or a list of matrices, one for each
+dimension. Each matrix should have k columns, one for each factor. New
+factors are initialized at these values.}
 
 \item{fix.dim}{A list of integers, one for each fixed factor. Specifies the
 dimension along which the factor is (partially) fixed.}

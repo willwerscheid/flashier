@@ -136,7 +136,8 @@ update.noisy.kron.tau <- function(factor, flash) {
 }
 
 estimate.simple.tau <- function(flash, delta.R2 = 0) {
-  return(get.n.nonmissing(flash) / (get.R2(flash) + delta.R2))
+  R2 <- pmax(get.R2(flash), .Machine$double.eps)
+  return(get.n.nonmissing(flash) / (R2 + delta.R2))
 }
 
 tau.from.given.and.est <- function(flash, est.tau) {

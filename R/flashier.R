@@ -155,7 +155,7 @@ flashier <- function(data = NULL,
       stop("init must be a flash or flash.fit object.")
     if (missing(var.type)) {
       var.type <- get.est.tau.dim(init)
-    } else if (!identical(var.type, init$est.tau.dim)) {
+    } else if (!identical(var.type, get.est.tau.dim(init))) {
       init <- clear.bypass.init.flag(init)
       if (is.null(data))
         stop("When changing var.type, data cannot be NULL.")
@@ -191,7 +191,7 @@ flashier <- function(data = NULL,
 
   workhorse.param <- list()
 
-  # Handle "prior type" parameter.
+  # Handle "prior family" parameter.
   if (is.null(init)) {
     workhorse.param <- c(workhorse.param, prior.param(prior.family, data.dim))
   } else if (!missing(prior.family)) {
@@ -233,7 +233,9 @@ flashier <- function(data = NULL,
     # If init is used, previously fixed factors need to be included.
     #   These fields aren't always populated, so an offset needs to be
     #   used when setting the new fixed factors.
-    ellipsis$fix.dim <- ellipsis$fix.idx <- ellipsis$fix.vals <- list()
+    ellipsis$fix.dim <- list()
+    ellipsis$fix.idx <- list()
+    ellipsis$fix.vals <- list()
     if (!is.null(get.fix.dim(init))) {
       ellipsis$fix.dim  <- get.fix.dim(init)
       ellipsis$fix.idx  <- get.fix.idx(init)
@@ -255,14 +257,14 @@ flashier <- function(data = NULL,
           && is.null(ellipsis$EF.init))
         stop("There's nothing to backfit. Did you mean to set fit = \"full\"?")
       if (!(missing(greedy.Kmax) || greedy.Kmax == 0))
-        stop("Cannot set fit to \"backfit\" with greedy.Kmax > 0.")
+        stop("Cannot set fit to \"backfit.only\" with greedy.Kmax > 0.")
       greedy.Kmax <- 0
       ellipsis$final.backfit <- TRUE
     } else if (fit == "full") {
       ellipsis$final.backfit <- TRUE
     }
   } else if (!missing(fit)) {
-    stop(paste("If fit is specified, then final.backfit cannot be."))
+    stop("If fit is specified, then final.backfit cannot be.")
   }
 
   # Handle "verbose.lvl" parameter.
@@ -278,7 +280,8 @@ flashier <- function(data = NULL,
   } else if (missing(verbose.lvl)) {
     ellipsis$verbose.lvl <- 3
   } else if (!(verbose.lvl %in% c(-1, 3))) {
-    stop("Custom verbose output cannot be specified with verbose.lvl < 3")
+    stop("If custom verbose output is specified, then verbose.lvl must be -1",
+         " or 3.")
   } else {
     ellipsis$verbose.lvl <- verbose.lvl
   }
@@ -297,6 +300,8 @@ prior.param <- function(prior.family, data.dim) {
   if (!is.list(prior.family))
     stop(error.msg)
 
+  # If a named list is found (rather than a list of named lists), it is
+  #   interpreted as specifying the prior family (or families) for all factors.
   if (!is.null(names(prior.family[[1]])))
     prior.family <- list(prior.family)
 
@@ -320,6 +325,7 @@ prior.param <- function(prior.family, data.dim) {
 
 verbose.param <- function(verbose, data.dim) {
   param <- list()
+
   if (is.character(verbose)) {
     verbose <- unlist(strsplit(toupper(verbose), "[ .,/]"))
     verbose <- verbose[verbose != ""]
@@ -330,35 +336,40 @@ verbose.param <- function(verbose, data.dim) {
   } else {
     param$verbose.lvl         <- verbose
     if (verbose > 2) {
+      # Default output columns for verbose.lvl = 3.
       param$verbose.fns       <- c(calc.obj.diff, calc.max.chg.EF)
       param$verbose.colnames  <- c("Obj Diff", "Max Chg")
       param$verbose.colwidths <- c(12, 12)
     } else if (verbose == -1) {
+      # Default output columns for verbose.lvl = -1.
       param$verbose.fns       <- c(get.new.obj, calc.obj.diff, calc.max.chg.EF)
       param$verbose.colnames  <- c("Obj", "Obj.diff", "Max.chg")
       param$verbose.colwidths <- c(14, 12, 12)
     }
   }
+
   return(param)
 }
 
 look.up.verbose.fns <- function(verbose, data.dim) {
   fns <- lapply(verbose, function(symbol) {
     chars <- unlist(strsplit(symbol, ""))
-    if (length(chars) > 1) {
-      if (length(chars) > 2)
-        stop("Unable to parse verbose output string.")
+
+    if (length(chars) > 2) {
+      stop("Unable to parse verbose output string.")
+    } else if (length(chars) == 2) {
       n <- as.integer(chars[[2]])
       must.be.integer(n, lower = 1, upper = data.dim)
     } else {
       n <- NULL
     }
+
     if (chars[[1]] %in% c("O", "D")) {
       if (!is.null(n))
         warning("Dimension ignored for verbose objective output.")
       if (chars[[1]] == "O") {
         return(display.obj)
-      } else {
+      } else { # if chars[[1]] == "D"
         return(calc.obj.diff)
       }
     } else if (chars[[1]] == "L") {
@@ -372,51 +383,57 @@ look.up.verbose.fns <- function(verbose, data.dim) {
     } else if (chars[[1]] == "E") {
       return(function(new, old, k) get.exclusion.count(new, old, k, n))
     }
+
     stop("Unrecognized verbose output character.")
   })
+
   return(fns)
 }
 
 look.up.verbose.colnames <- function(verbose) {
   names <- lapply(verbose, function(symbol) {
     chars <- unlist(strsplit(symbol, ""))
-    if (chars[[1]] == "O")
+
+    if (chars[[1]] == "O") {
       return("Objective")
-    if (chars[[1]] == "D")
+    } else if (chars[[1]] == "D") {
       return("Obj Diff")
-    if (chars[[1]] == "L") {
+    } else if (chars[[1]] == "L") {
       name <- "Max Chg"
       if (length(chars) > 1)
         name <- paste(name, chars[[2]])
       return(name)
-    }
-    if (chars[[1]] == "W") {
+    } else if (chars[[1]] == "W") {
       name <- "Whch"
       if (length(chars) > 1)
         name <- paste(name, chars[[2]])
       return(name)
-    }
-    if (chars[[1]] == "S") {
+    } else if (chars[[1]] == "S") {
       return(paste("Sparsity", chars[[2]]))
-    }
-    if (chars[[1]] == "E") {
+    } else if (chars[[1]] == "E") {
       return(paste("Excl", chars[[2]]))
     }
+
     stop("Unrecognized verbose output character.")
   })
+
   return(unlist(names))
 }
 
 look.up.verbose.colwidths <- function(verbose) {
   widths <- lapply(verbose, function(symbol) {
     char <- substring(symbol, 1, 1)
-    if (char == "O")
+
+    if (char == "O") {
       return(16)
-    if (char %in% c("D", "L", "S"))
+    } else if (char %in% c("D", "L", "S")) {
       return(13)
-    if (char %in% c("W", "E"))
+    } else if (char %in% c("W", "E")) {
       return(9)
+    }
+
     stop("Unrecognized verbose output character.")
   })
+
   return(unlist(widths))
 }

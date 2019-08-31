@@ -22,9 +22,9 @@ init.flash <- function(flash.init,
     if (all(c("u", "d", "v") %in% names(EF.init))) {
       EF.init <- list(t(t(EF.init$u) * sqrt(EF.init$d)),
                       t(t(EF.init$v) * sqrt(EF.init$d)))
-      class(EF.init) <- "lowrank"
     }
 
+    class(EF.init) <- "lowrank"
     flash$EF  <- lowranks.combine(get.EF(flash), EF.init)
     flash$EF2 <- lowranks.combine(get.EF2(flash), lowrank.square(EF.init))
   }
@@ -32,14 +32,12 @@ init.flash <- function(flash.init,
   flash$est.tau.dim <- est.tau.dim
 
   if (!bypass.init(flash) || !is.null(EF.init)) {
-    Y <- get.Y(data)
+    flash$Y <- get.Y(data)
     nonmissing <- get.nonmissing(data)
 
     if (use.R) {
-      flash$R <- nonmissing * (Y - lowrank.expand(get.EF(flash)))
+      flash$R <- nonmissing * (flash$Y - lowrank.expand(get.EF(flash)))
     }
-
-    flash$Y <- Y
 
     if (is.null(nonmissing))
       nonmissing <- 1
@@ -62,6 +60,7 @@ init.flash <- function(flash.init,
     } else if (is.var.type.kronecker(flash)) {
       flash$kron.nonmissing <- init.kron.nonmissing(flash)
     }
+
     flash <- init.tau(flash)
     flash$obj <- calc.obj(flash)
   }
@@ -71,16 +70,17 @@ init.flash <- function(flash.init,
   if (!is.null(EF.init)) {
     EF.init.k <- ncol(EF.init[[1]])
 
+    # For each factor, initialize KL at zero and g at NULL.
     EF.init.KL <- rep(list(rep(0, EF.init.k)), get.dim(flash))
     if (!is.null(get.KL(flash))) {
       flash$KL <- mapply(c, get.KL(flash), EF.init.KL)
     } else {
       flash$KL <- EF.init.KL
     }
+    EF.init.g <- rep(list(rep(list(NULL), get.dim(flash))), EF.init.k)
+    flash$g <- c(get.g(flash), EF.init.g)
 
-    flash$g <- c(get.g(flash),
-                 rep(list(rep(list(NULL), get.dim(flash))), EF.init.k))
-
+    # Initialize is.valid, is.zero, and exclusions.
     flash$is.valid   <- c(is.valid(flash), rep(FALSE, EF.init.k))
     flash$is.zero    <- c(is.zero(flash), rep(FALSE, EF.init.k))
     flash$exclusions <- c(get.exclusions(flash),
@@ -134,7 +134,7 @@ init.n.nonmissing <- function(flash, n) {
 
 init.kron.nonmissing <- function(flash) {
   return(lapply(get.est.tau.dim(flash),
-                function(n) {init.n.nonmissing(flash, n)}))
+                function(n) init.n.nonmissing(flash, n)))
 }
 
 init.log.2pi.s2 <- function(tau) {
