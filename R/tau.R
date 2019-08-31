@@ -159,8 +159,8 @@ tau.from.given.and.est <- function(flash, est.tau) {
 }
 
 estimate.kronecker.tau <- function(flash, factor = NULL) {
-  # Tol and maxiter are hardcoded.
-  tol <- 1e-3
+  # tol and maxiter are hardcoded.
+  tol <- sqrt(.Machine$double.eps)
   maxiter <- 100
 
   tau <- get.tau(factor)
@@ -189,7 +189,7 @@ estimate.kronecker.tau <- function(flash, factor = NULL) {
                  - premult.nmode.prod.r1(Z, lowrank.square(EF), tau[-n], n))
       tau[[i]] <- kron.nonmissing[[i]] / tau.R2
     }
-    max.chg <- calc.max.abs.chg(tau, old.tau)
+    max.chg <- calc.max.abs.chg(tau, old.tau) / max(unlist(tau))
   }
 
   return(tau)
@@ -218,8 +218,8 @@ estimate.noisy.tau <- function(flash, factor = NULL) {
 }
 
 estimate.noisy.kron.tau <- function(flash, factor = NULL) {
-  # Tol and maxiter are again hardcoded.
-  tol <- 1e-3
+  # tol and maxiter are again hardcoded.
+  tol <- sqrt(.Machine$double.eps)
   maxiter <- 100
 
   est.S2 <- get.est.S2(factor)
@@ -249,7 +249,7 @@ estimate.noisy.kron.tau <- function(flash, factor = NULL) {
       est.S2[[i]] <- mapply(R2.slices, S2.slices,
                             FUN = function(r2, s2) optimize.noisy(r2, s2, wts))
     }
-    max.chg <- calc.max.abs.chg(est.S2, old.est.S2)
+    max.chg <- calc.max.abs.chg(est.S2, old.est.S2) / max(unlist(est.S2))
   }
 
   tau <- Z / (S2 + r1.expand(est.S2))
