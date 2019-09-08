@@ -1,5 +1,5 @@
-update.all.factors <- function(flash) {
-  for (k in 1:get.n.factors(flash)) {
+update.factors.in.kset <- function(flash, kset) {
+  for (k in kset) {
     factor <- extract.factor(flash, k)
     if (!is.zero(factor)) {
       factor <- update.factor(factor, flash, update.tau = FALSE)

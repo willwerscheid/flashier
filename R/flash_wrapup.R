@@ -136,7 +136,6 @@ calc.lfsr <- function(flash) {
   return(lapply(1:get.dim(flash),
                 function(n) sapply(1:get.n.factors(flash),
                                    function(k) lfsr.one.n(flash, k, n))))
-
 }
 
 lfsr.one.n <- function(flash, k, n) {

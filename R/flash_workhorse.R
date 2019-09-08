@@ -469,12 +469,12 @@ flash.workhorse <- function(data = NULL,
         if (backfit.method %in% c("extrapolate", "parallel")) {
           if (backfit.method == "extrapolate") {
             proposed.f <- extrapolate.f(flash, old.f, extrapolate.param)
-            proposed.f <- update.all.factors(proposed.f)
+            proposed.f <- update.factors.in.kset(proposed.f, kset)
 
             old.f <- flash
 
             if (get.obj(proposed.f) - get.obj(flash) < tol) {
-              flash <- update.all.factors(flash)
+              flash <- update.factors.in.kset(flash, kset)
               extrapolate.param <- decelerate(extrapolate.param)
             } else {
               flash <- proposed.f
