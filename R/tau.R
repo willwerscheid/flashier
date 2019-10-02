@@ -206,6 +206,7 @@ estimate.noisy.tau <- function(flash, factor = NULL) {
   R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
   S2 <- get.given.S2(flash)
 
+  # TODO: handle vector-valued S2.
   R2.slices <- slice.data(R2, tau.dim, Z)
   S2.slices <- slice.data(S2, tau.dim, Z)
 
@@ -232,6 +233,7 @@ estimate.noisy.kron.tau <- function(flash, factor = NULL) {
   EF  <- get.new.EF(flash, factor)
   EF2 <- get.new.EF2(flash, factor)
 
+  # TODO: handle vector-valued S2.
   R2 <- get.new.Rsquared(flash, factor, EF, set.missing.to.zero = FALSE)
   R2 <- R2 + lowrank.expand(EF2) - lowrank.expand(lowrank.square(EF))
   S2 <- get.given.S2(flash)
