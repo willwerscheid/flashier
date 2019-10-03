@@ -37,6 +37,9 @@ flash.init <- function(data, var.type, S = NULL, S.dim = NULL) {
   flash$fix.dim <- list()
   flash$fix.idx <- list()
 
+  # No longer used.
+  flash$nonmissing.thresh <- rep(0, get.dim(flash))
+
   class(flash) <- c("flash.fit", "list")
 
   return(flash)

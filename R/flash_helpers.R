@@ -190,12 +190,14 @@ get.new.EF2 <- function(flash, factor = NULL) {
   return(lowranks.combine(EF2, as.lowrank(get.EF2(factor))))
 }
 
-get.ebnm.fn <- function(flash, factor, n) {
+get.ebnm.fn <- function(flash, factor, n = NULL) {
   if (is.new(factor)) {
-    ebnm.fn <- get.ebnm.fn.k(flash, get.next.k(flash))
+    ebnm.fn <- factor[["ebnm.fn"]]
   } else {
     ebnm.fn <- get.ebnm.fn.k(flash, get.k(factor))
   }
+  if (is.null(n))
+    return(ebnm.fn)
   if (length(ebnm.fn) == 1)
     return(ebnm.fn)
   return(ebnm.fn[[n]])
@@ -424,6 +426,14 @@ set.gk <- function(f, k, g) {
 }
 add.factor.to.g <- function(f, new.g) {
   f[["g"]] <- c(f[["g"]], list(new.g))
+  return(f)
+}
+set.ebnm.fn <- function(f, ebnm.fn) {
+  f[["ebnm.fn"]] <- ebnm.fn
+  return(f)
+}
+add.factor.to.ebnm.fn <- function(f, new.ebnm.fn) {
+  f[["ebnm.fn"]] <- c(f[["ebnm.fn"]], list(new.ebnm.fn))
   return(f)
 }
 set.est.S2 <- function(f, est.S2) {
