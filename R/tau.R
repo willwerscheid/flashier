@@ -77,6 +77,10 @@ update.zero.tau <- function(factor, flash) {
   return(factor)
 }
 
+init.tau.at.one <- function(flash) {
+  return(lapply(get.dims(flash), function(dim) rep(1, dim)))
+}
+
 init.kronecker.tau <- function(flash) {
   if (is.null(get.tau(flash)))
     flash <- set.tau(flash, init.tau.at.one(flash))

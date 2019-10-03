@@ -104,7 +104,7 @@ dims.must.match <- function(X, Y, Y.dim = NULL) {
   error.msg <- paste("Dimensions of", deparse(substitute(X)), "and",
                      deparse(substitute(Y)), "do not match.")
   if (inherits(X, "lowrank")) {
-    dim.X <- sapply(X, ncol)
+    dim.X <- sapply(X, nrow)
   } else {
     dim.X <- dim(X)
   }

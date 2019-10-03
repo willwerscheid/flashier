@@ -1,19 +1,10 @@
-#' Set data for flash
-#'
-#' Converts matrices or arrays of observations and standard errors into the
-#' form that will be used by \code{\link{flashier}}. When it is necessary to be
-#' parsimonious with memory, one can call \code{set.flash.data} and then remove
-#' the original objects from memory. Otherwise, one should simply pass the
-#' original objects to \code{flashier} as is.
-#'
-#' @inheritParams flashier
-#'
-#' @param S.dim The dimension along which \code{S} lies when \code{S} is a
-#'   vector. Only necessary when it cannot be inferred from the data (when,
-#'   for example, \code{data} is a square matrix).
-#'
-#' @export
-
+# Set up the data for flash. A "flash.data" object always contains fields "Y"
+#   (the data, with NAs replaced by zeros), "Z" (a matrix or array that has
+#   zeros where data is missing and ones where data is nonmissing; if no data
+#   is missing, then Z = 1), and "est.tau.dim" (the variance type). If standard
+#   errors are provided, then (depending on the variance type) the object will
+#   also contain fields "given.S2" or "given.tau" and "given.tau.dim".
+#
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   must.be.supported.data.type(data, allow.null = FALSE, allow.lowrank = TRUE)
   must.be.supported.data.type(S, allow.vector = TRUE)
@@ -32,7 +23,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   must.be.integer(S.dim, lower = 0, upper = length(data.dim), allow.null = TRUE)
   must.be.valid.var.type(var.type, length(data.dim))
 
-  # Set Y and Z.
+  # Set Y, Z, and est.tau.dim.
   flash.data <- list(Y = data)
   if (anyNA(data)) {
     flash.data$Y[is.na(data)] <- 0
@@ -40,6 +31,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   } else {
     flash.data$Z <- 1
   }
+  flash.data$est.tau.dim <- var.type
 
   must.not.have.zero.slices(flash.data$Y)
 
@@ -50,19 +42,18 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
     dims.must.match(data, S, data.dim)
   }
 
-  # When given and estimated variances vary along one and the same mode (for
-  #   example, when row-wise standard errors are provided and additional
-  #   row-wise variances are to be estimated), then providing standard errors
-  #   is equivalent to putting lower limits on the estimated standard errors.
-  #   Otherwise, estimation is a difficult optimization problem. In the former
-  #   case, it is more convenient to store tau; in the latter, it is better to
-  #   store S^2.
-  if (use.S2(S, S.dim, var.type)) {
+  if (is.S2.stored(S, S.dim, var.type)) {
+    # TODO: estimate.noisy.kron.tau cannot yet handle missing data.
+    if (anyNA(data) && (length(var.type) > 1)) {
+      stop("The noisy Kronecker variance structure has not yet been implemented ",
+           "for missing data.")
+    }
+
     S2 <- S^2
 
     if (is.vector(S)) {
       # TODO: estimate.noisy.tau and estimate.noisy.kron.tau cannot yet handle
-      #   vector-valued S2.
+      #   vector-valued S.
       each <- prod(c(1, data.dim[1:length(data.dim) < S.dim]))
       S2 <- array(rep(S2, each = each), dim = data.dim)
     }
@@ -86,6 +77,8 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   return(flash.data)
 }
 
+# Convert a udv-type object to a flashier "lowrank" object.
+#
 udv.to.lowrank <- function(udv) {
   d <- udv$d[1:ncol(udv$u)]
 
@@ -95,6 +88,8 @@ udv.to.lowrank <- function(udv) {
   return(LR)
 }
 
+# If S is a vector, then attempt to infer its mode (e.g., row-wise, column-wise).
+#
 infer.S.dim <- function(S, data.dim) {
   if (!is.vector(S)) {
     S.dim <- NULL
@@ -113,7 +108,15 @@ infer.S.dim <- function(S, data.dim) {
   return(S.dim)
 }
 
-use.S2 <- function(S, S.dim, var.type) {
+# When given and estimated variances vary along one and the same mode (for
+#   example, when row-wise standard errors are provided and additional
+#   row-wise variances are to be estimated), then providing standard errors
+#   is equivalent to putting lower limits on the estimated standard errors.
+#   Otherwise, estimation is a difficult optimization problem. In the former
+#   case, it is more convenient to store tau; in the latter, it is better to
+#   store S^2.
+#
+is.S2.stored <- function(S, S.dim, var.type) {
   return(!is.null(S)
          && (length(var.type) > 0)
          && (length(var.type) > 1

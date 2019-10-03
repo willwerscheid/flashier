@@ -20,7 +20,6 @@ get.delta.R2          <- function(f) f[["delta.R2"]]
 get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
 get.obj               <- function(f) f[["obj"]]
-get.KL                <- function(f) f[["KL"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
 
 get.Y <- function(f, require.fullrank = FALSE) {
@@ -99,6 +98,13 @@ get.g.k <- function(f, k, n = NULL) {
   if (is.null(n))
     return(f[["g"]][[k]])
   return(f[["g"]][[k]][[n]])
+}
+get.KL <- function(f, n = NULL) {
+  if (is.null(n))
+    return(f[["KL"]])
+  if (is.null(f[["KL"]]))
+    return(NULL)
+  return(f[["KL"]][[n]])
 }
 get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
 is.zero <- function(f, k = NULL) {
@@ -384,6 +390,8 @@ set.KL <- function(f, KL, n = NULL) {
   if (is.null(n)) {
     f[["KL"]] <- KL
   } else {
+    if (is.null(f[["KL"]]))
+      f[["KL"]] <- rep(list(NULL), get.dim(f))
     f[["KL"]][[n]] <- KL
   }
   return(f)
@@ -484,6 +492,14 @@ set.to.valid <- function(f, k = NULL) {
   } else {
     f[["is.valid"]][k] <- TRUE
   }
+  return(f)
+}
+set.fix.dim <- function(f, fix.dim) {
+  f[["fix.dim"]] <- fix.dim
+  return(f)
+}
+set.fix.idx <- function(f, fix.idx) {
+  f[["fix.idx"]] <- fix.idx
   return(f)
 }
 set.exclusions <- function(f, exclusions, n) {
