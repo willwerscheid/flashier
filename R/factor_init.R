@@ -1,7 +1,7 @@
 init.factor <- function(flash, init.fn, dim.signs) {
   factor <- list()
 
-  factor$EF <- do.call(init.fn, list(flash, dim.signs))
+  factor$EF <- do.call(init.fn, list(flash, mode.signs = dim.signs))
   class(factor$EF) <- c("r1", "list")
 
   factor$EF2        <- r1.square(factor$EF)

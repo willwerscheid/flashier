@@ -18,7 +18,7 @@
 #'
 #' @param init.fn The function used to initialize factors. Functions
 #'   \link{\code{init.fn.default}} and \link{\code{init.fn.softImpute}} have
-#'   been supplied, but custom initializations may also be used. See
+#'   been supplied, but custom initialization functions may also be used. See
 #'   \link{\code{init.fn.default}} for details.
 #'
 #' @param conv.crit.fn The function used to determine whether convergence has
