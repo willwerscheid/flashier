@@ -1,17 +1,17 @@
-# TODO update docs
-#' Set data for flash
+#' Initialize flash fit object
 #'
-#' Converts matrices or arrays of observations and standard errors into the
-#' form that will be used by \code{\link{flashier}}. When it is necessary to be
-#' parsimonious with memory, one can call \code{set.flash.data} and then remove
-#' the original objects from memory. Otherwise, one should simply pass the
-#' original objects to \code{flashier} as is.
+#' Sets up a \code{flash.fit} object with no factors. Since all other
+#' \code{flash.xxx} functions take a \code{flash.fit} object as their first
+#' argument, initializing a \code{flash.fit} object will be the first step
+#' in any \code{flash} pipeline.
 #'
-#' @inheritParams flashier
+#' @inheritParams flash
 #'
 #' @param S.dim The dimension along which \code{S} lies when \code{S} is a
 #'   vector. Only necessary when it cannot be inferred from the data (when,
 #'   for example, \code{data} is a square matrix).
+#'
+#' @return A \code{flash.fit} object.
 #'
 #' @export
 #'
@@ -31,13 +31,15 @@ flash.init <- function(data, var.type, S = NULL, S.dim = NULL) {
     flash$kron.nonmissing <- init.kron.nonmissing(flash)
   }
 
+  # Calculate initial residual variances and ELBO.
   flash <- init.tau(flash)
   flash$obj <- calc.obj(flash)
 
+  # These fields are used to fix factors.
   flash$fix.dim <- list()
   flash$fix.idx <- list()
 
-  # No longer used.
+  # These fields are no longer used.
   flash$nonmissing.thresh <- rep(0, get.dim(flash))
   flash$exclusions <- list()
 
