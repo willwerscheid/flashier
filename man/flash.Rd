@@ -4,18 +4,16 @@
 \alias{flash}
 \title{Empirical Bayes matrix/tensor factorization}
 \usage{
-flash(data = NULL, S = NULL, prior.family = prior.point.normal(),
-  var.type = 0L, backfit = FALSE, nullcheck = TRUE,
-  greedy.Kmax = 50L, verbose.lvl = 1L)
+flash(data, S = NULL, prior.family = prior.point.normal(),
+  var.type = 0L, greedy.Kmax = 50L, backfit = FALSE,
+  nullcheck = TRUE, verbose.lvl = 1L)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
-\code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+\code{Matrix}, or three-dimensional array. Can also be a low-rank matrix
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
-\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
-\code{init} is used.}
+\code{\link[softImpute]{softImpute}}.}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}
@@ -52,14 +50,25 @@ only varies across columns and is constant within any given row). If
   subsequent factor.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
-Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
-\code{S} accounts for all residual variance. Otherwise, a rank-one
-variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the modes along which the
-residual variance is permitted to vary. For example, \code{var.type = 1}
-estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-optimizes over all rank-one matrices. If \code{var.type = 0}, then the
-residual variance is assumed to be constant across all observations.}
+  Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
+  \code{S} accounts for all residual variance. Otherwise, a rank-one
+  variance structure will be estimated (and added to any variance specified
+  by \code{S}). \code{var.type} then gives the modes along which the
+  residual variance is permitted to vary. For example, \code{var.type = 1}
+  estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+  optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+  residual variance is assumed to be constant across all observations.
+
+  Note that is much faster to set \code{S = NULL} and to let \code{flash}
+  estimate the residual variances. It is also much faster to only allow them
+  to vary along a single mode. For example, estimating row-specific
+  residual variances (\code{var.type = 1}) is much easier than estimating
+  an arbitrary rank-one matrix of variances (\code{var.type = c(1, 2)}).}
+
+\item{greedy.Kmax}{The maximum number of factors to be added. This will not
+necessarily be the total number of factors added by \code{flash}, since
+factors are only added as long as they increase the variational lower
+bound on the log likelihood for the model.}
 
 \item{backfit}{A "greedy" fit is performed by adding as many as
 \code{greedy.Kmax} factors, optimizing each newly added factor in one go
@@ -67,12 +76,9 @@ without returning to optimize previously added factors. When
 \code{backfit = TRUE}, \code{flash} will additionally perform a final
 "backfit" where all factors are cyclically updated until convergence.}
 
-\item{nullcheck}{TODO: describe}
-
-\item{greedy.Kmax}{The maximum number of factors to be added. This will not
-necessarily be the total number of factors added by \code{flash}, since
-factors are only added as long as they increase the variational lower
-bound on the log likelihood for the model.}
+\item{nullcheck}{If \code{nullcheck = TRUE}, then \code{flash} will check
+that each factor in the final flash object improves the overall fit. Any
+factor that fails the check will be removed.}
 
 \item{verbose.lvl}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
@@ -88,8 +94,6 @@ A \code{flash} object. Contains elements:
     \item{\code{pve}}{The proportion of variance explained by each factor.}
     \item{\code{elbo}}{The variational lower bound achieved by the
       fitted model.}
-    \item{\code{convergence.status}}{A character string indicating whether
-      the fitting algorithm has converged.}
     \item{\code{loadings.scale, loadings.pm}}{Posterior means for loadings.
       Since the model is not identifiable,
       each column of loadings is \eqn{L2}-normalized. The
@@ -107,15 +111,76 @@ A \code{flash} object. Contains elements:
       distribution of the (non-normalized) loadings.}
     \item{\code{flash.fit}}{A \code{flash.fit} object. Used by
       \code{flash} when fitting is not performed all at once, but
-      incrementally via repeated calls to \code{flash} (with the
-      intermediate \code{flash} or \code{flash.fit} objects given as
-      arguments to \code{init}).}
+      incrementally via calls to various \code{flash.xxx} functions.}
   }
 }
 \description{
-TODO: Describe model. Add reference.
+Fits an empirical Bayes matrix factorization (see \strong{Details} for a
+  description of the model). The resulting fit is referred to as a "flash"
+  object (short for Factors and Loadings using Adaptive Shrinkage). Two
+  interfaces are provided. The \code{flash} function provides a simple
+  interface that allows a flash object to be fit in a single pass, while
+  \code{flash.xxx} functions are pipeable functions that allow more
+  complex flash objects to be fit incrementally. See the vignettes and the
+  \strong{Examples} below for usage. See \strong{Details} for a discussion
+  of the terminology used throughout the documentation.
+}
+\details{
+If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
+  empirical Bayes matrix factorization model is:
+\deqn{Y = \ell^{(1)} \ell^{(2)}' + E,} where \eqn{\ell^{(1)}} is an
+  \eqn{n}-vector of \strong{row loadings}, \eqn{\ell^{(2)}} is a
+  \eqn{p}-vector of \strong{column loadings}, and \eqn{E} is an
+  \eqn{n \times p} matrix of \strong{residuals}. The following priors are
+  assumed:
+\deqn{E \sim N(0, s_{ij}^2)}
+\deqn{\ell^{(1)} \sim g^{(1)}}
+\deqn{\ell^{(2)} \sim g^{(2)}}
+The residual variance parameters \eqn{s_{ij}^2} are constrained to have
+  a simple structure (for example, the "constant" variance structure
+  \eqn{s_{ij}^2 = s^2} for some \eqn{s^2} and for all \eqn{i}, \eqn{j})
+  and fit via maximum likelihood.
+The functions \eqn{g^{(1)}} and \eqn{g^{(2)}} are constrained to belong to
+  some families of priors \eqn{G^{(1)}} and \eqn{G^{(1)}} (e.g., the family
+  of point-normal distributions) and fit via variational approximation.
+
+The general rank-\eqn{K} empirical Bayes tensor factorization model is:
+  \deqn{Y_{ijm} = \sum_k L^{(1)}_{ik} L^{(2)}_{jk} L^{(3)}_{mk} + E_{ijm},}
+  where the \eqn{L^{(n)}}s are matrices of \strong{mode-n loadings}.
+In the terminology used throughout this package, the \eqn{k}th column of
+  \eqn{L^{(n)}} gives the mode-\eqn{n} loadings for the \eqn{k}th
+  factor. That is, a \strong{factor} is a rank-one component of a matrix
+  decomposition, formed by the outer product of vectors
+  \eqn{L^{(1)}_{\cdot k}}, \eqn{L^{(2)}_{\cdot k}}, and
+  \eqn{L^{(3)}_{\cdot k}}.
+
+Separate priors \eqn{g^{(n)}_k} are estimated for each mode and each factor,
+  and different prior families \eqn{G^{(n)}_k} may be used for different
+  modes and different factors. In general:
+\deqn{E \sim N(0, s_{ijm}^2)}
+\deqn{\L^{(n}_{\cdot k} \sim g^{(n)}_k \in G^{(n)}_k}
 }
 \examples{
-# TODO
 
+data(gtex)
+
+# Fit up to 10 factors and backfit.
+fl <- flash(gtex, greedy.Kmax = 10L, backfit = TRUE)
+
+# This is equivalent to the series of calls:
+fl <- flash.init(gtex) \%>\%
+  flash.add.greedy(Kmax = 10L) \%>\%
+  flash.backfit() \%>\%
+  flash.nullcheck()
+
+# Fit a "Kronecker" (rank-one) variance structure (this can be slow).
+fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
+
+}
+\seealso{
+\code{\link{flash.init}}, \code{\link{flash.add.greedy}},
+  \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
+  advanced functionality, see \code{\link{flash.init.factors}},
+  \code{\link{flash.fix.loadings}}, \code{\link{flash.set.factors.to.zero}},
+  \code{\link{flash.remove.factors}}, and \code{\link{flash.set.verbose}}.
 }

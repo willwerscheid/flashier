@@ -8,22 +8,26 @@ flash.init(data, var.type = 0L, S = NULL, S.dim = NULL)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
-\code{Matrix}, three-dimensional array, or \code{flash.data} object
-obtained from \code{\link{set.flash.data}}. Can also be a low-rank matrix
+\code{Matrix}, or three-dimensional array. Can also be a low-rank matrix
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
-\code{\link[softImpute]{softImpute}}. Can be \code{NULL} if
-\code{init} is used.}
+\code{\link[softImpute]{softImpute}}.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
-Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
-\code{S} accounts for all residual variance. Otherwise, a rank-one
-variance structure will be estimated (and added to any variance specified
-by \code{S}). \code{var.type} then gives the modes along which the
-residual variance is permitted to vary. For example, \code{var.type = 1}
-estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-optimizes over all rank-one matrices. If \code{var.type = 0}, then the
-residual variance is assumed to be constant across all observations.}
+  Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
+  \code{S} accounts for all residual variance. Otherwise, a rank-one
+  variance structure will be estimated (and added to any variance specified
+  by \code{S}). \code{var.type} then gives the modes along which the
+  residual variance is permitted to vary. For example, \code{var.type = 1}
+  estimates row-specific residual variances, while \code{var.type = c(1, 2)}
+  optimizes over all rank-one matrices. If \code{var.type = 0}, then the
+  residual variance is assumed to be constant across all observations.
+
+  Note that is much faster to set \code{S = NULL} and to let \code{flash}
+  estimate the residual variances. It is also much faster to only allow them
+  to vary along a single mode. For example, estimating row-specific
+  residual variances (\code{var.type = 1}) is much easier than estimating
+  an arbitrary rank-one matrix of variances (\code{var.type = c(1, 2)}).}
 
 \item{S}{The standard errors. Can be a matrix, scalar (if standard errors
 are the same for all observations), or vector (if, for example, \code{S}
