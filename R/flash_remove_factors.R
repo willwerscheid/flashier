@@ -1,12 +1,17 @@
-# TODO: handle conv.stat better... probably remove from final object
+#' Remove factors from a flash object
+#'
+#' Sets flash factors to zero and then removes them from the flash object.
+#'   Note that this will change the indices of existing flash factors.
+#'
+#' @param flash A \code{flash} or \code{flash.fit} object.
+#'
+#' @param kset A vector of integers specifying which factors to remove.
+#'
 #' @export
-#
-flash.remove.factors <- function(flash, kset, output.lvl = 3) {
-  if (inherits(flash, "flash")) {
-    conv.stat <- get.conv.stat(flash)
-  }
-
-  flash <- flash.set.factors.to.zero(flash, kset, output.lvl = 0)
+#'
+flash.remove.factors <- function(flash, kset) {
+  flash <- flash.set.factors.to.zero(flash, kset)
+  flash <- get.fit(flash)
 
   flash <- set.EF(flash, lowrank.drop.k(get.EF(flash), kset))
   flash <- set.EF2(flash, lowrank.drop.k(get.EF2(flash), kset))
@@ -16,28 +21,31 @@ flash.remove.factors <- function(flash, kset, output.lvl = 3) {
   flash <- set.is.zero(flash, is.zero(flash)[-kset])
   flash <- set.is.valid(flash, is.valid(flash)[-kset])
 
-  flash <- wrapup.flash(flash, output.lvl, is.converged = TRUE)
-  flash$convergence.status <- conv.stat
+  flash <- wrapup.flash(flash, output.lvl = 3L)
 
   return(flash)
 }
 
+#' Set flash factors to zero
+#'
+#' Sets flash factors to zero but does not remove them (so as to keep the
+#'   indices of existing factors the same).
+#'
+#' @inheritParams flash.remove.factors
+#'
+#' @seealso flash.remove.factors
+#'
 #' @export
 #
-flash.set.factors.to.zero <- function(flash, kset, output.lvl = 3) {
-  if (inherits(flash, "flash")) {
-    conv.stat <- get.conv.stat(flash)
-    flash <- get.fit(flash)
-  } else {
-    conv.stat <- NULL
-  }
+flash.set.factors.to.zero <- function(flash, kset) {
+  flash <- get.fit(flash)
+  must.be.valid.kset(flash, kset)
 
   for (k in kset) {
     flash <- nullcheck.factor(flash, k, verbose.lvl = 0, tol = Inf)
   }
 
-  flash <- wrapup.flash(flash, output.lvl, is.converged = TRUE)
-  flash$convergence.status <- conv.stat
+  flash <- wrapup.flash(flash, output.lvl = 3L)
 
   return(flash)
 }
