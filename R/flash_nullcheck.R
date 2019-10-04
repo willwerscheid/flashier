@@ -1,19 +1,34 @@
-# TODO: handle is.converged better, document, check args
+#' Nullcheck flash factors
+#'
+#' Checks to see whether setting factors to zero improves the overall fit. If
+#'   so, the factors are deleted.
+#'
+#' @inheritParams flash
+#'
+#' @param flash A \code{flash} or \code{flash.fit} object.
+#'
+#' @param kset A vector of integers specifying which factors to nullcheck.
+#'   If \code{kset = NULL}, then all existing factors will be checked.
+#'
+#' @param tol The tolerance parameter: if a factor does not improve the ELBO
+#'   by at least \code{tol}, then it will be set to zero.
+#'
+#' @export
+#'
 flash.nullcheck <- function(flash,
                             kset = NULL,
                             tol = set.default.tol(flash),
-                            verbose.lvl = 1,
-                            output.lvl = 3) {
-  if (inherits(flash, "flash")) {
-    conv.stat <- get.conv.stat(flash)
-    flash <- get.fit(flash)
-  } else {
-    conv.stat <- NULL
-  }
+                            verbose.lvl = get.verbose.lvl(flash)) {
+  flash <- get.fit(flash)
 
   if (is.null(kset)) {
     kset <- 1:get.n.factors(flash)
   }
+  must.be.valid.kset(flash, kset)
+
+  must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
+  must.be.integer(verbose.lvl, lower = -1, upper = 3)
+  must.be.integer(output.lvl, lower = 0, upper = 3)
 
   announce.nullchk(verbose.lvl, n.factors = length(kset))
 
@@ -26,13 +41,7 @@ flash.nullcheck <- function(flash,
   }
 
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl, is.converged = TRUE)
-
-  if (nullchk.failed(flash)) {
-    flash$convergence.status <- "not converged (nullcheck failed)"
-  } else {
-    flash$convergence.status <- conv.stat
-  }
+  flash <- wrapup.flash(flash, output.lvl = 3L)
 
   report.completion(verbose.lvl)
   return(flash)
