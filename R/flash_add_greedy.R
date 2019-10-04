@@ -51,7 +51,7 @@ flash.add.greedy <- function(flash,
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
-  priors <- prior.param(prior.family, get.dim(flash))
+  priors <- handle.prior.family(prior.family, get.dim(flash))
   ebnm.fns <- rep(priors$ebnm.fn, length.out = Kmax)
   prior.signs <- rep(priors$prior.sign, length.out = Kmax)
 

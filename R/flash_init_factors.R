@@ -52,7 +52,7 @@ flash.init.factors <- function(flash,
     stop("Neither EF nor EF2 may have missing data.")
   }
 
-  priors <- prior.param(prior.family, get.dim(flash))
+  priors <- handle.prior.family(prior.family, get.dim(flash))
 
   flash <- set.EF(flash, lowranks.combine(get.EF(flash), EF))
   flash <- set.EF2(flash, lowranks.combine(get.EF2(flash), EF2))
