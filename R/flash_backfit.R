@@ -40,6 +40,8 @@
 #'
 #' @importFrom parallel makeCluster stopCluster
 #'
+#' @export
+#'
 flash.backfit <- function(flash,
                           kset = NULL,
                           method = c("extrapolate",

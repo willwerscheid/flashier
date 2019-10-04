@@ -60,11 +60,12 @@
 #'   \code{backfit = TRUE}, \code{flash} will additionally perform a final
 #'   "backfit" where all factors are cyclically updated until convergence.
 #'
+#' @param nullcheck TODO: describe
+#'
 #' @param greedy.Kmax The maximum number of factors to be added. This will not
 #'   necessarily be the total number of factors added by \code{flash}, since
 #'   factors are only added as long as they increase the variational lower
-#'   bound on the log likelihood for the model. Fixed factors are not counted
-#'   towards this limit.
+#'   bound on the log likelihood for the model.
 #'
 #' @param verbose.lvl When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a
@@ -113,6 +114,7 @@ flash <- function(data = NULL,
                   prior.family = prior.point.normal(),
                   var.type = 0L,
                   backfit = FALSE,
+                  nullcheck = TRUE,
                   greedy.Kmax = 50L,
                   verbose.lvl = 1L) {
   fl <- flash.init(data, var.type, S)
@@ -123,6 +125,10 @@ flash <- function(data = NULL,
 
   if (backfit) {
     fl <- flash.backfit(fl, verbose.lvl = verbose.lvl)
+  }
+
+  if (nullcheck) {
+    fl <- flash.nullcheck(fl, verbose.lvl = verbose.lvl)
   }
 
   return(fl)

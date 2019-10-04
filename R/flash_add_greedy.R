@@ -17,9 +17,9 @@
 #'   increase the variational lower bound on the log likelihood for the model.
 #'
 #' @param init.fn The function used to initialize factors. Functions
-#'   \link{\code{init.fn.default}} and \link{\code{init.fn.softImpute}} have
+#'   \code{\link{{init.fn.default}} and \code{\link{{init.fn.softImpute}} have
 #'   been supplied, but custom initialization functions may also be used. See
-#'   \link{\code{init.fn.default}} for details.
+#'   \code{\link{{init.fn.default}} for details.
 #'
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
