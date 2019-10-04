@@ -35,6 +35,10 @@ get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
 get.obj               <- function(f) f[["obj"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
+get.verbose.lvl       <- function(f) f[["verbose.lvl"]]
+get.verbose.fns       <- function(f) f[["verbose.fns"]]
+get.verbose.colnames  <- function(f) f[["verbose.colnames"]]
+get.verbose.colwidths <- function(f) f[["verbose.colwidths"]]
 
 get.Y <- function(f, require.fullrank = FALSE) {
   Y <- f[["Y"]]
@@ -583,7 +587,13 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
   factor[["idx.subset"]]  <- NULL
   return(factor)
 }
-
+set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {
+  f[["verbose.lvl"]] <- lvl
+  f[["verbose.fns"]] <- fns
+  f[["verbose.colnames"]] <- colnames
+  f[["verbose.colwidths"]] <- colwidths
+  return(f)
+}
 
 # Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
