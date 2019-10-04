@@ -1,7 +1,6 @@
 #' Nullcheck flash factors
 #'
-#' Checks to see whether setting factors to zero improves the overall fit. If
-#'   so, the factors are deleted.
+#' Sets factors to zero if doing so improves the overall fit.
 #'
 #' @inheritParams flash
 #'
@@ -10,6 +9,9 @@
 #' @param kset A vector of integers specifying which factors to nullcheck.
 #'   If \code{kset = NULL}, then all existing factors will be checked.
 #'
+#' @param remove Whether to remove factors that have been set to zero from the
+#'   flash object. This will change the indices of existing factors.
+#'
 #' @param tol The tolerance parameter: if a factor does not improve the ELBO
 #'   by at least \code{tol}, then it will be set to zero.
 #'
@@ -17,31 +19,37 @@
 #'
 flash.nullcheck <- function(flash,
                             kset = NULL,
+                            remove = FALSE,
                             tol = set.default.tol(flash),
                             verbose.lvl = get.verbose.lvl(flash)) {
-  flash <- get.fit(flash)
+  fit <- get.fit(flash)
 
   if (is.null(kset)) {
-    kset <- 1:get.n.factors(flash)
+    kset <- 1:get.n.factors(fit)
   }
-  must.be.valid.kset(flash, kset)
+  must.be.valid.kset(fit, kset)
 
   must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3)
-  must.be.integer(output.lvl, lower = 0, upper = 3)
 
   announce.nullchk(verbose.lvl, n.factors = length(kset))
 
   for (k in kset) {
-    flash <- nullcheck.factor(flash, k, verbose.lvl, tol)
+    fit <- nullcheck.factor(fit, k, verbose.lvl, tol)
   }
 
-  if (length(kset) > 0 && !nullchk.failed(flash)) {
+  if (length(kset) > 0 && !nullchk.failed(fit)) {
     report.nullchk.success(verbose.lvl)
   }
 
-  announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl = 3L)
+  if (length(is.zero(fit)) > 0) {
+    announce.wrapup(verbose.lvl)
+    if (remove) {
+      flash <- flash.remove.factors(fit, which(is.zero(fit)))
+    } else {
+      flash <- wrapup.flash(fit, output.lvl = 3L)
+    }
+  }
 
   report.completion(verbose.lvl)
   return(flash)

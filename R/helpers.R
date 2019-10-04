@@ -35,10 +35,6 @@ get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
 get.obj               <- function(f) f[["obj"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
-get.verbose.lvl       <- function(f) f[["verbose.lvl"]]
-get.verbose.fns       <- function(f) f[["verbose.fns"]]
-get.verbose.colnames  <- function(f) f[["verbose.colnames"]]
-get.verbose.colwidths <- function(f) f[["verbose.colwidths"]]
 
 get.Y <- function(f, require.fullrank = FALSE) {
   Y <- f[["Y"]]
@@ -142,6 +138,22 @@ get.exclusions <- function(f, n = NULL) {
   if (length(f[["exclusions"]]) < n)
     return(NULL)
   return(f[["exclusions"]][[n]])
+}
+get.verbose.lvl <- function(f) {
+  f <- get.fit(f)
+  f[["verbose.lvl"]]
+}
+get.verbose.fns <- function(f) {
+  f <- get.fit(f)
+  f[["verbose.fns"]]
+}
+get.verbose.colnames <- function(f) {
+  f <- get.fit(f)
+  f[["verbose.colnames"]]
+}
+get.verbose.colwidths <- function(f) {
+  f <- get.fit(f)
+  f[["verbose.colwidths"]]
 }
 
 
