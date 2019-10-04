@@ -46,13 +46,20 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
   for (i in 1:length(kset)) {
     k <- kset[i]
 
-    if (length(fix.dim) >= k && !is.null(fix.dim[[k]]) && fix.dim[[k]] != mode) {
-        stop(paste("Loadings can only be fixed along a single mode for any",
-                   "given factor."))
-    }
+    next.idx <- which(is.fixed[, i])
 
-    fix.dim[[k]] <- mode
-    fix.idx[[k]] <- which(is.fixed[, i])
+    if (length(next.idx) == 0) {
+      fix.dim[[k]] <- NULL
+      fix.idx[[k]] <- NULL
+    } else if (length(fix.dim) >= k
+               && !is.null(fix.dim[[k]])
+               && fix.dim[[k]] != mode) {
+      stop(paste("Loadings can only be fixed along a single mode for any",
+                 "given factor."))
+    } else {
+      fix.dim[[k]] <- mode
+      fix.idx[[k]] <- next.idx
+    }
   }
 
   fit <- set.fix.dim(fit, fix.dim)
