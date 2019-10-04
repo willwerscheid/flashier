@@ -1,3 +1,13 @@
+must.be.numeric <- function(x, allow.infinite = TRUE, allow.null = TRUE) {
+  error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
+  if (is.null(x) && !allow.null)
+    stop(error.msg)
+  if (!is.null(x) && is.infinite(x) && !allow.infinite)
+    stop(error.msg)
+  if (!is.null(x) && (!(is.numeric(x) && length(x) == 1)))
+    stop(error.msg)
+}
+
 must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
   if (is.null(x) && !allow.null)

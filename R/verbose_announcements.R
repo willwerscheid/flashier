@@ -36,8 +36,10 @@ report.backfit.progress <- function(verbose.lvl, tol) {
 }
 
 report.maxiter.reached <- function(verbose.lvl) {
-  if (verbose.lvl > 0 && verbose.lvl < 3) {
-    cat("  Maximum number of iterations reached.\n")
+  if (verbose.lvl > 0) {
+    cat("    Maximum number of iterations reached!\n")
+  } else {
+    warning("Maximum number of iterations reached.")
   }
 }
 
