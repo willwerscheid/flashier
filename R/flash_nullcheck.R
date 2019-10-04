@@ -42,7 +42,7 @@ flash.nullcheck <- function(flash,
     report.nullchk.success(verbose.lvl)
   }
 
-  if (length(is.zero(fit)) > 0) {
+  if (sum(is.zero(fit)) > 0) {
     announce.wrapup(verbose.lvl)
     if (remove) {
       flash <- flash.remove.factors(fit, which(is.zero(fit)))

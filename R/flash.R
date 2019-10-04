@@ -120,8 +120,7 @@ flash <- function(data = NULL,
   fl <- flash.init(data, var.type, S)
 
   fl <- flash.add.greedy(fl, greedy.Kmax, prior.family,
-                         verbose.lvl = verbose.lvl,
-                         output.lvl = 3L * !backfit)
+                         verbose.lvl = verbose.lvl)
 
   if (backfit) {
     fl <- flash.backfit(fl, verbose.lvl = verbose.lvl)
