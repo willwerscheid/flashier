@@ -1,4 +1,5 @@
 get.fit <- function(f) f[["flash.fit"]]
+get.conv.stat <- function(f) f[["convergence.status"]]
 
 # Getters for the main flash object (also used by the smaller factors) --------
 
