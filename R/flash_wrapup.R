@@ -8,10 +8,22 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
 
   flash.object <- list()
 
-  flash.object$n.factors        <- get.n.factors(flash)
+  flash.object$n.factors <- get.n.factors(flash)
 
   if (flash.object$n.factors > 0) {
-    flash.object$pve            <- calc.pve(flash)
+    flash.object$pve <- calc.pve(flash)
+  }
+
+  flash.object$elbo <- get.obj(flash)
+
+  if (is.converged) {
+    flash.object$convergence.status <- "converged"
+  } else {
+    flash.object$convergence.status <- paste("did not converge (reached",
+                                             "maximum number of iterations)")
+  }
+
+  if (flash.object$n.factors > 0) {
     loadings                    <- calc.normalized.loadings(flash)
     flash.object$loadings.scale <- loadings$scale.constants
     flash.object$loadings.pm    <- loadings$normalized.loadings
@@ -28,15 +40,6 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
 
   if (flash.object$n.factors > 0) {
     flash.object$fitted.g <- get.g.by.mode(flash)
-  }
-
-  flash.object$elbo <- get.obj(flash)
-
-  if (is.converged) {
-    flash.object$convergence.status <- "converged"
-  } else {
-    flash.object$convergence.status <- paste("did not converge (reached",
-                                             "maximum number of iterations)")
   }
 
   if (flash.object$n.factors > 0 && output.lvl > 1) {
