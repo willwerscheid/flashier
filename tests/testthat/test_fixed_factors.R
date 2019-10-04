@@ -12,18 +12,28 @@ LF2 <- 5 * outer(LL, FF)
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(n * p)
 
-fl <- flashier(M, fixed.factors = c(fixed.ones(n = 1),
-                                    fixed.factors(n = 1, vals = 1:n)),
-               greedy.Kmax = 1, verbose.lvl = 0)
+EF1 <- cbind(1, 1:n)
+EF2 <- t(solve(crossprod(EF1), crossprod(EF1, M)))
+
+fl <- flash.init(M) %>%
+  flash.set.verbose(0) %>%
+  flash.init.factors(list(EF1, EF2)) %>%
+  flash.fix.loadings(1:2, mode = 1) %>%
+  flash.backfit()
 
 test_that("Fixed factors are correctly added to a new flash object", {
   expect_equal(fl$flash.fit$EF[[1]][, 1], rep(1, n))
   expect_equal(fl$flash.fit$EF[[1]][, 2], 1:n)
 })
 
-fl <- flashier(init = fl, fixed.factors = fixed.sparse(n = 1, 1:3),
-               fit = "backfit", verbose.lvl = 0)
+fl <- flash.init(M) %>%
+  flash.set.verbose(0) %>%
+  flash.add.greedy(1) %>%
+  flash.init.factors(list(EF1, EF2)) %>%
+  flash.fix.loadings(2:3, mode = 1) %>%
+  flash.backfit()
 
 test_that("Fixed factors are correctly added to an existing flash object", {
-  expect_equal(fl$flash.fit$EF[[1]][4:n, 4], rep(0, n - 3))
+  expect_equal(fl$flash.fit$EF[[1]][, 2], rep(1, n))
+  expect_equal(fl$flash.fit$EF[[1]][, 3], 1:n)
 })

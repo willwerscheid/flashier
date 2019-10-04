@@ -9,27 +9,24 @@ LF <- outer(rep(1, n), rep(1, p))
 M <- LF + 0.1 * rnorm(n * p)
 
 test_that("constant S + constant estimation works", {
-  f <- flashier(M, S = 0.2, var.type = 0, greedy.Kmax = 1, output.lvl = 3,
-                verbose.lvl = 0)
+  f <- flash(M, S = 0.2, var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
   expect_equal(f$flash.fit$tau, f$flash.fit$given.tau)
 
-  f <- flashier(M, S = 0.05, var.type = 0, greedy.Kmax = 1, output.lvl = 3,
-                verbose.lvl = 0)
+  f <- flash(M, S = 0.05, var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
   expect_equal(f$flash.fit$tau, f$flash.fit$est.tau)
 })
 
 test_that("by column S + by column estimation works", {
   tau = c(rep(50, 10), rep(250, p - 10))
-  data <- set.flash.data(M, S = 1 / sqrt(tau), S.dim = 2)
-  f <- flashier(data, var.type = 2, greedy.Kmax = 1, output.lvl = 3,
-                verbose.lvl = 0)
+  f <- flash.init(M, S = 1 / sqrt(tau), S.dim = 2, var.type = 2) %>%
+    flash.add.greedy(1, verbose.lvl = 0)
   expect_equal(f$flash.fit$tau[1:10], rep(50, 10))
   expect_equal(f$flash.fit$tau[-(1:10)], f$flash.fit$est.tau[-(1:10)])
 })
 
 test_that("kronecker variance estimation works", {
   Y <- matrix(10, nrow = 100, ncol = 100) + 0.1 * rnorm(100 * 100)
-  f <- flashier(Y, var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
+  f <- flash(Y, var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
   tau.mat <- r1.expand(f$flash.fit$tau)
   expect_equal(mean(tau.mat), 100, tol = 0.1)
 
@@ -45,36 +42,33 @@ test_that("kronecker variance estimation works", {
 })
 
 test_that("basic noisy variance estimation works", {
-  f.const <- flashier(M, var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
-  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
-                      var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
+  f.const <- flash(M, var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
+  f.noisy <- flash(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                   var.type = 0, greedy.Kmax = 1, verbose.lvl = 0)
   expect_equal(f.const$flash.fit$tau, f.noisy$flash.fit$tau[1, 1], tol = 0.5, scale = 1)
   expect_equal(f.const$elbo, f.noisy$elbo, tol = 0.01, scale = 1)
 })
 
 test_that("fixed + by_column estimation works", {
-  f.bycol <- flashier(M, var.type = 2, greedy.Kmax = 1, verbose.lvl = 0)
-  f.noisy <- flashier(M,
-                      S = (matrix(0.01, nrow = nrow(M), ncol = ncol(M))
+  f.bycol <- flash(M, var.type = 2, greedy.Kmax = 1, verbose.lvl = 0)
+  f.noisy <- flash(M, S = (matrix(0.01, nrow = nrow(M), ncol = ncol(M))
                            + 0.001 * rnorm(length(M))),
-                      var.type = 2, greedy.Kmax = 1, verbose.lvl = 0)
+                   var.type = 2, greedy.Kmax = 1, verbose.lvl = 0)
   expect_equal(f.bycol$flash.fit$tau, f.noisy$flash.fit$tau[1, ], tol = 0.5, scale = 1)
   expect_equal(f.bycol$elbo, f.noisy$elbo, tol = 0.1, scale = 1)
 })
 
 test_that("fixed + kronecker estimation works", {
-  f.kron <- flashier(M, var.type = c(1, 2), greedy.Kmax = 0,
-                     final.nullchk = FALSE, verbose.lvl = 0)
-  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
-                      var.type = c(1, 2), greedy.Kmax = 0,
-                      final.nullchk = FALSE, verbose.lvl = 0)
+  f.kron <- flash.init(M, var.type = c(1, 2))
+  f.noisy <- flash.init(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                        var.type = c(1, 2))
 
   expect_equal(r1.expand(f.kron$flash.fit$tau), f.noisy$flash.fit$tau, tol = 0.01, scale = 1)
   expect_equal(f.kron$elbo, f.noisy$elbo, tol = 0.01, scale = 1)
 
-  f.kron <- flashier(M, var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
-  f.noisy <- flashier(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
-                      var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
+  f.kron <- flash(M, var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
+  f.noisy <- flash(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+                   var.type = c(1, 2), greedy.Kmax = 1, verbose.lvl = 0)
 
   expect_equal(r1.expand(f.kron$flash.fit$tau), f.noisy$flash.fit$tau, tol = 1, scale = 1)
   expect_equal(f.kron$elbo, f.noisy$elbo, tol = 0.05, scale = 1)

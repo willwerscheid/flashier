@@ -32,7 +32,7 @@ flash.init.factors <- function(flash,
            "matrices.")
     }
     EF <- udv.to.lowrank(EF)
-  } else if (is.list(EF) && all(lapply(EF, is.matrix))) {
+  } else if (is.list(EF) && all(sapply(EF, is.matrix))) {
     class(EF) <- list("lowrank", "list")
   } else {
     stop("EF must be an SVD-like object or list of matrices.")

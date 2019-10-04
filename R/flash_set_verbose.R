@@ -2,7 +2,7 @@
 #'
 #' Sets the default verbosity level and verbose output for a flash object.
 #'
-#' @param
+#' @param flash A \code{flash} or \code{flash.fit} object.
 #'
 #' @param verbose When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a

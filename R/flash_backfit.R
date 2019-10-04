@@ -176,7 +176,7 @@ flash.backfit <- function(flash,
     if (is.null(next.tol.target) && max(conv.crit) > 0 && max(conv.crit) < Inf) {
       # Set the first target.
       next.tol.target <- 10^floor(log10(max(conv.crit)))
-    } else if (max(conv.crit) < next.tol.target) {
+    } else if (!is.null(next.tol.target) && max(conv.crit) < next.tol.target) {
       # Report progress and set the next target.
       report.backfit.progress(verbose.lvl, next.tol.target)
       next.tol.target <- next.tol.target / 10

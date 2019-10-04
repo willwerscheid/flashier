@@ -39,7 +39,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   if (is.null(S.dim)) {
     S.dim <- infer.S.dim(S, data.dim)
   } else {
-    dims.must.match(data, S, data.dim)
+    dims.must.match(data, S, S.dim)
   }
 
   if (is.S2.stored(S, S.dim, var.type)) {
