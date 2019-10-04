@@ -21,13 +21,13 @@
 #'   been supplied, but custom initialization functions may also be used. See
 #'   \link{\code{init.fn.default}} for details.
 #'
-#' @param conv.crit.fn The function used to determine whether convergence has
-#'   occurred. TODO: details.
-#'
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
 #'   and fixed factors. Control parameters are handled via global options and
 #'   can be set via \code{options("extrapolate.control") <- control.param}.
+#'
+#' @param conv.crit.fn The function used to determine whether convergence has
+#'   occurred. TODO: details.
 #'
 #' @param tol The convergence tolerance.
 #'
@@ -40,8 +40,8 @@ flash.add.greedy <- function(flash,
                              Kmax = 1,
                              prior.family = prior.point.normal(),
                              init.fn = init.fn.default,
-                             conv.crit.fn = calc.obj.diff,
                              extrapolate = TRUE,
+                             conv.crit.fn = calc.obj.diff,
                              tol = set.default.tol(flash),
                              maxiter = 500,
                              verbose.lvl = get.verbose.lvl(flash)) {

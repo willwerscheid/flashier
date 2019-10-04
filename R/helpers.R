@@ -587,6 +587,10 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
   factor[["idx.subset"]]  <- NULL
   return(factor)
 }
+set.warmstart <- function(f, warmstart) {
+  f[["warmstart.backfits"]] <- warmstart
+  return(f)
+}
 set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {
   f[["verbose.lvl"]] <- lvl
   f[["verbose.fns"]] <- fns

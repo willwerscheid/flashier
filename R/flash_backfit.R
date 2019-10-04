@@ -1,25 +1,67 @@
-# TODO: need to be able to set prior.family
+#' Backfit a flash object
+#'
+#' Backfits existing flash factors. Whereas a "greedy" fit optimizes each
+#'   newly added factor in one go without returning to optimize previously
+#'   added factors, a "backfit" updates all existing factors in a cyclical
+#'   fashion.
+#'
+#' @inheritParams flash
+#'
+#' @inheritParams flash.add.greedy
+#'
+#' @param flash A \code{flash} or \code{flash.fit} object.
+#'
+#' @param kset  A vector of integers specifying which factors to backfit.
+#'   If \code{kset = NULL}, then all existing factors will be backfitted.
+#'
+#' @param method \code{"sequential"} updates each factor in order, one at a
+#'   time. \code{"extrapolate"} does the same but uses an acceleration
+#'   technique inspired by Ang and Gillis (2019).  Control parameters are
+#'   handled via global options and can be set via
+#'   \code{options("extrapolate.control") <- control.param}. \code{"dropout"}
+#'   is similar to \code{"sequential"}, but stops updating individual factors
+#'   once they are no longer changing very much. This saves time, but often
+#'   results in incomplete convergence. \code{"random"} updates each factor one
+#'   at a time, but re-orders them randomly after each backfit iteration.
+#'   \code{"parallel"} does a simultaneous update of all factors. Unlike other
+#'   methods, parallel backfits are not guaranteed to yield monotonic increases
+#'   in the variational lower bound.
+#'   The number of cores used by \code{"parallel"} can be set via the
+#'   command \code{options("cl.cores", n.cores)}. The type of multicore
+#'   cluster can be set via \code{options("cl.type", type)}. Typically,
+#'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
+#'
+#' @param maxiter The maximum number of backfitting iterations. An "iteration"
+#'   is defined such that all factors in \code{kset} get updated at each
+#'   iteration.
+#'
+#' @param warmstart Whether to "warmstart" backfits by initializing each factor
+#'   update at the current value of the fitted prior.
+#'
+#' @importFrom parallel makeCluster stopCluster
+#'
 flash.backfit <- function(flash,
                           kset = NULL,
                           method = c("extrapolate",
                                      "sequential",
-                                     "random",
                                      "dropout",
-                                     "montaigne",
+                                     "random",
                                      "parallel"),
                           conv.crit.fn = calc.obj.diff,
                           tol = set.default.tol(flash),
                           maxiter = 500,
                           warmstart = TRUE,
-                          verbose.lvl = 1,
-                          output.lvl = 3) {
-  if (inherits(flash, "flash")) {
-    flash <- get.fit(flash)
-  }
+                          verbose.lvl = get.verbose.lvl(flash)) {
+  flash <- get.fit(flash)
 
   if (is.null(kset)) {
     kset <- 1:get.n.factors(flash)
+  } else {
+    must.be.valid.kset(flash, kset)
   }
+
+  must.be.integer(maxiter, lower = 1, allow.null = FALSE)
+  must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
   method <- match.arg(method)
 
@@ -36,20 +78,23 @@ flash.backfit <- function(flash,
 
   if (missing(tol)) {
     report.tol.setting(verbose.lvl, tol)
+  } else {
+    must.be.numeric(tol, allow.infinite = FALSE, allow.null = FALSE)
   }
 
-  # TODO not the smartest way to do this
-  flash$warmstart.backfits <- warmstart
+  flash <- set.warmstart(flash, warmstart)
 
-  verbose <- verbose.param(verbose.lvl, get.dim(flash))
+  verbose.fns <- get.verbose.fns(flash)
+  verbose.colnames <- get.verbose.colnames(flash)
+  verbose.colwidths <- get.verbose.colwidths(flash)
 
   conv.crit <- rep(Inf, get.n.factors(flash))
   conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
 
   announce.backfit(verbose.lvl, n.factors = length(kset), tol)
   print.table.header(verbose.lvl,
-                     verbose$verbose.colnames,
-                     verbose$verbose.colwidths,
+                     verbose.colnames,
+                     verbose.colwidths,
                      backfit = TRUE)
 
   if (method == "parallel") {
@@ -73,7 +118,6 @@ flash.backfit <- function(flash,
     old.f <- flash
   }
   while (iter < maxiter && max(conv.crit) > tol) {
-    is.converged <- TRUE
     iter <- iter + 1
 
     kset <- get.next.kset(method, kset, conv.crit, tol)
@@ -85,11 +129,11 @@ flash.backfit <- function(flash,
         info  <- calc.update.info(flash,
                                   old.f,
                                   conv.crit.fn,
-                                  verbose$verbose.fns,
+                                  verbose.fns,
                                   k)
         conv.crit[k] <- get.conv.crit(info)
         print.table.entry(verbose.lvl,
-                          verbose$verbose.colwidths,
+                          verbose.colwidths,
                           iter,
                           info,
                           k = k,
@@ -117,10 +161,10 @@ flash.backfit <- function(flash,
       info <- calc.update.info(flash,
                                old.f,
                                conv.crit.fn,
-                               verbose$verbose.fns)
+                               verbose.fns)
       conv.crit <- get.conv.crit(info)
       print.table.entry(verbose.lvl,
-                        verbose$verbose.colwidths,
+                        verbose.colwidths,
                         iter,
                         info,
                         k = "all",
@@ -142,7 +186,6 @@ flash.backfit <- function(flash,
   }
 
   if (iter == maxiter) {
-    is.converged <- FALSE
     report.maxiter.reached(verbose.lvl)
   }
 
@@ -150,11 +193,8 @@ flash.backfit <- function(flash,
     report.backfit.complete(verbose.lvl, get.obj(flash))
   }
 
-  # TODO see above
-  flash$warmstart.backfits <- NULL
-
   announce.wrapup(verbose.lvl)
-  flash <- wrapup.flash(flash, output.lvl, is.converged)
+  flash <- wrapup.flash(flash, output.lvl = 3L)
 
   report.completion(verbose.lvl)
   return(flash)
