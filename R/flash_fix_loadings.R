@@ -14,11 +14,12 @@
 #'
 #' @param is.fixed If \code{is.fixed = TRUE}, then all loadings along the
 #'   specified mode will be fixed. If only a subset of loadings are to be
-#'   fixed, then \code{is.fixed} can be an appropriately-sized vector or matrix
-#'   of values that can be coerced to logical. For example, if row loadings
-#'   for two factors are to be fixed, then \code{is.fixed} can be a length-n
-#'   vector or an n by 2 matrix (where n is the number of rows in the data
-#'   matrix).
+#'   fixed, then \code{is.fixed} should be an appropriately-sized vector or
+#'   matrix of values that can be coerced to logical. For example, if row
+#'   loadings for two factors are to be fixed, then \code{is.fixed} can be
+#'   a length-n vector or an n by 2 matrix (where n is the number of rows in
+#'   the data matrix). Finally, loadings can be "unfixed" by setting
+#'   \code{is.fixed = FALSE}.
 #'
 #' @export
 #'
@@ -52,32 +53,6 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
 
     fix.dim[[k]] <- mode
     fix.idx[[k]] <- which(is.fixed[, i])
-  }
-
-  fit <- set.fix.dim(fit, fix.dim)
-  fit <- set.fix.idx(fit, fix.idx)
-
-  flash <- set.fit(flash, fit)
-
-  return(flash)
-}
-
-#' @describeIn flash.fix.loadings Unfixes all loadings for the specified
-#'   factors.
-#'
-#' @export
-#'
-flash.unfix.loadings <- function(flash, kset) {
-  fit <- get.fit(flash)
-
-  must.be.valid.kset(fit, kset)
-
-  fix.dim <- get.fix.dim(fit)
-  fix.idx <- get.fix.idx(fit)
-
-  for (k in kset) {
-    fix.dim[[k]] <- NULL
-    fix.idx[[k]] <- NULL
   }
 
   fit <- set.fix.dim(fit, fix.dim)
