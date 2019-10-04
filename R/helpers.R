@@ -195,7 +195,9 @@ get.new.EF2 <- function(flash, factor = NULL) {
   return(lowranks.combine(EF2, as.lowrank(get.EF2(factor))))
 }
 
-get.ebnm.fn <- function(flash, factor, n = NULL) {
+get.ebnm.fn <- function(flash, factor = NULL, n = NULL) {
+  if (is.null(factor))
+    return(flash[["ebnm.fn"]])
   if (is.new(factor)) {
     ebnm.fn <- factor[["ebnm.fn"]]
   } else {

@@ -1,5 +1,5 @@
 wrapup.flash <- function(flash, output.lvl, is.converged) {
-  class(flash) <- "flash.fit"
+  class(flash) <- c("flash.fit", "list")
 
   if (output.lvl == 0) {
     flash <- set.bypass.init.flag(flash)
@@ -56,7 +56,7 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
 
   flash.object$flash.fit <- flash
 
-  class(flash.object) <- "flash"
+  class(flash.object) <- list("flash", "list")
 
   return(flash.object)
 }

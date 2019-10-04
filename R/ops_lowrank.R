@@ -41,7 +41,7 @@ lowrank.subset <- function(lowrank, n, subset) {
 }
 
 lowrank.drop.k <- function(lowrank, k) {
-  if (is.null(lowrank) || ncol(lowrank[[1]]) == 1)
+  if (is.null(lowrank) || all(1:ncol(lowrank[[1]]) %in% k))
     return(NULL)
   lowrank <- lapply(lowrank, function(X) X[, -k, drop = FALSE])
   class(lowrank) <- "lowrank"
