@@ -121,6 +121,8 @@ get.nonmissing.thresh <- function(f, n) f[["nonmissing.thresh"]][n]
 get.exclusions <- function(f, n = NULL) {
   if (is.null(n))
     return(f[["exclusions"]])
+  if (length(f[["exclusions"]]) < n)
+    return(NULL)
   return(f[["exclusions"]][[n]])
 }
 
@@ -144,7 +146,9 @@ is.new <- function(f) is.null(get.k(f))
 
 # Simple helper functions for the main flash object and smaller factors -------
 
-get.n.factors <- function(f) max(0, ncol(f[["EF"]][[1]]))
+get.n.factors <- function(f) {
+  max(0, ncol(f[["EF"]][[1]]))
+}
 get.dims <- function(f) {
   if (uses.R(f))
     return(dim(get.R(f)))

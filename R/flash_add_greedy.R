@@ -2,14 +2,19 @@
 flash.add.greedy <- function(flash,
                              Kmax = 1,
                              prior.family = prior.point.normal(),
-                             tol = set.default.tol(flash, verbose.lvl),
-                             maxiter = 500,
                              init.fn = init.fn.default,
                              conv.crit.fn = calc.obj.diff,
+                             tol = set.default.tol(flash),
+                             maxiter = 500,
                              extrapolate = TRUE,
-                             extrapolate.control = list(),
                              verbose.lvl = 1,
                              output.lvl = 3) {
+  set.seed(666)
+
+  if (inherits(flash, "flash")) {
+    flash <- get.fit(flash)
+  }
+
   priors <- prior.param(prior.family, get.dim(flash))
   ebnm.fns <- rep(priors$ebnm.fn, length.out = Kmax)
   prior.signs <- rep(priors$prior.sign, length.out = Kmax)
@@ -27,6 +32,7 @@ flash.add.greedy <- function(flash,
     }
   }
 
+  extrapolate.control <- getOption("extrapolate.control", list())
   extrapolate.param <- set.extrapolate.param(extrapolate.control)
 
   verbose <- verbose.param(verbose.lvl, get.dim(flash))
