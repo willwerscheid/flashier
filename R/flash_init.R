@@ -46,8 +46,8 @@ flash.init <- function(data, var.type = 0L, S = NULL, S.dim = NULL) {
   flash$nonmissing.thresh <- rep(0, get.dim(flash))
   flash$exclusions <- list()
 
-  flash <- flash.set.verbose(flash, verbose = 1L)
   flash <- wrapup.flash(flash, output.lvl = 3L)
+  flash <- flash.set.verbose(flash, verbose = 1L)
 
   return(flash)
 }

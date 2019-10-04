@@ -1,4 +1,22 @@
-#' TODO: document
+#' Set verbose output
+#'
+#' Sets the default verbosity level and verbose output for a flash object.
+#'
+#' @param
+#'
+#' @param verbose When and how to display progress updates. Set to
+#'   \code{0} for none, \code{1} for updates after a factor is added or a
+#'   backfit is completed, \code{2} for additional notifications about the
+#'   variational lower bound, and \code{3} for updates after every iteration.
+#'   Set to \code{-1} to output a single tab-delimited table of values.
+#'
+#' @param fns A vector of functions. Used to calculate values to output after
+#'   each factor update when \code{verbose} is either -1 or 3.
+#'
+#' @param colnames A vector of column names, one for each function in
+#'   \code{verbose.fns}.
+#'
+#' @param colwidths A vector of column widths.
 #'
 #' @export
 #'
@@ -7,6 +25,8 @@ flash.set.verbose <- function(flash,
                               fns = NULL,
                               colnames = NULL,
                               colwidths = NULL) {
+  fit <- get.fit(flash)
+
   if (!all(length(fns) == c(length(colnames), length(colwidths)))) {
     stop("Arguments to fns, colnames, and colwidths must all have the same ",
          "length.")
@@ -42,7 +62,8 @@ flash.set.verbose <- function(flash,
     }
   }
 
-  flash <- set.verbose.options(flash, lvl, fns, colnames, colwidths)
+  fit <- set.verbose.options(fit, lvl, fns, colnames, colwidths)
+  flash <- set.fit(flash, fit)
 
   return(flash)
 }
