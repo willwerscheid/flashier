@@ -1,4 +1,4 @@
-wrapup.flash <- function(flash, output.lvl, is.converged) {
+wrapup.flash <- function(flash, output.lvl) {
   class(flash) <- c("flash.fit", "list")
 
   if (output.lvl == 0) {
@@ -16,19 +16,16 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
 
   flash.object$elbo <- get.obj(flash)
 
-  if (is.converged) {
-    flash.object$convergence.status <- "converged"
-  } else {
-    flash.object$convergence.status <- paste("did not converge (reached",
-                                             "maximum number of iterations)")
-  }
+  all.valid <- all(is.valid(flash))
 
   if (flash.object$n.factors > 0) {
     loadings                    <- calc.normalized.loadings(flash)
     flash.object$loadings.scale <- loadings$scale.constants
     flash.object$loadings.pm    <- loadings$normalized.loadings
     flash.object$loadings.psd   <- loadings$loading.SDs
-    flash.object$loadings.lfsr  <- calc.lfsr(flash)
+    if (all.valid) {
+      flash.object$loadings.lfsr <- calc.lfsr(flash)
+    }
   }
 
   if (is.tau.simple(flash)) {
@@ -42,7 +39,7 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
     flash.object$fitted.g <- get.g.by.mode(flash)
   }
 
-  if (flash.object$n.factors > 0 && output.lvl > 1) {
+  if (flash.object$n.factors > 0 && output.lvl > 1 && all.valid) {
     flash.object$sampler <- build.sampler(flash)
   }
 
@@ -50,8 +47,6 @@ wrapup.flash <- function(flash, output.lvl, is.converged) {
     flash <- clear.flags(flash)
     flash <- remove.data.elements(flash)
     flash <- remove.auxiliary.elements(flash)
-  } else {
-    flash <- set.bypass.init.flag(flash)
   }
 
   flash.object$flash.fit <- flash

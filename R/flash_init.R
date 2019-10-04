@@ -1,8 +1,8 @@
-#' Initialize flash fit object
+#' Initialize flash object
 #'
-#' Sets up a \code{flash.fit} object with no factors. Since all other
-#' \code{flash.xxx} functions take a \code{flash.fit} object as their first
-#' argument, initializing a \code{flash.fit} object will be the first step
+#' Sets up a \code{flash} object with no factors. Since all other
+#' \code{flash.xxx} functions take a \code{flash} or \code{flash.fit} object
+#' as their first argument, calling \code{flash.init} will be the first step
 #' in any \code{flash} pipeline.
 #'
 #' @inheritParams flash
@@ -15,7 +15,7 @@
 #'
 #' @export
 #'
-flash.init <- function(data, var.type, S = NULL, S.dim = NULL) {
+flash.init <- function(data, var.type = 0L, S = NULL, S.dim = NULL) {
   flash <- set.flash.data(data, S = S, S.dim = S.dim, var.type = var.type)
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {
@@ -35,15 +35,18 @@ flash.init <- function(data, var.type, S = NULL, S.dim = NULL) {
   flash <- init.tau(flash)
   flash$obj <- calc.obj(flash)
 
-  # These fields are used to fix factors.
+  # Fields used to fix factors.
   flash$fix.dim <- list()
   flash$fix.idx <- list()
 
-  # These fields are no longer used.
+  # Some 'hidden' global options.
+  flash$use.fixed.to.est.g <- FALSE
+
+  # Fields that are no longer used.
   flash$nonmissing.thresh <- rep(0, get.dim(flash))
   flash$exclusions <- list()
 
-  class(flash) <- c("flash.fit", "list")
+  flash <- wrapup.flash(flash, output.lvl = 3L)
 
   return(flash)
 }

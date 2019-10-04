@@ -10,6 +10,16 @@ must.be.integer <- function(x, lower = NULL, upper = NULL, allow.null = TRUE) {
     stop(error.msg)
 }
 
+must.be.valid.kset <- function(flash, kset) {
+  for (k in kset) {
+    must.be.integer(k, lower = 1, upper = get.n.factors(flash),
+                    allow.null = FALSE)
+  }
+  if (!identical(kset, unique(kset))) {
+    stop("kset must not contain repeated elements.")
+  }
+}
+
 must.be.list.of.named.lists <- function(x, valid.fields) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(x)), ".")
   if (!is.list(x) || !all(sapply(x, is.list)))

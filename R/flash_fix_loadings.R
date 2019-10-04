@@ -1,46 +1,89 @@
-# TODO: document and export
-# TODO: really should be able to fix more than one mode, no?
-# allow is.fixed to be matrix or vector (when same for each), but must be logical
+#' Fix flash loadings
+#'
+#' Fixes some or all loadings within one or more flash factors.
+#'
+#' @param flash A \code{flash} or \code{flash.fit} object
+#'
+#' @param kset A vector of integers indexing the factors whose loadings are to
+#'   be fixed (or unfixed).
+#'
+#' @param mode The mode along which loadings are to be fixed (for matrix data,
+#'   \code{mode = 1} fixes row loadings and \code{mode = 2} fixes column
+#'   loadings). For any given factor, loadings may only be fixed along a single
+#'   mode.
+#'
+#' @param is.fixed If \code{is.fixed = TRUE}, then all loadings along the
+#'   specified mode will be fixed. If only a subset of loadings are to be
+#'   fixed, then \code{is.fixed} can be an appropriately-sized vector or matrix
+#'   of values that can be coerced to logical. For example, if row loadings
+#'   for two factors are to be fixed, then \code{is.fixed} can be a length-n
+#'   vector or an n by 2 matrix (where n is the number of rows in the data
+#'   matrix).
+#'
+#' @export
+#'
 flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
-  # TODO: argument checking
-  is.fixed <- matrix(is.fixed, nrow = get.dims(flash)[mode], ncol = length(kset))
+  fit <- get.fit(flash)
 
-  fix.dim <- get.fix.dim(flash)
-  fix.idx <- get.fix.idx(flash)
+  must.be.valid.kset(fit, kset)
+  must.be.integer(mode, lower = 1, upper = get.dim(fit), allow.null = FALSE)
 
-  # TODO: check if already set; if mode different throw error
+  expect.nrow <- get.dims(fit)[mode]
+  expect.ncol <- length(kset)
+
+  if (!((is.vector(is.fixed) && length(is.fixed) %in% c(1, expect.nrow))
+        || identical(dim(is.fixed), c(expect.nrow, expect.ncol)))) {
+      stop("is.fixed must be a vector of length ", expect.nrow, " or a ",
+           expect.nrow, " by ", expect.ncol, " matrix.")
+  }
+  is.fixed <- array(as.logical(is.fixed), dim = c(expect.nrow, expect.ncol))
+
+
+  fix.dim <- get.fix.dim(fit)
+  fix.idx <- get.fix.idx(fit)
+
   for (i in 1:length(kset)) {
     k <- kset[i]
 
-    if ((length(fix.dim) >= k)
-        && !is.null(fix.dim[[k]])
-        && (fix.dim[[k]] != mode)) {
-      stop(paste("Loadings can only be fixed along a single mode for any",
-                 "given factor."))
+    if (length(fix.dim) >= k && !is.null(fix.dim[[k]]) && fix.dim[[k]] != mode) {
+        stop(paste("Loadings can only be fixed along a single mode for any",
+                   "given factor."))
     }
 
     fix.dim[[k]] <- mode
     fix.idx[[k]] <- which(is.fixed[, i])
   }
 
-  flash <- set.fix.dim(flash, fix.dim)
-  flash <- set.fix.idx(flash, fix.idx)
+  fit <- set.fix.dim(fit, fix.dim)
+  fit <- set.fix.idx(fit, fix.idx)
+
+  flash <- set.fit(flash, fit)
 
   return(flash)
 }
 
-# TODO: document and export
+#' @describeIn flash.fix.loadings Unfixes all loadings for the specified
+#'   factors.
+#'
+#' @export
+#'
 flash.unfix.loadings <- function(flash, kset) {
-  fix.dim <- get.fix.dim(flash)
-  fix.idx <- get.fix.idx(flash)
+  fit <- get.fit(flash)
+
+  must.be.valid.kset(fit, kset)
+
+  fix.dim <- get.fix.dim(fit)
+  fix.idx <- get.fix.idx(fit)
 
   for (k in kset) {
     fix.dim[[k]] <- NULL
     fix.idx[[k]] <- NULL
   }
 
-  flash <- set.fix.dim(flash, fix.dim)
-  flash <- set.fix.idx(flash, fix.idx)
+  fit <- set.fix.dim(fit, fix.dim)
+  fit <- set.fix.idx(fit, fix.idx)
+
+  flash <- set.fit(flash, fit)
 
   return(flash)
 }
