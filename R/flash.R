@@ -186,9 +186,9 @@ flash <- function(data,
                   backfit = FALSE,
                   nullcheck = TRUE,
                   verbose.lvl = 1L) {
-  fl <- flash.init(data, var.type, S)
+  fl <- flash.init(data, S = S, var.type = var.type)
 
-  fl <- flash.add.greedy(fl, greedy.Kmax, prior.family,
+  fl <- flash.add.greedy(fl, Kmax = greedy.Kmax, prior.family = prior.family,
                          verbose.lvl = verbose.lvl)
 
   if (backfit) {
