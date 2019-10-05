@@ -10,10 +10,13 @@
 #'   If \code{kset = NULL}, then all existing factors will be checked.
 #'
 #' @param remove Whether to remove factors that have been set to zero from the
-#'   flash object. This will change the indices of existing factors.
+#'   flash object. Note that this might change the indices of existing factors.
 #'
 #' @param tol The tolerance parameter: if a factor does not improve the ELBO
 #'   by at least \code{tol}, then it will be set to zero.
+#'
+#' @param verbose.lvl When and how to display progress updates. For nullchecks,
+#'   updates are only displayed when \code{verbose.lvl} > 0.
 #'
 #' @export
 #'

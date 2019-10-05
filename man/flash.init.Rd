@@ -4,7 +4,7 @@
 \alias{flash.init}
 \title{Initialize flash object}
 \usage{
-flash.init(data, var.type = 0L, S = NULL, S.dim = NULL)
+flash.init(data, S = NULL, var.type = 0L, S.dim = NULL)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -12,6 +12,11 @@ flash.init(data, var.type = 0L, S = NULL, S.dim = NULL)
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
 \code{\link[softImpute]{softImpute}}.}
+
+\item{S}{The standard errors. Can be a matrix, scalar (if standard errors
+are the same for all observations), or vector (if, for example, \code{S}
+only varies across columns and is constant within any given row). If
+\code{NULL}, all residual variance will be estimated.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
@@ -23,20 +28,17 @@ representation as returned by, for example, \code{\link{svd}},
   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
   residual variance is assumed to be constant across all observations.
 
-  Note that is much faster to set \code{S = NULL} and to let \code{flash}
-  estimate the residual variances. It is also much faster to only allow them
-  to vary along a single mode. For example, estimating row-specific
-  residual variances (\code{var.type = 1}) is much easier than estimating
-  an arbitrary rank-one matrix of variances (\code{var.type = c(1, 2)}).}
-
-\item{S}{The standard errors. Can be a matrix, scalar (if standard errors
-are the same for all observations), or vector (if, for example, \code{S}
-only varies across columns and is constant within any given row). If
-\code{NULL}, all residual variance will be estimated.}
+  Note that is usually faster to set \code{S = NULL} and to let \code{flash}
+  estimate the residual variances. Further, it is much faster to only allow
+  the residual variances to vary along a single mode. For example, estimating
+  row-specific residual variances (\code{var.type = 1}) is much easier than
+  estimating an arbitrary rank-one matrix of variances
+  (\code{var.type = c(1, 2)}).}
 
 \item{S.dim}{The dimension along which \code{S} lies when \code{S} is a
-vector. Only necessary when it cannot be inferred from the data (when,
-for example, \code{data} is a square matrix).}
+vector. It is only necessary to specify \code{S.dim} when it cannot be
+inferred from the data (when, for example, \code{data} is a square
+matrix).}
 }
 \value{
 A \code{flash.fit} object.

@@ -2,7 +2,7 @@
 #'
 #' Adds factors to a flash object in a "greedy" manner. Up to \code{Kmax}
 #'   factors are added one at a time. At each step, \code{flash.add.greedy}
-#'   attempts to find the optimal additional rank-one factor, given all
+#'   attempts to find an optimal additional (rank-one) factor given all
 #'   previously added factors. The additional factor is retained if it
 #'   increases the ELBO; otherwise, fitting terminates.
 #'
@@ -24,15 +24,16 @@
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
 #'   and fixed factors. Control parameters are handled via global options and
-#'   can be set via \code{options("extrapolate.control") <- control.param}.
+#'   can be set by calling
+#'   \code{options("extrapolate.control") <- control.param}.
 #'
 #' @param conv.crit.fn The function used to determine whether convergence has
 #'   occurred. TODO: details.
 #'
 #' @param tol The convergence tolerance.
 #'
-#' @param maxiter The maximum number of iterations when optimizing a
-#'   greedily added factor.
+#' @param maxiter The maximum number of iterations when optimizing a greedily
+#'   added factor.
 #'
 #' @export
 #'

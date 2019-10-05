@@ -5,10 +5,9 @@
 \title{Backfit a flash object}
 \usage{
 flash.backfit(flash, kset = NULL, method = c("extrapolate",
-  "sequential", "dropout", "random", "parallel"),
+  "sequential", "dropout", "random", "parallel"), warmstart = TRUE,
   conv.crit.fn = calc.obj.diff, tol = set.default.tol(flash),
-  maxiter = 500, warmstart = TRUE,
-  verbose.lvl = get.verbose.lvl(flash))
+  maxiter = 500, verbose.lvl = get.verbose.lvl(flash))
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
@@ -33,6 +32,9 @@ command \code{options("cl.cores", n.cores)}. The type of multicore
 cluster can be set via \code{options("cl.type", type)}. Typically,
 \code{cl.type = "FORK"} is more efficient on Unix-likes.}
 
+\item{warmstart}{Whether to "warmstart" backfits by initializing each factor
+update at the current value of the fitted prior.}
+
 \item{conv.crit.fn}{The function used to determine whether convergence has
 occurred. TODO: details.}
 
@@ -41,9 +43,6 @@ occurred. TODO: details.}
 \item{maxiter}{The maximum number of backfitting iterations. An "iteration"
 is defined such that all factors in \code{kset} get updated at each
 iteration.}
-
-\item{warmstart}{Whether to "warmstart" backfits by initializing each factor
-update at the current value of the fitted prior.}
 
 \item{verbose.lvl}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a

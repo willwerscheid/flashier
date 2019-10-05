@@ -33,21 +33,12 @@ only varies across columns and is constant within any given row). If
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).
-  For example, the default \code{prior.family = prior.point.normal()} fits a
-  (different) point-normal prior for each factor and each mode, while
-  \code{prior.family = c(prior.nonnegative(), prior.scale.normal.mix())}
-  fits a unimodal distribution with mode zero and nonnegative support to
-  each set of row loadings and a scale mixture of normals with mean zero to
-  each set of column loadings.
 
   \code{prior.family} can also be a list of lists, in which case the first
   list specifies the family or families for the first factor, the second
   specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary.
-  For example, \code{prior.family = list(prior.nonzero.mode(),
-  prior.scale.normal.mix())} will fit point-normal priors with nonzero
-  means for the first factor and scale mixtures of normals for every
-  subsequent factor.}
+  last list element is then re-used as often as necessary. See
+  \code{\link{flash}} for examples.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
   Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
@@ -59,11 +50,12 @@ only varies across columns and is constant within any given row). If
   optimizes over all rank-one matrices. If \code{var.type = 0}, then the
   residual variance is assumed to be constant across all observations.
 
-  Note that is much faster to set \code{S = NULL} and to let \code{flash}
-  estimate the residual variances. It is also much faster to only allow them
-  to vary along a single mode. For example, estimating row-specific
-  residual variances (\code{var.type = 1}) is much easier than estimating
-  an arbitrary rank-one matrix of variances (\code{var.type = c(1, 2)}).}
+  Note that is usually faster to set \code{S = NULL} and to let \code{flash}
+  estimate the residual variances. Further, it is much faster to only allow
+  the residual variances to vary along a single mode. For example, estimating
+  row-specific residual variances (\code{var.type = 1}) is much easier than
+  estimating an arbitrary rank-one matrix of variances
+  (\code{var.type = c(1, 2)}).}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. This will not
 necessarily be the total number of factors added by \code{flash}, since
@@ -122,8 +114,8 @@ Fits an empirical Bayes matrix factorization (see \strong{Details} for a
   interface that allows a flash object to be fit in a single pass, while
   \code{flash.xxx} functions are pipeable functions that allow more
   complex flash objects to be fit incrementally. See the vignettes and the
-  \strong{Examples} below for usage. See \strong{Details} for a discussion
-  of the terminology used throughout the documentation.
+  examples below for usage. See \strong{Details} for a discussion of the
+  terminology used throughout the documentation.
 }
 \details{
 If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
@@ -161,7 +153,6 @@ Separate priors \eqn{g^{(n)}_k} are estimated for each mode and each factor,
 \deqn{\L^{(n}_{\cdot k} \sim g^{(n)}_k \in G^{(n)}_k}
 }
 \examples{
-
 data(gtex)
 
 # Fit up to 10 factors and backfit.
@@ -172,6 +163,19 @@ fl <- flash.init(gtex) \%>\%
   flash.add.greedy(Kmax = 10L) \%>\%
   flash.backfit() \%>\%
   flash.nullcheck()
+
+# Fit a unimodal distribution with mode zero and nonnegative support to
+#   each set of row loadings and a scale mixture of normals with mean zero
+#   to each set of column loadings.
+fl <- flash(gtex,
+            prior.family = c(prior.nonnegative(), prior.normal.scale.mix()),
+            greedy.Kmax = 5)
+
+# Fit point-normal priors with nonzero means for the first factor and scale
+#   mixtures of normals for every subsequent factor.
+fl <- flash(gtex,
+            prior.family = list(prior.nonzero.mode(), prior.normal.scale.mix()),
+            greedy.Kmax = 5)
 
 # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
 fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)

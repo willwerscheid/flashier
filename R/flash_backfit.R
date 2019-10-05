@@ -31,12 +31,12 @@
 #'   cluster can be set via \code{options("cl.type", type)}. Typically,
 #'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
 #'
+#' @param warmstart Whether to "warmstart" backfits by initializing each factor
+#'   update at the current value of the fitted prior.
+#'
 #' @param maxiter The maximum number of backfitting iterations. An "iteration"
 #'   is defined such that all factors in \code{kset} get updated at each
 #'   iteration.
-#'
-#' @param warmstart Whether to "warmstart" backfits by initializing each factor
-#'   update at the current value of the fitted prior.
 #'
 #' @importFrom parallel makeCluster stopCluster
 #'
@@ -49,10 +49,10 @@ flash.backfit <- function(flash,
                                      "dropout",
                                      "random",
                                      "parallel"),
+                          warmstart = TRUE,
                           conv.crit.fn = calc.obj.diff,
                           tol = set.default.tol(flash),
                           maxiter = 500,
-                          warmstart = TRUE,
                           verbose.lvl = get.verbose.lvl(flash)) {
   flash <- get.fit(flash)
 

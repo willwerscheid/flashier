@@ -31,21 +31,12 @@ increase the variational lower bound on the log likelihood for the model.}
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).
-  For example, the default \code{prior.family = prior.point.normal()} fits a
-  (different) point-normal prior for each factor and each mode, while
-  \code{prior.family = c(prior.nonnegative(), prior.scale.normal.mix())}
-  fits a unimodal distribution with mode zero and nonnegative support to
-  each set of row loadings and a scale mixture of normals with mean zero to
-  each set of column loadings.
 
   \code{prior.family} can also be a list of lists, in which case the first
   list specifies the family or families for the first factor, the second
   specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary.
-  For example, \code{prior.family = list(prior.nonzero.mode(),
-  prior.scale.normal.mix())} will fit point-normal priors with nonzero
-  means for the first factor and scale mixtures of normals for every
-  subsequent factor.}
+  last list element is then re-used as often as necessary. See
+  \code{\link{flash}} for examples.}
 
 \item{init.fn}{The function used to initialize factors. Functions
 \code{\link{init.fn.default}} and \code{\link{init.fn.softImpute}} have
@@ -55,15 +46,16 @@ been supplied, but custom initialization functions may also be used. See
 \item{extrapolate}{Whether to use an extrapolation technique
 inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
 and fixed factors. Control parameters are handled via global options and
-can be set via \code{options("extrapolate.control") <- control.param}.}
+can be set by calling
+\code{options("extrapolate.control") <- control.param}.}
 
 \item{conv.crit.fn}{The function used to determine whether convergence has
 occurred. TODO: details.}
 
 \item{tol}{The convergence tolerance.}
 
-\item{maxiter}{The maximum number of iterations when optimizing a
-greedily added factor.}
+\item{maxiter}{The maximum number of iterations when optimizing a greedily
+added factor.}
 
 \item{verbose.lvl}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
@@ -74,7 +66,7 @@ Set to \code{-1} to output a single tab-delimited table of values.}
 \description{
 Adds factors to a flash object in a "greedy" manner. Up to \code{Kmax}
   factors are added one at a time. At each step, \code{flash.add.greedy}
-  attempts to find the optimal additional rank-one factor, given all
+  attempts to find an optimal additional (rank-one) factor given all
   previously added factors. The additional factor is retained if it
   increases the ELBO; otherwise, fitting terminates.
 }

@@ -16,5 +16,5 @@ Sets flash factors to zero but does not remove them (so as to keep the
   indices of existing factors the same).
 }
 \seealso{
-flash.remove.factors
+\code{\link{flash.remove.factors}}
 }

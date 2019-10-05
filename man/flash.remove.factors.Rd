@@ -9,9 +9,12 @@ flash.remove.factors(flash, kset)
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
 
-\item{kset}{A vector of integers specifying which factors to remove.}
+\item{kset}{A vector of integers specifying which factors to set to zero.}
 }
 \description{
 Sets flash factors to zero and then removes them from the flash object.
   Note that this will change the indices of existing flash factors.
+}
+\seealso{
+\code{\link{flash.set.factors.to.zero}}
 }

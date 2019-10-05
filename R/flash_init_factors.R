@@ -1,6 +1,12 @@
 #' Initialize flash factors at specified values
 #'
-#' Initializes factors at values specified by \code{EF} and \code{EF2}.
+#' Initializes factors at values specified by \code{EF} and \code{EF2}. This
+#'   has two primary uses: 1. One can initialize multiple factors at once using
+#'   an SVD-like function and then optimize them via \code{flash.backfit}.
+#'   Sometimes this results in a better fit than adding factors one at a time
+#'   via \code{flash.add.greedy}. 2. One can initialize factors and then fix
+#'   the loadings via \code{\link{flash.fix.loadings}} to incorporate "known"
+#'   factors into a flash object. See below for examples of both use cases.
 #'
 #' @inheritParams flash
 #'
@@ -17,6 +23,24 @@
 #' @param EF2 If NULL, then EF2 will be initialized at the element-wise squared
 #'   values of \code{EF}. Otherwise, a list of matrices (as described above)
 #'   must be supplied.
+#'
+#' @examples
+#' # Initialize several factors at once and backfit.
+#' fl <- flash.init(gtex) %>%
+#'   flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) %>%
+#'   flash.backfit()
+#'
+#' # Add a fixed factor with row loadings identically equal to one. This can be
+#' #   interpreted as a "mean" factor that accounts for different row-wise means.
+#' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
+#' # Initialize the column loadings by finding the best rank-one approximation
+#' #   to the data.
+#' col.load.init <- t(solve(crossprod(ones), crossprod(ones, gtex)))
+#' fl <- flash.init(gtex) %>%
+#'   flash.init.factors(EF = list(ones, col.load.init)) %>%
+#'   flash.fix.loadings(kset = 1, mode = 1L) %>%
+#'   flash.backfit() %>%
+#'   flash.add.greedy(Kmax = 5L)
 #'
 #' @export
 #'

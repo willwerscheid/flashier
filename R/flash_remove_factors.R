@@ -5,7 +5,9 @@
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
-#' @param kset A vector of integers specifying which factors to remove.
+#' @param kset A vector of integers specifying which factors to set to zero.
+#'
+#' @seealso \code{\link{flash.set.factors.to.zero}}
 #'
 #' @export
 #'
@@ -31,9 +33,11 @@ flash.remove.factors <- function(flash, kset) {
 #' Sets flash factors to zero but does not remove them (so as to keep the
 #'   indices of existing factors the same).
 #'
-#' @inheritParams flash.remove.factors
+#' @param flash A \code{flash} or \code{flash.fit} object.
 #'
-#' @seealso flash.remove.factors
+#' @param kset A vector of integers specifying which factors to remove.
+#'
+#' @seealso \code{\link{flash.remove.factors}}
 #'
 #' @export
 #

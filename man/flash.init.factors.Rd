@@ -35,22 +35,38 @@ must be supplied.}
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).
-  For example, the default \code{prior.family = prior.point.normal()} fits a
-  (different) point-normal prior for each factor and each mode, while
-  \code{prior.family = c(prior.nonnegative(), prior.scale.normal.mix())}
-  fits a unimodal distribution with mode zero and nonnegative support to
-  each set of row loadings and a scale mixture of normals with mean zero to
-  each set of column loadings.
 
   \code{prior.family} can also be a list of lists, in which case the first
   list specifies the family or families for the first factor, the second
   specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary.
-  For example, \code{prior.family = list(prior.nonzero.mode(),
-  prior.scale.normal.mix())} will fit point-normal priors with nonzero
-  means for the first factor and scale mixtures of normals for every
-  subsequent factor.}
+  last list element is then re-used as often as necessary. See
+  \code{\link{flash}} for examples.}
 }
 \description{
-Initializes factors at values specified by \code{EF} and \code{EF2}.
+Initializes factors at values specified by \code{EF} and \code{EF2}. This
+  has two primary uses: 1. One can initialize multiple factors at once using
+  an SVD-like function and then optimize them via \code{flash.backfit}.
+  Sometimes this results in a better fit than adding factors one at a time
+  via \code{flash.add.greedy}. 2. One can initialize factors and then fix
+  the loadings via \code{\link{flash.fix.loadings}} to incorporate "known"
+  factors into a flash object. See below for examples of both use cases.
+}
+\examples{
+# Initialize several factors at once and backfit.
+fl <- flash.init(gtex) \%>\%
+  flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) \%>\%
+  flash.backfit()
+
+# Add a fixed factor with row loadings identically equal to one. This can be
+#   interpreted as a "mean" factor that accounts for different row-wise means.
+ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
+# Initialize the column loadings by finding the best rank-one approximation
+#   to the data.
+col.load.init <- t(solve(crossprod(ones), crossprod(ones, gtex)))
+fl <- flash.init(gtex) \%>\%
+  flash.init.factors(EF = list(ones, col.load.init)) \%>\%
+  flash.fix.loadings(kset = 1, mode = 1L) \%>\%
+  flash.backfit() \%>\%
+  flash.add.greedy(Kmax = 5L)
+
 }

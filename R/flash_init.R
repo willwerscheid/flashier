@@ -8,14 +8,15 @@
 #' @inheritParams flash
 #'
 #' @param S.dim The dimension along which \code{S} lies when \code{S} is a
-#'   vector. Only necessary when it cannot be inferred from the data (when,
-#'   for example, \code{data} is a square matrix).
+#'   vector. It is only necessary to specify \code{S.dim} when it cannot be
+#'   inferred from the data (when, for example, \code{data} is a square
+#'   matrix).
 #'
 #' @return A \code{flash.fit} object.
 #'
 #' @export
 #'
-flash.init <- function(data, var.type = 0L, S = NULL, S.dim = NULL) {
+flash.init <- function(data, S = NULL, var.type = 0L, S.dim = NULL) {
   flash <- set.flash.data(data, S = S, S.dim = S.dim, var.type = var.type)
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {

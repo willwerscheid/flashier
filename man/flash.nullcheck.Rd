@@ -14,16 +14,13 @@ flash.nullcheck(flash, kset = NULL, remove = FALSE,
 If \code{kset = NULL}, then all existing factors will be checked.}
 
 \item{remove}{Whether to remove factors that have been set to zero from the
-flash object. This will change the indices of existing factors.}
+flash object. Note that this might change the indices of existing factors.}
 
 \item{tol}{The tolerance parameter: if a factor does not improve the ELBO
 by at least \code{tol}, then it will be set to zero.}
 
-\item{verbose.lvl}{When and how to display progress updates. Set to
-\code{0} for none, \code{1} for updates after a factor is added or a
-backfit is completed, \code{2} for additional notifications about the
-variational lower bound, and \code{3} for updates after every iteration.
-Set to \code{-1} to output a single tab-delimited table of values.}
+\item{verbose.lvl}{When and how to display progress updates. For nullchecks,
+updates are only displayed when \code{verbose.lvl} > 0.}
 }
 \description{
 Sets factors to zero if doing so improves the overall fit.
