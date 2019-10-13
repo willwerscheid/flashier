@@ -60,11 +60,10 @@ fl <- flash.init(gtex) \%>\%
 # Add a fixed factor with row loadings identically equal to one. This can be
 #   interpreted as a "mean" factor that accounts for different row-wise means.
 ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
-# Initialize the column loadings by finding the best rank-one approximation
-#   to the data.
-col.load.init <- t(solve(crossprod(ones), crossprod(ones, gtex)))
+# Initialize the column loadings at the least squares solution.
+ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 fl <- flash.init(gtex) \%>\%
-  flash.init.factors(EF = list(ones, col.load.init)) \%>\%
+  flash.init.factors(EF = list(ones, ls.soln)) \%>\%
   flash.fix.loadings(kset = 1, mode = 1L) \%>\%
   flash.backfit() \%>\%
   flash.add.greedy(Kmax = 5L)
