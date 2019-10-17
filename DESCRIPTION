@@ -9,6 +9,7 @@ Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2018,
     <https://arxiv.org/abs/1802.06931>).
 Depends: R (>= 3.4)
+Remotes: stephenslab/ebnm
 Imports:
     Matrix,
     ebnm (>= 0.1-21),
