@@ -64,7 +64,7 @@ flash.init.factors <- function(flash,
 
   if (is.null(EF2)) {
     EF2 <- lowrank.square(EF)
-  } else if (is.list(EF2) && all(lapply(EF2, is.matrix))) {
+  } else if (is.list(EF2) && all(sapply(EF2, is.matrix))) {
     class(EF2) <- list("lowrank", "list")
     dims.must.match(EF2, get.Y(flash))
   } else {
