@@ -57,7 +57,12 @@ flash.backfit <- function(flash,
   flash <- get.fit(flash)
 
   if (is.null(kset)) {
-    kset <- 1:get.n.factors(flash)
+    if (get.n.factors(flash) > 0) {
+      kset <- 1:get.n.factors(flash)
+    } else {
+      announce.no.backfit(verbose.lvl)
+      verbose.lvl <- 0
+    }
   } else {
     must.be.valid.kset(flash, kset)
   }

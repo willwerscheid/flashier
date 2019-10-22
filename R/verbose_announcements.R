@@ -27,6 +27,10 @@ announce.backfit <- function(verbose.lvl, n.factors, tol) {
                formatC(tol, format = "e", digits = 2), ")...\n"))
 }
 
+announce.no.backfit <- function(verbose.lvl) {
+  cat("No factors have been added. Skipping backfit.\n")
+}
+
 report.backfit.progress <- function(verbose.lvl, tol) {
   if (verbose.lvl > 0 && verbose.lvl < 3) {
       cat(paste0("  Difference between iterations is within ",
@@ -52,6 +56,10 @@ report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
 announce.nullchk <- function(verbose.lvl, n.factors) {
   if (verbose.lvl > 0 && n.factors > 0)
     cat("Nullchecking", n.factors, "factors...\n")
+}
+
+announce.no.nullchk <- function(verbose.lvl) {
+  cat("No factors have been added. Skipping nullcheck.\n")
 }
 
 report.nullchk.failure <- function(verbose.lvl, obj.diff, k) {
