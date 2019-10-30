@@ -28,8 +28,8 @@ flash.nullcheck <- function(flash,
   fit <- get.fit(flash)
 
   if (is.null(kset)) {
-    if (get.n.factors(flash) > 0) {
-      kset <- 1:get.n.factors(flash)
+    if (get.n.factors(fit) > 0) {
+      kset <- 1:get.n.factors(fit)
     } else {
       announce.no.nullchk(verbose.lvl)
       verbose.lvl <- 0
