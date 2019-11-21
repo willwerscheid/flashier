@@ -8,7 +8,7 @@ default.ebnm.output <- c("posterior_mean",
 # Since ebnm will typically be called many times, it suffices to do a small
 #   number of optimization iterations each time.
 #
-mixsqp.defaults <- list(maxiter.sqp = 10)
+mixsqp.defaults <- list(maxiter.sqp = 10, eps = 1e-15)
 nlm.defaults <- list(iterlim = 10)
 
 # Since maxiter.sqp is intentionally set to be small, ignore the ashr warning
