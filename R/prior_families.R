@@ -39,12 +39,14 @@ as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
   if (missing(ebnm.fn) && any(c("g_init", "fix_g") %in% names(list(...)))) {
     args <- list(...)
     if (is.null(args$g_init)) {
-      stop("If fix_g is supplied as an argument to a prior family, then g_init ",
-           "must be as well.")
+      stop("If 'fix_g' is supplied as an argument to a prior family, then ",
+           "'g_init' must be as well.")
     }
     if (is.null(args$fix_g) || !args$fix_g) {
-      stop("If g_init is supplied as an argument to a prior family, then it ",
-           "must be fixed (i.e., include fix_g = TRUE).")
+      stop("If 'g_init' is supplied as an argument to a prior family, then it ",
+           "must be fixed (i.e., 'fix_g = TRUE' should be included as an ",
+           "argument). If you were trying to fix the grid of the prior, then ",
+           "use parameter 'scale' rather than 'g_init'.")
     }
 
     retlist <- list(list(sign = sign,
