@@ -23,6 +23,15 @@ flash.remove.factors <- function(flash, kset) {
   flash <- set.is.zero(flash, is.zero(flash)[-kset])
   flash <- set.is.valid(flash, is.valid(flash)[-kset])
 
+  fix.dim <- get.fix.dim(flash)
+  fix.idx <- get.fix.idx(flash)
+  fix.kset <- intersect(1:length(fix.dim), kset)
+
+  if (length(fix.kset) > 0) {
+    flash <- set.fix.idx(flash, fix.idx[-fix.kset])
+    flash <- set.fix.dim(flash, fix.dim[-fix.kset])
+  }
+
   flash <- wrapup.flash(flash, output.lvl = 3L)
 
   return(flash)
