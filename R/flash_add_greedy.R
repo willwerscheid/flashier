@@ -143,8 +143,9 @@ flash.add.greedy <- function(flash,
       report.maxiter.reached(verbose.lvl)
     }
 
-    if (get.obj(factor) > get.obj(flash) + tol
-        || !is.obj.valid(flash, factor)) {
+    if (!is.zero(factor) &&
+        (get.obj(factor) > get.obj(flash) + tol
+         || !is.obj.valid(flash, factor))) {
       flash <- add.new.factor.to.flash(factor, flash)
       factors.added <- factors.added + 1
     } else {
