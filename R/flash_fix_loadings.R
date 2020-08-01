@@ -39,7 +39,6 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
   }
   is.fixed <- array(as.logical(is.fixed), dim = c(expect.nrow, expect.ncol))
 
-
   fix.dim <- get.fix.dim(fit)
   fix.idx <- get.fix.idx(fit)
 
@@ -48,7 +47,7 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
 
     next.idx <- which(is.fixed[, i])
 
-    if (length(next.idx) == 0) {
+    if (length(next.idx) == 0 && !is.null(fix.dim[[k]])) {
       fix.dim[[k]] <- NULL
       fix.idx[[k]] <- NULL
     } else if (length(fix.dim) >= k
