@@ -47,9 +47,9 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
 
     next.idx <- which(is.fixed[, i])
 
-    if (length(next.idx) == 0 && !is.null(fix.dim[[k]])) {
-      fix.dim[[k]] <- NULL
-      fix.idx[[k]] <- NULL
+    if (length(next.idx) == 0) {
+      fix.dim[[k]] <- mode
+      fix.idx[[k]] <- numeric(0)
     } else if (length(fix.dim) >= k
                && !is.null(fix.dim[[k]])
                && fix.dim[[k]] != mode) {
