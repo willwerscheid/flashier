@@ -15,14 +15,21 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
 library(flashier)
 ```
   
-The main `flashier` function is essentially a wrapper for the `flash.workhorse` function, which has a few dozen additional parameters that make the fitting process highly customizable. The purpose of this vignette is to give a tour of these options. Be forewarned: many of them are experimental and have not been exhaustively tested.
-  
+The main `flash` function is essentially a wrapper for the
+`flash.workhorse` function, which has a few dozen additional
+parameters that make the fitting process highly customizable. The
+purpose of this vignette is to give a tour of these options. Be
+forewarned: many of them are experimental and have not been
+exhaustively tested.
   
 ## Initializing several factors at once
   
-Recall that the default `flashier` method adds factors one at a time, optimizing them individually along the way. One can then do a final backfit to further improve the model fit.
+Recall that the default `flash` method adds factors one at a time,
+optimizing them individually along the way. One can then do a final
+backfit to further improve the model fit.
   
-One might instead like to add several factors at once (without optimizing) and then do a single backfit.
+One might instead like to add several factors at once (without
+optimizing) and then do a single backfit.
   
 ```{r init.EF}
 svd.factors <- svd(gtex, nu = 5, nv = 5)
@@ -30,21 +37,26 @@ EF.init <- list(rep(svd.factors$d[1:5], each = nrow(gtex)) * svd.factors$u,
 svd.factors$v)
 class(EF.init) <- "lowrank"
 svd.time <- system.time(
-  gtex.svd <- flashier(gtex, var.type = 1, EF.init = EF.init, fit = "backfit.only",
-                       verbose.lvl = 0)
+  gtex.svd <- flash(gtex, var.type = 1, EF.init = EF.init, fit = "backfit.only",
+                    verbose.lvl = 0)
 )
 greedy.time <- system.time(
-  gtex.greedy <- flashier(gtex, greedy.Kmax = 5, var.type = 1, fit = "full",
-                          verbose.lvl = 0)
+  gtex.greedy <- flash(gtex, greedy.Kmax = 5, var.type = 1, fit = "full",
+                       verbose.lvl = 0)
 )
 c(gtex.svd$elbo, gtex.greedy$elbo)
 c(svd.time[3], greedy.time[3])
 ```
 
-
 ## Fitting factors with fixed sparsity patterns
 
-In the introductory vignette, sparsity patterns emerged in several of the tissue loadings. In the `gtex.greedy` fit from the previous section, factor 3 is primarily loaded on whole blood, spleen, lung, and lymphocytes; factor 4 is loaded on heart and muscle tissues; and factor 5 is loaded on esophagus mucosa and skin tissues. Let's say that one had prior knowledge of these patterns before fitting. One can fix the loadings on other tissues at zero as follows.
+In the introductory vignette, sparsity patterns emerged in several of
+the tissue loadings. In the `gtex.greedy` fit from the previous
+section, factor 3 is primarily loaded on whole blood, spleen, lung,
+and lymphocytes; factor 4 is loaded on heart and muscle tissues; and
+factor 5 is loaded on esophagus mucosa and skin tissues. Let's say
+that one had prior knowledge of these patterns before fitting. One can
+fix the loadings on other tissues at zero as follows.
 
 ```{r fixed}
 tissues <- colnames(gtex)
@@ -52,14 +64,18 @@ factor3.tissues <- pmatch(c("Whole", "Spleen", "Lung", "Cells_EBV"), tissues)
 factor4.tissues <- pmatch(c("Heart_A", "Heart_L", "Muscle"), tissues)
 factor5.tissues <- pmatch(c("Esophagus_Muc", "Skin_N", "Skin_S"), tissues)
 
-gtex.fixed <- flashier(gtex, greedy.Kmax = 2, var.type = 1, fit = "full",
-                       fixed.factors = fixed.sparse(n = 2,
-                                                    nz.idx = list(factor3.tissues,
-                                                                  factor4.tissues,
-                                                                  factor5.tissues)))
+gtex.fixed <- flash(gtex, greedy.Kmax = 2, var.type = 1, fit = "full",
+                    fixed.factors = fixed.sparse(n = 2,
+                                                 nz.idx = list(factor3.tissues,
+                                                               factor4.tissues,
+                                                               factor5.tissues)))
 ```
 
-Note that `greedy.Kmax` does not count fixed factors, so that two "greedy" factors are added on top of the three factors with fixed sparsity patterns. Note also that, by default, `flashier` does not nullcheck the fixed factors (this behavior is set by parameter `nullchk.fixed.factors`).
+Note that `greedy.Kmax` does not count fixed factors, so that two
+"greedy" factors are added on top of the three factors with fixed
+sparsity patterns. Note also that, by default, `flashier` does not
+nullcheck the fixed factors (this behavior is set by parameter
+`nullchk.fixed.factors`).
 
 The resulting tissue loadings appear as follows.
 
@@ -103,11 +119,13 @@ The main parameter that controls verbose output is `verbose.lvl`. The default se
 The default columns that are printed when `verbose.lvl = 3` show the increase in the variational lower bound and the maximum change in the expected value of the loadings. This output can be customized by passing in a character string. For example, when `verbose.lvl = "O L2 W2 S1"`, then the change in (O)bjective and the maximum change for tissue (L)oadings will be shown (ignoring loadings on rows), as well as (W)hich tissue loading changes the most and the current (S)parsity of the factor (as given by the estimated prior on the loadings on rows).
 
 ```{r verbose}
-gtex.verbose <- flashier(gtex, greedy.Kmax = 2, var.type = 1,
-                         verbose.lvl = "O L2 W2 S1")
+gtex.verbose <- flash(gtex, greedy.Kmax = 2, var.type = 1,
+                      verbose.lvl = "O L2 W2 S1")
 ```
 
-Parameters `verbose.fns`, `verbose.colnames`, and `verbose.colwidths` allow further customization of verbose output. As a simple example, I display the name of the tissue that undergoes the maximum change.
+Parameters `verbose.fns`, `verbose.colnames`, and `verbose.colwidths`
+allow further customization of verbose output. As a simple example, I
+display the name of the tissue that undergoes the maximum change.
 
 ```{r verbose2}
 custom.verbose.fn <- function(new, old, k) {
@@ -126,11 +144,11 @@ verbose.fns <- c(flashier:::calc.obj.diff,
 verbose.colnames <- c("Obj Diff", "Max Chg (Tiss)", "Which Tissue")
 verbose.colwidths <- c(12, 18, 20)
 
-gtex.verbose2 <- flashier(gtex, greedy.Kmax = 2, var.type = 1,
-                          verbose.lvl = 3, 
-                          verbose.fns = verbose.fns,
-                          verbose.colnames = verbose.colnames,
-                          verbose.colwidths = verbose.colwidths)
+gtex.verbose2 <- flash(gtex, greedy.Kmax = 2, var.type = 1,
+                       verbose.lvl = 3, 
+                       verbose.fns = verbose.fns,
+                       verbose.colnames = verbose.colnames,
+                       verbose.colwidths = verbose.colwidths)
 ```
 
 
@@ -141,46 +159,65 @@ The default behavior is to iterate until the variational lower bound increases b
 If one is primarily interested in tissue loadings in the `gtex` dataset, then one might like to stop optimization when their normalized absolute values no longer change by more than, say, .001.
 
 ```{r conv.crit}
-gtex.conv.crit <- flashier(gtex, greedy.Kmax = 2, var.type = 1,
-                           conv.crit.fn = function(new, old, k) {
-                             flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
-                           }, tol = 1e-3, verbose.lvl = "O L2")
+gtex.conv.crit <- flash(gtex, greedy.Kmax = 2, var.type = 1,
+                        conv.crit.fn = function(new, old, k) {
+                          flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
+                        }, tol = 1e-3, verbose.lvl = "O L2")
 ```
 
 
 ## Scheduling backfits
 
-Backfitting strategies that are more complicated than the simple `"final"` and `"alternating"` schedules can be achieved via the `backfit.after` and `backfit.every` parameters. `flashier` will backfit after the factors specified in `backfit.after` are added, and then after every additional $n$th factor (where $n$ is set by `backfit.every`). For example, one can backfit after the 3rd, 6th, and then every other iteration via the following call.
+Backfitting strategies that are more complicated than the simple
+`"final"` and `"alternating"` schedules can be achieved via the
+`backfit.after` and `backfit.every` parameters. `flashier` will
+backfit after the factors specified in `backfit.after` are added, and
+then after every additional $n$th factor (where $n$ is set by
+`backfit.every`). For example, one can backfit after the 3rd, 6th, and
+then every other iteration via the following call.
 
 ```{r backfit.schedule}
-gtex.backfit.schedule <- flashier(gtex, greedy.Kmax = 10, 
-                                  backfit.after = c(3, 6),
-                                  backfit.every = 2)
+gtex.backfit.schedule <- flash(gtex, greedy.Kmax = 10, 
+                               backfit.after = c(3, 6),
+                               backfit.every = 2)
 ```
-
 
 ## Warmstarting backfits
 
-Occasionally, a warning will be displayed that indicates that the variational lower bound has decreased after an iteration. In theory, this should not happen. Sometimes, the decrease occurs for numerical reasons, in which case the decrease can safely be ignored. Other times, the algorithm used to optimize the prior parameters fails to find a good solution. In this case, the problem can be mitigated by using warmstarts to initialize the algorithm at the current parameter values.
+Occasionally, a warning will be displayed that indicates that the
+variational lower bound has decreased after an iteration. In theory,
+this should not happen. Sometimes, the decrease occurs for numerical
+reasons, in which case the decrease can safely be ignored. Other
+times, the algorithm used to optimize the prior parameters fails to
+find a good solution. In this case, the problem can be mitigated by
+using warmstarts to initialize the algorithm at the current parameter
+values.
 
-Note, however, that this solution can in turn cause problems, especially for `ashr`. One of the side effects of providing an initialization to `ash` is that it fixes the mixture grid. For example, if `ash` estimates that a prior has a single mixture component, say,
+Note, however, that this solution can in turn cause problems,
+especially for `ashr`. One of the side effects of providing an
+initialization to `ash` is that it fixes the mixture grid. For
+example, if `ash` estimates that a prior has a single mixture
+component, say,
 $$ \text{Unif}[0, 5.3],$$
-then the prior will effectively remain fixed throughout the entire backfit. (This is a real example that was produced during testing using the `gtex` dataset with nonnegative priors.)
+then the prior will effectively remain fixed throughout the entire
+backfit. (This is a real example that was produced during testing
+using the `gtex` dataset with nonnegative priors.)
 
-To illustrate some of these issues, I fit 3 factors with nonnegative loadings on tissues.
+To illustrate some of these issues, I fit 3 factors with nonnegative
+loadings on tissues.
 
 ```{r nonneg}
-gtex.nonnegative <- flashier(gtex, greedy.Kmax = 3, var.type = 1,
-                             prior.family = c(prior.normal.scale.mix(),
-                                              prior.nonnegative()))
+gtex.nonnegative <- flash(gtex, greedy.Kmax = 3, var.type = 1,
+                          prior.family = c(prior.normal.scale.mix(),
+                                           prior.nonnegative()))
 ```
 
-By default, `flashier` backfits using warmstarts.
+By default, `flash` backfits using warmstarts.
 
 ```{r warmstarts}
 warmstarts.time <- system.time(
-  gtex.warmstarts <- flashier(gtex, init = gtex.nonnegative,
-                              fit = "backfit.only", warmstart.backfits = TRUE)
+  gtex.warmstarts <- flashr(gtex, init = gtex.nonnegative,
+                            fit = "backfit.only", warmstart.backfits = TRUE)
 )
 ```
 
@@ -188,8 +225,8 @@ I can turn warmstarts off as follows.
 
 ```{r no.warmstarts}
 no.warmstarts.time <- system.time(
-  gtex.no.warmstarts <- flashier(gtex, init = gtex.nonnegative,
-                                 fit = "backfit.only", warmstart.backfits = FALSE)
+  gtex.no.warmstarts <- flash(gtex, init = gtex.nonnegative,
+                              fit = "backfit.only", warmstart.backfits = FALSE)
 )
 ```
 
@@ -201,21 +238,36 @@ c(gtex.no.warmstarts$elbo, gtex.warmstarts$elbo)
 
 ## Fitting same-sign priors 
 
-Parameter `output.lvl` determines the form of the returned list. In most cases, the default `output.lvl = 2` will do. The other important setting is `output.lvl = 0`, which causes `flashier` to return a flash fit that is entirely free from post-processing and can be fed directly into subsequent `flashier` calls. This can save time in complex flash fits that involve repeated calls to `flashier`.
+Parameter `output.lvl` determines the form of the returned list. In
+most cases, the default `output.lvl = 2` will do. The other important
+setting is `output.lvl = 0`, which causes `flashier` to return a flash
+fit that is entirely free from post-processing and can be fed directly
+into subsequent `flashier` calls. This can save time in complex flash
+fits that involve repeated calls to `flashier`.
 
-As an example, I implement "same-sign" priors. The idea, suggested to me by Matthew Stephens, is to put nonnegative priors on rows and then allow priors on tissues to be either nonnegative or nonpositive. This might be especially useful in nonnegative matrix factorization since it provides a mechanism to correct for "mistakes" made in factors added early on. (Since later factors can only ever increase the fitted values, it becomes very difficult to correct for an overambitious factor.) This approach makes less sense for the `gtex` matrix of $z$-scores, but it is nonetheless interesting to observe that tissue loadings are very similar regardless of whether they represent positive effects or negative ones.
+As an example, I implement "same-sign" priors. The idea, suggested to
+me by Matthew Stephens, is to put nonnegative priors on rows and then
+allow priors on tissues to be either nonnegative or nonpositive. This
+might be especially useful in nonnegative matrix factorization since
+it provides a mechanism to correct for "mistakes" made in factors
+added early on. (Since later factors can only ever increase the fitted
+values, it becomes very difficult to correct for an overambitious
+factor.) This approach makes less sense for the `gtex` matrix of
+$z$-scores, but it is nonetheless interesting to observe that tissue
+loadings are very similar regardless of whether they represent
+positive effects or negative ones.
 
 ```{r same.sign}
 greedy.Kmax <- 6
 fl <- NULL
 for (k in 1:greedy.Kmax) {
-  nn.fl <- flashier(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
-                     prior.family = prior.nonnegative(),
-                     output.lvl = 0, verbose.lvl = 0)
-  np.fl <- flashier(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
-                     prior.family = c(prior.nonnegative(), 
-                                      prior.nonpositive()),
-                     output.lvl = 0, verbose.lvl = 0)
+  nn.fl <- flash(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
+                 prior.family = prior.nonnegative(),
+                 output.lvl = 0, verbose.lvl = 0)
+  np.fl <- flash(gtex, init = fl, greedy.Kmax = 1, var.type = 1,
+                  prior.family = c(prior.nonnegative(), 
+                                   prior.nonpositive()),
+                  output.lvl = 0, verbose.lvl = 0)
   if (nn.fl$obj > np.fl$obj) {
     cat("Nonnegative factor added. Objective: ",
         formatC(nn.fl$obj, format = "f", digits = 2), "\n", sep = "")
@@ -227,6 +279,6 @@ for (k in 1:greedy.Kmax) {
   }
 }
 # A final call to get a nice "flash" object rather than a "flash.fit" object.
-gtex.same.signs <- flashier(init = fl, greedy.Kmax = 0)
+gtex.same.signs <- flash(init = fl, greedy.Kmax = 0)
 plot.tissue.loadings(gtex.same.signs)
 ```
