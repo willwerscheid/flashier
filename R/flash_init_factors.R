@@ -25,14 +25,17 @@
 #'   must be supplied.
 #'
 #' @examples
+#' library(magrittr)
+#' 
 #' # Initialize several factors at once and backfit.
 #' fl <- flash.init(gtex) %>%
 #'   flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) %>%
 #'   flash.backfit()
 #'
 #' # Add a fixed factor with row loadings identically equal to one. This can be
-#' #   interpreted as a "mean" factor that accounts for different row-wise means.
+#' # interpreted as a "mean" factor that accounts for different row-wise means.
 #' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
+#' 
 #' # Initialize the column loadings at the least squares solution.
 #' ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 #' fl <- flash.init(gtex) %>%

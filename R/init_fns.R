@@ -23,7 +23,8 @@
 #' @seealso init.fn.softImpute
 #'
 #' @examples
-#'
+#' library(magrittr)
+#' 
 #' # Change the default initialization maxiter
 #' my.init.fn <- function(flash, mode.signs) {
 #'   return(init.fn.default(flash, mode.signs, maxiter = 500))

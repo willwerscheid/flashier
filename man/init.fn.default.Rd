@@ -35,6 +35,7 @@ Initializes a new flash factor. Custom initialization functions can also be
   when writing a custom initialization function.
 }
 \examples{
+library(magrittr)
 
 # Change the default initialization maxiter
 my.init.fn <- function(flash, mode.signs) {

@@ -141,6 +141,7 @@
 #'   }
 #'
 #' @examples
+#' library(magrittr)
 #' data(gtex)
 #'
 #' # Fit up to 10 factors and backfit.
@@ -166,7 +167,7 @@
 #'             greedy.Kmax = 5)
 #'
 #' # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-#' fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
+#' # fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 #'
 #' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more

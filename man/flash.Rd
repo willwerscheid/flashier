@@ -160,6 +160,7 @@ Separate priors \eqn{g^{(n)}_k} are estimated for each mode and each factor,
 \deqn{\L^{(n}_{\cdot k} \sim g^{(n)}_k \in G^{(n)}_k}
 }
 \examples{
+library(magrittr)
 data(gtex)
 
 # Fit up to 10 factors and backfit.
@@ -185,7 +186,7 @@ fl <- flash(gtex,
             greedy.Kmax = 5)
 
 # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
+# fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 
 }
 \seealso{

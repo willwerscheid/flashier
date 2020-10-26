@@ -50,6 +50,7 @@ each factor update when \code{verbose} is either -1 or 3.}
 Sets the default verbosity level and verbose output for a flash object.
 }
 \examples{
+library(magrittr)
 data(gtex)
 
 # Suppress all verbose output.

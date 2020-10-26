@@ -36,6 +36,7 @@
 #' @param colwidths A vector of column widths.
 #'
 #' @examples
+#' library(magrittr)
 #' data(gtex)
 #'
 #' # Suppress all verbose output.

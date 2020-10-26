@@ -2,13 +2,14 @@ Package: flashier
 Type: Package
 Date: 2020-10-26
 Title: Empirical Bayes Matrix and Tensor Factorization
-Version: 0.2.9
+Version: 0.2.10
 Author: Jason Willwerscheid
 Maintainer: Jason Willwerscheid <willwerscheid@github.com>
 Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2018,
     <arXiv:1802.06931>).
-Depends: R (>= 3.4)
+Depends: 
+    R (>= 3.4)
 Remotes: 
     stephenslab/ebnm,
     linxihui/NNLM
