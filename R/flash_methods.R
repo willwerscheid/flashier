@@ -1,5 +1,5 @@
 #' @export
-fitted.flash <- function(object) {
+fitted.flash <- function(object, ...) {
   if (object$n.factors == 0) {
     stop("Flash object does not have any factors.")
   }

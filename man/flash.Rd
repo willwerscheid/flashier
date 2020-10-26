@@ -35,8 +35,8 @@ only varies across columns and is constant within any given row). If
   convenience functions \code{\link{prior.normal}},
   \code{\link{prior.point.normal}},
   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
+  \code{\link{prior.normal.scale.mix}}, \code{\link{prior.unimodal}},
+  \code{\link{prior.unimodal.symmetric}},
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).
