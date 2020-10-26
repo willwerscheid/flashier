@@ -137,6 +137,8 @@ scale.EF <- function(EF) {
 #'
 #' @inheritParams init.fn.default
 #'
+#' @importFrom softImpute softImpute
+#' 
 #' @export
 #'
 init.fn.softImpute <- function(flash,
@@ -163,7 +165,7 @@ init.fn.softImpute <- function(flash,
   }
 
   suppressWarnings({
-    si.res <- softImpute::softImpute(R, rank.max = 1, type = "als", lambda = 0)
+    si.res <- softImpute(R, rank.max = 1, type = "als", lambda = 0)
   })
 
   EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))

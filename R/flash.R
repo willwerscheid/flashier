@@ -12,7 +12,7 @@
 #'
 #' If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
 #'   empirical Bayes matrix factorization model is:
-#' \deqn{Y = \ell^{(1)} \ell^{(2)}' + E,} where \eqn{\ell^{(1)}} is an
+#' \deqn{Y = \ell^{(1)} (\ell^{(2)})^T + E,} where \eqn{\ell^{(1)}} is an
 #'   \eqn{n}-vector of \strong{row loadings}, \eqn{\ell^{(2)}} is a
 #'   \eqn{p}-vector of \strong{column loadings}, and \eqn{E} is an
 #'   \eqn{n \times p} matrix of \strong{residuals}. The following priors are

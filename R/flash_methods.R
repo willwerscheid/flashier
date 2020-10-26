@@ -1,13 +1,15 @@
 #' @export
-fitted.flash <- function(x) {
-  if (x$n.factors == 0) {
+fitted.flash <- function(object) {
+  if (object$n.factors == 0) {
     stop("Flash object does not have any factors.")
   }
-  if (length(x$loadings.pm) == 2) {
-    if (length(x$loadings.scale) == 1) {
-      return(x$loadings.scale * x$loadings.pm[[1]] %*% t(x$loadings.pm[[2]]))
+  if (length(object$loadings.pm) == 2) {
+    if (length(object$loadings.scale) == 1) {
+      return(object$loadings.scale * object$loadings.pm[[1]] %*%
+             t(object$loadings.pm[[2]]))
     } else {
-      return(x$loadings.pm[[1]] %*% diag(x$loadings.scale) %*% t(x$loadings.pm[[2]]))
+      return(object$loadings.pm[[1]] %*% diag(object$loadings.scale) %*%
+             t(object$loadings.pm[[2]]))
     }
   } else {
     stop("S3 method \"fitted\" not yet implemented for tensors.")
