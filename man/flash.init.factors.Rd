@@ -4,8 +4,7 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, EF, EF2 = NULL,
-  prior.family = prior.point.normal())
+flash.init.factors(flash, EF, EF2 = NULL, prior.family = prior.point.normal())
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
@@ -30,8 +29,8 @@ must be supplied.}
   convenience functions \code{\link{prior.normal}},
   \code{\link{prior.point.normal}},
   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
+  \code{\link{prior.normal.scale.mix}}, \code{\link{prior.unimodal}},
+  \code{\link{prior.unimodal.symmetric}},
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).
@@ -52,14 +51,17 @@ Initializes factors at values specified by \code{EF} and \code{EF2}. This
   factors into a flash object. See below for examples of both use cases.
 }
 \examples{
+library(magrittr)
+
 # Initialize several factors at once and backfit.
 fl <- flash.init(gtex) \%>\%
   flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) \%>\%
   flash.backfit()
 
 # Add a fixed factor with row loadings identically equal to one. This can be
-#   interpreted as a "mean" factor that accounts for different row-wise means.
+# interpreted as a "mean" factor that accounts for different row-wise means.
 ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
+
 # Initialize the column loadings at the least squares solution.
 ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 fl <- flash.init(gtex) \%>\%

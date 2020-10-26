@@ -284,6 +284,7 @@ slice.data <- function(data, dim, Z) {
 
 list.with.no.NAs <- function(x) list(x[!is.na(x)])
 
+#' @importFrom stats optimize
 optimize.noisy <- function(R2, S2, wts = 1) {
   interval.max <- max((R2 - S2) / wts)
   if (interval.max <= 0)

@@ -23,7 +23,8 @@
 #' @seealso init.fn.softImpute
 #'
 #' @examples
-#'
+#' library(magrittr)
+#' 
 #' # Change the default initialization maxiter
 #' my.init.fn <- function(flash, mode.signs) {
 #'   return(init.fn.default(flash, mode.signs, maxiter = 500))
@@ -137,6 +138,8 @@ scale.EF <- function(EF) {
 #'
 #' @inheritParams init.fn.default
 #'
+#' @importFrom softImpute softImpute
+#' 
 #' @export
 #'
 init.fn.softImpute <- function(flash,
@@ -163,7 +166,7 @@ init.fn.softImpute <- function(flash,
   }
 
   suppressWarnings({
-    si.res <- softImpute::softImpute(R, rank.max = 1, type = "als", lambda = 0)
+    si.res <- softImpute(R, rank.max = 1, type = "als", lambda = 0)
   })
 
   EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))

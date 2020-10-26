@@ -4,10 +4,17 @@
 \alias{flash.add.greedy}
 \title{Greedily add factors to a flash object}
 \usage{
-flash.add.greedy(flash, Kmax = 1, prior.family = prior.point.normal(),
-  init.fn = init.fn.default, extrapolate = TRUE,
-  conv.crit.fn = calc.obj.diff, tol = set.default.tol(flash),
-  maxiter = 500, verbose.lvl = get.verbose.lvl(flash))
+flash.add.greedy(
+  flash,
+  Kmax = 1,
+  prior.family = prior.point.normal(),
+  init.fn = init.fn.default,
+  extrapolate = TRUE,
+  conv.crit.fn = calc.obj.diff,
+  tol = set.default.tol(flash),
+  maxiter = 500,
+  verbose.lvl = get.verbose.lvl(flash)
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
@@ -26,8 +33,8 @@ increase the variational lower bound on the log likelihood for the model.}
   convenience functions \code{\link{prior.normal}},
   \code{\link{prior.point.normal}},
   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
+  \code{\link{prior.normal.scale.mix}}, \code{\link{prior.unimodal}},
+  \code{\link{prior.unimodal.symmetric}},
   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
   or a custom prior type of a similar form (see \code{\link{prior.normal}}
   for details).

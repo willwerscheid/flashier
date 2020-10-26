@@ -11,7 +11,7 @@
 \alias{prior.unimodal.symmetric}
 \alias{prior.nonnegative}
 \alias{prior.nonpositive}
-\title{Flashier prior families}
+\title{Flashier Prior Families}
 \usage{
 as.prior(ebnm.fn = ebnm.nowarn, sign = 0, ...)
 
@@ -35,18 +35,19 @@ prior.nonpositive(...)
 }
 \arguments{
 \item{ebnm.fn}{The function used to solve the empirical Bayes normal means
-problem. Typically, this will be \code{ebnm::ebnm}, but custom functions
+problem. Typically, this will be \code{\link[ebnm]{ebnm}}, but custom functions
 may also be used as long as they have the same signature as
-\code{ebnm::ebnm}.}
+\code{\link[ebnm]{ebnm}}.}
 
 \item{sign}{Should be set to +1 for classes of distributions with
 nonnegative support and -1 for classes with nonpositive support. Only used
 when initializing new factors.}
 
-\item{...}{Additional parameters to be passed to \code{ebnm::ebnm}.}
+\item{...}{Additional parameters to be passed to \code{\link[ebnm]{ebnm}}.}
 }
 \description{
-Families of distributions from which priors on loadings are to be estimated.
+Families of distributions from which priors on
+loadings are to be estimated.
 }
 \details{
 \code{prior.normal} is estimated from the family of normal distributions

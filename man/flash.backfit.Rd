@@ -4,10 +4,16 @@
 \alias{flash.backfit}
 \title{Backfit a flash object}
 \usage{
-flash.backfit(flash, kset = NULL, method = c("extrapolate",
-  "sequential", "dropout", "random", "parallel"), warmstart = TRUE,
-  conv.crit.fn = calc.obj.diff, tol = set.default.tol(flash),
-  maxiter = 500, verbose.lvl = get.verbose.lvl(flash))
+flash.backfit(
+  flash,
+  kset = NULL,
+  method = c("extrapolate", "sequential", "dropout", "random", "parallel"),
+  warmstart = TRUE,
+  conv.crit.fn = calc.obj.diff,
+  tol = set.default.tol(flash),
+  maxiter = 500,
+  verbose.lvl = get.verbose.lvl(flash)
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}

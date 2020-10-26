@@ -4,8 +4,13 @@
 \alias{flash.nullcheck}
 \title{Nullcheck flash factors}
 \usage{
-flash.nullcheck(flash, kset = NULL, remove = FALSE,
-  tol = set.default.tol(flash), verbose.lvl = get.verbose.lvl(flash))
+flash.nullcheck(
+  flash,
+  kset = NULL,
+  remove = FALSE,
+  tol = set.default.tol(flash),
+  verbose.lvl = get.verbose.lvl(flash)
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}

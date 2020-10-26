@@ -1,8 +1,11 @@
-#' Flashier prior families
+#' @rdname prior.families
+#' 
+#' @title Flashier Prior Families
 #'
-#' Families of distributions from which priors on loadings are to be estimated.
+#' @description Families of distributions from which priors on
+#' loadings are to be estimated.
 #'
-#' \code{prior.normal} is estimated from the family of normal distributions
+#' @details \code{prior.normal} is estimated from the family of normal distributions
 #'   \eqn{N(0, 1/a)}. \code{prior.point.normal} is estimated from the
 #'   two-parameter family \eqn{\pi \delta(0) + (1-\pi) N(0, 1/a)}.
 #'   \code{prior.point.laplace} replaces the normal slab with a Laplace slab,
@@ -23,18 +26,18 @@
 #' Custom prior classes can be created using the function \code{as.prior}.
 #'
 #' @param ebnm.fn The function used to solve the empirical Bayes normal means
-#'   problem. Typically, this will be \code{ebnm::ebnm}, but custom functions
+#'   problem. Typically, this will be \code{\link[ebnm]{ebnm}}, but custom functions
 #'   may also be used as long as they have the same signature as
-#'   \code{ebnm::ebnm}.
+#'   \code{\link[ebnm]{ebnm}}.
 #'
 #' @param sign Should be set to +1 for classes of distributions with
 #'   nonnegative support and -1 for classes with nonpositive support. Only used
 #'   when initializing new factors.
 #'
-#' @param ... Additional parameters to be passed to \code{ebnm::ebnm}.
-
-#' @rdname prior.families
+#' @param ... Additional parameters to be passed to \code{\link[ebnm]{ebnm}}.
+#'
 #' @export
+#' 
 as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
   if (missing(ebnm.fn) && any(c("g_init", "fix_g") %in% names(list(...)))) {
     args <- list(...)
@@ -64,7 +67,9 @@ as.prior <- function(ebnm.fn = ebnm.nowarn, sign = 0, ...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.normal <- function(...) {
   args <- as.prior.args(prior.family = "normal",
                         optmethod = "optimize", ...)
@@ -72,7 +77,9 @@ prior.normal <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.point.normal <- function(...) {
   args <- as.prior.args(prior.family = "point_normal",
                         optmethod = "nlm", ...)
@@ -80,7 +87,9 @@ prior.point.normal <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.point.laplace <- function(...) {
   args <- as.prior.args(prior.family = "point_laplace",
                         optmethod = "nlm", ...)
@@ -88,7 +97,9 @@ prior.point.laplace <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.nonzero.mode <- function(...) {
   args <- as.prior.args(prior.family = "point_normal",
                         optmethod = "nlm",
@@ -97,7 +108,9 @@ prior.nonzero.mode <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.normal.scale.mix <- function(...) {
   args <- as.prior.args(prior.family = "normal_scale_mixture",
                         optmethod = "mixsqp", ...)
@@ -105,7 +118,9 @@ prior.normal.scale.mix <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.unimodal <- function(...) {
   args <- as.prior.args(prior.family = "unimodal",
                         optmethod = "mixsqp", ...)
@@ -113,7 +128,9 @@ prior.unimodal <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.unimodal.symmetric <- function(...) {
   args <- as.prior.args(prior.family = "unimodal_symmetric",
                         optmethod = "mixsqp", ...)
@@ -121,7 +138,9 @@ prior.unimodal.symmetric <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.nonnegative <- function(...) {
   args <- as.prior.args(prior.family = "unimodal_nonnegative",
                         optmethod = "mixsqp",
@@ -130,7 +149,9 @@ prior.nonnegative <- function(...) {
 }
 
 #' @rdname prior.families
+#' 
 #' @export
+#' 
 prior.nonpositive <- function(...) {
   args <- as.prior.args(prior.family = "unimodal_nonpositive",
                         optmethod = "mixsqp",
@@ -139,6 +160,8 @@ prior.nonpositive <- function(...) {
 }
 
 # Add default control parameters to priors.
+#
+#' @importFrom utils modifyList
 as.prior.args <- function(prior.family, optmethod, ...) {
   args <- list(...)
 

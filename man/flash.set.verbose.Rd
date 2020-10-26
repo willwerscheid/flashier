@@ -4,8 +4,13 @@
 \alias{flash.set.verbose}
 \title{Set verbose output}
 \usage{
-flash.set.verbose(flash, verbose, fns = NULL, colnames = NULL,
-  colwidths = NULL)
+flash.set.verbose(
+  flash,
+  verbose,
+  fns = NULL,
+  colnames = NULL,
+  colwidths = NULL
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
@@ -45,6 +50,7 @@ each factor update when \code{verbose} is either -1 or 3.}
 Sets the default verbosity level and verbose output for a flash object.
 }
 \examples{
+library(magrittr)
 data(gtex)
 
 # Suppress all verbose output.

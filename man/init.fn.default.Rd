@@ -4,8 +4,13 @@
 \alias{init.fn.default}
 \title{Initialize a flash factor}
 \usage{
-init.fn.default(flash, mode.signs, tol = 1/max(get.dims(flash)),
-  maxiter = 100, seed = 666)
+init.fn.default(
+  flash,
+  mode.signs,
+  tol = 1/max(get.dims(flash)),
+  maxiter = 100,
+  seed = 666
+)
 }
 \arguments{
 \item{flash}{A \code{flash.fit} object.}
@@ -30,6 +35,7 @@ Initializes a new flash factor. Custom initialization functions can also be
   when writing a custom initialization function.
 }
 \examples{
+library(magrittr)
 
 # Change the default initialization maxiter
 my.init.fn <- function(flash, mode.signs) {

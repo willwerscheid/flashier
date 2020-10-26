@@ -49,6 +49,7 @@ r1.ones <- function(flash) {
   return(r1)
 }
 
+#' @importFrom stats rnorm
 r1.random <- function(dims, dim.signs = NULL) {
   r1 <- lapply(dims, function(dim) {rnorm(dim) / sqrt(dim)})
   for (n in which(dim.signs == 1)) {

@@ -18,10 +18,15 @@ library(ggplot2)
 
 ## Model
 
-The goal of `flashier` is to obtain an empirical Bayes matrix factorization of a data matrix $Y \in \mathbb{R}^{n \times p}$ by fitting the model
+The goal of `flashier` is to obtain an empirical Bayes matrix
+factorization of a data matrix $Y \in \mathbb{R}^{n \times p}$ by
+fitting the model
 $$ Y = F_1F_2^T + E, $$
-where the matrices $F_1 \in \mathbb{R}^{n \times k}$ and $F_2 \in \mathbb{R}^{p \times k}$ together describe $k$ factors and $E \in \mathbb{R}^{n \times p}$ is a matrix of residuals. `flashier` can also fit the three-dimensional tensor model
-$$ Y_{ij \ell} = \sum_k F^{(1)}_{ik} F^{(2)}_{jk} F^{(3)}_{\ell k} + E_{ij \ell}. $$
+where the matrices $F_1 \in \mathbb{R}^{n \times k}$ and $F_2 \in
+\mathbb{R}^{p \times k}$ together describe $k$ factors and $E \in
+\mathbb{R}^{n \times p}$ is a matrix of residuals. `flashier` can also
+fit the three-dimensional tensor model $$ Y_{ij \ell} = \sum_k
+F^{(1)}_{ik} F^{(2)}_{jk} F^{(3)}_{\ell k} + E_{ij \ell}. $$
 
 The model puts factor-specific priors on the loadings
 $$F^{(1)}_{[:, k]} \sim g^{(1)}_k,\ F^{(2)}_{[:, k]} \sim g^{(2)}_k,$$
@@ -34,14 +39,22 @@ $$ E_{ij} \sim N(0, \sigma^2).$$
 
 ## Example
 
-As a running example, I use a subset of 2000 tests from the GTEx project. The dataset is a subset of the `strong` dataset described [here](https://stephenslab.github.io/mashr/articles/eQTL_outline.html). In the following call, `greedy.Kmax` specifies the maximum number of factors to add (fewer will be added when additional factors don't increase the variational lower bound).
+As a running example, I use a subset of 2000 tests from the GTEx
+project. The dataset is a subset of the `strong` dataset described
+[here](https://stephenslab.github.io/mashr/articles/eQTL_outline.html). In
+the following call, `greedy.Kmax` specifies the maximum number of
+factors to add (fewer will be added when additional factors don't
+increase the variational lower bound).
 
 ```{r gtex.const}
 data(gtex)
-gtex.const <- flashier(gtex, greedy.Kmax = 5)
+gtex.const <- flash(gtex, greedy.Kmax = 5)
 ```
 
-The returned object is a list that contains useful information about the fitted flash object. For example, the variational lower bound attained using the default variance structure (with all $\sigma^2_{ij}$s equal) is
+The returned object is a list that contains useful information about
+the fitted flash object. For example, the variational lower bound
+attained using the default variance structure (with all
+$\sigma^2_{ij}$s equal) is
 
 ```{r gtex.output}
 gtex.const$elbo
@@ -80,22 +93,40 @@ plot.tissue.loadings(gtex.const)
 
 ## Variance structures
 
-In general, the residual variances are assumed to form a rank-one matrix or tensor. That is, $\sigma^2_{ij} = \sigma^{2 (1)}_i \sigma^{2 (2)}_j$, where $\sigma^{2 (1)}$ is a $n$-vector and $\sigma^{2 (2)}$ is a $p$-vector (or, in the tensor case, $\sigma^2_{ij \ell} = \sigma^{2 {(1)}}_i \sigma^{2 {(2)}}_j \sigma^{2 (3)}_\ell$). This general assumption can be motivated by noting that it describes a model in which residuals are distributed $E_{ij} \sim N(0, 1)$ and the rows and columns of $Y$ have each been scaled by some constant: 
+In general, the residual variances are assumed to form a rank-one
+matrix or tensor. That is, $\sigma^2_{ij} = \sigma^{2 (1)}_i \sigma^{2
+(2)}_j$, where $\sigma^{2 (1)}$ is a $n$-vector and $\sigma^{2 (2)}$
+is a $p$-vector (or, in the tensor case, $\sigma^2_{ij \ell} =
+\sigma^{2 {(1)}}_i \sigma^{2 {(2)}}_j \sigma^{2 (3)}_\ell$). This
+general assumption can be motivated by noting that it describes a
+model in which residuals are distributed $E_{ij} \sim N(0, 1)$ and the
+rows and columns of $Y$ have each been scaled by some constant:
+
 $$ Y = \sigma_i \sigma_j (F_1 F_2^T + E).$$
 
-By assuming that all elements of $\sigma^{2 (1)}$ are identical, and likewise for $\sigma^{2 (2)}$, one recovers the default case where all $\sigma^2_{ij}$s are equal. One might also assume that all elements of $\sigma^{2 (1)}$ are identical but that the elements of $\sigma^{2 (2)}$ vary. In this case, one obtains column-specific variances
-$$ E_{ij} \sim N(0, \sigma^2_j).$$
+By assuming that all elements of $\sigma^{2 (1)}$ are identical, and
+likewise for $\sigma^{2 (2)}$, one recovers the default case where all
+$\sigma^2_{ij}$s are equal. One might also assume that all elements of
+$\sigma^{2 (1)}$ are identical but that the elements of $\sigma^{2
+(2)}$ vary. In this case, one obtains column-specific variances $$
+E_{ij} \sim N(0, \sigma^2_j).$$
 
-In `flashier`, the residual variance structure is defined by specifying the $\sigma^{2 (n)}$s whose elements are allowed to vary. For example, row-specific variances can be fit via the call:
+In `flashier`, the residual variance structure is defined by
+specifying the $\sigma^{2 (n)}$s whose elements are allowed to
+vary. For example, row-specific variances can be fit via the call:
 
 ```{r gtex.byrow}
 byrow.time <- system.time(
-  gtex.byrow <- flashier(gtex, greedy.Kmax = 5, var.type = 1, verbose.lvl = 0)
+  gtex.byrow <- flash(gtex, greedy.Kmax = 5, var.type = 1, verbose.lvl = 0)
 )
 c(gtex.const$elbo, gtex.byrow$elbo)
 ```
 
-(I set `verbose.lvl = 0` to suppress progress updates.) Since the assumption of row-specific variances is much more flexible than the assumption of a constant residual variance (and includes it as a special case), the objective has increased considerably. The tissue loadings also look much nicer.
+(I set `verbose.lvl = 0` to suppress progress updates.) Since the
+assumption of row-specific variances is much more flexible than the
+assumption of a constant residual variance (and includes it as a
+special case), the objective has increased considerably. The tissue
+loadings also look much nicer.
 
 ```{r plot.byrow}
 plot.tissue.loadings(gtex.byrow)
@@ -104,7 +135,7 @@ plot.tissue.loadings(gtex.byrow)
 The general rank-one case can be fit as follows.
 ```{r gtex.kronecker}
 kronecker.time <- system.time(
-  gtex.kronecker <- flashier(gtex, greedy.Kmax = 5, var.type = c(1, 2), verbose.lvl = 0)
+  gtex.kronecker <- flash(gtex, greedy.Kmax = 5, var.type = c(1, 2), verbose.lvl = 0)
 )
 c(gtex.const$elbo, gtex.byrow$elbo, gtex.kronecker$elbo)
 ```
@@ -117,30 +148,45 @@ c(byrow.time[3], kronecker.time[3])
 
 ## Measurement error
 
-It is possible that the data $Y$ is observed with some known error. In such a case, it might be preferable to fit the model
+It is possible that the data $Y$ is observed with some known error. In
+such a case, it might be preferable to fit the model
 
 $$ Y = F_1 F_2' + E + S, $$
-where $S_{ij} \sim N(0, s^2_{ij})$ and the $s^2_{ij}$s are fixed. In other words, one might prefer to fit the model
-$$ Y_{ij} \sim N \left(\sum_k F^{(1)}_{ik} F^{(2)}_{jk}, \sigma^2_{ij} + s^2_{ij}\right). $$
 
-In some cases, this model can be nearly reduced to the model described above. For example, since the `gtex` data is a matrix of $z$-scores, one might set the $s_{ij}$s equal to one. With, for example, row-specific residual variances, this yields the model
-$$ Y_{ij} \sim N \left(\sum_k F^{(1)}_{ik} F^{(2)}_{jk}, \sigma^2_{j} + 1 \right). $$
-This is almost the same as the model described in the previous section, with the important difference that residual variances can't be less than 1. The objective will necessarily be lower than the model with arbitrary row-specific variances, but the model is probably more correct.
+where $S_{ij} \sim N(0, s^2_{ij})$ and the $s^2_{ij}$s are fixed. In
+other words, one might prefer to fit the model $$ Y_{ij} \sim N
+\left(\sum_k F^{(1)}_{ik} F^{(2)}_{jk}, \sigma^2_{ij} +
+s^2_{ij}\right). $$
+
+In some cases, this model can be nearly reduced to the model described
+above. For example, since the `gtex` data is a matrix of $z$-scores,
+one might set the $s_{ij}$s equal to one. With, for example,
+row-specific residual variances, this yields the model $$ Y_{ij} \sim
+N \left(\sum_k F^{(1)}_{ik} F^{(2)}_{jk}, \sigma^2_{j} + 1 \right). $$
+This is almost the same as the model described in the previous
+section, with the important difference that residual variances can't
+be less than 1. The objective will necessarily be lower than the model
+with arbitrary row-specific variances, but the model is probably more
+correct.
 
 ```{r gtex.byrow.plus.1}
-gtex.byrow.plus.1 <- flashier(gtex, S = 1, greedy.Kmax = 5, var.type = 1, 
-                              verbose.lvl = 0)
+gtex.byrow.plus.1 <- flash(gtex, S = 1, greedy.Kmax = 5, var.type = 1, 
+                           verbose.lvl = 0)
 c(gtex.byrow$elbo, gtex.byrow.plus.1$elbo)
 ```
 
-In other cases, an entirely different model is implied. For example, the variances in the model 
+In other cases, an entirely different model is implied. For example,
+the variances in the model
 $$ Y_{ij} \sim N \left(\sum_k F^{(1)}_{ik} F^{(2)}_{jk}, \sigma^{2 (1)}_{i} \sigma^{2 (2)}_{j} + 1 \right) $$
-form a rank-two matrix rather than the rank-one structure described in the previous section. Interestingly, this model yields a better variational lower bound than the model with rank-one residual variances. However, it takes a much longer time to fit.
+form a rank-two matrix rather than the rank-one structure described in
+the previous section. Interestingly, this model yields a better
+variational lower bound than the model with rank-one residual
+variances. However, it takes a much longer time to fit.
 
 ```{r gtex.kron.plus.1}
 kron.plus.1.time <- system.time(
-  gtex.kron.plus.1 <- flashier(gtex, S = 1, greedy.Kmax = 5, var.type = c(1, 2),
-                               verbose.lvl = 0)
+  gtex.kron.plus.1 <- flash(gtex, S = 1, greedy.Kmax = 5, var.type = c(1, 2),
+                            verbose.lvl = 0)
 )
 c(gtex.kronecker$elbo, gtex.kron.plus.1$elbo)
 c(kronecker.time[3], kron.plus.1.time[3])
@@ -157,22 +203,21 @@ In both cases, `ashr` attempts to set the number of mixture components $m$ large
 
 ```{r gtex.normalmix}
 pn.time <- system.time(
-  gtex.pn <- flashier(gtex, greedy.Kmax = 5, 
-                      prior.family = prior.point.normal(), verbose.lvl = 0)
+  gtex.pn <- flash(gtex, greedy.Kmax = 5, 
+                   prior.family = prior.point.normal(), verbose.lvl = 0)
 )
 normalmix.time <- system.time(
-  gtex.normalmix <- flashier(gtex, greedy.Kmax = 5, 
-                             prior.family = prior.normal.scale.mix(),
-                             verbose.lvl = 0)
+  gtex.normalmix <- flash(gtex, greedy.Kmax = 5, 
+                          prior.family = prior.normal.scale.mix(),
+                          verbose.lvl = 0)
 )
 unimix.time <- system.time(
-  gtex.unimix <- flashier(gtex, greedy.Kmax = 5, 
-                          prior.family = prior.unimodal.symmetric(), 
-                          verbose.lvl = 0)
+  gtex.unimix <- flash(gtex, greedy.Kmax = 5, 
+                       prior.family = prior.unimodal.symmetric(), 
+                       verbose.lvl = 0)
 )
 c(gtex.pn$elbo, gtex.normalmix$elbo, gtex.unimix$elbo)
 c(pn.time[3], normalmix.time[3], unimix.time[3])
-
 ```
 
 Other possible settings for `prior.family` include `prior.nonnegative()`, which fits mixtures of nonnegative uniforms,
@@ -184,34 +229,46 @@ $$ g \sim \pi \delta(\mu) + (1 - \pi) N(\mu, \sigma^2). $$
 The latter can be especially useful for fitting a "mean" factor such as the first factor in the `gtex` example.
 
 ```{r gtex.w.mean}
-gtex.w.mean <- flashier(gtex, greedy.Kmax = 5, 
-                        prior.family = list(prior.nonzero.mode(),
-                                            prior.point.normal()), 
-                        verbose.lvl = 0)
+gtex.w.mean <- flash(gtex, greedy.Kmax = 5, 
+                     prior.family = list(prior.nonzero.mode(),
+                                         prior.point.normal()), 
+                     verbose.lvl = 0)
 c(gtex.pn$elbo, gtex.w.mean$elbo)
 ```
 
 Note the syntax: when `prior.family` takes a list as argument, the first element is used to fit the first factor, the second is used to fit the second, and so on; the last element is then re-used as often as necessary. One can also assign different prior types to the different factor matrices $F_1$ and $F_2$. For instance, one can obtain nonnegative loadings on tissues (columns) and arbitrary loadings on tests (rows) via the following call. Note that `prior.family` is a vector here rather than a list. (And, when the class of priors is different both across factors and between loading matrices, `prior.family` will accept a list of vectors as argument.)
 
 ```{r gtex.nn}
-gtex.nonnegative <- flashier(gtex, greedy.Kmax = 5, 
-                             prior.family = c(prior.point.normal(),
-                                              prior.nonnegative()), 
-                             verbose.lvl = 0)
+gtex.nonnegative <- flash(gtex, greedy.Kmax = 5, 
+                          prior.family = c(prior.point.normal(),
+                                           prior.nonnegative()), 
+                          verbose.lvl = 0)
 gtex.nonnegative$elbo
 plot.tissue.loadings(gtex.nonnegative)
 ```
 
 ## Backfitting
 
-`flashier` fits models greedily by updating a first factor to optimize the variational lower bound, then adding and updating a second factor while leaving the first factor fixed, and so on. Optionally, one may choose to "backfit" a model by iteratively updating factors one at a time until convergence. Factors that are added early on can, so to speak, use information contained in subsequent factors to improve the overall model fit. The improvement can be considerable.
+`flashier` fits models greedily by updating a first factor to optimize
+the variational lower bound, then adding and updating a second factor
+while leaving the first factor fixed, and so on. Optionally, one may
+choose to "backfit" a model by iteratively updating factors one at a
+time until convergence. Factors that are added early on can, so to
+speak, use information contained in subsequent factors to improve the
+overall model fit. The improvement can be considerable.
 
-Basic fitting strategies can be specified via the `fit` parameter. When `fit = "full"`, `flashier` greedily adds as many factors as possible, then backfits all of the factors in one go. If one initially decides not to backfit by using the default `fit = "greedy"`, then the resulting fit can be backfit in a second call by setting `init` to the returned flash object and setting `fit` to `"backfit.only"`.
+Basic fitting strategies can be specified via the `fit`
+parameter. When `fit = "full"`, `flashier` greedily adds as many
+factors as possible, then backfits all of the factors in one go. If
+one initially decides not to backfit by using the default `fit =
+"greedy"`, then the resulting fit can be backfit in a second call by
+setting `init` to the returned flash object and setting `fit` to
+`"backfit.only"`.
 
 ```{r backfit}
 final.bf.time <- system.time(
-  gtex.final.bf <- flashier(gtex, greedy.Kmax = 5, var.type = 1, 
-                            fit = "full", verbose.lvl = 0)
+  gtex.final.bf <- flash(gtex, greedy.Kmax = 5, var.type = 1, 
+                         fit = "full", verbose.lvl = 0)
 )
 c(gtex.byrow$elbo, gtex.final.bf$elbo)
 c(byrow.time[3], final.bf.time[3])
@@ -219,7 +276,11 @@ c(byrow.time[3], final.bf.time[3])
 
 ## Sampling from the posterior
 
-One of the list elements in the object returned by `flashier` is a function that can sample from the posterior distribution of the loadings. To demonstrate how to use the sampler, I consider the fit produced by assuming row-specific residual variances and backfitting. The tissue loadings are as follows.
+One of the list elements in the object returned by `flashier` is a
+function that can sample from the posterior distribution of the
+loadings. To demonstrate how to use the sampler, I consider the fit
+produced by assuming row-specific residual variances and
+backfitting. The tissue loadings are as follows.
 
 ```{r final.bf.plot}
 plot.tissue.loadings(gtex.final.bf)

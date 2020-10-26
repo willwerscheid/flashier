@@ -12,7 +12,7 @@
 #'
 #' If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
 #'   empirical Bayes matrix factorization model is:
-#' \deqn{Y = \ell^{(1)} \ell^{(2)}' + E,} where \eqn{\ell^{(1)}} is an
+#' \deqn{Y = \ell^{(1)} (\ell^{(2)})^T + E,} where \eqn{\ell^{(1)}} is an
 #'   \eqn{n}-vector of \strong{row loadings}, \eqn{\ell^{(2)}} is a
 #'   \eqn{p}-vector of \strong{column loadings}, and \eqn{E} is an
 #'   \eqn{n \times p} matrix of \strong{residuals}. The following priors are
@@ -63,8 +63,8 @@
 #'   convenience functions \code{\link{prior.normal}},
 #'   \code{\link{prior.point.normal}},
 #'   \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-#'   \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-#'   \code{\link{prior.symmetric.unimodal}},
+#'   \code{\link{prior.normal.scale.mix}}, \code{\link{prior.unimodal}},
+#'   \code{\link{prior.unimodal.symmetric}},
 #'   \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
 #'   or a custom prior type of a similar form (see \code{\link{prior.normal}}
 #'   for details).
@@ -141,6 +141,7 @@
 #'   }
 #'
 #' @examples
+#' library(magrittr)
 #' data(gtex)
 #'
 #' # Fit up to 10 factors and backfit.
@@ -166,7 +167,7 @@
 #'             greedy.Kmax = 5)
 #'
 #' # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-#' fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
+#' # fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 #'
 #' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
