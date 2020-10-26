@@ -4,10 +4,17 @@
 \alias{flash.add.greedy}
 \title{Greedily add factors to a flash object}
 \usage{
-flash.add.greedy(flash, Kmax = 1, prior.family = prior.point.normal(),
-  init.fn = init.fn.default, extrapolate = TRUE,
-  conv.crit.fn = calc.obj.diff, tol = set.default.tol(flash),
-  maxiter = 500, verbose.lvl = get.verbose.lvl(flash))
+flash.add.greedy(
+  flash,
+  Kmax = 1,
+  prior.family = prior.point.normal(),
+  init.fn = init.fn.default,
+  extrapolate = TRUE,
+  conv.crit.fn = calc.obj.diff,
+  tol = set.default.tol(flash),
+  maxiter = 500,
+  verbose.lvl = get.verbose.lvl(flash)
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
