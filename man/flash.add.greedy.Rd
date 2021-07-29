@@ -9,7 +9,7 @@ flash.add.greedy(
   Kmax = 1,
   prior.family = prior.point.normal(),
   init.fn = init.fn.default,
-  extrapolate = TRUE,
+  extrapolate = FALSE,
   conv.crit.fn = calc.obj.diff,
   tol = set.default.tol(flash),
   maxiter = 500,
