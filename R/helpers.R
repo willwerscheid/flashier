@@ -25,6 +25,9 @@ get.est.S2            <- function(f) f[["est.S2"]]
 get.est.tau           <- function(f) f[["est.tau"]]
 get.est.tau.dim       <- function(f) f[["est.tau.dim"]]
 get.tau               <- function(f) f[["tau"]]
+get.var.reg.fn        <- function(f) f[["var.reg.fn"]]
+get.mean.log.tau      <- function(f) f[["mean.log.tau"]]
+get.KL.tau            <- function(f) f[["KL.tau"]]
 use.fixed.to.est.g    <- function(f) f[["use.fixed.to.est.g"]]
 get.n.nonmissing      <- function(f) f[["n.nonmissing"]]
 get.kron.nonmissing   <- function(f) f[["kron.nonmissing"]]
@@ -200,6 +203,7 @@ get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
 any.missing <- function(f) !identical(get.nonmissing(f), 1)
+is.var.regularized <- function(f) !is.null(get.var.reg.fn(f))
 is.obj.valid <- function(flash, factor = NULL) {
   valid <- is.valid(flash)
   if (!is.null(factor))
@@ -482,6 +486,14 @@ set.est.tau <- function(f, est.tau) {
 }
 set.tau <- function(f, tau) {
   f[["tau"]] <- tau
+  return(f)
+}
+set.mean.log.tau <- function(f, mean.log.tau) {
+  f[["mean.log.tau"]] <- mean.log.tau
+  return(f)
+}
+set.KL.tau <- function(f, KL.tau) {
+  f[["KL.tau"]] <- KL.tau
   return(f)
 }
 set.obj <- function(f, obj) {

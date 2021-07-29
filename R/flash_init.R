@@ -7,6 +7,13 @@
 #'
 #' @inheritParams flash
 #'
+#' @param var.reg.fn The EBPM function used to regularize estimated
+#'   variances. Currently only available for "simple" variance structures.
+#'   The function should take two parameters called "x" and "s", which are
+#'   the inputs to the EBPM problem \eqn{x_i \sim \text{Poisson}(s_i\theta_i)},
+#'   \eqn{\theta_i \sim g}, and should return (at least) outputs
+#'   "posterior$mean", "posterior$mean_log", and "log_likelihood".
+#'
 #' @param S.dim The dimension along which \code{S} lies when \code{S} is a
 #'   vector. It is only necessary to specify \code{S.dim} when it cannot be
 #'   inferred from the data (when, for example, \code{data} is a square
@@ -16,8 +23,19 @@
 #'
 #' @export
 #'
-flash.init <- function(data, S = NULL, var.type = 0L, S.dim = NULL) {
+flash.init <- function(data,
+                       S = NULL,
+                       var.type = 0L,
+                       var.reg.fn = NULL,
+                       S.dim = NULL) {
   flash <- set.flash.data(data, S = S, S.dim = S.dim, var.type = var.type)
+
+  if (is.tau.simple(flash) && is.null(S)) {
+    flash$var.reg.fn <- var.reg.fn
+  } else if (!is.null(var.reg.fn)) {
+    stop("Parameter 'var.reg.fn' can only be used with simple variance ",
+         "structures.")
+  }
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {
     flash$R <- flash$Y
