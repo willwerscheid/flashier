@@ -1,4 +1,4 @@
-context("variance types")
+context("variance regularization")
 
 ebpm_exponential <- function(x, s = 1) {
   neg_llik_fn <- function(log.lambda) {
@@ -36,10 +36,10 @@ test_that("variance regularization only works with simple variance types", {
 })
 
 f.noreg <- flash.init(M, var.type = 1) %>%
-  flash.set.verbose(3) %>%
+  flash.set.verbose(0) %>%
   flash.add.greedy(Kmax = 1)
 f.reg <- flash.init(M, var.type = 1, var.reg.fn = ebpm_exponential) %>%
-  flash.set.verbose(3) %>%
+  flash.set.verbose(0) %>%
   flash.add.greedy(Kmax = 1)
 
 test_that("variance regularization changes estimates", {
