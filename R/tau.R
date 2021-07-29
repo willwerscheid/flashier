@@ -49,7 +49,7 @@ init.simple.tau <- function(flash) {
 
   if (is.var.regularized(flash)) {
     ebpm.fn  <- get.var.reg.fn(flash)
-    ebpm.res <- ebpm.fn(get.n.nonmissing(flash), get.R2(flash))
+    ebpm.res <- ebpm.fn(get.n.nonmissing(flash) / 2, get.R2(flash) / 2)
     flash    <- set.tau(flash, ebpm.res$posterior$mean)
     flash    <- set.mean.log.tau(flash, ebpm.res$posterior$mean_log)
     flash    <- set.KL.tau(flash, ebpm.res$log_likelihood)
@@ -69,7 +69,7 @@ update.simple.tau <- function(factor, flash) {
 
   if (is.var.regularized(flash)) {
     ebpm.fn  <- get.var.reg.fn(flash)
-    ebpm.res <- ebpm.fn(get.n.nonmissing(flash), get.R2(flash) + delta.R2)
+    ebpm.res <- ebpm.fn(get.n.nonmissing(flash) / 2, (get.R2(flash) + delta.R2) / 2)
     factor   <- set.tau(factor, ebpm.res$posterior$mean)
     factor   <- set.mean.log.tau(factor, ebpm.res$posterior$mean_log)
     factor   <- set.KL.tau(factor, ebpm.res$log_likelihood)
