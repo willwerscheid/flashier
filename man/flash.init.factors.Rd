@@ -4,8 +4,7 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, EF, EF2 = NULL,
-  prior.family = prior.point.normal())
+flash.init.factors(flash, EF, EF2 = NULL, prior.family = prior.point.normal())
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are

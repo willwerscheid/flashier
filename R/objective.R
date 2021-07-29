@@ -5,19 +5,29 @@ calc.obj <- function(flash, factor = NULL) {
     KL <- KL + sum(unlist(get.KL(factor)))
     if (!is.new(factor))
       KL <- KL - sum(get.KL.k(flash, get.k(factor)))
-    est.tau    <- get.est.tau(factor)
-    tau        <- get.tau(factor)
-    sum.tau.R2 <- get.sum.tau.R2(factor)
+    KL.tau       <- get.KL.tau(factor)
+    est.tau      <- get.est.tau(factor)
+    tau          <- get.tau(factor)
+    mean.log.tau <- get.mean.log.tau(factor)
+    sum.tau.R2   <- get.sum.tau.R2(factor)
   } else {
-    est.tau    <- get.est.tau(flash)
-    tau        <- get.tau(flash)
-    sum.tau.R2 <- get.sum.tau.R2(flash)
+    KL.tau       <- get.KL.tau(flash)
+    est.tau      <- get.est.tau(flash)
+    tau          <- get.tau(flash)
+    mean.log.tau <- get.mean.log.tau(flash)
+    sum.tau.R2   <- get.sum.tau.R2(flash)
   }
 
-  if (is.tau.simple(flash)) {
+  if (is.var.regularized(flash)) {
     n.nonmissing <- get.n.nonmissing(flash)
-    obj <- KL - 0.5 * sum(n.nonmissing * (log(2 * pi)
-                                          - log(tau) + tau / est.tau))
+    obj <- KL + KL.tau - 0.5 * sum(
+      n.nonmissing * (log(2 * pi) - mean.log.tau + tau / est.tau)
+    )
+  } else if (is.tau.simple(flash)) {
+    n.nonmissing <- get.n.nonmissing(flash)
+    obj <- KL - 0.5 * sum(
+      n.nonmissing * (log(2 * pi) - log(tau) + tau / est.tau)
+    )
   } else if (is.var.type.zero(flash)) {
     obj <- KL - 0.5 * (get.log.2pi.s2(flash)
                        + sum(calc.tau.R2(flash, factor, get.R2.n(flash))))

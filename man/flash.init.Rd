@@ -4,7 +4,7 @@
 \alias{flash.init}
 \title{Initialize flash object}
 \usage{
-flash.init(data, S = NULL, var.type = 0L, S.dim = NULL)
+flash.init(data, S = NULL, var.type = 0L, var.reg.fn = NULL, S.dim = NULL)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
@@ -34,6 +34,13 @@ only varies across columns and is constant within any given row). If
   row-specific residual variances (\code{var.type = 1}) is much easier than
   estimating an arbitrary rank-one matrix of variances
   (\code{var.type = c(1, 2)}).}
+
+\item{var.reg.fn}{The EBPM function used to regularize estimated
+variances. Currently only available for "simple" variance structures.
+The function should take two parameters called "x" and "s", which are
+the inputs to the EBPM problem \eqn{x_i \sim \text{Poisson}(s_i\theta_i)},
+\eqn{\theta_i \sim g}, and should return (at least) outputs
+"posterior$mean", "posterior$mean_log", and "log_likelihood".}
 
 \item{S.dim}{The dimension along which \code{S} lies when \code{S} is a
 vector. It is only necessary to specify \code{S.dim} when it cannot be

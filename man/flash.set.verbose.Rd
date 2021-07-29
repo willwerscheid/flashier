@@ -4,8 +4,13 @@
 \alias{flash.set.verbose}
 \title{Set verbose output}
 \usage{
-flash.set.verbose(flash, verbose, fns = NULL, colnames = NULL,
-  colwidths = NULL)
+flash.set.verbose(
+  flash,
+  verbose,
+  fns = NULL,
+  colnames = NULL,
+  colwidths = NULL
+)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
