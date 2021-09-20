@@ -194,6 +194,9 @@ flash.backfit <- function(flash,
 
   if (iter == maxiter) {
     report.maxiter.reached(verbose.lvl)
+    flash <- set.max.backfit.iter.reached.flag(flash)
+  } else {
+    flash <- clear.max.backfit.iter.reached.flag(flash)
   }
 
   if (get.obj(flash) > old.obj) {

@@ -610,6 +610,14 @@ set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {
   f[["verbose.colwidths"]] <- colwidths
   return(f)
 }
+set.max.backfit.iter.reached.flag <- function(f) {
+  f[["maxiter.reached"]] <- TRUE
+  return(f)
+}
+clear.max.backfit.iter.reached.flag <- function(f) {
+  f[["maxiter.reached"]] <- NULL
+  return(f)
+}
 
 # Testing function that converts a flashier object into a flashr fit object.
 to.flashr <- function(f) {
