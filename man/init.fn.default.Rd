@@ -4,8 +4,13 @@
 \alias{init.fn.default}
 \title{Initialize a flash factor}
 \usage{
-init.fn.default(flash, mode.signs, tol = 1/max(get.dims(flash)),
-  maxiter = 100, seed = 666)
+init.fn.default(
+  flash,
+  mode.signs,
+  tol = 1/max(get.dims(flash)),
+  maxiter = 100,
+  seed = 666
+)
 }
 \arguments{
 \item{flash}{A \code{flash.fit} object.}

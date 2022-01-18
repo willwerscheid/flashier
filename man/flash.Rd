@@ -4,9 +4,16 @@
 \alias{flash}
 \title{Empirical Bayes matrix/tensor factorization}
 \usage{
-flash(data, S = NULL, prior.family = prior.point.normal(),
-  var.type = 0L, greedy.Kmax = 50L, backfit = FALSE,
-  nullcheck = TRUE, verbose.lvl = 1L)
+flash(
+  data,
+  S = NULL,
+  prior.family = prior.point.normal(),
+  var.type = 0L,
+  greedy.Kmax = 50L,
+  backfit = FALSE,
+  nullcheck = TRUE,
+  verbose.lvl = 1L
+)
 }
 \arguments{
 \item{data}{The observations. Can be a matrix, sparse matrix of class
