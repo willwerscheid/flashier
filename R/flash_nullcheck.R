@@ -2,8 +2,6 @@
 #'
 #' Sets factors to zero if doing so improves the overall fit.
 #'
-#' @inheritParams flash
-#'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
 #' @param kset A vector of integers specifying which factors to nullcheck.
