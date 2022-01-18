@@ -18,7 +18,9 @@ test_that("tensor factor initialization is correct", {
   expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flash.backfit(f, method = "sequential", maxiter = 1, verbose.lvl = 0)
+suppressWarnings({
+  f.b <- flash.backfit(f, method = "sequential", maxiter = 1, verbose.lvl = 0)
+})
 
 test_that ("the backfit objective improves after one iteration", {
   expect_true(f.b$elbo > f$elbo)
@@ -41,7 +43,9 @@ test_that("tensor factor initialization is correct (with missing)", {
   expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
-f.b <- flash.backfit(f, maxiter = 1, verbose.lvl = 0)
+suppressWarnings({
+  f.b <- flash.backfit(f, maxiter = 1, verbose.lvl = 0)
+})
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
   expect_true(f.b$elbo > f$elbo)
