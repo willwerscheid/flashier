@@ -23,7 +23,7 @@
 #'
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
-#'   and fixed factors. Control parameters are handled via global options and
+#'   factors. Control parameters are handled via global options and
 #'   can be set by calling
 #'   \code{options("extrapolate.control") <- control.param}.
 #'
@@ -35,11 +35,13 @@
 #' @param maxiter The maximum number of iterations when optimizing a greedily
 #'   added factor.
 #'
+#' @importFrom ebnm ebnm_point_normal
+#'
 #' @export
 #'
 flash.add.greedy <- function(flash,
                              Kmax = 1,
-                             prior.family = prior.point.normal(),
+                             ebnm.fn = ebnm::ebnm_point_normal,
                              init.fn = init.fn.default,
                              extrapolate = FALSE,
                              conv.crit.fn = calc.obj.diff,
@@ -52,9 +54,7 @@ flash.add.greedy <- function(flash,
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
-  priors <- handle.prior.family(prior.family, get.dim(flash))
-  ebnm.fns <- rep(priors$ebnm.fn, length.out = Kmax)
-  prior.signs <- rep(priors$prior.sign, length.out = Kmax)
+  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
 
   if (missing(tol)) {
     report.tol.setting(verbose.lvl, tol)
@@ -88,8 +88,8 @@ flash.add.greedy <- function(flash,
   while (factors.added < Kmax && !greedy.failed) {
     announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
-    factor <- init.factor(flash, init.fn, prior.signs[[factors.added + 1]])
-    factor <- set.ebnm.fn(factor, ebnm.fns[[factors.added + 1]])
+    factor <- init.factor(flash, init.fn)
+    factor <- set.ebnm.fn(factor, ebnm.fn)
 
     announce.factor.opt(verbose.lvl)
     print.table.header(verbose.lvl,

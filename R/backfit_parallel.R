@@ -66,7 +66,7 @@ calc.all.ebnm.args <- function(n, flash) {
 }
 
 parallel.ebnm.fn <- function(k) {
-  res    <- k$ebnm.fn(x = k$x, s = k$s, g = k$g, fixg = FALSE, output = k$output)
+  res    <- k$ebnm.fn(x = k$x, s = k$s, g_init = k$g, fix_g = FALSE, output = k$output)
   res$KL <- res$log_likelihood - normal.means.loglik(k$x,
                                                      k$s,
                                                      res$posterior$mean,

@@ -2,12 +2,12 @@
 % Please edit documentation in R/flash.R
 \name{flash}
 \alias{flash}
-\title{Empirical Bayes matrix/tensor factorization}
+\title{Empirical Bayes matrix factorization}
 \usage{
 flash(
   data,
   S = NULL,
-  prior.family = prior.point.normal(),
+  ebnm.fn = ebnm::ebnm_point_normal,
   var.type = 0L,
   greedy.Kmax = 50L,
   backfit = FALSE,
@@ -16,64 +16,71 @@ flash(
 )
 }
 \arguments{
-\item{data}{The observations. Can be a matrix, sparse matrix of class
-\code{Matrix}, or three-dimensional array. Can also be a low-rank matrix
+\item{data}{The observations. Usually a matrix, but can also be a sparse
+matrix of class \code{Matrix} or a low-rank matrix
 representation as returned by, for example, \code{\link{svd}},
 \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
-\code{\link[softImpute]{softImpute}}.}
+\code{\link[softImpute]{softImpute}} (in general, any list object that
+includes fields \code{u}, \code{d}, and \code{v} will be interpreted
+as a low-rank matrix representation).}
 
-\item{S}{The standard errors. Can be a matrix, scalar (if standard errors
-are the same for all observations), or vector (if, for example, \code{S}
-only varies across columns and is constant within any given row). If
-\code{NULL}, all residual variance will be estimated.}
+\item{S}{The standard errors. Can be \code{NULL} (in which case all residual
+variance will be estimated) or a matrix, vector, or scalar. \code{S}
+should be a scalar if standard errors are the same for all observations,
+and a vector if standard errors either vary across columns but are
+constant within any given row, or vary across rows and are constant within
+any given column (function \code{flash} will use the length of the vector
+to determine whether standard errors correspond to rows or columns; if the
+data matrix is square, then the sense must be specified using parameter
+\code{S.dim} in function \code{\link{flash.init}}).}
 
-\item{prior.family}{Indicates the family of distributions that the priors on
-  the loadings are
-  assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
-  \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-  tensors). Each list element must be a prior family defined by one of the
-  convenience functions \code{\link{prior.normal}},
-  \code{\link{prior.point.normal}},
-  \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
-  \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
-  or a custom prior type of a similar form (see \code{\link{prior.normal}}
-  for details).
+\item{ebnm.fn}{The function or functions used to solve the empirical Bayes
+  normal means (EBNM) subproblems. Most importantly, these functions specify
+  the families of distributions \eqn{G_\ell} and \eqn{G_f} from which the
+  priors on loadings and factors \eqn{g_\ell} and \eqn{g_f} are
+  to be estimated. If the same function is to be used for both loadings
+  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function;
+  if different functions are to be used, then \code{ebnm.fn} should be a
+  list of length two, with the first list element giving the function for
+  loadings and the second element giving the function for factors (see
+  \strong{Examples} below).
+  If different functions are to be used for different values of \eqn{k},
+  then factors must be added successively using multiple calls to either
+  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
 
-  \code{prior.family} can also be a list of lists, in which case the first
-  list specifies the family or families for the first factor, the second
-  specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary. See
-  \code{\link{flash}} for examples.}
+  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+  used as input. Non-default arguments to parameters can be supplied using
+  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{as.ebnm.fn}}.}
 
 \item{var.type}{Describes the structure of the estimated residual variance.
-  Can be \code{NULL}, \code{0}, or a vector. If \code{NULL}, then
-  \code{S} accounts for all residual variance. Otherwise, a rank-one
-  variance structure will be estimated (and added to any variance specified
-  by \code{S}). \code{var.type} then gives the modes along which the
-  residual variance is permitted to vary. For example, \code{var.type = 1}
-  estimates row-specific residual variances, while \code{var.type = c(1, 2)}
-  optimizes over all rank-one matrices. If \code{var.type = 0}, then the
-  residual variance is assumed to be constant across all observations.
+  Can be \code{NULL}, \code{0}, \code{1}, \code{2}, or \code{c(1, 2)}. If
+  \code{NULL}, then \code{S} accounts for all residual variance. If
+  \code{var.type = 0}, then the estimated residual variance (which is added
+  to any variance given by \code{S}) is assumed to be constant
+  across all observations. Setting \code{var.type = 1} estimates a single
+  variance parameter for each row; \code{var.type = 2} estimates one
+  parameter for each column; and \code{var.type = c(1, 2)} optimizes over
+  all rank-one matrices.
 
-  Note that is usually faster to set \code{S = NULL} and to let \code{flash}
-  estimate the residual variances. Further, it is much faster to only allow
-  the residual variances to vary along a single mode. For example, estimating
-  row-specific residual variances (\code{var.type = 1}) is much easier than
-  estimating an arbitrary rank-one matrix of variances
-  (\code{var.type = c(1, 2)}).}
+  Note that if any portion of the residual variance is to be estimated, then
+  it is usually faster to set \code{S = NULL} and let \code{flash}
+  estimate all of the residual variance. Further, \code{var.type = c(1, 2)}
+  is much slower than all other options, so it should be used with care.}
 
 \item{greedy.Kmax}{The maximum number of factors to be added. This will not
 necessarily be the total number of factors added by \code{flash}, since
 factors are only added as long as they increase the variational lower
 bound on the log likelihood for the model.}
 
-\item{backfit}{A "greedy" fit is performed by adding as many as
+\item{backfit}{A "greedy" fit is performed by adding up to
 \code{greedy.Kmax} factors, optimizing each newly added factor in one go
 without returning to optimize previously added factors. When
 \code{backfit = TRUE}, \code{flash} will additionally perform a final
-"backfit" where all factors are cyclically updated until convergence.}
+"backfit" where all factors are cyclically updated until convergence.
+The backfitting procedure typically takes much longer than the greedy
+algorithm, but it also usually improves the final fit to a significant
+degree.}
 
 \item{nullcheck}{If \code{nullcheck = TRUE}, then \code{flash} will check
 that each factor in the final flash object improves the overall fit. Any
@@ -88,7 +95,7 @@ Set to \code{-1} to output a single tab-delimited table of values.}
 \value{
 A \code{flash} object. Contains elements:
   \describe{
-    \item{\code{n.factors}}{The total number of factors in the fitted
+    \item{\code{n.factors}}{The total number of factors \eqn{K} in the fitted
       model.}
     \item{\code{pve}}{The proportion of variance explained by each factor.}
     \item{\code{elbo}}{The variational lower bound achieved by the
@@ -116,48 +123,45 @@ A \code{flash} object. Contains elements:
 \description{
 Fits an empirical Bayes matrix factorization (see \strong{Details} for a
   description of the model). The resulting fit is referred to as a "flash"
-  object (short for Factors and Loadings using Adaptive Shrinkage). Two
+  object (short for Factors and Loadings using Adaptive SHrinkage). Two
   interfaces are provided. The \code{flash} function provides a simple
   interface that allows a flash object to be fit in a single pass, while
-  \code{flash.xxx} functions are pipeable functions that allow more
-  complex flash objects to be fit incrementally. See the vignettes and the
-  examples below for usage. See \strong{Details} for a discussion of the
-  terminology used throughout the documentation.
+  \code{flash.xxx} functions are pipeable functions that allow for more
+  complex flash objects to be fit incrementally (available functions are
+  listed below under \strong{See Also}). See the vignettes and
+  \strong{Examples} for usage.
 }
 \details{
 If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
   empirical Bayes matrix factorization model is:
-\deqn{Y = \ell^{(1)} \ell^{(2)}' + E,} where \eqn{\ell^{(1)}} is an
-  \eqn{n}-vector of \strong{row loadings}, \eqn{\ell^{(2)}} is a
-  \eqn{p}-vector of \strong{column loadings}, and \eqn{E} is an
-  \eqn{n \times p} matrix of \strong{residuals}. The following priors are
-  assumed:
+\deqn{Y = \ell f' + E,} where \eqn{\ell} is an
+  \eqn{n}-vector of \strong{loadings}, \eqn{f} is a
+  \eqn{p}-vector of \strong{factors}, and \eqn{E} is an
+  \eqn{n \times p} matrix of \strong{residuals} (or "errors").
+  Additionally:
 \deqn{E \sim N(0, s_{ij}^2)}
-\deqn{\ell^{(1)} \sim g^{(1)}}
-\deqn{\ell^{(2)} \sim g^{(2)}}
+\deqn{\ell \sim g_\ell \in G_\ell}
+\deqn{f \sim g_f \in G_f.}
 The residual variance parameters \eqn{s_{ij}^2} are constrained to have
-  a simple structure (for example, the "constant" variance structure
-  \eqn{s_{ij}^2 = s^2} for some \eqn{s^2} and for all \eqn{i}, \eqn{j})
-  and fit via maximum likelihood.
-The functions \eqn{g^{(1)}} and \eqn{g^{(2)}} are constrained to belong to
-  some families of priors \eqn{G^{(1)}} and \eqn{G^{(1)}} (e.g., the family
-  of point-normal distributions) and fit via variational approximation.
+  a simple structure and are fit via maximum likelihood. (For example, one
+  might assume that all standard errors are identical: \eqn{s_{ij}^2 = s^2}
+  for some \eqn{s^2} and for all \eqn{i}, \eqn{j}).
+The functions \eqn{g_\ell} and \eqn{g_f} are assumed to belong to
+  some families of priors \eqn{G_\ell} and \eqn{G_f} that are
+  specified in advance, and are estimated via variational approximation.
 
-The general rank-\eqn{K} empirical Bayes tensor factorization model is:
-  \deqn{Y_{ijm} = \sum_k L^{(1)}_{ik} L^{(2)}_{jk} L^{(3)}_{mk} + E_{ijm},}
-  where the \eqn{L^{(n)}}s are matrices of \strong{mode-n loadings}.
-In the terminology used throughout this package, the \eqn{k}th column of
-  \eqn{L^{(n)}} gives the mode-\eqn{n} loadings for the \eqn{k}th
-  factor. That is, a \strong{factor} is a rank-one component of a matrix
-  decomposition, formed by the outer product of vectors
-  \eqn{L^{(1)}_{\cdot k}}, \eqn{L^{(2)}_{\cdot k}}, and
-  \eqn{L^{(3)}_{\cdot k}}.
+The general rank-\eqn{K} empirical Bayes matrix factorization model is:
+  \deqn{Y = L F' + E} or
+  \deqn{Y_{ij} = \sum_k L_{ik} F_{jk} + E_{ij},}
+  where \eqn{L} is now a matrix of loadings and \eqn{F} is a matrix of
+  factors.
 
-Separate priors \eqn{g^{(n)}_k} are estimated for each mode and each factor,
-  and different prior families \eqn{G^{(n)}_k} may be used for different
-  modes and different factors. In general:
-\deqn{E \sim N(0, s_{ijm}^2)}
-\deqn{\L^{(n}_{\cdot k} \sim g^{(n)}_k \in G^{(n)}_k}
+Separate priors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are estimated via
+  empirical Bayes, and different prior families may be used for different
+  values of \eqn{k}. In general, then:
+\deqn{E_{ij} \sim N(0, s_{ij}^2)}
+\deqn{L_{ik} \sim g_\ell^{(k)} \in G_\ell^{(k)}}
+\deqn{F_{ik} \sim g_f^{(k)} \in G_f^{(k)}.}
 }
 \examples{
 data(gtex)
@@ -171,17 +175,17 @@ fl <- flash.init(gtex) \%>\%
   flash.backfit() \%>\%
   flash.nullcheck()
 
-# Fit a unimodal distribution with mode zero and nonnegative support to
-#   each set of row loadings and a scale mixture of normals with mean zero
-#   to each set of column loadings.
+# Fit a unimodal distribution with mean zero to each set of loadings
+#   and a scale mixture of normals with mean zero to each factor.
 fl <- flash(gtex,
-            prior.family = c(prior.nonnegative(), prior.normal.scale.mix()),
+            ebnm.fn = c(ebnm::ebnm_unimodal,
+                        ebnm::ebnm_normal_scale_mixture),
             greedy.Kmax = 5)
 
-# Fit point-normal priors with nonzero means for the first factor and scale
-#   mixtures of normals for every subsequent factor.
+# Fit point-laplace priors using a non-default optimization method.
 fl <- flash(gtex,
-            prior.family = list(prior.nonzero.mode(), prior.normal.scale.mix()),
+            ebnm.fn = as.ebnm.fn(prior_family = "point_laplace",
+                                 optmethod = "trust"),
             greedy.Kmax = 5)
 
 # Fit a "Kronecker" (rank-one) variance structure (this can be slow).

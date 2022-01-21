@@ -4,7 +4,7 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, EF, EF2 = NULL, prior.family = prior.point.normal())
+flash.init.factors(flash, EF, EF2 = NULL, ebnm.fn = ebnm::ebnm_point_normal)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
@@ -21,25 +21,24 @@ not allowed.}
 values of \code{EF}. Otherwise, a list of matrices (as described above)
 must be supplied.}
 
-\item{prior.family}{Indicates the family of distributions that the priors on
-  the loadings are
-  assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
-  \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-  tensors). Each list element must be a prior family defined by one of the
-  convenience functions \code{\link{prior.normal}},
-  \code{\link{prior.point.normal}},
-  \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
-  \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
-  or a custom prior type of a similar form (see \code{\link{prior.normal}}
-  for details).
+\item{ebnm.fn}{The function or functions used to solve the empirical Bayes
+  normal means (EBNM) subproblems. Most importantly, these functions specify
+  the families of distributions \eqn{G_\ell} and \eqn{G_f} from which the
+  priors on loadings and factors \eqn{g_\ell} and \eqn{g_f} are
+  to be estimated. If the same function is to be used for both loadings
+  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function;
+  if different functions are to be used, then \code{ebnm.fn} should be a
+  list of length two, with the first list element giving the function for
+  loadings and the second element giving the function for factors (see
+  \strong{Examples} below).
+  If different functions are to be used for different values of \eqn{k},
+  then factors must be added successively using multiple calls to either
+  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
 
-  \code{prior.family} can also be a list of lists, in which case the first
-  list specifies the family or families for the first factor, the second
-  specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary. See
-  \code{\link{flash}} for examples.}
+  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+  used as input. Non-default arguments to parameters can be supplied using
+  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{as.ebnm.fn}}.}
 }
 \description{
 Initializes factors at values specified by \code{EF} and \code{EF2}. This

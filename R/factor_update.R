@@ -73,15 +73,18 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
   if (!identical(output, default.ebnm.output) && !is.null(prev.g)) {
     g    <- prev.g
     fixg <- TRUE
+    ignored.warnings <- "mode and scale parameters are ignored"
   } else if (!is.new(factor)
              && warmstart.backfits(flash)
              && !is.null(prev.g)
              && warmstart.sanity.check(prev.g, ebnm.args$x, ebnm.args$s)) {
     g    <- prev.g
     fixg <- FALSE
+    ignored.warnings <- NULL
   } else {
     g    <- NULL
     fixg <- FALSE
+    ignored.warnings <- NULL
   }
 
   # This code block can be removed when ebnm is able to handle SEs equal to
@@ -94,7 +97,19 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
     }
   }
 
-  ebnm.res <- ebnm.fn(ebnm.args$x, ebnm.args$s, g, fixg, output)
+  withCallingHandlers(
+    ebnm.res <- ebnm.fn(
+      x = ebnm.args$x,
+      s = ebnm.args$s,
+      g_init = g,
+      fix_g = fixg,
+      output = output
+    ),
+    warning = function(w) {
+      if (any(startsWith(conditionMessage(w), ignored.warnings)))
+        invokeRestart("muffleWarning")
+    }
+  )
 
   if (identical(output, default.ebnm.output)) {
     ebnm.res$KL <- (ebnm.res$log_likelihood

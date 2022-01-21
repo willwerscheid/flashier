@@ -6,7 +6,6 @@
 \usage{
 init.fn.softImpute(
   flash,
-  mode.signs,
   tol = 1/max(get.dims(flash)),
   maxiter = 100,
   seed = 666
@@ -14,10 +13,6 @@ init.fn.softImpute(
 }
 \arguments{
 \item{flash}{A \code{flash.fit} object.}
-
-\item{mode.signs}{A vector of length 2 (for matrices) or 3 (for tensors)
-that indicates the signs of the priors (-1 for nonpositive, 1 for
-nonnegative, and 0 otherwise).}
 
 \item{tol}{Convergence tolerance.}
 

@@ -41,12 +41,14 @@
 #'   flash.backfit() %>%
 #'   flash.add.greedy(Kmax = 5L)
 #'
+#' @importFrom ebnm ebnm_point_normal
+#'
 #' @export
 #'
 flash.init.factors <- function(flash,
                                EF,
                                EF2 = NULL,
-                               prior.family = prior.point.normal()) {
+                               ebnm.fn = ebnm::ebnm_point_normal) {
   flash <- get.fit(flash)
 
   if (is.udv(EF)) {
@@ -75,7 +77,7 @@ flash.init.factors <- function(flash,
     stop("Neither EF nor EF2 may have missing data.")
   }
 
-  priors <- handle.prior.family(prior.family, get.dim(flash))
+  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
 
   flash <- set.EF(flash, lowranks.combine(get.EF(flash), EF))
   flash <- set.EF2(flash, lowranks.combine(get.EF2(flash), EF2))
@@ -97,7 +99,7 @@ flash.init.factors <- function(flash,
   EF.g <- rep(list(rep(list(NULL), get.dim(flash))), K)
   flash <- set.g(flash, c(get.g(flash), EF.g))
 
-  ebnm.fn <- c(get.ebnm.fn(flash), rep(priors$ebnm.fn, length.out = K))
+  ebnm.fn <- c(get.ebnm.fn(flash), rep(list(ebnm.fn), length.out = K))
   flash <- set.ebnm.fn(flash, ebnm.fn)
 
   # Initialize is.valid and is.zero.
