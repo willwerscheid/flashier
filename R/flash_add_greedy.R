@@ -17,9 +17,19 @@
 #'   increase the variational lower bound on the log likelihood for the model.
 #'
 #' @param init.fn The function used to initialize factors. Functions
-#'   \code{\link{init.fn.default}} and \code{\link{init.fn.softImpute}} have
-#'   been supplied, but custom initialization functions may also be used. See
-#'   \code{\link{init.fn.default}} for details.
+#'   \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
+#'   \code{\link{init.fn.irlba}} have been supplied, but custom initialization
+#'   functions may also be used. In particular, it is important to use an
+#'   appropriate initialization function when loadings must be constrained in
+#'   some fashion (otherwise, the greedy algorithm can stop adding factors
+#'   prematurely). Custom initialization functions should accept a single parameter
+#'   \code{flash} (the name of the parameter is unimportant) and should output
+#'   a list consisting of two vectors, which will be used as initial values for
+#'   the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
+#'   a custom initialization function will extract the matrix of residuals from
+#'   \code{flash} using the method \code{fitted(flash)} and then return a
+#'   (possibly constrained) rank-one approximation to the matrix of residuals.
+#'   See \strong{Examples} below.
 #'
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
@@ -34,6 +44,32 @@
 #'
 #' @param maxiter The maximum number of iterations when optimizing a greedily
 #'   added factor.
+#'
+#' @examples
+#' # Increase the maximum number of iterations in the default initialization
+#' #   method.
+#' fl <- flash.init(gtex) %>%
+#'   flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
+#'
+#' # Fit a semi-nonnegative matrix factorization.
+#' snmf.fl <- flash.init(gtex) %>%
+#'   flash.add.greedy(
+#'     ebnm.fn = c(ebnm::ebnm_unimodal_nonnegative, ebnm::ebnm_point_normal),
+#'     init.fn = function(f) init.fn.default(f, dim.signs = c(1, 0))
+#'   )
+#'
+#' # Use a custom initialization function that wraps function nnmf from
+#' #   package NNLM.
+#' nnmf.init.fn <- function(flash) {
+#'   nnmf.res <- NNLM::nnmf(fitted(flash), verbose = FALSE)
+#'   return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
+#' }
+#' fl.nnmf <- flash.init(gtex) %>%
+#'   flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
+#'                    init.fn = nnmf.init.fn)
+#'
+#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
+#'   \code{\link{init.fn.irlba}}
 #'
 #' @importFrom ebnm ebnm_point_normal
 #'

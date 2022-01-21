@@ -1,11 +1,16 @@
 #' Initialize a flash factor
 #'
-#' Initializes a new flash factor. Custom initialization functions can also be
-#'   used. They should accept a single parameter \code{flash} and
-#'   output a list consisting of two vectors (which will be interpreted as a
-#'   rank-one matrix).
+#' The default method for initializing a new flash factor.
 #'
 #' @param flash A \code{flash.fit} object.
+#'
+#' @param dim.signs This parameter can be used to constrain the sign of the
+#'   initial loadings. It should be a vector of length two with entries equal
+#'   to -1, 0, or 1. The first entry dictates the sign of the loadings
+#'   \eqn{\ell_k}, with -1 yielding nonpositive loadings, +1 yielding
+#'   nonnegative loadings, and 0 indicating that loadings should not be
+#'   constrained. The second entry of \code{dim.signs} similarly constrains
+#'   the sign of the factor \eqn{f_k}.
 #'
 #' @param tol Convergence tolerance.
 #'
@@ -14,56 +19,21 @@
 #' @param seed Since initialization is random, a default seed is set for
 #'   reproducibility.
 #'
-#' @seealso init.fn.softImpute
-#'
-#' @examples
-#'
-#' # Change the default initialization maxiter
-#' my.init.fn <- function(flash) {
-#'   return(init.fn.default(flash, maxiter = 500))
-#' }
-#'
-#' fl <- flash.init(gtex) %>% flash.add.greedy(init.fn = my.init.fn)
-#'
-#' # A wrapper to function nnmf in package NNLM
-#' nnmf.init.fn <- function(flash) {
-#'   R <- flash$Y - flashier:::lowrank.expand(flash$EF)
-#'   res <- NNLM::nnmf(R, verbose = FALSE)
-#'   return(list(as.vector(res$W), as.vector(res$H)))
-#' }
-#'
-#' fl.nnmf <- flash.init(gtex) %>%
-#'   flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
-#'                    init.fn = nnmf.init.fn)
+#' @seealso \code{\link{init.fn.softImpute}}, \code{\link{init.fn.irlba}}
 #'
 #' @export
 #'
 init.fn.default <- function(flash,
+                            dim.signs = rep(0, get.dim(flash)),
                             tol = 1 / max(get.dims(flash)),
                             maxiter = 100,
                             seed = 666) {
-  return(
-    init.fn.constrained(
-      flash,
-      mode.signs = rep(0, get.dim(flash)),
-      tol = tol,
-      maxiter = maxiter,
-      seed = seed
-    )
-  )
-}
-
-init.fn.constrained <- function(flash,
-                              mode.signs,
-                              tol = 1 / max(get.dims(flash)),
-                              maxiter = 100,
-                              seed = 666) {
   set.seed(seed)
-  EF <- r1.random(get.dims(flash), mode.signs)
+  EF <- r1.random(get.dims(flash), dim.signs)
 
   update.order <- 1:get.dim(flash)
   # Nonnegative/nonpositive dimensions are updated last.
-  signed.dims <- which(mode.signs %in% c(-1, 1))
+  signed.dims <- which(dim.signs %in% c(-1, 1))
   if (length(signed.dims) > 0) {
     which.signed <- which(update.order %in% signed.dims)
     update.order <- c(update.order[-which.signed], update.order[which.signed])
@@ -74,7 +44,7 @@ init.fn.constrained <- function(flash,
   while (max.chg > tol && iter < maxiter) {
     iter <- iter + 1
     old.EF <- EF
-    EF <- update.init.EF(EF, flash, update.order, mode.signs)
+    EF <- update.init.EF(EF, flash, update.order, dim.signs)
     max.chg <- calc.max.abs.chg(EF, old.EF)
   }
 
@@ -84,12 +54,12 @@ init.fn.constrained <- function(flash,
   return(EF)
 }
 
-update.init.EF <- function(EF, flash, update.order, mode.signs) {
-  if (is.null(mode.signs))
-    mode.signs <- rep(0, get.dim(flash))
+update.init.EF <- function(EF, flash, update.order, dim.signs) {
+  if (is.null(dim.signs))
+    dim.signs <- rep(0, get.dim(flash))
 
   for (n in update.order) {
-    sign <- mode.signs[n]
+    sign <- dim.signs[n]
     EF <- update.init.EF.one.n(EF, n, flash, sign)
   }
 
@@ -141,18 +111,22 @@ scale.EF <- function(EF) {
 
 #' Initialize a flash factor using softImpute
 #'
-#' Initializes a new flash factor using \code{softImpute::softImpute}. This
-#'   is slower for very large data matrices, but often yields better results
-#'   when there is missing data.
+#' Initializes a new flash factor using \code{\link[softImpute]{softImpute}}.
+#'   When there is missing data, this can yield better results than
+#'   \code{\link{init.fn.default}} without sacrificing much (if any) speed.
 #'
 #' @inheritParams init.fn.default
 #'
+#' @param ... Additional parameters to be passed to
+#'   \code{\link[softImpute]{softImpute}}.
+#'
+#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.irlba}}
+#'
+#' @importFrom softImpute softImpute
+#'
 #' @export
 #'
-init.fn.softImpute <- function(flash,
-                               tol = 1 / max(get.dims(flash)),
-                               maxiter = 100,
-                               seed = 666) {
+init.fn.softImpute <- function(flash, seed = 666, ...) {
   set.seed(seed)
 
   if (get.dim(flash) > 2)
@@ -161,22 +135,48 @@ init.fn.softImpute <- function(flash,
   if (inherits(get.Y(flash), "lowrank"))
     stop("softImpute cannot be used with low-rank matrix representations.")
 
-  if (uses.R(flash)) {
-    R <- get.R(flash)
-  } else {
-    R <- get.Y(flash) - lowrank.expand(get.EF(flash))
-  }
+  si.res <- softImpute::softImpute(fitted(flash), rank.max = 1, ...)
+  EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))
+
+  return(EF)
+}
+
+#' Initialize a flash factor using IRLBA
+#'
+#' Initializes a new flash factor using \code{\link[irlba]{irlba}}. This
+#'   can be somewhat faster than \code{\link{init.fn.default}} for large,
+#'   dense data matrices. For sparse matrices of class \code{Matrix}, the
+#'   default initialization should generally be preferred.
+#'
+#' @inheritParams init.fn.default
+#'
+#' @param ... Additional parameters to be passed to \code{\link[irlba]{irlba}}.
+#'
+#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}
+#'
+#' @importFrom irlba irlba
+#'
+#' @export
+#'
+init.fn.irlba <- function(flash, seed = 666, ...) {
+  set.seed(seed)
+
+  if (get.dim(flash) > 2)
+    stop("irlba cannot be used with tensors.")
+
+  if (inherits(get.Y(flash), "lowrank"))
+    stop("irlba cannot be used with low-rank matrix representations.")
 
   if (any.missing(flash)) {
-    R[get.nonmissing(flash) == 0] <- NA
+    stop("irlba cannot be used when there is missing data.")
   }
 
-  suppressWarnings({
-    si.res <- softImpute::softImpute(R, rank.max = 1, type = "als", lambda = 0)
-  })
+  irlba.res <- irlba::irlba(fitted(flash), nv = 1, nu = 1, ...)
 
-  EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))
-  class(EF) <- "r1"
+  EF <- list(
+    as.vector(irlba.res$u * sqrt(irlba.res$d)),
+    as.vector(irlba.res$v * sqrt(irlba.res$d))
+  )
 
   return(EF)
 }

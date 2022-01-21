@@ -4,10 +4,24 @@
 \alias{init.fn.default}
 \title{Initialize a flash factor}
 \usage{
-init.fn.default(flash, tol = 1/max(get.dims(flash)), maxiter = 100, seed = 666)
+init.fn.default(
+  flash,
+  dim.signs = rep(0, get.dim(flash)),
+  tol = 1/max(get.dims(flash)),
+  maxiter = 100,
+  seed = 666
+)
 }
 \arguments{
 \item{flash}{A \code{flash.fit} object.}
+
+\item{dim.signs}{This parameter can be used to constrain the sign of the
+initial loadings. It should be a vector of length two with entries equal
+to -1, 0, or 1. The first entry dictates the sign of the loadings
+\eqn{\ell_k}, with -1 yielding nonpositive loadings, +1 yielding
+nonnegative loadings, and 0 indicating that loadings should not be
+constrained. The second entry of \code{dim.signs} similarly constrains
+the sign of the factor \eqn{f_k}.}
 
 \item{tol}{Convergence tolerance.}
 
@@ -17,32 +31,8 @@ init.fn.default(flash, tol = 1/max(get.dims(flash)), maxiter = 100, seed = 666)
 reproducibility.}
 }
 \description{
-Initializes a new flash factor. Custom initialization functions can also be
-  used. They should accept a single parameter \code{flash} and
-  output a list consisting of two vectors (which will be interpreted as a
-  rank-one matrix).
-}
-\examples{
-
-# Change the default initialization maxiter
-my.init.fn <- function(flash) {
-  return(init.fn.default(flash, maxiter = 500))
-}
-
-fl <- flash.init(gtex) \%>\% flash.add.greedy(init.fn = my.init.fn)
-
-# A wrapper to function nnmf in package NNLM
-nnmf.init.fn <- function(flash) {
-  R <- flash$Y - flashier:::lowrank.expand(flash$EF)
-  res <- NNLM::nnmf(R, verbose = FALSE)
-  return(list(as.vector(res$W), as.vector(res$H)))
-}
-
-fl.nnmf <- flash.init(gtex) \%>\%
-  flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
-                   init.fn = nnmf.init.fn)
-
+The default method for initializing a new flash factor.
 }
 \seealso{
-init.fn.softImpute
+\code{\link{init.fn.softImpute}}, \code{\link{init.fn.irlba}}
 }

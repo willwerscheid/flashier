@@ -15,6 +15,21 @@ fitted.flash <- function(x) {
 }
 
 #' @export
+fitted.flash.fit <- function(x) {
+  if (uses.R(x)) {
+    R <- get.R(x)
+  } else {
+    R <- get.Y(x) - lowrank.expand(get.EF(x))
+  }
+
+  if (any.missing(x)) {
+    R[get.nonmissing(x) == 0] <- NA
+  }
+
+  return(R)
+}
+
+#' @export
 print.flash = function(x, ...) {
   if (x$n.factors == 0) {
     cat("Flash object with zero factors.\n")
