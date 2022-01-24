@@ -4,22 +4,23 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, EF, EF2 = NULL, ebnm.fn = ebnm::ebnm_point_normal)
+flash.init.factors(flash, init, ebnm.fn = ebnm::ebnm_point_normal)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
 to be added.}
 
-\item{EF}{An SVD-like object or a list of matrices, one for each mode. Each
-matrix should have k columns, one for each factor. For example, if the
-data is a matrix of size n x p, then factors can be initialized by
-supplying a list of length two, with the first element a matrix of size
-n x k and the second element a matrix of size p x k. Missing entries are
-not allowed.}
-
-\item{EF2}{If NULL, then EF2 will be initialized at the element-wise squared
-values of \code{EF}. Otherwise, a list of matrices (as described above)
-must be supplied.}
+\item{init}{An SVD-like object (specifically, a list containing fields
+\code{u}, \code{d}, and \code{v}), a flash fit, or a list of matrices
+specifying the values at which factors are to be initialized (for a data
+matrix of size \eqn{n \times p}, this should be a list of length two,
+with the first element a matrix of size \eqn{n \times k} and the second
+a matrix of size \eqn{p \times k}. If a flash fit is supplied, then it
+will be used to initialize both the first and second moments of
+posteriors on loadings and factors. Otherwise, the supplied values will
+be used to initialize posterior means, with posterior second moments
+initialized as the squared values of the first moments. Missing entries
+are not allowed.}
 
 \item{ebnm.fn}{The function or functions used to solve the empirical Bayes
   normal means (EBNM) subproblems. Most importantly, these functions specify
@@ -41,7 +42,7 @@ must be supplied.}
   also be used: for details, see \code{\link{as.ebnm.fn}}.}
 }
 \description{
-Initializes factors at values specified by \code{EF} and \code{EF2}. This
+Initializes factors at values specified by \code{init}. This
   has two primary uses: 1. One can initialize multiple factors at once using
   an SVD-like function and then optimize them via \code{flash.backfit}.
   Sometimes this results in a better fit than adding factors one at a time
@@ -52,7 +53,7 @@ Initializes factors at values specified by \code{EF} and \code{EF2}. This
 \examples{
 # Initialize several factors at once and backfit.
 fl <- flash.init(gtex) \%>\%
-  flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) \%>\%
+  flash.init.factors(init = svd(gtex, nu = 5, nv = 5)) \%>\%
   flash.backfit()
 
 # Add a fixed factor with row loadings identically equal to one. This can be
@@ -61,7 +62,7 @@ ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 # Initialize the column loadings at the least squares solution.
 ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 fl <- flash.init(gtex) \%>\%
-  flash.init.factors(EF = list(ones, ls.soln)) \%>\%
+  flash.init.factors(init = list(ones, ls.soln)) \%>\%
   flash.fix.loadings(kset = 1, mode = 1L) \%>\%
   flash.backfit() \%>\%
   flash.add.greedy(Kmax = 5L)
