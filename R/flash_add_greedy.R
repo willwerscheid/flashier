@@ -27,7 +27,7 @@
 #'   a list consisting of two vectors, which will be used as initial values for
 #'   the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
 #'   a custom initialization function will extract the matrix of residuals from
-#'   \code{flash} using the method \code{fitted(flash)} and then return a
+#'   \code{flash} using the method \code{resid(flash)} and then return a
 #'   (possibly constrained) rank-one approximation to the matrix of residuals.
 #'   See \strong{Examples} below.
 #'
@@ -61,7 +61,7 @@
 #' # Use a custom initialization function that wraps function nnmf from
 #' #   package NNLM.
 #' nnmf.init.fn <- function(flash) {
-#'   nnmf.res <- NNLM::nnmf(fitted(flash), verbose = FALSE)
+#'   nnmf.res <- NNLM::nnmf(resid(flash), verbose = FALSE)
 #'   return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
 #' }
 #' fl.nnmf <- flash.init(gtex) %>%

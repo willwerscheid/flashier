@@ -59,24 +59,24 @@
 #'
 #' @param S The standard errors. Can be \code{NULL} (in which case all residual
 #'   variance will be estimated) or a matrix, vector, or scalar. \code{S}
-#'   should be a scalar if standard errors are the same for all observations,
-#'   and a vector if standard errors either vary across columns but are
+#'   should be a scalar if standard errors are identical across observations. It
+#'   should be a vector if standard errors either vary across columns but are
 #'   constant within any given row, or vary across rows and are constant within
-#'   any given column (function \code{flash} will use the length of the vector
-#'   to determine whether standard errors correspond to rows or columns; if the
+#'   any given column (\code{flash} will use the length of the vector
+#'   to determine whether the supplied values correspond to rows or columns; if the
 #'   data matrix is square, then the sense must be specified using parameter
 #'   \code{S.dim} in function \code{\link{flash.init}}).
 #'
 #' @param ebnm.fn The function or functions used to solve the empirical Bayes
 #'   normal means (EBNM) subproblems. Most importantly, these functions specify
-#'   the families of distributions \eqn{G_\ell} and \eqn{G_f} from which the
-#'   priors on loadings and factors \eqn{g_\ell} and \eqn{g_f} are
-#'   to be estimated. If the same function is to be used for both loadings
-#'   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function;
-#'   if different functions are to be used, then \code{ebnm.fn} should be a
-#'   list of length two, with the first list element giving the function for
-#'   loadings and the second element giving the function for factors (see
-#'   \strong{Examples} below).
+#'   the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+#'   priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+#'   assumed to belong. If the same function is to be used for both loadings
+#'   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
+#'   If one function is to be used for loadings and a second for factors,
+#'   then \code{ebnm.fn} should be a list of length two, with the first list
+#'   element giving the function for loadings and the second the function
+#'   for factors (see \strong{Examples} below).
 #'   If different functions are to be used for different values of \eqn{k},
 #'   then factors must be added successively using multiple calls to either
 #'   \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
@@ -97,7 +97,7 @@
 #'   all rank-one matrices.
 #'
 #'   Note that if any portion of the residual variance is to be estimated, then
-#'   it is usually faster to set \code{S = NULL} and let \code{flash}
+#'   it is usually faster to set \code{S = NULL} and to let \code{flash}
 #'   estimate all of the residual variance. Further, \code{var.type = c(1, 2)}
 #'   is much slower than all other options, so it should be used with care.
 #'
@@ -152,11 +152,16 @@
 #'       \code{flash} when fitting is not performed all at once, but
 #'       incrementally via calls to various \code{flash.xxx} functions.}
 #'   }
-#'   Additionally, two methods are available. \code{\link{fitted.flash}}
-#'     returns the "fitted values" \eqn{E(LF') = E(L) E(F)'}.
-#'     \code{\link{ldf.flash}} returns an \eqn{LDF} decomposition (see
+#'   Additionally, the following methods are available:
+#'   \describe{
+#'     \item{\code{\link{fitted.flash}}}{Returns the "fitted values"
+#'       \eqn{E(LF') = E(L) E(F)'}.}
+#'     \item{\code{\link{residuals.flash}}}{Returns the expected residuals
+#'       \eqn{Y - E(LF') = Y - E(L) E(F)'}.}
+#'     \item{\code{\link{ldf.flash}}}{Returns an \eqn{LDF} decomposition (see
 #'     \strong{Details} above), with columns of \eqn{L} and \eqn{F} scaled
-#'     as specified by the user.
+#'     as specified by the user.}
+#'   }
 #'
 #' @examples
 #' data(gtex)
@@ -186,12 +191,14 @@
 #' # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
 #' fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 #'
-#' @seealso \code{\link{fitted.flash}}, \code{\link{ldf.flash}},
-#'   \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
+#' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash.init.factors}},
 #'   \code{\link{flash.fix.loadings}}, \code{\link{flash.set.factors.to.zero}},
 #'   \code{\link{flash.remove.factors}}, and \code{\link{flash.set.verbose}}.
+#'   For extracting useful data from \code{flash} objects, see
+#'   \code{\link{fitted.flash}}, \code{\link{residuals.flash}}, and
+#'   \code{\link{ldf.flash}}.
 #'
 #' @importFrom magrittr %>%
 #' @importFrom ebnm ebnm_point_normal

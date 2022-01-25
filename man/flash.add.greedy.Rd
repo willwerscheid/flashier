@@ -27,14 +27,14 @@ increase the variational lower bound on the log likelihood for the model.}
 
 \item{ebnm.fn}{The function or functions used to solve the empirical Bayes
   normal means (EBNM) subproblems. Most importantly, these functions specify
-  the families of distributions \eqn{G_\ell} and \eqn{G_f} from which the
-  priors on loadings and factors \eqn{g_\ell} and \eqn{g_f} are
-  to be estimated. If the same function is to be used for both loadings
-  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function;
-  if different functions are to be used, then \code{ebnm.fn} should be a
-  list of length two, with the first list element giving the function for
-  loadings and the second element giving the function for factors (see
-  \strong{Examples} below).
+  the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+  priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+  assumed to belong. If the same function is to be used for both loadings
+  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
+  If one function is to be used for loadings and a second for factors,
+  then \code{ebnm.fn} should be a list of length two, with the first list
+  element giving the function for loadings and the second the function
+  for factors (see \strong{Examples} below).
   If different functions are to be used for different values of \eqn{k},
   then factors must be added successively using multiple calls to either
   \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
@@ -55,7 +55,7 @@ prematurely). Custom initialization functions should accept a single parameter
 a list consisting of two vectors, which will be used as initial values for
 the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
 a custom initialization function will extract the matrix of residuals from
-\code{flash} using the method \code{fitted(flash)} and then return a
+\code{flash} using the method \code{resid(flash)} and then return a
 (possibly constrained) rank-one approximation to the matrix of residuals.
 See \strong{Examples} below.}
 
@@ -102,7 +102,7 @@ snmf.fl <- flash.init(gtex) \%>\%
 # Use a custom initialization function that wraps function nnmf from
 #   package NNLM.
 nnmf.init.fn <- function(flash) {
-  nnmf.res <- NNLM::nnmf(fitted(flash), verbose = FALSE)
+  nnmf.res <- NNLM::nnmf(resid(flash), verbose = FALSE)
   return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
 }
 fl.nnmf <- flash.init(gtex) \%>\%

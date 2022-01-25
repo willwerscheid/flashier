@@ -17,11 +17,11 @@ as a low-rank matrix representation).}
 
 \item{S}{The standard errors. Can be \code{NULL} (in which case all residual
 variance will be estimated) or a matrix, vector, or scalar. \code{S}
-should be a scalar if standard errors are the same for all observations,
-and a vector if standard errors either vary across columns but are
+should be a scalar if standard errors are identical across observations. It
+should be a vector if standard errors either vary across columns but are
 constant within any given row, or vary across rows and are constant within
-any given column (function \code{flash} will use the length of the vector
-to determine whether standard errors correspond to rows or columns; if the
+any given column (\code{flash} will use the length of the vector
+to determine whether the supplied values correspond to rows or columns; if the
 data matrix is square, then the sense must be specified using parameter
 \code{S.dim} in function \code{\link{flash.init}}).}
 
@@ -36,7 +36,7 @@ data matrix is square, then the sense must be specified using parameter
   all rank-one matrices.
 
   Note that if any portion of the residual variance is to be estimated, then
-  it is usually faster to set \code{S = NULL} and let \code{flash}
+  it is usually faster to set \code{S = NULL} and to let \code{flash}
   estimate all of the residual variance. Further, \code{var.type = c(1, 2)}
   is much slower than all other options, so it should be used with care.}
 

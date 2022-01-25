@@ -17,8 +17,8 @@ than \code{g_init}.}
 }
 \description{
 \code{as.ebnm.fn} is a helper function that provides readable syntax for
-  constructing \code{\link[ebnm]{ebnm}} functions as arguments to parameter
-  \code{ebnm.fn} in functions \code{\link{flash}},
+  constructing \code{\link[ebnm]{ebnm}} functions that can serve as
+  arguments to parameter \code{ebnm.fn} in functions \code{\link{flash}},
   \code{\link{flash.add.greedy}}, and \code{\link{flash.init.factors}} (see
   \strong{Examples} below). It is also possible to write a custom function
   from scratch: see \strong{Details} below.
@@ -28,7 +28,7 @@ As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
   provide functions from package \code{ebnm} as is (for example, one might
   set \code{ebnm.fn = ebnm::ebnm_point_laplace}). To use non-default
   arguments, function \code{as.ebnm.fn} may be used (see \strong{Examples}).
-  Custom functions can also be written. In general, any function that is
+  Custom functions may also be written. In general, any function that is
   used as an argument to parameter \code{ebnm.fn} must accept parameters:
   \describe{
   \item{\code{x}}{A vector of observations.}
@@ -60,7 +60,7 @@ As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
     and \code{second_moment} (the first and second moments for each
     posterior distribution
     \eqn{p(\theta_i \mid s_i, \hat{g}), i = 1, ..., n}). Optionally,
-    a column \code{lfsr} giving local false sign rates can also be
+    a column \code{lfsr} giving local false sign rates may also be
     included.}
   \item{\code{fitted_g}}{The estimated prior \eqn{\hat{g}}. Within
     \code{flashier}, \code{fitted_g} is only ever used as an argument to
@@ -110,6 +110,6 @@ fl2 <- flash(
 
 }
 \seealso{
-\code{\link{flash}}, \code{\link{flash.add.greedy}},
-  \code{\link{flash.init.factors}}.
+\code{\link[ebnm]{ebnm}}, \code{\link{flash}},
+  \code{\link{flash.add.greedy}}, \code{\link{flash.init.factors}}.
 }
