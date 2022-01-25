@@ -3,12 +3,8 @@ fitted.flash <- function(x) {
   if (x$n.factors == 0) {
     stop("Flash object does not have any factors.")
   }
-  if (length(x$loadings.pm) == 2) {
-    if (length(x$loadings.scale) == 1) {
-      return(x$loadings.scale * x$loadings.pm[[1]] %*% t(x$loadings.pm[[2]]))
-    } else {
-      return(x$loadings.pm[[1]] %*% diag(x$loadings.scale) %*% t(x$loadings.pm[[2]]))
-    }
+  if (!is.null(x$factors.pm)) {
+    return(x$loadings.pm %*% t(x$factors.pm))
   } else {
     stop("S3 method \"fitted\" not yet implemented for tensors.")
   }
@@ -27,6 +23,94 @@ fitted.flash.fit <- function(x) {
   }
 
   return(R)
+}
+
+#' @export
+ldf <- function(x, ...) {
+  UseMethod("ldf", x)
+}
+
+#' @export
+ldf.flash <- function(x, type = "f") {
+  return(ldf.flash.fit(get.fit(x), type = type))
+}
+
+#' @export
+ldf.flash.fit <- function(x, type = "f") {
+  type <- tolower(type)
+  if (type == "2") {
+    type <- "f"
+  } else if (type == "1") {
+    type <- "o"
+  } else if (type == "m") {
+    type <- "i"
+  }
+
+  if (get.n.factors(x) == 0) {
+    stop("Flash fit does not have any factors.")
+  }
+  if (get.dim(x) > 2) {
+    stop("S3 method \"ldf\" not available for tensors.")
+  }
+
+  ldf <- calc.normalized.loadings(x, type = type)
+
+  ret <- list()
+  ret$L <- ldf$normalized.loadings[[1]]
+  ret$D <- ldf$scale.constants
+  ret$F <- ldf$normalized.loadings[[2]]
+
+  return(ret)
+}
+
+calc.normalized.loadings <- function(flash, for.pve = FALSE, type = "f") {
+  ret <- list()
+
+  if (for.pve) {
+    loadings <- get.EF2(flash)
+    norms <- lapply(loadings, colSums)
+  } else {
+    loadings <- get.EF(flash)
+    if (type == "f") {
+      norms <- lapply(loadings, function(x) {sqrt(colSums(x^2))})
+    } else if (type == "o") {
+      norms <- lapply(loadings, function(x) {colSums(abs(x))})
+    } else if (type == "i") {
+      norms <- lapply(loadings, function(x) {apply(abs(x), 2, max)})
+    } else {
+      stop("Norm type not recognized.")
+    }
+  }
+
+  # Zero factors are "normalized" to zero.
+  norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
+  L <- mapply(loadings, norms, FUN = function(X, y) {
+    X / rep(y, each = nrow(X))
+  }, SIMPLIFY = FALSE)
+  if (!for.pve) {
+    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
+      X / rep(y^2, each = nrow(X))
+    }, SIMPLIFY = FALSE)
+    SD <- mapply(L2, L,
+                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+                 SIMPLIFY = FALSE)
+  }
+
+  # Propagate names.
+  data.dimnames <- get.dimnames(flash)
+  for (n in 1:get.dim(flash)) {
+    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
+      rownames(L[[n]]) <- data.dimnames[[n]]
+  }
+
+  norms <- do.call(rbind, norms)
+  ret$scale.constants <- apply(norms, 2, prod)
+  ret$scale.constants[is.zero(flash)] <- 0
+  ret$normalized.loadings <- L
+  if (!for.pve)
+    ret$loading.SDs <- SD
+
+  return(ret)
 }
 
 #' @export

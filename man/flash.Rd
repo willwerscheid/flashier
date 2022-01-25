@@ -97,21 +97,22 @@ A \code{flash} object. Contains elements:
   \describe{
     \item{\code{n.factors}}{The total number of factors \eqn{K} in the fitted
       model.}
-    \item{\code{pve}}{The proportion of variance explained by each factor.}
+    \item{\code{pve}}{The proportion of variance explained by each factor.
+      Since the factors are not required to be orthogonal, this should be
+      interpreted loosely: for example, the total proportion of variance
+      explained could be larger than 1.}
     \item{\code{elbo}}{The variational lower bound achieved by the
       fitted model.}
-    \item{\code{loadings.scale, loadings.pm}}{Posterior means for loadings.
-      Since the model is not identifiable,
-      each column of loadings is \eqn{L2}-normalized. The
-      normalization constant is given by \code{loadings.scale}. Thus, for
-      matrices, fitted values can be calculated as \code{f$loadings.pm[[1]]
-      \%*\% diag(f$loadings.scale) \%*\% t(f$loadings.pm[[2]])} (or, more
-      simply, as \code{fitted(f)}).}
-    \item{\code{loadings.psd}}{Posterior standard deviations for loadings.}
-    \item{\code{loadings.lfsr}}{Local false sign rates for loadings.}
     \item{\code{residuals.sd}}{Estimated residual standard deviations (these
       include any variance component given as an argument to \code{S}).}
-    \item{\code{fitted.g}}{The fitted priors for each mode and factor.}
+    \item{\code{loadings.pm, loadings.psd, loadings.lfsr}}{Posterior means,
+      standard deviations, and local false sign rates for loadings \eqn{L}.}
+    \item{\code{factors.pm, factors.psd, factors.lfsr}}{Posterior means,
+      standard deviations, and local false sign rates for factors \eqn{F}.}
+    \item{\code{loadings.priors}}{The fitted priors on loadings
+      \eqn{\hat{g}_\ell^{(k)}}.}
+    \item{\code{factors.priors}}{The fitted priors on factors
+      \eqn{\hat{g}_f^{(k)}}.}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distribution of the (non-normalized) loadings.}
@@ -119,6 +120,11 @@ A \code{flash} object. Contains elements:
       \code{flash} when fitting is not performed all at once, but
       incrementally via calls to various \code{flash.xxx} functions.}
   }
+  Additionally, two methods are available. \code{\link{fitted.flash}}
+    returns the "fitted values" \eqn{E(LF') = E(L) E(F)'}.
+    \code{\link{ldf.flash}} returns an \eqn{LDF} decomposition (see
+    \strong{Details} above), with columns of \eqn{L} and \eqn{F} scaled
+    as specified by the user.
 }
 \description{
 Fits an empirical Bayes matrix factorization (see \strong{Details} for a
@@ -139,7 +145,7 @@ If \eqn{Y} is an \eqn{n \times p} data matrix, then the rank-one
   \eqn{p}-vector of \strong{factors}, and \eqn{E} is an
   \eqn{n \times p} matrix of \strong{residuals} (or "errors").
   Additionally:
-\deqn{E \sim N(0, s_{ij}^2)}
+\deqn{e_{ij} \sim N(0, s_{ij}^2): i = 1, ..., n; j = 1, ..., p}
 \deqn{\ell \sim g_\ell \in G_\ell}
 \deqn{f \sim g_f \in G_f.}
 The residual variance parameters \eqn{s_{ij}^2} are constrained to have
@@ -151,17 +157,25 @@ The functions \eqn{g_\ell} and \eqn{g_f} are assumed to belong to
   specified in advance, and are estimated via variational approximation.
 
 The general rank-\eqn{K} empirical Bayes matrix factorization model is:
-  \deqn{Y = L F' + E} or
-  \deqn{Y_{ij} = \sum_k L_{ik} F_{jk} + E_{ij},}
+  \deqn{Y = LF' + E} or
+  \deqn{y_{ij} = \sum_k \ell_{ik} f_{jk} + e_{ij}: i = 1, ..., n; j = 1, ..., p,}
   where \eqn{L} is now a matrix of loadings and \eqn{F} is a matrix of
   factors.
 
 Separate priors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are estimated via
   empirical Bayes, and different prior families may be used for different
   values of \eqn{k}. In general, then:
-\deqn{E_{ij} \sim N(0, s_{ij}^2)}
-\deqn{L_{ik} \sim g_\ell^{(k)} \in G_\ell^{(k)}}
-\deqn{F_{ik} \sim g_f^{(k)} \in G_f^{(k)}.}
+  \deqn{e_{ij} \sim N(0, s_{ij}^2): i = 1, ..., n; j = 1, ..., p}
+  \deqn{\ell_{ik} \sim g_\ell^{(k)} \in G_\ell^{(k)}: i = 1, ..., n; k = 1, ..., K}
+  \deqn{f_{ik} \sim g_f^{(k)} \in G_f^{(k)}: j = 1, ..., p; k = 1, ..., K.}
+
+Typically, \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} will be closed under
+  scaling, in which case \eqn{\ell_k} and \eqn{f_k} are only identifiable
+  up to a \strong{scaling factor} \eqn{d_k}. In other words, we can write:
+  \deqn{Y = LDF' + E,}
+  where \eqn{D} is a diagonal matrix with diagonal entries \eqn{d_1, ..., d_K}.
+  The model can then be made identifiable by constraining the scale of
+  \eqn{\ell_k} and \eqn{f_k} for \eqn{k = 1, ..., K}.
 }
 \examples{
 data(gtex)
@@ -193,7 +207,8 @@ fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 
 }
 \seealso{
-\code{\link{flash.init}}, \code{\link{flash.add.greedy}},
+\code{\link{fitted.flash}}, \code{\link{ldf.flash}},
+  \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
   advanced functionality, see \code{\link{flash.init.factors}},
   \code{\link{flash.fix.loadings}}, \code{\link{flash.set.factors.to.zero}},
