@@ -223,7 +223,7 @@ flash <- function(data,
   }
 
   if (nullcheck) {
-    fl <- flash.nullcheck(fl, remove = TRUE, verbose.lvl = verbose.lvl)
+    fl <- flash.nullcheck(fl, verbose.lvl = verbose.lvl)
   }
 
   return(fl)

@@ -20,7 +20,7 @@
 #'
 flash.nullcheck <- function(flash,
                             kset = NULL,
-                            remove = FALSE,
+                            remove = TRUE,
                             tol = set.default.tol(flash),
                             verbose.lvl = get.verbose.lvl(flash)) {
   fit <- get.fit(flash)
