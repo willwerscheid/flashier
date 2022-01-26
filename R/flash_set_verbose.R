@@ -49,7 +49,7 @@
 #'   flash.add.greedy(Kmax = 5L)
 #'
 #' # Set custom verbose output.
-#' fns <- c(flashier:::calc.obj.diff,
+#' fns <- c(flashier:::display.obj.diff,
 #'          function(new, old, k) {
 #'            flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
 #'          })
@@ -99,12 +99,12 @@ flash.set.verbose <- function(flash,
 
     if (length(fns) == 0 && verbose == -1) {
       # Default output columns for verbose.lvl = -1.
-      fns       <- c(get.new.obj, calc.obj.diff, calc.max.chg.EF)
+      fns       <- c(get.new.obj, display.obj.diff, calc.max.chg.EF)
       colnames  <- c("Obj", "Obj.diff", "Max.chg")
       colwidths <- c(14, 12, 12)
     } else if (length(fns) == 0) {
       # Default output columns for verbose.lvl = 3.
-      fns       <- c(calc.obj.diff, calc.max.chg.EF)
+      fns       <- c(display.obj.diff, calc.max.chg.EF)
       colnames  <- c("Obj Diff", "Max Chg")
       colwidths <- c(12, 12)
     }
@@ -135,7 +135,7 @@ look.up.verbose.fns <- function(verbose, data.dim) {
       if (chars[[1]] == "O") {
         return(display.obj)
       } else { # if chars[[1]] == "D"
-        return(calc.obj.diff)
+        return(display.obj.diff)
       }
     } else if (chars[[1]] == "L") {
       return(function(new, old, k) calc.max.chg.EF(new, old, k, n))

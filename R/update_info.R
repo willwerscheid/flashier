@@ -41,6 +41,13 @@ calc.obj.diff <- function(new, old, k) {
   return(get.obj(new) - get.obj(old))
 }
 
+display.obj.diff <- function(new, old, k) {
+  obj.diff <- calc.obj.diff(new, old, k)
+  if (is.infinite(obj.diff))
+    obj.diff <- NA
+  return(obj.diff)
+}
+
 calc.max.abs.chg.EF <- function(new, old, k, n = NULL) {
   if (!is.null(k))
     return(calc.max.abs.chg(get.EF.k(new, k, n), get.EF.k(old, k, n)))
