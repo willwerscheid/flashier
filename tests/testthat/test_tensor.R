@@ -19,14 +19,14 @@ test_that("tensor factor initialization is correct", {
 })
 
 suppressWarnings({
-  f.b <- flash.backfit(f, method = "sequential", maxiter = 1, verbose.lvl = 0)
+  f.b <- flash.backfit(f, extrapolate = FALSE, maxiter = 1, verbose.lvl = 0)
 })
 
 test_that ("the backfit objective improves after one iteration", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flash.backfit(f, method = "sequential", verbose.lvl = 0)
+f.b2 <- flash.backfit(f, extrapolate = FALSE, verbose.lvl = 0)
 
 test_that ("the final backfit objective improves again", {
   expect_true(f.b2$elbo > f.b$elbo)
