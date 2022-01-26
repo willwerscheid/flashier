@@ -60,10 +60,9 @@ a custom initialization function will extract the matrix of residuals from
 See \strong{Examples} below.}
 
 \item{extrapolate}{Whether to use an extrapolation technique
-inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
-factors. Control parameters are handled via global options and
-can be set by calling
-\code{options("extrapolate.control") <- control.param}.}
+inspired by Ang and Gillis (2019) to accelerate the fitting process.
+Control parameters are handled via global options and can be set by
+calling \code{options("extrapolate.control") <- control.param}.}
 
 \item{conv.crit.fn}{The function used to determine whether convergence has
 occurred. TODO: details.}
