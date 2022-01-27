@@ -26,6 +26,7 @@ wrapup.flash <- function(flash, output.lvl) {
   all.valid <- all(is.valid(flash))
 
   if (flash.object$n.factors > 0) {
+    begin.idx <- length(flash.object) + 1
     if (get.dim(flash) == 2) {
       flash.object$loadings.pm  <- get.EF(flash)[[1]]
       flash.object$factors.pm   <- get.EF(flash)[[2]]
@@ -34,7 +35,12 @@ wrapup.flash <- function(flash, output.lvl) {
       if (all.valid) {
         lfsr <- calc.lfsr(flash)
         flash.object$loadings.lfsr <- lfsr[[1]]
-        flash.object$factors.lfsr  <- lfsr[[1]]
+        flash.object$factors.lfsr  <- lfsr[[2]]
+      }
+      for (i in begin.idx:length(flash.object)) {
+        if ((i - begin.idx) %% 2 == 0) {
+          flash.object[i:(i + 1)] <- propagate.names(flash.object[i:(i + 1)], flash)
+        }
       }
     } else {
       flash.object$loadings.pm  <- get.EF(flash)
@@ -45,6 +51,9 @@ wrapup.flash <- function(flash, output.lvl) {
       )
       if (all.valid) {
         flash.object$loadings.lfsr <- calc.lfsr(flash)
+      }
+      for (i in begin.idx:length(flash.object)) {
+        flash.object[[i]] <- propagate.names(flash.object[[i]], flash)
       }
     }
   }

@@ -173,30 +173,34 @@ calc.normalized.loadings <- function(flash, for.pve = FALSE, type = "f") {
   L <- mapply(loadings, norms, FUN = function(X, y) {
     X / rep(y, each = nrow(X))
   }, SIMPLIFY = FALSE)
-  if (!for.pve) {
-    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
-      X / rep(y^2, each = nrow(X))
-    }, SIMPLIFY = FALSE)
-    SD <- mapply(L2, L,
-                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
-                 SIMPLIFY = FALSE)
-  }
+  # if (!for.pve) {
+  #   L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
+  #     X / rep(y^2, each = nrow(X))
+  #   }, SIMPLIFY = FALSE)
+  #   SD <- mapply(L2, L,
+  #                FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+  #                SIMPLIFY = FALSE)
+  # }
 
-  # Propagate names.
-  data.dimnames <- get.dimnames(flash)
-  for (n in 1:get.dim(flash)) {
-    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
-      rownames(L[[n]]) <- data.dimnames[[n]]
-  }
+  L <- propagate.names(L, flash)
 
   norms <- do.call(rbind, norms)
   ret$scale.constants <- apply(norms, 2, prod)
   ret$scale.constants[is.zero(flash)] <- 0
   ret$normalized.loadings <- L
-  if (!for.pve)
-    ret$loading.SDs <- SD
+  # if (!for.pve)
+  #   ret$loading.SDs <- SD
 
   return(ret)
+}
+
+propagate.names <- function(mats, flash) {
+  data.dimnames <- get.dimnames(flash)
+  for (n in 1:get.dim(flash)) {
+    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
+      rownames(mats[[n]]) <- data.dimnames[[n]]
+  }
+  return(mats)
 }
 
 #' @export
