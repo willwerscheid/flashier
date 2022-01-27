@@ -103,7 +103,8 @@ must.not.have.zero.slices <- function(Y) {
     return()
 
   error.msg <- paste("The data matrix must not have any rows or",
-                     "columns whose entries are identically zero.")
+                     "columns whose entries are either identically zero",
+                     "or all missing.")
   if (inherits(Y, "lowrank")) {
     for (n in 1:length(Y)) {
       nz <- (Y[[n]] != 0)

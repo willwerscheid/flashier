@@ -1,20 +1,21 @@
 Package: flashier
 Type: Package
-Date: 2021-01-18
-Title: Empirical Bayes Matrix and Tensor Factorization
-Version: 0.2.9
+Date: 2021-01-25
+Title: Empirical Bayes Matrix (and Tensor) Factorization
+Version: 0.2.16
 Author: Jason Willwerscheid
 Maintainer: Jason Willwerscheid <willwerscheid@github.com>
 Description: Methods for matrix factorization based on "Empirical
-    Bayes Matrix Factorization" (W. Wang & M. Stephens, 2018,
-    <https://arxiv.org/abs/1802.06931>).
-Depends: R (>= 3.4)
-Remotes: stephenslab/ebnm
+    Bayes Matrix Factorization" (W. Wang & M. Stephens, 2021).
+Depends: 
+    R (>= 3.4),
+    magrittr
+Remotes: 
+    stephenslab/ebnm
 Imports:
     Matrix,
     ebnm (>= 0.1-21),
-    parallel,
-    magrittr
+    parallel
 Suggests:
     testthat,
     knitr,

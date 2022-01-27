@@ -4,45 +4,45 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, EF, EF2 = NULL, prior.family = prior.point.normal())
+flash.init.factors(flash, init, ebnm.fn = ebnm::ebnm_point_normal)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
 to be added.}
 
-\item{EF}{An SVD-like object or a list of matrices, one for each mode. Each
-matrix should have k columns, one for each factor. For example, if the
-data is a matrix of size n x p, then factors can be initialized by
-supplying a list of length two, with the first element a matrix of size
-n x k and the second element a matrix of size p x k. Missing entries are
-not allowed.}
+\item{init}{An SVD-like object (specifically, a list containing fields
+\code{u}, \code{d}, and \code{v}), a flash fit, or a list of matrices
+specifying the values at which factors are to be initialized (for a data
+matrix of size \eqn{n \times p}, this should be a list of length two,
+with the first element a matrix of size \eqn{n \times k} and the second
+a matrix of size \eqn{p \times k}. If a flash fit is supplied, then it
+will be used to initialize both the first and second moments of
+posteriors on loadings and factors. Otherwise, the supplied values will
+be used to initialize posterior means, with posterior second moments
+initialized as the squared values of the first moments. Missing entries
+are not allowed.}
 
-\item{EF2}{If NULL, then EF2 will be initialized at the element-wise squared
-values of \code{EF}. Otherwise, a list of matrices (as described above)
-must be supplied.}
+\item{ebnm.fn}{The function or functions used to solve the empirical Bayes
+  normal means (EBNM) subproblems. Most importantly, these functions specify
+  the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+  priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+  assumed to belong. If the same function is to be used for both loadings
+  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
+  If one function is to be used for loadings and a second for factors,
+  then \code{ebnm.fn} should be a list of length two, with the first list
+  element giving the function for loadings and the second the function
+  for factors (see \strong{Examples} below).
+  If different functions are to be used for different values of \eqn{k},
+  then factors must be added successively using multiple calls to either
+  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
 
-\item{prior.family}{Indicates the family of distributions that the priors on
-  the loadings are
-  assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
-  \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-  tensors). Each list element must be a prior family defined by one of the
-  convenience functions \code{\link{prior.normal}},
-  \code{\link{prior.point.normal}},
-  \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
-  \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
-  or a custom prior type of a similar form (see \code{\link{prior.normal}}
-  for details).
-
-  \code{prior.family} can also be a list of lists, in which case the first
-  list specifies the family or families for the first factor, the second
-  specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary. See
-  \code{\link{flash}} for examples.}
+  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+  used as input. Non-default arguments to parameters can be supplied using
+  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{as.ebnm.fn}}.}
 }
 \description{
-Initializes factors at values specified by \code{EF} and \code{EF2}. This
+Initializes factors at values specified by \code{init}. This
   has two primary uses: 1. One can initialize multiple factors at once using
   an SVD-like function and then optimize them via \code{flash.backfit}.
   Sometimes this results in a better fit than adding factors one at a time
@@ -53,7 +53,7 @@ Initializes factors at values specified by \code{EF} and \code{EF2}. This
 \examples{
 # Initialize several factors at once and backfit.
 fl <- flash.init(gtex) \%>\%
-  flash.init.factors(EF = svd(gtex, nu = 5, nv = 5)) \%>\%
+  flash.init.factors(init = svd(gtex, nu = 5, nv = 5)) \%>\%
   flash.backfit()
 
 # Add a fixed factor with row loadings identically equal to one. This can be
@@ -62,7 +62,7 @@ ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 # Initialize the column loadings at the least squares solution.
 ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 fl <- flash.init(gtex) \%>\%
-  flash.init.factors(EF = list(ones, ls.soln)) \%>\%
+  flash.init.factors(init = list(ones, ls.soln)) \%>\%
   flash.fix.loadings(kset = 1, mode = 1L) \%>\%
   flash.backfit() \%>\%
   flash.add.greedy(Kmax = 5L)

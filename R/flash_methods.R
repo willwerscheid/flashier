@@ -1,17 +1,202 @@
+#' Fitted method for flash objects
+#'
+#' Given a \code{flash} object, returns the "fitted values"
+#'   \eqn{E(LF') = E(L) E(F)'}.
+#'
+#' @param object An object inheriting from class \code{flash}.
+#'
+#' @param ... Additional parameters are ignored.
+#'
+#' @seealso \code{\link{flash}}
+#'
 #' @export
-fitted.flash <- function(x) {
-  if (x$n.factors == 0) {
+#'
+fitted.flash <- function(object, ...) {
+  return(fitted.flash.fit(get.fit(object)))
+}
+
+#' Fitted method for flash fit objects
+#'
+#' Give a \code{flash.fit} object, returns the "fitted values"
+#'   \eqn{E(LF') = E(L) E(F)'}.
+#'
+#' @param object An object inheriting from class \code{flash.fit}.
+#'
+#' @param ... Additional parameters are ignored.
+#'
+#' @seealso \code{\link{flash}}
+#'
+#' @export
+#'
+fitted.flash.fit <- function(object, ...) {
+  if (get.n.factors(object) == 0) {
     stop("Flash object does not have any factors.")
   }
-  if (length(x$loadings.pm) == 2) {
-    if (length(x$loadings.scale) == 1) {
-      return(x$loadings.scale * x$loadings.pm[[1]] %*% t(x$loadings.pm[[2]]))
-    } else {
-      return(x$loadings.pm[[1]] %*% diag(x$loadings.scale) %*% t(x$loadings.pm[[2]]))
-    }
-  } else {
+  if (get.dim(object) > 2) {
     stop("S3 method \"fitted\" not yet implemented for tensors.")
   }
+
+  return(do.call(tcrossprod, get.EF(object)))
+}
+
+#' Residuals method for flash objects
+#'
+#' Given a \code{flash} object, returns the expected residuals
+#'   \eqn{Y - E(LF') = Y - E(L) E(F)'}.
+#'
+#' @inheritParams fitted.flash
+#'
+#' @seealso \code{\link{flash}}
+#'
+#' @export
+#'
+residuals.flash <- function(object, ...) {
+  return(residuals.flash.fit(get.fit(object)))
+}
+
+#' Residuals method for flash fit objects
+#'
+#' Given a \code{flash.fit} object, returns the expected residuals
+#'   \eqn{Y - E(LF') = Y - E(L) E(F)'}.
+#'
+#' @inheritParams fitted.flash.fit
+#'
+#' @seealso \code{\link{flash}}
+#'
+#' @export
+#'
+residuals.flash.fit <- function(object, ...) {
+  if (uses.R(object)) {
+    R <- get.R(object)
+  } else {
+    R <- get.Y(object) - lowrank.expand(get.EF(object))
+  }
+
+  if (any.missing(object)) {
+    R[get.nonmissing(object) == 0] <- NA
+  }
+
+  return(R)
+}
+
+#' LDF method for flash and flash fit objects
+#'
+#' Given a \code{flash} or \code{flash.fit} object, returns the LDF
+#'   decomposition \eqn{Y \approx LDF'}.
+#'
+#' When the prior families \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} are closed
+#'   under scaling (as is typically the case), then the EBMF model (as
+#'   described in the documention to function \code{\link{flash}}) is only
+#'   identifiable up to scaling by a diagonal matrix \eqn{D}:
+#'   \deqn{Y = LDF' + E.}
+#'
+#' Method \code{ldf} scales columns \eqn{\ell_k} and \eqn{f_k}
+#'   so that, depending on the argument to parameter \code{type}, their
+#'   1-norms, 2-norms, or infinity norms are equal to 1.
+#'
+#' @param object An object inheriting from class \code{flash} or
+#'   \code{flash.fit}.
+#'
+#' @param type Takes identical arguments to function \code{\link[base]{norm}}. Use
+#'   \code{"f"} or \code{"2"} for the 2-norm (Euclidean norm); \code{"o"} or
+#'   \code{"1"} for the 1-norm (taxicab norm); and \code{"i"} or \code{"m"} for
+#'   the infinity norm (maximum norm).
+#'
+#' @seealso \code{\link{flash}}
+#'
+#' @export
+#'
+ldf <- function(object, ...) {
+  UseMethod("ldf", object)
+}
+
+#' @describeIn ldf LDF decomposition for flash objects
+#'
+#' @export
+#'
+ldf.flash <- function(object, type = "f") {
+  return(ldf.flash.fit(get.fit(object), type = type))
+}
+
+#' @describeIn ldf LDF decomposition for flash fit objects
+#'
+#' @export
+#'
+ldf.flash.fit <- function(object, type = "f") {
+  type <- tolower(type)
+  if (type == "2") {
+    type <- "f"
+  } else if (type == "1") {
+    type <- "o"
+  } else if (type == "m") {
+    type <- "i"
+  }
+
+  if (get.n.factors(object) == 0) {
+    stop("Flash fit does not have any factors.")
+  }
+  if (get.dim(object) > 2) {
+    stop("S3 method \"ldf\" not available for tensors.")
+  }
+
+  ldf <- calc.normalized.loadings(object, type = type)
+
+  ret <- list()
+  ret$L <- ldf$normalized.loadings[[1]]
+  ret$D <- ldf$scale.constants
+  ret$F <- ldf$normalized.loadings[[2]]
+
+  return(ret)
+}
+
+calc.normalized.loadings <- function(flash, for.pve = FALSE, type = "f") {
+  ret <- list()
+
+  if (for.pve) {
+    loadings <- get.EF2(flash)
+    norms <- lapply(loadings, colSums)
+  } else {
+    loadings <- get.EF(flash)
+    if (type == "f") {
+      norms <- lapply(loadings, function(x) {sqrt(colSums(x^2))})
+    } else if (type == "o") {
+      norms <- lapply(loadings, function(x) {colSums(abs(x))})
+    } else if (type == "i") {
+      norms <- lapply(loadings, function(x) {apply(abs(x), 2, max)})
+    } else {
+      stop("Norm type not recognized.")
+    }
+  }
+
+  # Zero factors are "normalized" to zero.
+  norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
+  L <- mapply(loadings, norms, FUN = function(X, y) {
+    X / rep(y, each = nrow(X))
+  }, SIMPLIFY = FALSE)
+  if (!for.pve) {
+    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
+      X / rep(y^2, each = nrow(X))
+    }, SIMPLIFY = FALSE)
+    SD <- mapply(L2, L,
+                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+                 SIMPLIFY = FALSE)
+  }
+
+  # Propagate names.
+  data.dimnames <- get.dimnames(flash)
+  for (n in 1:get.dim(flash)) {
+    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
+      rownames(L[[n]]) <- data.dimnames[[n]]
+  }
+
+  norms <- do.call(rbind, norms)
+  ret$scale.constants <- apply(norms, 2, prod)
+  ret$scale.constants[is.zero(flash)] <- 0
+  ret$normalized.loadings <- L
+  if (!for.pve)
+    ret$loading.SDs <- SD
+
+  return(ret)
 }
 
 #' @export

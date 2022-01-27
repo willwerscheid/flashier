@@ -16,18 +16,6 @@ wrapup.flash <- function(flash, output.lvl) {
 
   flash.object$elbo <- get.obj(flash)
 
-  all.valid <- all(is.valid(flash))
-
-  if (flash.object$n.factors > 0) {
-    loadings                    <- calc.normalized.loadings(flash)
-    flash.object$loadings.scale <- loadings$scale.constants
-    flash.object$loadings.pm    <- loadings$normalized.loadings
-    flash.object$loadings.psd   <- loadings$loading.SDs
-    if (all.valid) {
-      flash.object$loadings.lfsr <- calc.lfsr(flash)
-    }
-  }
-
   if (is.tau.simple(flash)) {
     flash.object$residuals.sd <- 1 / sqrt(get.tau(flash))
   } else if (is.list(get.tau(flash))) {
@@ -35,8 +23,41 @@ wrapup.flash <- function(flash, output.lvl) {
                                         function(tau) 1 / sqrt(tau))
   }
 
+  all.valid <- all(is.valid(flash))
+
   if (flash.object$n.factors > 0) {
-    flash.object$fitted.g <- get.g.by.mode(flash)
+    if (get.dim(flash) == 2) {
+      flash.object$loadings.pm  <- get.EF(flash)[[1]]
+      flash.object$factors.pm   <- get.EF(flash)[[2]]
+      flash.object$loadings.psd <- get.EF2(flash)[[1]] - get.EF(flash)[[1]]^2
+      flash.object$factors.psd  <- get.EF2(flash)[[2]] - get.EF(flash)[[2]]^2
+      if (all.valid) {
+        lfsr <- calc.lfsr(flash)
+        flash.object$loadings.lfsr <- lfsr[[1]]
+        flash.object$factors.lfsr  <- lfsr[[1]]
+      }
+    } else {
+      flash.object$loadings.pm  <- get.EF(flash)
+      flash.object$loadings.psd <- mapply(
+        get.EF2(flash), get.EF(flash),
+        FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
+        SIMPLIFY = FALSE
+      )
+      if (all.valid) {
+        flash.object$loadings.lfsr <- calc.lfsr(flash)
+      }
+    }
+  }
+
+  if (flash.object$n.factors > 0) {
+    fitted.g <- get.g.by.mode(flash)
+
+    if (get.dim(flash) == 2) {
+      names(fitted.g) <- c("loadings.priors", "factors.priors")
+      flash.object <- c(flash.object, fitted.g)
+    } else {
+      flash.object$fitted.g <- fitted.g
+    }
   }
 
   if (flash.object$n.factors > 0 && output.lvl > 1 && all.valid) {
@@ -86,48 +107,6 @@ calc.pve <- function(flash) {
   }
 
   return(S / (sum(S) + var.from.tau))
-}
-
-calc.normalized.loadings <- function(flash, for.pve = FALSE) {
-  ret <- list()
-
-  if (for.pve) {
-    loadings <- get.EF2(flash)
-    norms <- lapply(loadings, colSums)
-  } else {
-    loadings <- get.EF(flash)
-    norms <- lapply(loadings, function(x) {sqrt(colSums(x^2))})
-  }
-
-  # Zero factors are "normalized" to zero.
-  norms <- lapply(norms, function(x) {x[is.zero(flash)] <- Inf; x})
-  L <- mapply(loadings, norms, FUN = function(X, y) {
-    X / rep(y, each = nrow(X))
-  }, SIMPLIFY = FALSE)
-  if (!for.pve) {
-    L2 <- mapply(get.EF2(flash), norms, FUN = function(X, y) {
-      X / rep(y^2, each = nrow(X))
-    }, SIMPLIFY = FALSE)
-    SD <- mapply(L2, L,
-                 FUN = function(EX2, EX) {sqrt(pmax(EX2 - EX^2, 0))},
-                 SIMPLIFY = FALSE)
-  }
-
-  # Propagate names.
-  data.dimnames <- get.dimnames(flash)
-  for (n in 1:get.dim(flash)) {
-    if (!is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
-      rownames(L[[n]]) <- data.dimnames[[n]]
-  }
-
-  norms <- do.call(rbind, norms)
-  ret$scale.constants <- apply(norms, 2, prod)
-  ret$scale.constants[is.zero(flash)] <- 0
-  ret$normalized.loadings <- L
-  if (!for.pve)
-    ret$loading.SDs <- SD
-
-  return(ret)
 }
 
 calc.lfsr <- function(flash) {

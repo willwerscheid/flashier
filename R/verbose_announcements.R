@@ -28,7 +28,8 @@ announce.backfit <- function(verbose.lvl, n.factors, tol) {
 }
 
 announce.no.backfit <- function(verbose.lvl) {
-  cat("No factors have been added. Skipping backfit.\n")
+  if (verbose.lvl > 0)
+    cat("No factors have been added. Skipping backfit.\n")
 }
 
 report.backfit.progress <- function(verbose.lvl, tol) {
@@ -59,7 +60,8 @@ announce.nullchk <- function(verbose.lvl, n.factors) {
 }
 
 announce.no.nullchk <- function(verbose.lvl) {
-  cat("No factors have been added. Skipping nullcheck.\n")
+  if (verbose.lvl > 0)
+    cat("No factors have been added. Skipping nullcheck.\n")
 }
 
 report.nullchk.failure <- function(verbose.lvl, obj.diff, k) {

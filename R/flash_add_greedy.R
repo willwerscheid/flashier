@@ -17,15 +17,24 @@
 #'   increase the variational lower bound on the log likelihood for the model.
 #'
 #' @param init.fn The function used to initialize factors. Functions
-#'   \code{\link{init.fn.default}} and \code{\link{init.fn.softImpute}} have
-#'   been supplied, but custom initialization functions may also be used. See
-#'   \code{\link{init.fn.default}} for details.
+#'   \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
+#'   \code{\link{init.fn.irlba}} have been supplied, but custom initialization
+#'   functions may also be used. In particular, it is important to use an
+#'   appropriate initialization function when loadings must be constrained in
+#'   some fashion (otherwise, the greedy algorithm can stop adding factors
+#'   prematurely). Custom initialization functions should accept a single
+#'   parameter referring to a \code{flash.fit} object and should output
+#'   a list consisting of two vectors, which will be used as initial values for
+#'   the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
+#'   a custom initialization function will extract the matrix of residuals from
+#'   the \code{flash.fit} object using the method \code{resid(flash)} and then
+#'   return a (possibly constrained) rank-one approximation to the matrix of
+#'   residuals. See \strong{Examples} below.
 #'
 #' @param extrapolate Whether to use an extrapolation technique
-#'   inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
-#'   and fixed factors. Control parameters are handled via global options and
-#'   can be set by calling
-#'   \code{options("extrapolate.control") <- control.param}.
+#'   inspired by Ang and Gillis (2019) to accelerate the fitting process.
+#'   Control parameters are handled via global options and can be set by
+#'   calling \code{options("extrapolate.control") <- control.param}.
 #'
 #' @param conv.crit.fn The function used to determine whether convergence has
 #'   occurred. TODO: details.
@@ -35,11 +44,39 @@
 #' @param maxiter The maximum number of iterations when optimizing a greedily
 #'   added factor.
 #'
+#' @examples
+#' # Increase the maximum number of iterations in the default initialization
+#' #   method.
+#' fl <- flash.init(gtex) %>%
+#'   flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
+#'
+#' # Fit a semi-nonnegative matrix factorization.
+#' snmf.fl <- flash.init(gtex) %>%
+#'   flash.add.greedy(
+#'     ebnm.fn = c(ebnm::ebnm_unimodal_nonnegative, ebnm::ebnm_point_normal),
+#'     init.fn = function(f) init.fn.default(f, dim.signs = c(1, 0))
+#'   )
+#'
+#' # Use a custom initialization function that wraps function nnmf from
+#' #   package NNLM.
+#' nnmf.init.fn <- function(f) {
+#'   nnmf.res <- NNLM::nnmf(resid(f), verbose = FALSE)
+#'   return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
+#' }
+#' fl.nnmf <- flash.init(gtex) %>%
+#'   flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
+#'                    init.fn = nnmf.init.fn)
+#'
+#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
+#'   \code{\link{init.fn.irlba}}
+#'
+#' @importFrom ebnm ebnm_point_normal
+#'
 #' @export
 #'
 flash.add.greedy <- function(flash,
                              Kmax = 1,
-                             prior.family = prior.point.normal(),
+                             ebnm.fn = ebnm::ebnm_point_normal,
                              init.fn = init.fn.default,
                              extrapolate = FALSE,
                              conv.crit.fn = calc.obj.diff,
@@ -52,9 +89,7 @@ flash.add.greedy <- function(flash,
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
-  priors <- handle.prior.family(prior.family, get.dim(flash))
-  ebnm.fns <- rep(priors$ebnm.fn, length.out = Kmax)
-  prior.signs <- rep(priors$prior.sign, length.out = Kmax)
+  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
 
   if (missing(tol)) {
     report.tol.setting(verbose.lvl, tol)
@@ -88,8 +123,8 @@ flash.add.greedy <- function(flash,
   while (factors.added < Kmax && !greedy.failed) {
     announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
-    factor <- init.factor(flash, init.fn, prior.signs[[factors.added + 1]])
-    factor <- set.ebnm.fn(factor, ebnm.fns[[factors.added + 1]])
+    factor <- init.factor(flash, init.fn)
+    factor <- set.ebnm.fn(factor, ebnm.fn)
 
     announce.factor.opt(verbose.lvl)
     print.table.header(verbose.lvl,

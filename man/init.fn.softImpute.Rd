@@ -4,30 +4,22 @@
 \alias{init.fn.softImpute}
 \title{Initialize a flash factor using softImpute}
 \usage{
-init.fn.softImpute(
-  flash,
-  mode.signs,
-  tol = 1/max(get.dims(flash)),
-  maxiter = 100,
-  seed = 666
-)
+init.fn.softImpute(flash, seed = 666, ...)
 }
 \arguments{
 \item{flash}{A \code{flash.fit} object.}
 
-\item{mode.signs}{A vector of length 2 (for matrices) or 3 (for tensors)
-that indicates the signs of the priors (-1 for nonpositive, 1 for
-nonnegative, and 0 otherwise).}
-
-\item{tol}{Convergence tolerance.}
-
-\item{maxiter}{Maximum number of iterations.}
-
 \item{seed}{Since initialization is random, a default seed is set for
 reproducibility.}
+
+\item{...}{Additional parameters to be passed to
+\code{\link[softImpute]{softImpute}}.}
 }
 \description{
-Initializes a new flash factor using \code{softImpute::softImpute}. This
-  is slower for very large data matrices, but often yields better results
-  when there is missing data.
+Initializes a new flash factor using \code{\link[softImpute]{softImpute}}.
+  When there is missing data, this can yield better results than
+  \code{\link{init.fn.default}} without sacrificing much (if any) speed.
+}
+\seealso{
+\code{\link{init.fn.default}}, \code{\link{init.fn.irlba}}
 }

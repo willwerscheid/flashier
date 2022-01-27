@@ -14,23 +14,6 @@
 #' @param kset  A vector of integers specifying which factors to backfit.
 #'   If \code{kset = NULL}, then all existing factors will be backfitted.
 #'
-#' @param method \code{"sequential"} updates each factor in order, one at a
-#'   time. \code{"extrapolate"} does the same but uses an acceleration
-#'   technique inspired by Ang and Gillis (2019).  Control parameters are
-#'   handled via global options and can be set via
-#'   \code{options("extrapolate.control") <- control.param}. \code{"dropout"}
-#'   is similar to \code{"sequential"}, but stops updating individual factors
-#'   once they are no longer changing very much. This saves time, but often
-#'   results in incomplete convergence. \code{"random"} updates each factor one
-#'   at a time, but re-orders them randomly after each backfit iteration.
-#'   \code{"parallel"} does a simultaneous update of all factors. Unlike other
-#'   methods, parallel backfits are not guaranteed to yield monotonic increases
-#'   in the variational lower bound.
-#'   The number of cores used by \code{"parallel"} can be set via the
-#'   command \code{options("cl.cores", n.cores)}. The type of multicore
-#'   cluster can be set via \code{options("cl.type", type)}. Typically,
-#'   \code{cl.type = "FORK"} is more efficient on Unix-likes.
-#'
 #' @param warmstart Whether to "warmstart" backfits by initializing each factor
 #'   update at the current value of the fitted prior.
 #'
@@ -44,11 +27,7 @@
 #'
 flash.backfit <- function(flash,
                           kset = NULL,
-                          method = c("extrapolate",
-                                     "sequential",
-                                     "dropout",
-                                     "random",
-                                     "parallel"),
+                          extrapolate = TRUE,
                           warmstart = TRUE,
                           conv.crit.fn = calc.obj.diff,
                           tol = set.default.tol(flash),
@@ -70,7 +49,12 @@ flash.backfit <- function(flash,
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
-  method <- match.arg(method)
+  # Removed methods "dropout", "random", and "parallel".
+  if (extrapolate) {
+    method <- "extrapolate"
+  } else {
+    method <- "sequential"
+  }
 
   if (method == "parallel") {
     check.parallel.ok(flash, kset)

@@ -63,7 +63,7 @@ fl <- flash.init(gtex) \%>\%
   flash.add.greedy(Kmax = 5L)
 
 # Set custom verbose output.
-fns <- c(flashier:::calc.obj.diff,
+fns <- c(flashier:::display.obj.diff,
          function(new, old, k) {
            flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
          })

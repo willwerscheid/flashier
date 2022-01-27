@@ -7,7 +7,7 @@
 flash.add.greedy(
   flash,
   Kmax = 1,
-  prior.family = prior.point.normal(),
+  ebnm.fn = ebnm::ebnm_point_normal,
   init.fn = init.fn.default,
   extrapolate = FALSE,
   conv.crit.fn = calc.obj.diff,
@@ -25,36 +25,44 @@ necessarily be the total number of factors added by
 \code{flash.add.greedy}, since factors are only added as long as they
 increase the variational lower bound on the log likelihood for the model.}
 
-\item{prior.family}{Indicates the family of distributions that the priors on
-  the loadings are
-  assumed to belong to. Can be a list of length 1 or length \eqn{N}, where
-  \eqn{N} is the number of modes (\eqn{N = 2} for matrices; \eqn{N = 3} for
-  tensors). Each list element must be a prior family defined by one of the
-  convenience functions \code{\link{prior.normal}},
-  \code{\link{prior.point.normal}},
-  \code{\link{prior.point.laplace}}, \code{\link{prior.nonzero.mode}},
-  \code{\link{prior.scale.normal.mix}}, \code{\link{prior.unimodal}},
-  \code{\link{prior.symmetric.unimodal}},
-  \code{\link{prior.nonnegative}}, or \code{\link{prior.nonpositive}},
-  or a custom prior type of a similar form (see \code{\link{prior.normal}}
-  for details).
+\item{ebnm.fn}{The function or functions used to solve the empirical Bayes
+  normal means (EBNM) subproblems. Most importantly, these functions specify
+  the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+  priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+  assumed to belong. If the same function is to be used for both loadings
+  \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
+  If one function is to be used for loadings and a second for factors,
+  then \code{ebnm.fn} should be a list of length two, with the first list
+  element giving the function for loadings and the second the function
+  for factors (see \strong{Examples} below).
+  If different functions are to be used for different values of \eqn{k},
+  then factors must be added successively using multiple calls to either
+  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
 
-  \code{prior.family} can also be a list of lists, in which case the first
-  list specifies the family or families for the first factor, the second
-  specifies the family or families for the second factor, and so on. The
-  last list element is then re-used as often as necessary. See
-  \code{\link{flash}} for examples.}
+  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+  used as input. Non-default arguments to parameters can be supplied using
+  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{as.ebnm.fn}}.}
 
 \item{init.fn}{The function used to initialize factors. Functions
-\code{\link{init.fn.default}} and \code{\link{init.fn.softImpute}} have
-been supplied, but custom initialization functions may also be used. See
-\code{\link{init.fn.default}} for details.}
+\code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
+\code{\link{init.fn.irlba}} have been supplied, but custom initialization
+functions may also be used. In particular, it is important to use an
+appropriate initialization function when loadings must be constrained in
+some fashion (otherwise, the greedy algorithm can stop adding factors
+prematurely). Custom initialization functions should accept a single
+parameter referring to a \code{flash.fit} object and should output
+a list consisting of two vectors, which will be used as initial values for
+the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
+a custom initialization function will extract the matrix of residuals from
+the \code{flash.fit} object using the method \code{resid(flash)} and then
+return a (possibly constrained) rank-one approximation to the matrix of
+residuals. See \strong{Examples} below.}
 
 \item{extrapolate}{Whether to use an extrapolation technique
-inspired by Ang and Gillis (2019) to accelerate the fitting of greedy
-and fixed factors. Control parameters are handled via global options and
-can be set by calling
-\code{options("extrapolate.control") <- control.param}.}
+inspired by Ang and Gillis (2019) to accelerate the fitting process.
+Control parameters are handled via global options and can be set by
+calling \code{options("extrapolate.control") <- control.param}.}
 
 \item{conv.crit.fn}{The function used to determine whether convergence has
 occurred. TODO: details.}
@@ -76,4 +84,32 @@ Adds factors to a flash object in a "greedy" manner. Up to \code{Kmax}
   attempts to find an optimal additional (rank-one) factor given all
   previously added factors. The additional factor is retained if it
   increases the ELBO; otherwise, fitting terminates.
+}
+\examples{
+# Increase the maximum number of iterations in the default initialization
+#   method.
+fl <- flash.init(gtex) \%>\%
+  flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
+
+# Fit a semi-nonnegative matrix factorization.
+snmf.fl <- flash.init(gtex) \%>\%
+  flash.add.greedy(
+    ebnm.fn = c(ebnm::ebnm_unimodal_nonnegative, ebnm::ebnm_point_normal),
+    init.fn = function(f) init.fn.default(f, dim.signs = c(1, 0))
+  )
+
+# Use a custom initialization function that wraps function nnmf from
+#   package NNLM.
+nnmf.init.fn <- function(f) {
+  nnmf.res <- NNLM::nnmf(resid(f), verbose = FALSE)
+  return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
+}
+fl.nnmf <- flash.init(gtex) \%>\%
+  flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
+                   init.fn = nnmf.init.fn)
+
+}
+\seealso{
+\code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
+  \code{\link{init.fn.irlba}}
 }

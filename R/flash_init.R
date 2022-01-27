@@ -2,15 +2,18 @@
 #'
 #' Sets up a \code{flash} object with no factors. Since all other
 #' \code{flash.xxx} functions take a \code{flash} or \code{flash.fit} object
-#' as their first argument, calling \code{flash.init} will be the first step
+#' as their first argument, calling \code{flash.init} should be the first step
 #' in any \code{flash} pipeline.
 #'
 #' @inheritParams flash
 #'
 #' @param S.dim The dimension along which \code{S} lies when \code{S} is a
-#'   vector. It is only necessary to specify \code{S.dim} when it cannot be
-#'   inferred from the data (when, for example, \code{data} is a square
-#'   matrix).
+#'   vector. If \code{S.dim = 1}, then \code{S} will be interpreted as giving
+#'   standard errors that vary across rows but are constant within any given
+#'   column; if \code{S.dim = 2}, then it will be interpreted as giving
+#'   standard errors that vary across columns but are constant within any
+#'   given row. It is only necessary to specify \code{S.dim} when it cannot
+#'   be inferred from the data (i.e., when \code{data} is a square matrix).
 #'
 #' @return A \code{flash.fit} object.
 #'
