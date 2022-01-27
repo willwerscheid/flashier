@@ -46,11 +46,13 @@ increase the variational lower bound on the log likelihood for the model.}
 
 \item{init.fn}{The function used to initialize factors. Functions
 \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
-\code{\link{init.fn.irlba}} have been supplied, but custom initialization
-functions may also be used. In particular, it is important to use an
-appropriate initialization function when loadings must be constrained in
-some fashion (otherwise, the greedy algorithm can stop adding factors
-prematurely). Custom initialization functions should accept a single
+\code{\link{init.fn.irlba}} have been supplied (in particular,
+\code{\link{init.fn.softImpute}} can yield better results than the
+default initialization function when there is missing data). Custom
+initialization functions may also be used. It is espeically important to
+use an appropriate initialization function when loadings must be constrained
+in some fashion --- otherwise, the greedy algorithm can stop adding factors
+too early. Custom initialization functions should accept a single
 parameter referring to a \code{flash.fit} object and should output
 a list consisting of two vectors, which will be used as initial values for
 the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
