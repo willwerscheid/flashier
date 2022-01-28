@@ -113,6 +113,10 @@ flash.set.verbose <- function(flash,
   fit <- set.verbose.options(fit, lvl, fns, colnames, colwidths)
   flash <- set.fit(flash, fit)
 
+  if (lvl == -1) {
+    print.tab.delim.table.header(colnames)
+  }
+
   return(flash)
 }
 
@@ -201,4 +205,18 @@ look.up.verbose.colwidths <- function(verbose) {
   })
 
   return(unlist(widths))
+}
+
+handle.verbose.param <- function(verbose, flash) {
+  if (is.null(verbose)) {
+    verbose.lvl <- get.verbose.lvl(flash)
+  } else if (verbose == -1) {
+    stop("To output a tab-delimited table of values, use function",
+         "flash.set.verbose with verbose = -1. See ?flash.set.verbose",
+         "for usage.")
+  } else {
+    verbose.lvl <- verbose
+  }
+
+  return(verbose.lvl)
 }

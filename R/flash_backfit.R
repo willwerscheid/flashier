@@ -32,8 +32,10 @@ flash.backfit <- function(flash,
                           conv.crit.fn = calc.obj.diff,
                           tol = set.default.tol(flash),
                           maxiter = 500,
-                          verbose.lvl = get.verbose.lvl(flash)) {
+                          verbose = NULL) {
   flash <- get.fit(flash)
+
+  verbose.lvl <- handle.verbose.param(verbose, flash)
 
   if (is.null(kset)) {
     if (get.n.factors(flash) > 0) {
