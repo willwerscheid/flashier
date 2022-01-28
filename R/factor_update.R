@@ -106,7 +106,8 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
       output = output
     ),
     warning = function(w) {
-      if (any(startsWith(conditionMessage(w), ignored.warnings)))
+      if (!is.null(ignored.warnings)
+          && any(startsWith(conditionMessage(w), ignored.warnings)))
         invokeRestart("muffleWarning")
     }
   )
