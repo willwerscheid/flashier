@@ -11,7 +11,7 @@ LF2 <- 5 * (rnorm(m) %o% rnorm(n) %o% rnorm(p))
 LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(m * n * p)
 
-f <- flash(M, greedy.Kmax = 2, verbose.lvl = 0)
+f <- flash(M, greedy.Kmax = 2, verbose = 0)
 
 test_that("tensor factor initialization is correct", {
   expect_equal(f$n.factors, 2)
@@ -19,14 +19,14 @@ test_that("tensor factor initialization is correct", {
 })
 
 suppressWarnings({
-  f.b <- flash.backfit(f, extrapolate = FALSE, maxiter = 1, verbose.lvl = 0)
+  f.b <- flash.backfit(f, extrapolate = FALSE, maxiter = 1, verbose = 0)
 })
 
 test_that ("the backfit objective improves after one iteration", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flash.backfit(f, extrapolate = FALSE, verbose.lvl = 0)
+f.b2 <- flash.backfit(f, extrapolate = FALSE, verbose = 0)
 
 test_that ("the final backfit objective improves again", {
   expect_true(f.b2$elbo > f.b$elbo)
@@ -36,7 +36,7 @@ missing <- sample(1:length(M), floor(0.1 * length(M)))
 M.missing <- M
 M.missing[missing] <- NA
 
-f <- flash(M.missing, greedy.Kmax = 2, verbose.lvl = 0)
+f <- flash(M.missing, greedy.Kmax = 2, verbose = 0)
 
 test_that("tensor factor initialization is correct (with missing)", {
   expect_equal(f$n.factors, 2)
@@ -44,14 +44,14 @@ test_that("tensor factor initialization is correct (with missing)", {
 })
 
 suppressWarnings({
-  f.b <- flash.backfit(f, maxiter = 1, verbose.lvl = 0)
+  f.b <- flash.backfit(f, maxiter = 1, verbose = 0)
 })
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flash.backfit(f, verbose.lvl = 0)
+f.b2 <- flash.backfit(f, verbose = 0)
 
 test_that ("the final backfit objective improves again (with missing)", {
   expect_true(f.b2$elbo > f.b$elbo)
