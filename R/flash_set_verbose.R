@@ -1,6 +1,6 @@
 #' Set verbose output
 #'
-#' Sets the default verbosity level and verbose output for a flash object.
+#' Determines the output that will be displayed when fitting a flash object.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
@@ -20,12 +20,12 @@
 #'   iteration; the maximum change in the mode-n (L)oadings after each
 #'   iteration; the index corresponding to (W)hich mode-n loadings experienced
 #'   the largest change; and the (S)parsity of the mode-n loadings after each
-#'   iteration. See below for examples.
+#'   iteration. See \strong{Examples} below for usage.
 #'
 #' Note that output is completely customizable via parameters \code{fns},
 #'   \code{colnames}, and \code{colwidths}. If these are used, then
-#'   \code{verbose} must take an integer argument (and the specified columns
-#'   will only display when \code{verbose} is either -1 or 3).
+#'   \code{verbose} must take an integer argument, and the specified columns
+#'   will only display when \code{verbose} is either -1 or 3.
 #'
 #' @param fns A vector of functions. Used to calculate values to output after
 #'   each factor update when \code{verbose} is either -1 or 3.
