@@ -84,8 +84,10 @@ flash.add.greedy <- function(flash,
                              conv.crit.fn = calc.obj.diff,
                              tol = set.default.tol(flash),
                              maxiter = 500,
-                             verbose.lvl = get.verbose.lvl(flash)) {
+                             verbose = NULL) {
   flash <- get.fit(flash)
+
+  verbose.lvl <- handle.verbose.param(verbose, flash)
 
   must.be.integer(Kmax, lower = 1, allow.null = FALSE)
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
@@ -114,10 +116,6 @@ flash.add.greedy <- function(flash,
   verbose.fns <- get.verbose.fns(flash)
   verbose.colnames <- get.verbose.colnames(flash)
   verbose.colwidths <- get.verbose.colwidths(flash)
-
-  if (verbose.lvl == -1) {
-    print.tab.delim.table.header(verbose.colnames)
-  }
 
   factors.added <- 0
   greedy.failed <- FALSE

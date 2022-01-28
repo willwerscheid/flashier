@@ -13,7 +13,7 @@ LF <- LF1 + LF2
 M <- LF + 0.1 * rnorm(n * p)
 
 test_that("matrix factor initialization is correct", {
-  f <- flash(M, greedy.Kmax = 2, verbose.lvl = 0)
+  f <- flash(M, greedy.Kmax = 2, verbose = 0)
   expect_equal(f$n.factors, 2)
   expect_equal(fitted(f), LF1 + LF2, tol = 0.25, scale = 1)
 })
@@ -29,7 +29,7 @@ test_that("nullcheck works as expected", {
     flash.set.verbose(0) %>%
     flash.init.factors(list(EF1, EF2)) %>%
     flash.fix.loadings(kset = 1:3, mode = 1, is.fixed = is.fixed) %>%
-    flash.backfit(verbose.lvl = 0)
+    flash.backfit(verbose = 0)
 
   f <- flash.nullcheck(f, remove = TRUE)
 

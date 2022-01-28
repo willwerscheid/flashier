@@ -12,7 +12,7 @@ flash.backfit(
   conv.crit.fn = calc.obj.diff,
   tol = set.default.tol(flash),
   maxiter = 500,
-  verbose.lvl = get.verbose.lvl(flash)
+  verbose = NULL
 )
 }
 \arguments{
@@ -38,11 +38,12 @@ occurred. TODO: details.}
 is defined such that all factors in \code{kset} get updated at each
 iteration.}
 
-\item{verbose.lvl}{When and how to display progress updates. Set to
+\item{verbose}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
 backfit is completed, \code{2} for additional notifications about the
 variational lower bound, and \code{3} for updates after every iteration.
-Set to \code{-1} to output a single tab-delimited table of values.}
+It is also possible to output a single tab-delimited table of values
+using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.}
 }
 \description{
 Backfits existing flash factors. Whereas a "greedy" fit optimizes each

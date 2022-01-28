@@ -14,7 +14,7 @@ M <- LF + 0.1 * rnorm(n * p)
 missing <- sample(1:length(M), floor(0.6 * length(M)))
 M[missing] <- NA
 
-f <- flash(M, greedy.Kmax = 2, verbose.lvl = 0)
+f <- flash(M, greedy.Kmax = 2, verbose = 0)
 
 test_that("matrix factor initialization is correct (sparse)", {
   expect_equal(f$n.factors, 2)

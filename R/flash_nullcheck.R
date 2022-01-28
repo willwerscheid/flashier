@@ -13,7 +13,7 @@
 #' @param tol The tolerance parameter: if a factor does not improve the ELBO
 #'   by at least \code{tol}, then it will be set to zero.
 #'
-#' @param verbose.lvl When and how to display progress updates. For nullchecks,
+#' @param verbose When and how to display progress updates. For nullchecks,
 #'   updates are only displayed when \code{verbose.lvl} > 0.
 #'
 #' @export
@@ -22,8 +22,10 @@ flash.nullcheck <- function(flash,
                             kset = NULL,
                             remove = TRUE,
                             tol = set.default.tol(flash),
-                            verbose.lvl = get.verbose.lvl(flash)) {
+                            verbose = NULL) {
   fit <- get.fit(flash)
+
+  verbose.lvl <- handle.verbose.param(verbose, fit)
 
   if (is.null(kset)) {
     if (get.n.factors(fit) > 0) {

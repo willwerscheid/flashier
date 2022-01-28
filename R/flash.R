@@ -119,11 +119,12 @@
 #'   that each factor in the final flash object improves the overall fit. Any
 #'   factor that fails the check will be removed.
 #'
-#' @param verbose.lvl When and how to display progress updates. Set to
+#' @param verbose When and how to display progress updates. Set to
 #'   \code{0} for none, \code{1} for updates after a factor is added or a
 #'   backfit is completed, \code{2} for additional notifications about the
 #'   variational lower bound, and \code{3} for updates after every iteration.
-#'   Set to \code{-1} to output a single tab-delimited table of values.
+#'   It is also possible to output a single tab-delimited table of values
+#'   using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.
 #'
 #' @return A \code{flash} object. Contains elements:
 #'   \describe{
@@ -212,18 +213,18 @@ flash <- function(data,
                   greedy.Kmax = 50L,
                   backfit = FALSE,
                   nullcheck = TRUE,
-                  verbose.lvl = 1L) {
+                  verbose = 1L) {
   fl <- flash.init(data, S = S, var.type = var.type)
 
   fl <- flash.add.greedy(fl, Kmax = greedy.Kmax, ebnm.fn = ebnm.fn,
-                         verbose.lvl = verbose.lvl)
+                         verbose = verbose)
 
   if (backfit) {
-    fl <- flash.backfit(fl, verbose.lvl = verbose.lvl)
+    fl <- flash.backfit(fl, verbose = verbose)
   }
 
   if (nullcheck) {
-    fl <- flash.nullcheck(fl, verbose.lvl = verbose.lvl)
+    fl <- flash.nullcheck(fl, verbose = verbose)
   }
 
   return(fl)

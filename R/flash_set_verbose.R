@@ -1,6 +1,6 @@
 #' Set verbose output
 #'
-#' Sets the default verbosity level and verbose output for a flash object.
+#' Determines the output that will be displayed when fitting a flash object.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
@@ -20,12 +20,12 @@
 #'   iteration; the maximum change in the mode-n (L)oadings after each
 #'   iteration; the index corresponding to (W)hich mode-n loadings experienced
 #'   the largest change; and the (S)parsity of the mode-n loadings after each
-#'   iteration. See below for examples.
+#'   iteration. See \strong{Examples} below for usage.
 #'
 #' Note that output is completely customizable via parameters \code{fns},
 #'   \code{colnames}, and \code{colwidths}. If these are used, then
-#'   \code{verbose} must take an integer argument (and the specified columns
-#'   will only display when \code{verbose} is either -1 or 3).
+#'   \code{verbose} must take an integer argument, and the specified columns
+#'   will only display when \code{verbose} is either -1 or 3.
 #'
 #' @param fns A vector of functions. Used to calculate values to output after
 #'   each factor update when \code{verbose} is either -1 or 3.
@@ -112,6 +112,10 @@ flash.set.verbose <- function(flash,
 
   fit <- set.verbose.options(fit, lvl, fns, colnames, colwidths)
   flash <- set.fit(flash, fit)
+
+  if (lvl == -1) {
+    print.tab.delim.table.header(colnames)
+  }
 
   return(flash)
 }
@@ -201,4 +205,18 @@ look.up.verbose.colwidths <- function(verbose) {
   })
 
   return(unlist(widths))
+}
+
+handle.verbose.param <- function(verbose, flash) {
+  if (is.null(verbose)) {
+    verbose.lvl <- get.verbose.lvl(flash)
+  } else if (verbose == -1) {
+    stop("To output a tab-delimited table of values, use function",
+         "flash.set.verbose with verbose = -1. See ?flash.set.verbose",
+         "for usage.")
+  } else {
+    verbose.lvl <- verbose
+  }
+
+  return(verbose.lvl)
 }

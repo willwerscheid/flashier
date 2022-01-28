@@ -14,10 +14,10 @@ M <- LF + 0.1 * rnorm(n * p)
 
 test_that("Using a low-rank matrix representation works", {
   lr1 <- svd(M, nu = 3, nv = 3)
-  f1  <- flash(lr1, verbose.lvl = 0)
+  f1  <- flash(lr1, verbose = 0)
   expect_equal(fitted(f1), LF1 + LF2, tol = 0.25, scale = 1)
 
   lr2 <- irlba::irlba(M, 3)
-  f2  <- flash(lr2, verbose.lvl = 0)
+  f2  <- flash(lr2, verbose = 0)
   expect_equal(fitted(f2), LF1 + LF2, tol = 0.25, scale = 1)
 })
