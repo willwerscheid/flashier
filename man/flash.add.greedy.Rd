@@ -10,6 +10,7 @@ flash.add.greedy(
   ebnm.fn = ebnm::ebnm_point_normal,
   init.fn = init.fn.default,
   extrapolate = FALSE,
+  warmstart = FALSE,
   conv.crit.fn = calc.obj.diff,
   tol = set.default.tol(flash),
   maxiter = 500,
@@ -65,6 +66,16 @@ residuals. See \strong{Examples} below.}
 inspired by Ang and Gillis (2019) to accelerate the fitting process.
 Control parameters are handled via global options and can be set by
 calling \code{options("extrapolate.control") <- control.param}.}
+
+\item{warmstart}{Whether to use "warmstarts" when solving the EBNM
+subproblems by initializing solutions at the previous value of the fitted
+prior \eqn{\hat{g}}. An important side effect of warmstarts is to fix the
+prior family grid at its initial setting for \code{ashr}-like prior
+families (including most nonparametric prior families implemented by
+\code{\link[ebnm]{ebnm}}). Fixing the grid can lead to poor fits if there are
+large changes in the scale of the estimated prior over the
+course of the fitting process. However, allowing the grid to
+vary can occasionally result in decreases in the objective function.}
 
 \item{conv.crit.fn}{The function used to determine whether convergence has
 occurred. TODO: details.}

@@ -74,8 +74,8 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
     g    <- prev.g
     fixg <- TRUE
     ignored.warnings <- "mode and scale parameters are ignored"
-  } else if (!is.new(factor)
-             && warmstart.backfits(flash)
+  } else if (((is.new(factor) && warmstart.greedy(flash)) ||
+              (!is.new(factor) && warmstart.backfits(flash)))
              && !is.null(prev.g)
              && warmstart.sanity.check(prev.g, ebnm.args$x, ebnm.args$s)) {
     g    <- prev.g

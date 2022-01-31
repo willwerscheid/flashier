@@ -35,6 +35,7 @@ get.log.2pi.s2        <- function(f) f[["log.2pi.s2"]]
 get.sum.tau.R2        <- function(f) f[["sum.tau.R2"]]
 get.obj               <- function(f) f[["obj"]]
 warmstart.backfits    <- function(f) f[["warmstart.backfits"]]
+warmstart.greedy      <- function(f) f[["warmstart.greedy"]]
 
 get.Y <- function(f, require.fullrank = FALSE) {
   Y <- f[["Y"]]
@@ -601,6 +602,10 @@ add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
 }
 set.warmstart <- function(f, warmstart) {
   f[["warmstart.backfits"]] <- warmstart
+  return(f)
+}
+set.gwarmstart <- function(f, warmstart) {
+  f[["warmstart.greedy"]] <- warmstart
   return(f)
 }
 set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {

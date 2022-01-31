@@ -14,9 +14,6 @@
 #' @param kset  A vector of integers specifying which factors to backfit.
 #'   If \code{kset = NULL}, then all existing factors will be backfitted.
 #'
-#' @param warmstart Whether to "warmstart" backfits by initializing each factor
-#'   update at the current value of the fitted prior.
-#'
 #' @param maxiter The maximum number of backfitting iterations. An "iteration"
 #'   is defined such that all factors in \code{kset} get updated at each
 #'   iteration.
