@@ -1,12 +1,3 @@
-set.default.tol <- function(flash) {
-  flash <- get.fit(flash)
-  return(sqrt(.Machine$double.eps) * prod(get.dims(flash)))
-}
-
-get.conv.crit <- function(update.info) {
-  return(update.info[[length(update.info)]])
-}
-
 #' Calculate the difference in ELBO
 #'
 #' The default objective function used to determine convergence when fitting
@@ -61,4 +52,13 @@ conv.crit.loadings <- function(new, old, k) {
 #'
 conv.crit.factors <- function(new, old, k) {
   return(calc.max.abs.chg.EF(new, old, k, n = 2))
+}
+
+get.conv.crit <- function(update.info) {
+  return(update.info[[length(update.info)]])
+}
+
+set.default.tol <- function(flash) {
+  flash <- get.fit(flash)
+  return(sqrt(.Machine$double.eps) * prod(get.dims(flash)))
 }
