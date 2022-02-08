@@ -9,7 +9,7 @@ flash.backfit(
   kset = NULL,
   extrapolate = TRUE,
   warmstart = TRUE,
-  conv.crit.fn = calc.obj.diff,
+  conv.crit.fn = conv.crit.elbo,
   tol = set.default.tol(flash),
   maxiter = 500,
   verbose = NULL
@@ -36,10 +36,21 @@ large changes in the scale of the estimated prior over the
 course of the fitting process. However, allowing the grid to
 vary can occasionally result in decreases in the objective function.}
 
-\item{conv.crit.fn}{The function used to determine whether convergence has
-occurred. TODO: details.}
+\item{conv.crit.fn}{The function used to calculate the optimization objective.
+Fitting terminates (i.e., the fit is considered to have "converged") when
+this objective drops below the value specified by parameter \code{tol}.
+Options include \code{\link{conv.crit.elbo}} (the default),
+\code{\link{conv.crit.loadings}}, and \code{\link{conv.crit.factors}}.
+Custom functions may also be used. They should accept three parameters,
+\code{new}, \code{old}, and \code{k}, where \code{new} refers to the
+\code{\link{flash.fit}} object from the current iteration and \code{old}
+refers to the \code{\link{flash.fit}} object from the previous iteration.
+Custom functions can safely ignore parameter \code{k}, which is only
+included for uniformity with custom "verbose" display functions (see
+\code{\link{flash.set.verbose}}).}
 
-\item{tol}{The convergence tolerance.}
+\item{tol}{The convergence tolerance (see parameter \code{conv.crit.fn}
+above).}
 
 \item{maxiter}{The maximum number of backfitting iterations. An "iteration"
 is defined such that all factors in \code{kset} get updated at each

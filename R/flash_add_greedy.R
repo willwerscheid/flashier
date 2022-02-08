@@ -18,8 +18,8 @@
 #'
 #' @param init.fn The function used to initialize factors. Functions
 #'   \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
-#'   \code{\link{init.fn.irlba}} have been supplied (in particular,
-#'   \code{\link{init.fn.softImpute}} can yield better results than the
+#'   \code{\link{init.fn.irlba}} have been supplied
+#'   (\code{\link{init.fn.softImpute}} can yield better results than the
 #'   default initialization function when there is missing data). Custom
 #'   initialization functions may also be used. It is espeically important to
 #'   use an appropriate initialization function when loadings must be constrained
@@ -48,10 +48,21 @@
 #'   Control parameters are handled via global options and can be set by
 #'   calling \code{options("extrapolate.control") <- control.param}.
 #'
-#' @param conv.crit.fn The function used to determine whether convergence has
-#'   occurred. TODO: details.
+#' @param conv.crit.fn The function used to calculate the optimization objective.
+#'   Fitting terminates (i.e., the fit is considered to have "converged") when
+#'   this objective drops below the value specified by parameter \code{tol}.
+#'   Options include \code{\link{conv.crit.elbo}} (the default),
+#'   \code{\link{conv.crit.loadings}}, and \code{\link{conv.crit.factors}}.
+#'   Custom functions may also be used. They should accept three parameters,
+#'   \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
+#'   \code{\link{flash.fit}} object from the current iteration and \code{old}
+#'   refers to the \code{\link{flash.fit}} object from the previous iteration.
+#'   Custom functions can safely ignore parameter \code{k}, which is only
+#'   included for uniformity with custom "verbose" display functions (see
+#'   \code{\link{flash.set.verbose}}).
 #'
-#' @param tol The convergence tolerance.
+#' @param tol The convergence tolerance (see parameter \code{conv.crit.fn}
+#'   above).
 #'
 #' @param maxiter The maximum number of iterations when optimizing a greedily
 #'   added factor.
@@ -92,7 +103,7 @@ flash.add.greedy <- function(flash,
                              init.fn = init.fn.default,
                              extrapolate = FALSE,
                              warmstart = FALSE,
-                             conv.crit.fn = calc.obj.diff,
+                             conv.crit.fn = conv.crit.elbo,
                              tol = set.default.tol(flash),
                              maxiter = 500,
                              verbose = NULL) {

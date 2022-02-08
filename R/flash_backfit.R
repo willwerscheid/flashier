@@ -26,7 +26,7 @@ flash.backfit <- function(flash,
                           kset = NULL,
                           extrapolate = TRUE,
                           warmstart = TRUE,
-                          conv.crit.fn = calc.obj.diff,
+                          conv.crit.fn = conv.crit.elbo,
                           tol = set.default.tol(flash),
                           maxiter = 500,
                           verbose = NULL) {
