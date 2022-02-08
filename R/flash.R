@@ -149,7 +149,7 @@
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
 #'       distribution of the (non-normalized) loadings.}
-#'     \item{\code{flash.fit}}{A \code{flash.fit} object. Used by
+#'     \item{\code{flash.fit}}{A \code{\link{flash.fit}} object. Used by
 #'       \code{flash} when fitting is not performed all at once, but
 #'       incrementally via calls to various \code{flash.xxx} functions.}
 #'   }

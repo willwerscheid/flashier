@@ -17,7 +17,7 @@ fitted.flash <- function(object, ...) {
 
 #' Fitted method for flash fit objects
 #'
-#' Give a \code{flash.fit} object, returns the "fitted values"
+#' Given a \code{flash.fit} object, returns the "fitted values"
 #'   \eqn{E(LF') = E(L) E(F)'}.
 #'
 #' @param object An object inheriting from class \code{flash.fit}.
