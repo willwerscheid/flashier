@@ -16,7 +16,7 @@ conv.crit.factors(new, old, k)
 \description{
 An alternative objective function that can be used to determine
   convergence when fitting a \code{\link{flash}} object. Calculates the
-  maximum absolute difference in the L2-scaled factors,
+  maximum absolute difference in the L2-normalized factors,
   \eqn{\max_{j, k} | \frac{f_jk^{new}}{\| f_jk^{new} \|_2} -
   \frac{f_jk^{old}}{\| f_jk^{old} \|_2} |}.
 }

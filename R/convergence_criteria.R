@@ -22,7 +22,7 @@ conv.crit.elbo <- function(new, old, k) {
 #'
 #' An alternative objective function that can be used to determine
 #'   convergence when fitting a \code{\link{flash}} object. Calculates the
-#'   maximum absolute difference in the L2-scaled loadings,
+#'   maximum absolute difference in the L2-normalized loadings,
 #'   \eqn{\max_{i, k} | \frac{\ell_ik^{new}}{\| \ell_k^{new} \|_2} -
 #'   \frac{\ell_ik^{old}}{\| \ell_k^{old} \|_2} |}.
 #'
@@ -40,7 +40,7 @@ conv.crit.loadings <- function(new, old, k) {
 #'
 #' An alternative objective function that can be used to determine
 #'   convergence when fitting a \code{\link{flash}} object. Calculates the
-#'   maximum absolute difference in the L2-scaled factors,
+#'   maximum absolute difference in the L2-normalized factors,
 #'   \eqn{\max_{j, k} | \frac{f_jk^{new}}{\| f_jk^{new} \|_2} -
 #'   \frac{f_jk^{old}}{\| f_jk^{old} \|_2} |}.
 #'

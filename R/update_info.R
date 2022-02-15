@@ -1,3 +1,95 @@
+#' Display the current ELBO
+#'
+#' Displays the value of the variational lower bound (ELBO) at the current
+#'   iteration.
+#'
+#' @param new The \code{flash.fit} object from the current iteration.
+#'
+#' @param old The \code{flash.fit} object from the previous iteration.
+#'
+#' @param k Only used during sequential backfits (that is, calls to
+#'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}). It then
+#'   gives the index of the factor/loadings pair currently being optimized.
+#'
+#' @seealso \code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
+#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'
+#' @export
+#'
+display.elbo <- function(new, old, k) {
+  obj <- get.new.obj(new, old, k)
+  if (is.na(obj))
+    return("NA")
+  return(formatC(obj, format = "f", digits = 2))
+}
+
+#' Display the difference in ELBO
+#'
+#' Displays the difference in the variational lower bound (ELBO) from one
+#'   iteration to the next.
+#'
+#' @inheritParams display.elbo
+#'
+#' @seealso \code{\link{display.elbo}}, \code{\link{display.max.chg}},
+#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'
+#' @export
+#'
+display.elbo.diff <- function(new, old, k) {
+  obj.diff <- calc.obj.diff(new, old, k)
+  if (is.infinite(obj.diff))
+    obj.diff <- NA
+  return(obj.diff)
+}
+
+#' Display the maximum difference in scaled loadings and factors
+#'
+#' Displays the maximum (absolute) change over all L2-normalized loadings
+#'   \eqn{\ell_1, \ldots, \ell_K} and factors \eqn{f_1, \ldots, f_K}.
+#'
+#' @inheritParams display.elbo
+#'
+#' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'
+#' @export
+#'
+display.max.chg <- function(new, old, k) {
+  return(calc.max.chg.EF(new, old, k, n = NULL))
+}
+
+#' Display the maximum difference in scaled loadings
+#'
+#' Displays the maximum (absolute) change over all L2-normalized loadings
+#'   \eqn{\ell_1, \ldots, \ell_K}.
+#'
+#' @inheritParams display.elbo
+#'
+#' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+#'   \code{\link{display.max.chg}}, \code{\link{display.max.chg.F}}
+#'
+#' @export
+#'
+display.max.chg.L <- function(new, old, k) {
+  return(calc.max.chg.EF(new, old, k, n = 1))
+}
+
+#' Display the maximum difference in scaled factors
+#'
+#' Displays the maximum (absolute) change over all L2-normalized loadings
+#'   \eqn{f_1, \ldots, f_K}.
+#'
+#' @inheritParams display.elbo
+#'
+#' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+#'   \code{\link{display.max.chg}}, \code{\link{display.max.chg.L}}
+#'
+#' @export
+#'
+display.max.chg.F <- function(new, old, k) {
+  return(calc.max.chg.EF(new, old, k, n = 2))
+}
+
 calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
   if (length(verbose.fns) == 0) {
     all.fns <- list(conv.crit.fn)
@@ -28,24 +120,10 @@ get.new.obj <- function(new, old, k) {
   return(get.obj(new))
 }
 
-display.obj <- function(new, old, k) {
-  obj <- get.new.obj(new, old, k)
-  if (is.na(obj))
-    return("NA")
-  return(formatC(obj, format = "f", digits = 2))
-}
-
 calc.obj.diff <- function(new, old, k) {
   if (!is.obj.valid(old) || !is.obj.valid(new))
     return(Inf)
   return(get.obj(new) - get.obj(old))
-}
-
-display.obj.diff <- function(new, old, k) {
-  obj.diff <- calc.obj.diff(new, old, k)
-  if (is.infinite(obj.diff))
-    obj.diff <- NA
-  return(obj.diff)
 }
 
 calc.max.abs.chg.EF <- function(new, old, k, n = NULL) {

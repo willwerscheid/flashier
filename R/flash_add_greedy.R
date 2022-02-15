@@ -57,7 +57,7 @@
 #'   \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
 #'   \code{\link{flash.fit}} object from the current iteration and \code{old}
 #'   refers to the \code{\link{flash.fit}} object from the previous iteration.
-#'   Custom functions can safely ignore parameter \code{k}, which is only
+#'   Custom functions can safely ignore parameter \code{k}, which is
 #'   included for uniformity with custom "verbose" display functions (see
 #'   \code{\link{flash.set.verbose}}).
 #'
