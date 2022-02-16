@@ -48,6 +48,9 @@ standard errors that vary across columns but are constant within any
 given row. It is only necessary to specify \code{S.dim} when it cannot
 be inferred from the data (i.e., when \code{data} is a square matrix).}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
 Sets up a \code{flash} object with no factors. Since all other
 \code{flash.xxx} functions take a \code{flash} or \code{flash.fit} object

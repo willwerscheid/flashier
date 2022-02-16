@@ -15,6 +15,8 @@
 #'   given row. It is only necessary to specify \code{S.dim} when it cannot
 #'   be inferred from the data (i.e., when \code{data} is a square matrix).
 #'
+#' @return A \code{\link{flash}} object.
+#'
 #' @export
 #'
 flash.init <- function(data, S = NULL, var.type = 0L, S.dim = NULL) {
