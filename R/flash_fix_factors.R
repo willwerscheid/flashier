@@ -28,6 +28,8 @@
 #'   This is a global setting which applies to all factor/loadings pairs;
 #'   behavior cannot vary from one pair to another.
 #'
+#' @return A \code{\link{flash}} object.
+#'
 #' @export
 #'
 flash.fix.factors <- function(flash,

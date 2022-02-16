@@ -42,6 +42,9 @@ are not allowed.}
   the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
   also be used: for details, see \code{\link{as.ebnm.fn}}.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
 Initializes factor/loadings pairs at values specified by \code{init}. This
   function has two primary uses: 1. One can initialize multiple

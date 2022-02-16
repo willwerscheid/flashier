@@ -30,6 +30,9 @@ This behavior can be changed by setting \code{use.fixed.in.ebnm = TRUE}.
 This is a global setting which applies to all factor/loadings pairs;
 behavior cannot vary from one pair to another.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
 Fixes or unfixes loadings \eqn{\ell_k} or factors \eqn{f_k} for one or more
   factor/loadings pairs. For a given pair, either the loadings or factor can

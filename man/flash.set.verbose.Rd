@@ -50,6 +50,9 @@ for an example.}
 \item{colwidths}{A vector of column widths, one for each function in
 \code{disp.fns}.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
 Determines the output that will be displayed when fitting a flash object.
 }

@@ -28,6 +28,8 @@
 #'   initialized as the squared values of the first moments. Missing entries
 #'   are not allowed.
 #'
+#' @return A \code{\link{flash}} object.
+#'
 #' @examples
 #' data(gtex)
 #'
