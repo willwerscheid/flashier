@@ -87,3 +87,8 @@ fl <- flash.init(gtex) \%>\%
   flash.add.greedy(Kmax = 1L)
 
 }
+\seealso{
+\code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+  \code{\link{display.max.chg}}, \code{\link{display.L.max.chg}},
+  \code{\link{display.F.max.chg}}
+}

@@ -39,6 +39,10 @@
 #' @param colwidths A vector of column widths, one for each function in
 #'   \code{disp.fns}.
 #'
+#' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+#'   \code{\link{display.max.chg}}, \code{\link{display.L.max.chg}},
+#'   \code{\link{display.F.max.chg}}
+#'
 #' @examples
 #' data(gtex)
 #'
