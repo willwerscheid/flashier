@@ -24,7 +24,7 @@ to be added.}
 \item{Kmax}{The maximum number of factors to be added. This will not
 necessarily be the total number of factors added by
 \code{flash.add.greedy}, since factors are only added as long as they
-increase the variational lower bound on the log likelihood for the model.}
+increase the ELBO.}
 
 \item{ebnm.fn}{The function or functions used to solve the empirical Bayes
   normal means (EBNM) subproblems. Most importantly, these functions specify
@@ -33,27 +33,28 @@ increase the variational lower bound on the log likelihood for the model.}
   assumed to belong. If the same function is to be used for both loadings
   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
   If one function is to be used for loadings and a second for factors,
-  then \code{ebnm.fn} should be a list of length two, with the first list
+  then \code{ebnm.fn} should be a list of length two, with the first
   element giving the function for loadings and the second the function
-  for factors (see \strong{Examples} below).
-  If different functions are to be used for different values of \eqn{k},
-  then factors must be added successively using multiple calls to either
-  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
+  for factors. If different functions are to be used for different values of
+  \eqn{k}, then factor/loadings pairs must be added successively using
+  multiple calls to either \code{\link{flash.add.greedy}} or
+  \code{\link{flash.init.factors}}.
 
   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
   used as input. Non-default arguments to parameters can be supplied using
   the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
   also be used: for details, see \code{\link{as.ebnm.fn}}.}
 
-\item{init.fn}{The function used to initialize factors. Functions
+\item{init.fn}{The function used to initialize factor/loadings pairs. Functions
 \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
 \code{\link{init.fn.irlba}} have been supplied
 (\code{\link{init.fn.softImpute}} can yield better results than the
 default initialization function when there is missing data). Custom
 initialization functions may also be used. It is espeically important to
-use an appropriate initialization function when loadings must be constrained
-in some fashion --- otherwise, the greedy algorithm can stop adding factors
-too early. Custom initialization functions should accept a single
+use an appropriate initialization function when factors or loadings must be
+constrained in some fashion --- otherwise, the greedy algorithm can stop
+adding factor/loadings pairs too early. Custom initialization functions
+should accept a single
 parameter referring to a \code{\link{flash.fit}} object and should output
 a list consisting of two vectors, which will be used as initial values for
 the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
@@ -69,13 +70,12 @@ calling \code{options("extrapolate.control") <- control.param}.}
 
 \item{warmstart}{Whether to use "warmstarts" when solving the EBNM
 subproblems by initializing solutions at the previous value of the fitted
-prior \eqn{\hat{g}}. An important side effect of warmstarts is to fix the
-prior family grid at its initial setting for \code{ashr}-like prior
-families (including most nonparametric prior families implemented by
-\code{\link[ebnm]{ebnm}}). Fixing the grid can lead to poor fits if there are
-large changes in the scale of the estimated prior over the
+prior \eqn{\hat{g}}. An important side effect of warmstarts for
+\code{ashr}-like prior families is to fix the grid at its initial setting.
+Fixing the grid can lead to poor fits if there
+are large changes in the scale of the estimated prior over the
 course of the fitting process. However, allowing the grid to
-vary can occasionally result in decreases in the objective function.}
+vary can occasionally result in decreases in ELBO.}
 
 \item{conv.crit.fn}{The function used to calculate the optimization objective.
 Fitting terminates (i.e., the fit is considered to have "converged") when
@@ -86,7 +86,7 @@ Custom functions may also be used. They should accept three parameters,
 \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
 \code{\link{flash.fit}} object from the current iteration and \code{old}
 refers to the \code{\link{flash.fit}} object from the previous iteration.
-Custom functions can safely ignore parameter \code{k}, which is only
+Custom functions can safely ignore parameter \code{k}, which is
 included for uniformity with custom "verbose" display functions (see
 \code{\link{flash.set.verbose}}).}
 
@@ -103,12 +103,15 @@ variational lower bound, and \code{3} for updates after every iteration.
 It is also possible to output a single tab-delimited table of values
 using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
-Adds factors to a flash object in a "greedy" manner. Up to \code{Kmax}
-  factors are added one at a time. At each step, \code{flash.add.greedy}
+Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
+  \code{Kmax} pairs are added one at a time. At each step, \code{flash.add.greedy}
   attempts to find an optimal additional (rank-one) factor given all
   previously added factors. The additional factor is retained if it
-  increases the ELBO; otherwise, fitting terminates.
+  increases the variational lower bound (ELBO); otherwise, fitting terminates.
 }
 \examples{
 # Increase the maximum number of iterations in the default initialization

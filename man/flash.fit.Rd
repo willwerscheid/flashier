@@ -2,80 +2,79 @@
 % Please edit documentation in R/flash_fit_object.R
 \name{flash.fit}
 \alias{flash.fit}
+\alias{ff.pm}
+\alias{ff.p2m}
+\alias{ff.var.type}
+\alias{ff.fixed.var.type}
+\alias{ff.est.tau}
+\alias{ff.fixed.tau}
+\alias{ff.tau}
+\alias{ff.elbo}
+\alias{ff.KL}
+\alias{ff.g}
+\alias{ff.data}
+\alias{ff.nonmissing}
+\alias{ff.R2}
 \title{Extract a flash.fit object}
 \usage{
 flash.fit(flash)
+
+ff.pm(f, n)
+
+ff.p2m(f, n)
+
+ff.var.type(f)
+
+ff.fixed.var.type(f)
+
+ff.est.tau(f)
+
+ff.fixed.tau(f)
+
+ff.tau(f)
+
+ff.elbo(f)
+
+ff.KL(f, k, n)
+
+ff.g(f, k, n)
+
+ff.data(f)
+
+ff.nonmissing(f)
+
+ff.R2(f)
 }
 \arguments{
 \item{flash}{A \code{flash} object.}
+
+\item{f}{A \code{flash.fit} object.}
+
+\item{n}{The "mode" (set \code{n = 1} for loadings \eqn{L} and \code{n = 2}
+for factors \eqn{F}).}
+
+\item{k}{Only used during sequential backfits (that is, calls to
+\code{flash.backfit} where \code{extrapolate = FALSE}). It then gives the
+index of the factor/loadings pair currently being optimized.}
 }
-\value{
-A \code{flash.fit} object. A non-exhaustive list of the fields it
-  can contain includes:
-  \describe{
-    \item{\code{Y}}{The data matrix, with missing data (NAs) replaced by
-      zeros.}
-    \item{\code{Z}}{A matrix of 0s and 1s indicating whether data is missing
-      (0) or present (1). If there is no missing data, then a scalar might
-      be stored rather than a full matrix of 1s.}
-    \item{\code{n.nonmissing}}{The number of nonmissing entries (total, by
-      row, or by column, depending on the variance type).}
-    \item{\code{Y2}}{The data sum of squares (total, by row, or by column).}
-    \item{\code{R2}}{The sum of expected squared residuals (total, by row,
-      or by column).}
-    \item{\code{est.tau.dim}}{Describes the structure of the estimated
-      portion of the residual variance. Identical to parameter
-      \code{var.type} in function \code{\link{flash}}.}
-    \item{\code{est.tau}}{Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
-      is the estimated portion of the residual variance (total, by row, or
-      by column).}
-    \item{\code{given.tau}}{Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
-      fixed portion of the residual variance.}
-    \item{\code{given.tau.dim}}{Describes the structure of the fixed
-      portion of the residual variance. Analogous to \code{est.tau.dim}.}
-    \item{\code{tau}}{The overall precision \eqn{1 / (\sigma^2 + s^2)}.}
-    \item{\code{obj}}{The ELBO.}
-    \item{\code{fix.dim, fix.idx}}{Lists. If there are any fixed elements
-      in loadings \eqn{\ell_k} or factor \eqn{f_k}, then the mode --- i.e.,
-      whether loadings (1) or factors (2) are fixed --- is given by
-      \code{fix.dim[[k]]} and the indices \eqn{i} of the fixed elements
-      \eqn{\ell_{ik}} or \eqn{f_{ik}} are given by \code{fix.idx[[k]]}.}
-    \item{\code{use.fixed.to.est.g}}{Should fixed elements be used or
-      ignored when solving the EBNM subproblem in order to estimate
-      the prior \eqn{\hat{g}}?}
-    \item{\code{verbose.lvl, verbose.fns, verbose.colnames,
-      verbose.colwidths}}{Settings for verbose output. See function
-      \code{\link{flash.set.verbose}}.}
-    \item{\code{EF, EF2}}{Lists of matrices. \code{EF[[1]]} and
-      \code{EF2[[1]]} are \eqn{n \times k} matrices of, respectively,
-      first and second posterior moments for the loadings matrix \eqn{L},
-      and \code{EF[[2]]} and \code{EF2[[2]]} are \eqn{p \times k} matrices
-      of first and second posterior moments for the factors matrix \eqn{F}.}
-    \item{\code{KL}}{A list of vectors giving the KL-divergence portion of
-      the ELBO for loadings (\code{KL[[1]]}) and factors (\code{KL[[2]]}).}
-    \item{\code{g}}{A list of lists giving estimated priors \eqn{\hat{g}}.
-      \code{g[[k]]} gives estimated priors for \eqn{\ell_k}
-      (\code{g[[k]][[1]]}) and \eqn{f_k} (\code{g[[k]][[2]]}).}
-    \item{\code{ebnm.fn}}{A list of lists containing the functions used
-      to solve the EBNM subproblems. The structure of the list is similar
-      to the structure of field \code{g} described above.}
-    \item{\code{is.valid}}{A boolean vector of length \eqn{K} that indicates
-      whether each factor represents a valid contribution to the ELBO. For
-      this to be true, it cannot simply be initialized, but must be updated
-      at least once using the greedy or backfit algorithm.}
-    \item{\code{is.zero}}{A boolean vector of length \eqn{K} that indicates
-      whether each factor is identically zero.}
-    \item{\code{warmstart.greedy}}{Should warmstarts be used when fitting
-      new factors using the greedy algorithm? (See function
-      \code{\link{flash.add.greedy}}.)}
-    \item{\code{warmstart.backfit}}{Should warmstarts be used when refining
-      a flash fit using the backfit algorithm? (See function
-      \code{\link{flash.backfit}}.)}
-    \item{\code{maxiter.reached}}{This flag is set when a backfit terminates
-      because the maximum number of iterations has been reached. If a
-      backfit goes to convergence, then the flag is cleared.}
-  }
-  The following methods are available for \code{flash.fit} objects:
+\description{
+\code{flash.fit} objects are the "internal" objects used by \code{flash}
+  functions to fit an EBMF model. Whereas \code{flash} objects
+  (the end results of the fitting process) include user-friendly fields and
+  methods, \code{flash.fit} objects were not designed for public
+  consumption and can be unwieldy. Nonetheless, some advanced
+  \code{flash} functionality requires the wielding of
+  \code{flash.fit} objects. In particular, initialization, convergence,
+  and "verbose" display functions all take one or more \code{flash.fit}
+  objects as input (see parameter \code{init.fn} in function
+  \code{\link{flash.add.greedy}}; parameter \code{conv.crit.fn} in
+  \code{\link{flash.add.greedy}} and \code{\link{flash.backfit}};
+  and parameter \code{disp.fns} in \code{\link{flash.set.verbose}}).
+  For users who would like to write custom functions, the getter functions
+  and methods enumerated below may prove useful.
+}
+\details{
+The following S3 methods are available for \code{flash.fit} objects:
   \describe{
     \item{\code{\link{fitted.flash.fit}}}{Returns the "fitted values"
       \eqn{E(LF') = E(L) E(F)'}.}
@@ -85,22 +84,52 @@ A \code{flash.fit} object. A non-exhaustive list of the fields it
       with columns of \eqn{L} and \eqn{F} scaled as specified by the user.}
   }
 }
-\description{
-Extracts a \code{flash.fit} object from a \code{\link{flash}} object.
-}
-\details{
-\code{flash.fit} objects are the "internal" objects that \code{flash}
-  functions manipulate to fit an EBMF model. Whereas \code{flash} objects
-  (the end results of the fitting process) include user-friendly fields and
-  methods, \code{flash.fit} objects were not designed for public
-  consumption and can be very unwieldy. Nonetheless, some advanced
-  \code{flash} functionality requires a working knowledge of the structure
-  of \code{flash.fit} objects. In particular, initialization, convergence,
-  and "verbose" display functions all take one or more \code{flash.fit}
-  objects as input (see parameter \code{init.fn} in function
-  \code{\link{flash.add.greedy}}; parameter \code{conv.crit.fn} in
-  \code{\link{flash.add.greedy}} and \code{\link{flash.backfit}};
-  and parameter \code{fns} in \code{\link{flash.set.verbose}}).
-  For users who would like to write custom functions, the description of the
-  \code{flash.fit} object given below may prove useful.
-}
+\section{Functions}{
+\itemize{
+\item \code{ff.pm}: The matrix of posterior means for the loadings matrix
+\eqn{L} (when parameter \code{n} is equal to \code{1}) or factors matrix
+\eqn{F} (when \code{n = 2}).
+
+\item \code{ff.p2m}: The matrix of posterior second moments for the
+loadings matrix \eqn{L} (when \code{n = 1}) or factors matrix \eqn{F}
+(when \code{n = 2}).
+
+\item \code{ff.var.type}: Describes the structure of the estimated portion of
+the residual variance. Identical to parameter \code{var.type} in function
+\code{\link{flash}}.
+
+\item \code{ff.fixed.var.type}: Describes the structure of the fixed portion of
+the residual variance. Analogous to \code{ff.var.type}.
+
+\item \code{ff.est.tau}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
+is the estimated portion of the residual variance (total, by row, or
+by column, depending on the variance type).
+
+\item \code{ff.fixed.tau}: Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
+fixed portion of the residual variance (total, by row, or by column).
+
+\item \code{ff.tau}: The overall precision \eqn{1 / (\sigma^2 + s^2)}.
+
+\item \code{ff.elbo}: The variational lower bound (ELBO).
+
+\item \code{ff.KL}: The KL-divergence portion of the ELBO for the
+\eqn{k}th set of loadings (when \code{n = 1}) or factor (when
+\code{n = 2}). During extrapolated backfits, a vector will be
+returned with one value for each factor/loadings pair.
+
+\item \code{ff.g}: The estimated prior \eqn{\hat{g}} for loadings
+\eqn{\ell_k} (when \code{n = 1}) or for factor \eqn{f_k} (when
+\code{n = 2}). During extrapolated backfits, a list of priors will be
+returned with one element for each factor/loadings pair.
+
+\item \code{ff.data}: The data matrix, with missing data (NAs) replaced by
+zeros.
+
+\item \code{ff.nonmissing}: A matrix of 0s and 1s indicating whether data
+is missing (0) or present (1). If there is no missing data, then a scalar
+might be stored rather than a full matrix of 1s.
+
+\item \code{ff.R2}: The sum of expected squared residuals (total, by row,
+or by column, depending on the variance type).
+}}
+

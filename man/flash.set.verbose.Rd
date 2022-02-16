@@ -7,7 +7,7 @@
 flash.set.verbose(
   flash,
   verbose,
-  fns = NULL,
+  disp.fns = NULL,
   colnames = NULL,
   colwidths = NULL
 )
@@ -15,39 +15,47 @@ flash.set.verbose(
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
 
-\item{verbose}{When and how to display progress updates. Set to
-  \code{0} for none, \code{1} for updates after a factor is added or a
-  backfit is completed, \code{2} for additional notifications about the
-  variational lower bound, and \code{3} for updates after every iteration.
-  Set to \code{-1} to output a single tab-delimited table of values.
+\item{verbose}{When and how to display progress updates. Set to \code{0}
+  for no updates; \code{1} for updates after a "greedy" factor is added or
+  a backfit is completed; \code{2} for additional notifications about the
+  variational lower bound (ELBO); and \code{3} for updates after every
+  iteration. By default, per-iteration update information includes the
+  change in ELBO and the maximum (absolute) change over all L2-normalized
+  loadings \eqn{\ell_1, \ldots, \ell_K} and factors \eqn{f_1, \ldots, f_K}.
+  Update information is customizable via parameters \code{disp.fns},
+  \code{colnames}, and \code{colwidths}.
 
-When \code{verbose = 3}, the improvement in the ELBO and the largest
-  change in the loadings is shown after each iteration. If \code{verbose}
-  is a character string rather than an integer, then a different set of
-  columns will be shown. The character string should be a set of letters
-  separated by spaces. Each letter may be followed by a number to specify
-  a mode (e.g., rows or columns). Current options are: the (O)bjective
-  after each iteration; the (D)ifference in the objective after each
-  iteration; the maximum change in the mode-n (L)oadings after each
-  iteration; the index corresponding to (W)hich mode-n loadings experienced
-  the largest change; and the (S)parsity of the mode-n loadings after each
-  iteration. See \strong{Examples} below for usage.
+A single tab-delimited table of values may also be output using
+  option \code{verbose = -1}. This format is especially convenient for
+  downstream analysis of the fitting history (for example, it may be used
+  to plot the value of the ELBO after each iteration).}
 
-Note that output is completely customizable via parameters \code{fns},
-  \code{colnames}, and \code{colwidths}. If these are used, then
-  \code{verbose} must take an integer argument, and the specified columns
-  will only display when \code{verbose} is either -1 or 3.}
-
-\item{fns}{A vector of functions. Used to calculate values to output after
-each factor update when \code{verbose} is either -1 or 3.}
+\item{disp.fns}{A vector of functions. Used to calculate values to display
+after each greedy/backfit iteration when \code{verbose} is either -1 or 3.
+Options include \code{\link{display.elbo}},
+\code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
+\code{\link{display.L.max.chg}}, and \code{\link{display.F.max.chg}}.
+Custom functions may also be used. They should accept three parameters,
+\code{new}, \code{old}, and \code{k}, where \code{new} refers to the
+\code{\link{flash.fit}} object from the current iteration, \code{old}
+refers to the \code{flash.fit} object from the previous iteration,
+and \code{k} identifies the factor/loadings pair that is currently
+being updated during sequential backfits (that is, in calls to function
+\code{\link{flash.backfit}} where \code{extrapolate = FALSE}). See below
+for an example.}
 
 \item{colnames}{A vector of column names, one for each function in
-\code{fns}.}
+\code{disp.fns}.}
 
-\item{colwidths}{A vector of column widths.}
+\item{colwidths}{A vector of column widths, one for each function in
+\code{disp.fns}.}
+}
+\value{
+A \code{\link{flash}} object.
 }
 \description{
-Determines the output that will be displayed when fitting a flash object.
+Determines the output that will be displayed when fitting a \code{flash}
+  object.
 }
 \examples{
 data(gtex)
@@ -57,27 +65,34 @@ fl <- flash.init(gtex) \%>\%
   flash.set.verbose(0) \%>\%
   flash.add.greedy(Kmax = 5L)
 
-# Set verbose output using a character string.
-fl <- flash.init(gtex) \%>\%
-  flash.set.verbose("D L2 W2 S1") \%>\%
-  flash.add.greedy(Kmax = 5L)
-
 # Set custom verbose output.
-fns <- c(flashier:::display.obj.diff,
-         function(new, old, k) {
-           flashier:::calc.max.abs.chg.EF(new, old, k, n = 2)
-         })
-colnames <- c("ELBO Diff", "Max Chg (Tiss)")
-colwidths <- c(12, 18)
+sparsity.F <- function(new, old, k) {
+  g.F <- ff.g(new, k, n = 2)
+  g.F.pi0 <- g.F$pi[1] # Mixture weight of the "null" component.
+  return(g.F.pi0)
+}
+disp.fns <- c(display.elbo, display.F.max.chg, sparsity.F)
+colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
+colwidths <- c(12, 18, 18)
 fl <- flash.init(gtex) \%>\%
-  flash.set.verbose(3L, fns = fns, colnames = colnames, colwidths = colwidths) \%>\%
+  flash.set.verbose(
+    3L,
+    disp.fns = disp.fns,
+    colnames = colnames,
+    colwidths = colwidths
+  ) \%>\%
   flash.add.greedy(Kmax = 3L)
 
-# Default output can be set and then turned off as needed.
+# Output can be changed as needed.
 fl <- flash.init(gtex) \%>\%
-  flash.set.verbose("D L2 W2 S1") \%>\%
+  flash.set.verbose(verbose = 1) \%>\%
   flash.add.greedy(Kmax = 5L) \%>\%
-  flash.backfit(verbose.lvl = 1) \%>\%
+  flash.backfit(verbose = 3) \%>\%
   flash.add.greedy(Kmax = 1L)
 
+}
+\seealso{
+\code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
+  \code{\link{display.max.chg}}, \code{\link{display.L.max.chg}},
+  \code{\link{display.F.max.chg}}
 }

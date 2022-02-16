@@ -1,11 +1,13 @@
 #' Remove factors from a flash object
 #'
-#' Sets flash factors to zero and then removes them from the flash object.
-#'   Note that this will change the indices of existing flash factors.
+#' Sets factor/loadings pairs to zero and then removes them from the \code{flash}
+#'   object. Note that this will change the indices of existing pairs.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
 #' @param kset A vector of integers specifying which factors to set to zero.
+#'
+#' @return A \code{\link{flash}} object.
 #'
 #' @seealso \code{\link{flash.set.factors.to.zero}}
 #'
@@ -39,12 +41,14 @@ flash.remove.factors <- function(flash, kset) {
 
 #' Set flash factors to zero
 #'
-#' Sets flash factors to zero but does not remove them (so as to keep the
-#'   indices of existing factors the same).
+#' Sets factor/loadings pairs to zero but does not remove them from the
+#'   \code{flash} object (so as to keep the indices of existing pairs the same).
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
 #' @param kset A vector of integers specifying which factors to remove.
+#'
+#' @return A \code{\link{flash}} object.
 #'
 #' @seealso \code{\link{flash.remove.factors}}
 #'

@@ -14,6 +14,7 @@ set.fit <- function(f, fit) {
 }
 get.conv.stat <- function(f) f[["convergence.status"]]
 
+
 # Getters for the flash.fit object (also used by the smaller factors) ---------
 
 get.R                 <- function(f) f[["R"]]
@@ -110,6 +111,10 @@ get.g <- function(f, n = NULL) {
   return(f[["g"]][[n]])
 }
 get.g.k <- function(f, k, n = NULL) {
+  if (is.null(k) && is.null(n))
+    return(f[["g"]])
+  if (is.null(k))
+    return(f[["g"]][[n]])
   if (is.null(n))
     return(f[["g"]][[k]])
   return(f[["g"]][[k]][[n]])
@@ -121,7 +126,16 @@ get.KL <- function(f, n = NULL) {
     return(NULL)
   return(f[["KL"]][[n]])
 }
-get.KL.k <- function(f, k) sapply(f[["KL"]], getElement, k)
+get.KL.k <- function(f, k, n = NULL) {
+  if (is.null(k)) {
+    KL <- f[["KL"]]
+  } else {
+    KL <- sapply(f[["KL"]], getElement, k)
+  }
+  if (is.null(n))
+    return(KL)
+  return(KL[[n]])
+}
 is.zero <- function(f, k = NULL) {
   if (is.null(k))
     return(f[["is.zero"]])
@@ -508,6 +522,9 @@ set.delta.R2 <- function(f, delta.R2) {
 set.sum.tau.R2 <- function(f, sum.tau.R2) {
   f[["sum.tau.R2"]] <- sum.tau.R2
   return(f)
+}
+set.fixed.to.est.g <- function(f, use.fixed) {
+  f[["use.fixed.to.est.g"]] <- use.fixed
 }
 set.is.zero <- function(f, is.zero) {
   f[["is.zero"]] <- is.zero

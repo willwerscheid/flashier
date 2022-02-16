@@ -1,6 +1,7 @@
 #' Nullcheck flash factors
 #'
-#' Sets factors to zero if doing so improves the overall fit.
+#' Sets factor/loadings pairs to zero if doing so improves the variational
+#'   lower bound (ELBO).
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
@@ -8,13 +9,19 @@
 #'   If \code{kset = NULL}, then all existing factors will be checked.
 #'
 #' @param remove Whether to remove factors that have been set to zero from the
-#'   flash object. Note that this might change the indices of existing factors.
+#'   \code{flash} object. Note that this might change the indices of existing
+#'   factors.
 #'
 #' @param tol The tolerance parameter: if a factor does not improve the ELBO
 #'   by at least \code{tol}, then it will be set to zero.
 #'
 #' @param verbose When and how to display progress updates. For nullchecks,
 #'   updates are only displayed when \code{verbose.lvl} > 0.
+#'
+#' @return A \code{\link{flash}} object.
+#'
+#' @seealso \code{\link{flash.remove.factors}},
+#'   \code{\link{flash.set.factors.to.zero}}
 #'
 #' @export
 #'
@@ -40,7 +47,7 @@ flash.nullcheck <- function(flash,
   must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
-  announce.nullchk(verbose.lvl, n.factors = length(kset))
+  announce.nullchk(verbose.lvl, length(kset), sum(is.zero(fit)))
 
   for (k in kset) {
     fit <- nullcheck.factor(fit, k, verbose.lvl, tol)
@@ -54,6 +61,7 @@ flash.nullcheck <- function(flash,
     announce.wrapup(verbose.lvl)
     if (remove) {
       flash <- flash.remove.factors(fit, which(is.zero(fit)))
+      report.factor.removal(verbose.lvl, sum(is.zero(fit)))
     } else {
       flash <- wrapup.flash(fit, output.lvl = 3L)
     }

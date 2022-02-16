@@ -1,12 +1,14 @@
 #' Initialize flash factors at specified values
 #'
-#' Initializes factors at values specified by \code{init}. This
-#'   has two primary uses: 1. One can initialize multiple factors at once using
-#'   an SVD-like function and then optimize them via \code{flash.backfit}.
-#'   Sometimes this results in a better fit than adding factors one at a time
-#'   via \code{flash.add.greedy}. 2. One can initialize factors and then fix
-#'   the loadings via \code{\link{flash.fix.loadings}} to incorporate "known"
-#'   factors into a flash object. See below for examples of both use cases.
+#' Initializes factor/loadings pairs at values specified by \code{init}. This
+#'   function has two primary uses: 1. One can initialize multiple
+#'   factor/loadings pairs at once using an SVD-like function and then optimize
+#'   them via function \code{\link{flash.backfit}}. Sometimes this results in
+#'   a better fit than adding them one at a time via
+#'   \code{\link{flash.add.greedy}}. 2. One can initialize factor/loadings pairs
+#'   and then fix the factor (or loadings) via function
+#'   \code{\link{flash.fix.factors}} to incorporate "known" factors into a
+#'   \code{flash} object. See below for examples of both use cases.
 #'
 #' @inheritParams flash
 #'
@@ -14,31 +16,37 @@
 #'   to be added.
 #'
 #' @param init An SVD-like object (specifically, a list containing fields
-#'   \code{u}, \code{d}, and \code{v}), a flash fit, or a list of matrices
-#'   specifying the values at which factors are to be initialized (for a data
+#'   \code{u}, \code{d}, and \code{v}), a \code{flash} or \code{flash.fit}
+#'   object, or a list of matrices specifying the values at which factors
+#'   and loadings are to be initialized (for a data
 #'   matrix of size \eqn{n \times p}, this should be a list of length two,
 #'   with the first element a matrix of size \eqn{n \times k} and the second
-#'   a matrix of size \eqn{p \times k}. If a flash fit is supplied, then it
+#'   a matrix of size \eqn{p \times k}). If a flash fit is supplied, then it
 #'   will be used to initialize both the first and second moments of
 #'   posteriors on loadings and factors. Otherwise, the supplied values will
 #'   be used to initialize posterior means, with posterior second moments
 #'   initialized as the squared values of the first moments. Missing entries
 #'   are not allowed.
 #'
+#' @return A \code{\link{flash}} object.
+#'
 #' @examples
+#' data(gtex)
+#'
 #' # Initialize several factors at once and backfit.
 #' fl <- flash.init(gtex) %>%
 #'   flash.init.factors(init = svd(gtex, nu = 5, nv = 5)) %>%
 #'   flash.backfit()
 #'
-#' # Add a fixed factor with row loadings identically equal to one. This can be
-#' #   interpreted as a "mean" factor that accounts for different row-wise means.
+#' # Add fixed loadings with \ell_i identically equal to one. This can be
+#' #   interpreted as giving a "mean" factor that accounts for different
+#' #   row-wise means.
 #' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
-#' # Initialize the column loadings at the least squares solution.
+#' # Initialize the factor at the least squares solution.
 #' ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 #' fl <- flash.init(gtex) %>%
 #'   flash.init.factors(init = list(ones, ls.soln)) %>%
-#'   flash.fix.loadings(kset = 1, mode = 1L) %>%
+#'   flash.fix.factors(kset = 1, mode = 1L) %>%
 #'   flash.backfit() %>%
 #'   flash.add.greedy(Kmax = 5L)
 #'

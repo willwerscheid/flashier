@@ -16,7 +16,7 @@ conv.crit.loadings(new, old, k)
 \description{
 An alternative objective function that can be used to determine
   convergence when fitting a \code{\link{flash}} object. Calculates the
-  maximum absolute difference in the L2-scaled loadings,
+  maximum absolute difference in the L2-normalized loadings,
   \eqn{\max_{i, k} | \frac{\ell_ik^{new}}{\| \ell_k^{new} \|_2} -
   \frac{\ell_ik^{old}}{\| \ell_k^{old} \|_2} |}.
 }

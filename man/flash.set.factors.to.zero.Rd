@@ -11,9 +11,12 @@ flash.set.factors.to.zero(flash, kset)
 
 \item{kset}{A vector of integers specifying which factors to remove.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
-Sets flash factors to zero but does not remove them (so as to keep the
-  indices of existing factors the same).
+Sets factor/loadings pairs to zero but does not remove them from the
+  \code{flash} object (so as to keep the indices of existing pairs the same).
 }
 \seealso{
 \code{\link{flash.remove.factors}}
