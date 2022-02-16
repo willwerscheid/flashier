@@ -86,7 +86,7 @@ report.nullchk.failure <- function(verbose.lvl, obj.diff, k) {
 }
 
 report.zero.factor <- function(verbose.lvl, k) {
-  if (verbose.lvl > 0) {
+  if (!is.null(k) && verbose.lvl > 0) {
     cat("  --Estimate of factor", k, "is numerically zero!\n")
   }
 }
