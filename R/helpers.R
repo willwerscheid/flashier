@@ -523,6 +523,9 @@ set.sum.tau.R2 <- function(f, sum.tau.R2) {
   f[["sum.tau.R2"]] <- sum.tau.R2
   return(f)
 }
+set.fixed.to.est.g <- function(f, use.fixed) {
+  f[["use.fixed.to.est.g"]] <- use.fixed
+}
 set.is.zero <- function(f, is.zero) {
   f[["is.zero"]] <- is.zero
   return(f)

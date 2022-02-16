@@ -1,30 +1,47 @@
-#' Fix flash loadings
+#' Fix flash factors
 #'
-#' Fixes some or all loadings within one or more flash factors.
+#' Fixes or unfixes loadings \eqn{\ell_k} or factors \eqn{f_k} for one or more
+#'   factor/loadings pairs. For a given pair, either the loadings or factor can
+#'   be fixed --- but not both ---, and either all loadings or a subset can be
+#'   fixed. To unfix, set \code{is.fixed = FALSE}.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object
 #'
-#' @param kset A vector of integers indexing the factors whose loadings are to
-#'   be fixed (or unfixed).
+#' @param kset A vector of integers indexing the factor/loadings pairs whose
+#'   loadings or factors are to be fixed (or unfixed).
 #'
-#' @param mode The mode along which loadings are to be fixed (for matrix data,
-#'   \code{mode = 1} fixes row loadings and \code{mode = 2} fixes column
-#'   loadings). For any given factor, loadings may only be fixed along a single
-#'   mode.
+#' @param mode Set \code{mode = 1} to fix loadings and \code{mode = 2} to fix
+#'   factors.
 #'
-#' @param is.fixed If \code{is.fixed = TRUE}, then all loadings along the
-#'   specified mode will be fixed. If only a subset of loadings are to be
-#'   fixed, then \code{is.fixed} should be an appropriately-sized vector or
-#'   matrix of values that can be coerced to logical. For example, if row
-#'   loadings for two factors are to be fixed, then \code{is.fixed} can be
-#'   a length-n vector or an n by 2 matrix (where n is the number of rows in
-#'   the data matrix). Finally, loadings can be "unfixed" by setting
-#'   \code{is.fixed = FALSE}.
+#' @param is.fixed If \code{is.fixed = TRUE}, then all entries along the
+#'   specified mode will be fixed. If only a subset are to be fixed,
+#'   then \code{is.fixed} should be an appropriately-sized vector or
+#'   matrix of values that can be coerced to logical. For example, if
+#'   loadings for two factor/loadings pairs are to be fixed, then
+#'   \code{is.fixed} can be a length-\eqn{n} vector or an \eqn{n} by 2
+#'   matrix (where \eqn{n} is the number of rows in the data matrix).
+#'   Finally, loadings can be "unfixed" by setting \code{is.fixed = FALSE}.
+#'
+#' @param use.fixed.in.ebnm By default, fixed elements are ignored when
+#'   solving the EBNM subproblem in order to estimate the prior \eqn{\hat{g}}.
+#'   This behavior can be changed by setting \code{use.fixed.in.ebnm = TRUE}.
+#'   This is a global setting which applies to all factor/loadings pairs;
+#'   behavior cannot vary from one pair to another.
 #'
 #' @export
 #'
-flash.fix.factors <- function(flash, kset, mode, is.fixed = TRUE) {
+flash.fix.factors <- function(flash,
+                              kset,
+                              mode,
+                              is.fixed = TRUE,
+                              use.fixed.in.ebnm = NULL) {
   fit <- get.fit(flash)
+  if (!is.null(use.fixed.in.ebnm)) {
+    if (!is.logical(use.fixed.in.ebnm)) {
+      stop("Argument to parameter use.fixed.in.ebnm must be logical.")
+    }
+    fit <- set.fixed.to.est.g(fit, use.fixed.in.ebnm)
+  }
 
   must.be.valid.kset(fit, kset)
   must.be.integer(mode, lower = 1, upper = get.dim(fit), allow.null = FALSE)
@@ -68,9 +85,3 @@ flash.fix.factors <- function(flash, kset, mode, is.fixed = TRUE) {
 
   return(flash)
 }
-
-# #' @describeIn flash.fit Should fixed elements be used (\code{TRUE}) or
-# #'   ignored (\code{FALSE}) when solving the EBNM subproblem in order to
-# #'   estimate the prior \eqn{\hat{g}}?
-# #' @export
-# ff.use.fixed.to.est.g <- function(f) use.fixed.to.est.g(f)
