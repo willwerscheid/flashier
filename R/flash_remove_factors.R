@@ -1,6 +1,6 @@
 #' Remove factors from a flash object
 #'
-#' Sets factor/loading pairs to zero and then removes them from the \code{flash}
+#' Sets factor/loadings pairs to zero and then removes them from the \code{flash}
 #'   object. Note that this will change the indices of existing pairs.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
@@ -41,7 +41,7 @@ flash.remove.factors <- function(flash, kset) {
 
 #' Set flash factors to zero
 #'
-#' Sets factor/loading pairs to zero but does not remove them from the
+#' Sets factor/loadings pairs to zero but does not remove them from the
 #'   \code{flash} object (so as to keep the indices of existing pairs the same).
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.

@@ -32,7 +32,7 @@ updates are only displayed when \code{verbose.lvl} > 0.}
 A \code{\link{flash}} object.
 }
 \description{
-Sets factor/loading pairs to zero if doing so improves the variational
+Sets factor/loadings pairs to zero if doing so improves the variational
   lower bound (ELBO).
 }
 \seealso{

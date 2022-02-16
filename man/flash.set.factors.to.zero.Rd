@@ -15,7 +15,7 @@ flash.set.factors.to.zero(flash, kset)
 A \code{\link{flash}} object.
 }
 \description{
-Sets factor/loading pairs to zero but does not remove them from the
+Sets factor/loadings pairs to zero but does not remove them from the
   \code{flash} object (so as to keep the indices of existing pairs the same).
 }
 \seealso{

@@ -1,6 +1,6 @@
 #' Nullcheck flash factors
 #'
-#' Sets factor/loading pairs to zero if doing so improves the variational
+#' Sets factor/loadings pairs to zero if doing so improves the variational
 #'   lower bound (ELBO).
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
