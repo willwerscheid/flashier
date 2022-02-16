@@ -1,8 +1,8 @@
 #' Backfit a flash object
 #'
-#' Backfits existing flash factors. Whereas a "greedy" fit optimizes each
-#'   newly added factor in one go without returning to optimize previously
-#'   added factors, a "backfit" updates all existing factors in a cyclical
+#' Backfits existing flash factor/loadings pairs. Whereas a "greedy" fit optimizes
+#'   each newly added factor/loadings pair in one go without returning to optimize
+#'   previously added pairs, a "backfit" updates all existing pairs in a cyclical
 #'   fashion.
 #'
 #' @inheritParams flash
@@ -11,7 +11,7 @@
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
-#' @param kset  A vector of integers specifying which factors to backfit.
+#' @param kset A vector of integers specifying which factors to backfit.
 #'   If \code{kset = NULL}, then all existing factors will be backfitted.
 #'
 #' @param maxiter The maximum number of backfitting iterations. An "iteration"
@@ -19,6 +19,8 @@
 #'   iteration.
 #'
 #' @importFrom parallel makeCluster stopCluster
+#'
+#' @return A \code{\link{flash}} object.
 #'
 #' @export
 #'

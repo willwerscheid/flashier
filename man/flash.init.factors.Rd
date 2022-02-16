@@ -30,12 +30,12 @@ are not allowed.}
   assumed to belong. If the same function is to be used for both loadings
   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
   If one function is to be used for loadings and a second for factors,
-  then \code{ebnm.fn} should be a list of length two, with the first list
+  then \code{ebnm.fn} should be a list of length two, with the first
   element giving the function for loadings and the second the function
-  for factors (see \strong{Examples} below).
-  If different functions are to be used for different values of \eqn{k},
-  then factors must be added successively using multiple calls to either
-  \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
+  for factors. If different functions are to be used for different values of
+  \eqn{k}, then factor/loadings pairs must be added successively using
+  multiple calls to either \code{\link{flash.add.greedy}} or
+  \code{\link{flash.init.factors}}.
 
   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
   used as input. Non-default arguments to parameters can be supplied using

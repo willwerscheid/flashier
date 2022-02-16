@@ -74,12 +74,12 @@
 #'   assumed to belong. If the same function is to be used for both loadings
 #'   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
 #'   If one function is to be used for loadings and a second for factors,
-#'   then \code{ebnm.fn} should be a list of length two, with the first list
+#'   then \code{ebnm.fn} should be a list of length two, with the first
 #'   element giving the function for loadings and the second the function
-#'   for factors (see \strong{Examples} below).
-#'   If different functions are to be used for different values of \eqn{k},
-#'   then factors must be added successively using multiple calls to either
-#'   \code{\link{flash.add.greedy}} or \code{\link{flash.init.factors}}.
+#'   for factors. If different functions are to be used for different values of
+#'   \eqn{k}, then factor/loadings pairs must be added successively using
+#'   multiple calls to either \code{\link{flash.add.greedy}} or
+#'   \code{\link{flash.init.factors}}.
 #'
 #'   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
 #'   used as input. Non-default arguments to parameters can be supplied using
@@ -94,7 +94,10 @@
 #'   across all observations. Setting \code{var.type = 1} estimates a single
 #'   variance parameter for each row; \code{var.type = 2} estimates one
 #'   parameter for each column; and \code{var.type = c(1, 2)} optimizes over
-#'   all rank-one matrices.
+#'   all rank-one matrices (that is, it assumes that the residual variance
+#'   parameter \eqn{s_{ij}} can be written \eqn{s_{ij} = a_i b_j}, where the
+#'   \eqn{n}-vector \eqn{a} and the \eqn{p}-vector \eqn{b} are to be
+#'   estimated).
 #'
 #'   Note that if any portion of the residual variance is to be estimated, then
 #'   it is usually faster to set \code{S = NULL} and to let \code{flash}
@@ -128,32 +131,32 @@
 #'
 #' @return A \code{flash} object. Contains elements:
 #'   \describe{
-#'     \item{\code{n.factors}}{The total number of factors \eqn{K} in the fitted
-#'       model.}
-#'     \item{\code{pve}}{The proportion of variance explained by each factor.
-#'       Since the factors are not required to be orthogonal, this should be
-#'       interpreted loosely: for example, the total proportion of variance
-#'       explained could be larger than 1.}
+#'     \item{\code{n.factors}}{The total number of factor/loadings pairs \eqn{K}
+#'       in the fitted model.}
+#'     \item{\code{pve}}{The proportion of variance explained by each
+#'       factor/loadings pair. Since factors and loadings are not required to be
+#'       orthogonal, this should be interpreted loosely: for example, the total
+#'       proportion of variance explained could be larger than 1.}
 #'     \item{\code{elbo}}{The variational lower bound achieved by the
 #'       fitted model.}
 #'     \item{\code{residuals.sd}}{Estimated residual standard deviations (these
 #'       include any variance component given as an argument to \code{S}).}
-#'     \item{\code{loadings.pm, loadings.psd, loadings.lfsr}}{Posterior means,
+#'     \item{\code{L.pm, L.psd, L.lfsr}}{Posterior means,
 #'       standard deviations, and local false sign rates for loadings \eqn{L}.}
-#'     \item{\code{factors.pm, factors.psd, factors.lfsr}}{Posterior means,
+#'     \item{\code{F.pm, F.psd, F.lfsr}}{Posterior means,
 #'       standard deviations, and local false sign rates for factors \eqn{F}.}
-#'     \item{\code{loadings.priors}}{The fitted priors on loadings
+#'     \item{\code{L.ghat}}{The fitted priors on loadings
 #'       \eqn{\hat{g}_\ell^{(k)}}.}
-#'     \item{\code{factors.priors}}{The fitted priors on factors
+#'     \item{\code{F.ghat}}{The fitted priors on factors
 #'       \eqn{\hat{g}_f^{(k)}}.}
 #'     \item{\code{sampler}}{A function that takes a single argument
 #'       \code{nsamp} and returns \code{nsamp} samples from the posterior
-#'       distribution of the (non-normalized) loadings.}
+#'       distributions for factors \eqn{F} and loadings \eqn{L}.}
 #'     \item{\code{flash.fit}}{A \code{\link{flash.fit}} object. Used by
 #'       \code{flash} when fitting is not performed all at once, but
 #'       incrementally via calls to various \code{flash.xxx} functions.}
 #'   }
-#'   Additionally, the following methods are available:
+#'   The following methods are available:
 #'   \describe{
 #'     \item{\code{\link{fitted.flash}}}{Returns the "fitted values"
 #'       \eqn{E(LF') = E(L) E(F)'}.}

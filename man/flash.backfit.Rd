@@ -28,13 +28,12 @@ calling \code{options("extrapolate.control") <- control.param}.}
 
 \item{warmstart}{Whether to use "warmstarts" when solving the EBNM
 subproblems by initializing solutions at the previous value of the fitted
-prior \eqn{\hat{g}}. An important side effect of warmstarts is to fix the
-prior family grid at its initial setting for \code{ashr}-like prior
-families (including most nonparametric prior families implemented by
-\code{\link[ebnm]{ebnm}}). Fixing the grid can lead to poor fits if there are
-large changes in the scale of the estimated prior over the
+prior \eqn{\hat{g}}. An important side effect of warmstarts for
+\code{ashr}-like prior families is to fix the grid at its initial setting.
+Fixing the grid can lead to poor fits if there
+are large changes in the scale of the estimated prior over the
 course of the fitting process. However, allowing the grid to
-vary can occasionally result in decreases in the objective function.}
+vary can occasionally result in decreases in ELBO.}
 
 \item{conv.crit.fn}{The function used to calculate the optimization objective.
 Fitting terminates (i.e., the fit is considered to have "converged") when
@@ -63,9 +62,12 @@ variational lower bound, and \code{3} for updates after every iteration.
 It is also possible to output a single tab-delimited table of values
 using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
-Backfits existing flash factors. Whereas a "greedy" fit optimizes each
-  newly added factor in one go without returning to optimize previously
-  added factors, a "backfit" updates all existing factors in a cyclical
+Backfits existing flash factor/loadings pairs. Whereas a "greedy" fit optimizes
+  each newly added factor/loadings pair in one go without returning to optimize
+  previously added pairs, a "backfit" updates all existing pairs in a cyclical
   fashion.
 }

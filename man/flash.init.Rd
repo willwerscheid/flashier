@@ -33,7 +33,10 @@ data matrix is square, then the sense must be specified using parameter
   across all observations. Setting \code{var.type = 1} estimates a single
   variance parameter for each row; \code{var.type = 2} estimates one
   parameter for each column; and \code{var.type = c(1, 2)} optimizes over
-  all rank-one matrices.
+  all rank-one matrices (that is, it assumes that the residual variance
+  parameter \eqn{s_{ij}} can be written \eqn{s_{ij} = a_i b_j}, where the
+  \eqn{n}-vector \eqn{a} and the \eqn{p}-vector \eqn{b} are to be
+  estimated).
 
   Note that if any portion of the residual variance is to be estimated, then
   it is usually faster to set \code{S = NULL} and to let \code{flash}

@@ -1,10 +1,10 @@
 #' Greedily add factors to a flash object
 #'
-#' Adds factors to a flash object in a "greedy" manner. Up to \code{Kmax}
-#'   factors are added one at a time. At each step, \code{flash.add.greedy}
+#' Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
+#'   \code{Kmax} pairs are added one at a time. At each step, \code{flash.add.greedy}
 #'   attempts to find an optimal additional (rank-one) factor given all
 #'   previously added factors. The additional factor is retained if it
-#'   increases the ELBO; otherwise, fitting terminates.
+#'   increases the variational lower bound (ELBO); otherwise, fitting terminates.
 #'
 #' @inheritParams flash
 #'
@@ -14,17 +14,18 @@
 #' @param Kmax The maximum number of factors to be added. This will not
 #'   necessarily be the total number of factors added by
 #'   \code{flash.add.greedy}, since factors are only added as long as they
-#'   increase the variational lower bound on the log likelihood for the model.
+#'   increase the ELBO.
 #'
-#' @param init.fn The function used to initialize factors. Functions
+#' @param init.fn The function used to initialize factor/loadings pairs. Functions
 #'   \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
 #'   \code{\link{init.fn.irlba}} have been supplied
 #'   (\code{\link{init.fn.softImpute}} can yield better results than the
 #'   default initialization function when there is missing data). Custom
 #'   initialization functions may also be used. It is espeically important to
-#'   use an appropriate initialization function when loadings must be constrained
-#'   in some fashion --- otherwise, the greedy algorithm can stop adding factors
-#'   too early. Custom initialization functions should accept a single
+#'   use an appropriate initialization function when factors or loadings must be
+#'   constrained in some fashion --- otherwise, the greedy algorithm can stop
+#'   adding factor/loadings pairs too early. Custom initialization functions
+#'   should accept a single
 #'   parameter referring to a \code{\link{flash.fit}} object and should output
 #'   a list consisting of two vectors, which will be used as initial values for
 #'   the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
@@ -35,13 +36,12 @@
 #'
 #' @param warmstart Whether to use "warmstarts" when solving the EBNM
 #'   subproblems by initializing solutions at the previous value of the fitted
-#'   prior \eqn{\hat{g}}. An important side effect of warmstarts is to fix the
-#'   prior family grid at its initial setting for \code{ashr}-like prior
-#'   families (including most nonparametric prior families implemented by
-#'   \code{\link[ebnm]{ebnm}}). Fixing the grid can lead to poor fits if there are
-#'   large changes in the scale of the estimated prior over the
+#'   prior \eqn{\hat{g}}. An important side effect of warmstarts for
+#'   \code{ashr}-like prior families is to fix the grid at its initial setting.
+#'   Fixing the grid can lead to poor fits if there
+#'   are large changes in the scale of the estimated prior over the
 #'   course of the fitting process. However, allowing the grid to
-#'   vary can occasionally result in decreases in the objective function.
+#'   vary can occasionally result in decreases in ELBO.
 #'
 #' @param extrapolate Whether to use an extrapolation technique
 #'   inspired by Ang and Gillis (2019) to accelerate the fitting process.
@@ -92,6 +92,8 @@
 #'
 #' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
 #'   \code{\link{init.fn.irlba}}
+#'
+#' @return A \code{\link{flash}} object.
 #'
 #' @importFrom ebnm ebnm_point_normal
 #'
