@@ -3,7 +3,8 @@
 #' Fixes or unfixes loadings \eqn{\ell_k} or factors \eqn{f_k} for one or more
 #'   factor/loadings pairs. For a given pair, either the loadings or factor can
 #'   be fixed --- but not both ---, and either all loadings or a subset can be
-#'   fixed. To unfix, set \code{is.fixed = FALSE}.
+#'   fixed. To unfix, set \code{is.fixed = FALSE}. See
+#'   \code{\link{flash.init.factors}} for an example of usage.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object
 #'
