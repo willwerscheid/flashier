@@ -1,6 +1,6 @@
 #' Nullcheck flash factors
 #'
-#' Sets factors to zero if doing so improves the overall fit.
+#' Sets factor/loading pairs to zero if doing so improves the overall fit.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'
@@ -40,7 +40,7 @@ flash.nullcheck <- function(flash,
   must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
-  announce.nullchk(verbose.lvl, n.factors = length(kset))
+  announce.nullchk(verbose.lvl, length(kset), sum(is.zero(fit)))
 
   for (k in kset) {
     fit <- nullcheck.factor(fit, k, verbose.lvl, tol)
@@ -54,6 +54,7 @@ flash.nullcheck <- function(flash,
     announce.wrapup(verbose.lvl)
     if (remove) {
       flash <- flash.remove.factors(fit, which(is.zero(fit)))
+      report.factor.removal(verbose.lvl, sum(is.zero(fit)))
     } else {
       flash <- wrapup.flash(fit, output.lvl = 3L)
     }

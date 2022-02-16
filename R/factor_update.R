@@ -41,8 +41,10 @@ update.factor.one.n <- function(factor, n, flash) {
   factor <- set.KL(factor, ebnm.res$KL, n)
   factor <- set.g(factor, ebnm.res$fitted_g, n)
 
-  if (all(abs(new.EF)  < .Machine$double.eps))
+  if (all(abs(new.EF) < .Machine$double.eps)) {
+    report.zero.factor(get.verbose.lvl(flash), get.k(factor))
     factor <- set.to.zero(factor)
+  }
 
   return(factor)
 }

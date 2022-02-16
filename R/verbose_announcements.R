@@ -54,9 +54,16 @@ report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
         formatC(-obj.diff, format = "e", digits = 3), ".\n", sep = "")
 }
 
-announce.nullchk <- function(verbose.lvl, n.factors) {
-  if (verbose.lvl > 0 && n.factors > 0)
+announce.nullchk <- function(verbose.lvl, n.factors, n.zero.factors) {
+  if (verbose.lvl > 0 && n.factors > 0) {
     cat("Nullchecking", n.factors, "factors...\n")
+    if (n.zero.factors == 1) {
+      cat("  One factor is identically zero.\n")
+    }
+    if (n.zero.factors > 1) {
+      cat(" ", n.zero.factors, "factors are identically zero.\n")
+    }
+  }
 }
 
 announce.no.nullchk <- function(verbose.lvl) {
@@ -67,13 +74,29 @@ announce.no.nullchk <- function(verbose.lvl) {
 report.nullchk.failure <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0) {
     if (obj.diff > 0) {
-      cat("Factor ", k, " removed, increasing objective by ",
+      cat("Factor", k, "set to zero, increasing objective by ",
           formatC(obj.diff, format = "e", digits = 3), ".\n", sep = "")
     } else if (obj.diff == 0) {
-      cat("Factor", k, "removed with no change to objective.\n")
+      cat("Factor", k, "set to zero with no change to objective.\n")
     } else {
-      cat("Factor ", k, " removed, decreasing objective by ",
+      cat("Factor", k, "set to zero, decreasing objective by ",
           formatC(-obj.diff, format = "e", digits = 3), ".\n", sep = "")
+    }
+  }
+}
+
+report.zero.factor <- function(verbose.lvl, k) {
+  if (verbose.lvl > 0) {
+    cat("  --Estimate of factor", k, "is numerically zero!\n")
+  }
+}
+
+report.factor.removal <- function(verbose.lvl, n.factors) {
+  if (verbose.lvl > 0) {
+    if (n.factors == 1) {
+      cat("  Removed one factor.\n")
+    } else {
+      cat("  Removed", n.factors, "factors.\n")
     }
   }
 }
