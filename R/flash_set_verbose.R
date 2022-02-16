@@ -30,7 +30,8 @@
 #'   refers to the \code{flash.fit} object from the previous iteration,
 #'   and \code{k} identifies the factor/loadings pair that is currently
 #'   being updated during sequential backfits (that is, in calls to function
-#'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}).
+#'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}). See below
+#'   for an example.
 #'
 #' @param colnames A vector of column names, one for each function in
 #'   \code{disp.fns}.
@@ -49,14 +50,19 @@
 #' # Set custom verbose output.
 #' sparsity.F <- function(new, old, k) {
 #'   g.F <- ff.g(new, k, n = 2)
-#'   g.F.pi0 <- g.F$pi[1]
+#'   g.F.pi0 <- g.F$pi[1] # Mixture weight of the "null" component.
 #'   return(g.F.pi0)
 #' }
 #' disp.fns <- c(display.elbo, display.F.max.chg, sparsity.F)
 #' colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
 #' colwidths <- c(12, 18, 18)
 #' fl <- flash.init(gtex) %>%
-#'   flash.set.verbose(3L, disp.fns = disp.fns, colnames = colnames, colwidths = colwidths) %>%
+#'   flash.set.verbose(
+#'     3L,
+#'     disp.fns = disp.fns,
+#'     colnames = colnames,
+#'     colwidths = colwidths
+#'   ) %>%
 #'   flash.add.greedy(Kmax = 3L)
 #'
 #' # Output can be changed as needed.
