@@ -20,8 +20,8 @@
 #'   downstream analysis of the fitting history (for example, it may be used
 #'   to plot the value of the ELBO after each iteration).
 #'
-#' @param fns A vector of functions. Used to calculate values to display after
-#'   each greedy/backfit iteration when \code{verbose} is either -1 or 3.
+#' @param disp.fns A vector of functions. Used to calculate values to display
+#'   after each greedy/backfit iteration when \code{verbose} is either -1 or 3.
 #'   Options include \code{\link{display.elbo}},
 #'   \code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
 #'   \code{\link{display.max.chg.L}}, and \code{\link{display.max.chg.F}}.
@@ -34,10 +34,10 @@
 #'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}).
 #'
 #' @param colnames A vector of column names, one for each function in
-#'   \code{fns}.
+#'   \code{disp.fns}.
 #'
 #' @param colwidths A vector of column widths, one for each function in
-#'   \code{fns}.
+#'   \code{disp.fns}.
 #'
 #' @examples
 #' data(gtex)
@@ -49,15 +49,15 @@
 #'
 #' # Set custom verbose output.
 #' sparsity.F <- function(new, old, k) {
-#'   g <- get.g.k(new, k)
-#'   g.F.pi0 <- g[[2]]$pi[1]
+#'   g.F <- ff.g(new, k, n = 2)
+#'   g.F.pi0 <- g.F$pi[1]
 #'   return(g.F.pi0)
 #' }
-#' fns <- c(display.elbo, display.max.chg.F, sparsity.F)
+#' disp.fns <- c(display.elbo, display.max.chg.F, sparsity.F)
 #' colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
 #' colwidths <- c(12, 18, 18)
 #' fl <- flash.init(gtex) %>%
-#'   flash.set.verbose(3L, fns = fns, colnames = colnames, colwidths = colwidths) %>%
+#'   flash.set.verbose(3L, disp.fns = disp.fns, colnames = colnames, colwidths = colwidths) %>%
 #'   flash.add.greedy(Kmax = 3L)
 #'
 #' # Output can be changed as needed.
