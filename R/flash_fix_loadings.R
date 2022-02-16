@@ -23,7 +23,7 @@
 #'
 #' @export
 #'
-flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
+flash.fix.factors <- function(flash, kset, mode, is.fixed = TRUE) {
   fit <- get.fit(flash)
 
   must.be.valid.kset(fit, kset)

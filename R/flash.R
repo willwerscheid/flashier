@@ -195,7 +195,7 @@
 #' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash.init.factors}},
-#'   \code{\link{flash.fix.loadings}}, \code{\link{flash.set.factors.to.zero}},
+#'   \code{\link{flash.fix.factors}}, \code{\link{flash.set.factors.to.zero}},
 #'   \code{\link{flash.remove.factors}}, and \code{\link{flash.set.verbose}}.
 #'   For extracting useful data from \code{flash} objects, see
 #'   \code{\link{fitted.flash}}, \code{\link{residuals.flash}}, and
