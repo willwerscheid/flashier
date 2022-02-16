@@ -21,5 +21,5 @@ Displays the maximum (absolute) change over all L2-normalized loadings
 }
 \seealso{
 \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
-  \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+  \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 }

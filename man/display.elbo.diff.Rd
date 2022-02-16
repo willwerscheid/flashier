@@ -21,5 +21,5 @@ Displays the difference in the variational lower bound (ELBO) from one
 }
 \seealso{
 \code{\link{display.elbo}}, \code{\link{display.max.chg}},
-  \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+  \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 }

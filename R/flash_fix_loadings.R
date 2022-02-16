@@ -68,3 +68,9 @@ flash.fix.loadings <- function(flash, kset, mode, is.fixed = TRUE) {
 
   return(flash)
 }
+
+# #' @describeIn flash.fit Should fixed elements be used (\code{TRUE}) or
+# #'   ignored (\code{FALSE}) when solving the EBNM subproblem in order to
+# #'   estimate the prior \eqn{\hat{g}}?
+# #' @export
+# ff.use.fixed.to.est.g <- function(f) use.fixed.to.est.g(f)

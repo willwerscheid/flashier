@@ -12,7 +12,7 @@
 #'   gives the index of the factor/loadings pair currently being optimized.
 #'
 #' @seealso \code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
-#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'   \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 #'
 #' @export
 #'
@@ -31,7 +31,7 @@ display.elbo <- function(new, old, k) {
 #' @inheritParams display.elbo
 #'
 #' @seealso \code{\link{display.elbo}}, \code{\link{display.max.chg}},
-#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'   \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 #'
 #' @export
 #'
@@ -50,7 +50,7 @@ display.elbo.diff <- function(new, old, k) {
 #' @inheritParams display.elbo
 #'
 #' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
-#'   \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+#'   \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 #'
 #' @export
 #'
@@ -66,11 +66,11 @@ display.max.chg <- function(new, old, k) {
 #' @inheritParams display.elbo
 #'
 #' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
-#'   \code{\link{display.max.chg}}, \code{\link{display.max.chg.F}}
+#'   \code{\link{display.max.chg}}, \code{\link{display.F.max.chg}}
 #'
 #' @export
 #'
-display.max.chg.L <- function(new, old, k) {
+display.L.max.chg <- function(new, old, k) {
   return(calc.max.chg.EF(new, old, k, n = 1))
 }
 
@@ -82,11 +82,11 @@ display.max.chg.L <- function(new, old, k) {
 #' @inheritParams display.elbo
 #'
 #' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
-#'   \code{\link{display.max.chg}}, \code{\link{display.max.chg.L}}
+#'   \code{\link{display.max.chg}}, \code{\link{display.L.max.chg}}
 #'
 #' @export
 #'
-display.max.chg.F <- function(new, old, k) {
+display.F.max.chg <- function(new, old, k) {
   return(calc.max.chg.EF(new, old, k, n = 2))
 }
 

@@ -21,5 +21,5 @@ Displays the value of the variational lower bound (ELBO) at the current
 }
 \seealso{
 \code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
-  \code{\link{display.max.chg.L}}, \code{\link{display.max.chg.F}}
+  \code{\link{display.L.max.chg}}, \code{\link{display.F.max.chg}}
 }
