@@ -1,6 +1,7 @@
 #' Set verbose output
 #'
-#' Determines the output that will be displayed when fitting a flash object.
+#' Determines the output that will be displayed when fitting a \code{flash}
+#'   object.
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'

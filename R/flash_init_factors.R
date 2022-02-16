@@ -8,7 +8,7 @@
 #'   \code{\link{flash.add.greedy}}. 2. One can initialize factor/loadings pairs
 #'   and then fix the factor (or loadings) via function
 #'   \code{\link{flash.fix.factors}} to incorporate "known" factors into a
-#'   flash object. See below for examples of both use cases.
+#'   \code{flash} object. See below for examples of both use cases.
 #'
 #' @inheritParams flash
 #'

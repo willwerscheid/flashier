@@ -54,7 +54,8 @@ for an example.}
 A \code{\link{flash}} object.
 }
 \description{
-Determines the output that will be displayed when fitting a flash object.
+Determines the output that will be displayed when fitting a \code{flash}
+  object.
 }
 \examples{
 data(gtex)

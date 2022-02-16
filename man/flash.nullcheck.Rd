@@ -19,7 +19,8 @@ flash.nullcheck(
 If \code{kset = NULL}, then all existing factors will be checked.}
 
 \item{remove}{Whether to remove factors that have been set to zero from the
-flash object. Note that this might change the indices of existing factors.}
+\code{flash} object. Note that this might change the indices of existing
+factors.}
 
 \item{tol}{The tolerance parameter: if a factor does not improve the ELBO
 by at least \code{tol}, then it will be set to zero.}
@@ -27,6 +28,14 @@ by at least \code{tol}, then it will be set to zero.}
 \item{verbose}{When and how to display progress updates. For nullchecks,
 updates are only displayed when \code{verbose.lvl} > 0.}
 }
+\value{
+A \code{\link{flash}} object.
+}
 \description{
-Sets factors to zero if doing so improves the overall fit.
+Sets factor/loading pairs to zero if doing so improves the variational
+  lower bound (ELBO).
+}
+\seealso{
+\code{\link{flash.remove.factors}},
+  \code{\link{flash.set.factors.to.zero}}
 }
