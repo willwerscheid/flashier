@@ -34,8 +34,12 @@ wrapup.flash <- function(flash, output.lvl) {
       flash.object$F.psd <- get.EF2(flash)[[2]] - get.EF(flash)[[2]]^2
       if (all.valid) {
         lfsr <- calc.lfsr(flash)
-        flash.object$L.lfsr <- lfsr[[1]]
-        flash.object$F.lfsr <- lfsr[[2]]
+        if (is.matrix(lfsr[[1]])) {
+          flash.object$L.lfsr <- lfsr[[1]]
+        }
+        if (is.matrix(lfsr[[2]])) {
+          flash.object$F.lfsr <- lfsr[[2]]
+        }
       }
       for (i in begin.idx:length(flash.object)) {
         if ((i - begin.idx) %% 2 == 0) {
