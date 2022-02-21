@@ -15,7 +15,9 @@ Remotes:
 Imports:
     Matrix,
     ebnm (>= 0.1-21),
-    parallel
+    parallel,
+    softImpute,
+    irlba
 Suggests:
     testthat,
     knitr,
