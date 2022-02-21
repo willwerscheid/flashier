@@ -89,14 +89,26 @@ ff.elbo <- function(f) get.obj(f)
 #'   \code{n = 2}). During extrapolated backfits, a vector will be
 #'   returned with one value for each factor/loadings pair.
 #' @export
-ff.KL <- function(f, k, n) get.KL.k(f, k, n)
+ff.KL <- function(f, k, n) {
+  if (inherits(f, "flash.fit")) {
+    return(get.KL.k(f, k, n))
+  } else {
+    return(get.KL(f, n))
+  }
+}
 
 #' @describeIn flash.fit The estimated prior \eqn{\hat{g}} for loadings
 #'   \eqn{\ell_k} (when \code{n = 1}) or for factor \eqn{f_k} (when
 #'   \code{n = 2}). During extrapolated backfits, a list of priors will be
 #'   returned with one element for each factor/loadings pair.
 #' @export
-ff.g <- function(f, k, n) get.g.k(f, k, n)
+ff.g <- function(f, k, n) {
+  if (inherits(f, "flash.fit")) {
+    return(get.g.k(f, k, n))
+  } else {
+    return(get.g(f, n))
+  }
+}
 
 #' @describeIn flash.fit The data matrix, with missing data (NAs) replaced by
 #'   zeros.

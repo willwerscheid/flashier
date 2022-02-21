@@ -49,7 +49,7 @@ gtex.const$elbo
 The factors appear as follows:
 
 ```{r plot.fn}
-plot.tissue.loadings <- function(fl) {
+plot.factors <- function(fl) {
   vals <- apply(fl$F.pm, 2, function(x) x / sqrt(sum(x^2)))
   
   data <- reshape2::melt(vals)
@@ -58,25 +58,27 @@ plot.tissue.loadings <- function(fl) {
   
   colnames(data) <- c("variable", "k", "value")
   data$k <- as.factor(data$k)
-  ggplot(data, aes_string(x = "variable", 
-                          y = "value", 
-                          fill = "variable")) +
+  ggplot(data, aes_string(x = "variable", y = "value", fill = "variable")) +
     geom_bar(stat = "identity", width = 0.6) +
     scale_fill_manual(values = gtex.colors) +
     scale_x_discrete(labels = NULL) +
     ylim(min.val, max.val) +
     theme_grey() +
-    theme(legend.position="right",
-          legend.text = element_text(size = 6),
-          legend.title = element_blank()) +
+    theme(
+      legend.position = "right",
+      legend.text = element_text(size = 6),
+      legend.title = element_blank()
+    ) +
     labs(y = "", x = "") +
     facet_wrap(~k, ncol = 2) +
-    guides(fill = guide_legend(ncol = 1, 
-                               keyheight = 3.75 / 6, 
-                               keywidth = 3.75 / 15))
+    guides(fill = guide_legend(
+      ncol = 1, 
+      keyheight = 3.75 / 6, 
+      keywidth = 3.75 / 15)
+    )
 }
 
-plot.tissue.loadings(gtex.const)
+plot.factors(gtex.const)
 ```
 
 ## Variance structures
@@ -99,7 +101,7 @@ c(const.elbo = gtex.const$elbo, byrow.elbo = gtex.byrow$elbo)
 (I set `verbose = 0` to suppress progress updates.) Since the assumption of row-specific variances is much more flexible than the assumption of a constant residual variance (and includes it as a special case), the objective has increased considerably. The factors also look much nicer.
 
 ```{r plot.byrow}
-plot.tissue.loadings(gtex.byrow)
+plot.factors(gtex.byrow)
 ```
 
 The general rank-one case can be fit as follows.
@@ -167,10 +169,8 @@ unimix.time <- system.time(
     verbose = 0
   )
 )
-    
 c(pn.elbo = gtex.pn$elbo, smn.elbo = gtex.normalmix$elbo, symmuni.elbo = gtex.unimix$elbo)
 c(pn = pn.time[3], smn = normalmix.time[3], symmuni = unimix.time[3])
-
 ```
 
 To pass non-default arguments to `ebnm` functions, `flashier` provides the convenience function `as.ebnm.fn`, which simply passes its arguments to `ebnm::ebnm`. For example, to fit a normal prior with both mean and variance to be estimated,
@@ -215,7 +215,7 @@ bf.time <- system.time(
 c(greedy.elbo = gtex.byrow$elbo, bf.elbo = gtex.bf$elbo)
 c(greedy = byrow.time[3], bf = bf.time[3])
 
-plot.tissue.loadings(gtex.bf)
+plot.factors(gtex.bf)
 ```
 
 ## Sampling from the posterior
@@ -234,23 +234,32 @@ factor3.ci <- apply(factor3.samp, 1, quantile, c(0.025, 0.975))
 # Put data into data frame and plot.
 vals <- gtex.bf$F.pm[, 3]
 vals <- vals / sqrt(sum(vals^2))
-df <- data.frame(variable = colnames(gtex), value = vals, 
-                 lower.ci = factor3.ci[1, ], upper.ci = factor3.ci[2, ])
-ggplot(df, aes_string(x = "variable", 
-                      y = "value", 
-                      fill = "variable")) +
+df <- data.frame(
+  variable = colnames(gtex), 
+  value = vals, 
+  lower.ci = factor3.ci[1, ], 
+  upper.ci = factor3.ci[2, ]
+)
+ggplot(df, aes_string(x = "variable", y = "value", fill = "variable")) +
   geom_bar(stat = "identity", width = 0.6, position = position_dodge()) +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = .4,
-                position = position_dodge(.9)) +
+  geom_errorbar(
+    aes(ymin = lower.ci, ymax = upper.ci), 
+    width = .4,
+    position = position_dodge(.9)
+  ) +
   scale_fill_manual(values = gtex.colors) +
   scale_x_discrete(labels = NULL) +
   ylim(-1, 0.2) +
   theme_grey() +
-  theme(legend.position="right",
-        legend.text = element_text(size = 6),
-        legend.title = element_blank()) +
+  theme(
+    legend.position="right",
+    legend.text = element_text(size = 6),
+    legend.title = element_blank()
+  ) +
   labs(y = "", x = "") +
-  guides(fill = guide_legend(ncol = 1, 
-                             keyheight = 3.75 / 6, 
-                             keywidth = 3.75 / 15))
+  guides(fill = guide_legend(
+    ncol = 1, 
+    keyheight = 3.75 / 6, 
+    keywidth = 3.75 / 15)
+  )
 ```

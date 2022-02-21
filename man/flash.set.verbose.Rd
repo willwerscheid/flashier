@@ -6,7 +6,7 @@
 \usage{
 flash.set.verbose(
   flash,
-  verbose,
+  verbose = 1L,
   disp.fns = NULL,
   colnames = NULL,
   colwidths = NULL

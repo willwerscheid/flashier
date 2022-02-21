@@ -21,7 +21,7 @@
 #'   \code{\link{init.fn.irlba}} have been supplied
 #'   (\code{\link{init.fn.softImpute}} can yield better results than the
 #'   default initialization function when there is missing data). Custom
-#'   initialization functions may also be used. It is espeically important to
+#'   initialization functions may also be used. It is especially important to
 #'   use an appropriate initialization function when factors or loadings must be
 #'   constrained in some fashion --- otherwise, the greedy algorithm can stop
 #'   adding factor/loadings pairs too early. Custom initialization functions

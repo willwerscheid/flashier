@@ -114,7 +114,7 @@ get.g.k <- function(f, k, n = NULL) {
   if (is.null(k) && is.null(n))
     return(f[["g"]])
   if (is.null(k))
-    return(f[["g"]][[n]])
+    return(lapply(f[["g"]], `[[`, n))
   if (is.null(n))
     return(f[["g"]][[k]])
   return(f[["g"]][[k]][[n]])
