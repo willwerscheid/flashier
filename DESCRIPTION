@@ -7,15 +7,16 @@ Author: Jason Willwerscheid
 Maintainer: Jason Willwerscheid <willwerscheid@github.com>
 Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2021).
-Depends: 
+Depends:
     R (>= 3.4),
     magrittr
-Remotes: 
+Remotes:
     stephenslab/ebnm
 Imports:
     Matrix,
     ebnm (>= 0.1-21),
     parallel
+    softImpute
 Suggests:
     testthat,
     knitr,
