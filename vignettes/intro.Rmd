@@ -2,7 +2,9 @@
 title: "Introduction to flashier"
 author: "Jason Willwerscheid"
 date: "02/18/2022"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{flashier intro}
   %\VignetteEngine{knitr::rmarkdown}
@@ -29,7 +31,11 @@ $$ g \sim \pi_0 \delta_0 + (1 - \pi_0) N(0, \sigma^2), $$
 where both $\pi_0$ and $\sigma^2$ are free parameters. To avoid over-parametrization, it's also necessary to make some assumptions about the precision parameters $\tau_{ij}$. The default assumption is that all $\tau_{ij}$s are equal:
 $$ e_{ij} \sim N(0, 1 / \tau).$$
 
-## Example
+Note that when the prior families $\mathcal{G}^{(\ell)}$ and $\mathcal{G}^{(f)}$ are closed under scaling (as is typically the case), then the above model isn't identifiable. In particular, the scale of the loadings $\ell_k$ is in itself meaningless, as is the scale of the factors $f_k$. We can make the factorization unique by writing
+$$ Y = LDF' + E, $$
+with the scales of loadings $\ell_1, \ldots, \ell_K$ and factors $f_1, \ldots, f_K$ constrained in some fashion (for example, by setting $\| \ell_k \|_2 = 1$ and $\| f_k \| = 1$ for all $k$).
+
+## Basic example
 
 As a running example throughout the vignette, I use 2000 tests from the GTEx project, which comprise a subset of the `strong` dataset described [here](https://stephenslab.github.io/mashr/articles/eQTL_outline.html). While EBMF can "automatically" select the number of factor/loadings pairs $K$ (pairs are no longer added when they fail to yield an increase in the variational lower bound on the log likelihood, or ELBO), I cap $K$ at 5 using parameter `greedy.Kmax`:
 
@@ -46,11 +52,13 @@ The returned `flash` object is a list that contains useful information about the
 gtex.const$elbo
 ```
 
+A few useful methods have also been provided, including `fitted` (which returns $\mathbb{E} (LF')$), `residuals` (which yields the matrix of expected residuals $Y - \mathbb{E} (LF')$), and `ldf` (which gives the $LDF'$ factorization with the scaling of loadings and factors determined by parameter `type`).
+
 The factors appear as follows:
 
 ```{r plot.fn}
 plot.factors <- function(fl) {
-  vals <- apply(fl$F.pm, 2, function(x) x / sqrt(sum(x^2)))
+  vals <- ldf(fl)$F
   
   data <- reshape2::melt(vals)
   min.val <- min(0, min(vals))
@@ -232,8 +240,7 @@ factor3.samp <- sapply(factor3.samp, function(x) x / sqrt(sum(x^2)))
 factor3.ci <- apply(factor3.samp, 1, quantile, c(0.025, 0.975))
 
 # Put data into data frame and plot.
-vals <- gtex.bf$F.pm[, 3]
-vals <- vals / sqrt(sum(vals^2))
+vals <- ldf(gtex.bf)$F[, 3]
 df <- data.frame(
   variable = colnames(gtex), 
   value = vals, 

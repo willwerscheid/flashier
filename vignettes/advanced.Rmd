@@ -50,7 +50,7 @@ Below, some useful recipes are provided that illustrate some of the flexibility 
 data(gtex, gtex.colors)
 
 plot.factors <- function(fl) {
-  vals <- apply(fl$F.pm, 2, function(x) x / sqrt(sum(x^2)))
+  vals <- ldf(fl)$F
   
   data <- reshape2::melt(vals)
   min.val <- min(0, min(vals))
