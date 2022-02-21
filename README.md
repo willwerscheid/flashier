@@ -4,6 +4,12 @@ This package is in active development. The interface is likely to change from ti
 
 Install using:
 
-```devtools::install_github("willwerscheid/flashier", build_vignettes = FALSE)```
+```devtools::install_github("willwerscheid/flashier", build_vignettes = TRUE)```.
 
-The vignettes are out of date. I will update them soon, after finishing the threatened interface changes.
+The vignettes take around 2 minutes to build. Start with:
+
+```vignette("intro", "flashier")```.
+
+Then have a look at:
+
+```vignette("advanced", "flashier")```.
