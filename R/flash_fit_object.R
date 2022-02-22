@@ -88,4 +88,10 @@ ff.KL <- function(f, n) get.KL(f, n)
 #'   \code{n = 2}). While optimizing new factor/loadings pairs, only the
 #'   estimated prior on the new loadings or factor will be returned.
 #' @export
-ff.g <- function(f, n) get.g(f, n)
+ff.g <- function(f, n) {
+  if (inherits(f, "flash.fit")) {
+    return(get.g.k(f, k = NULL, n = n))
+  } else {
+    return(get.g(f, n))
+  }
+}
