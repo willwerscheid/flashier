@@ -237,7 +237,7 @@ For example, let's say that we would like to monitor the sparsity of factors 2-5
 
 ```{r custom}
 disp.sparsity <- function(new, old, k, f.idx) {
-  g <- ff.g(new, k, n = 2) # setting n = 2 gets g_f (n = 1 would get g_\ell)
+  g <- ff.g(new, n = 2) # setting n = 2 gets g_f (n = 1 would get g_\ell)
   return(g[[f.idx]]$pi[1])
 }
 disp.sprs2 <- function(new, old, k) disp.sparsity(new, old, k, 2)
