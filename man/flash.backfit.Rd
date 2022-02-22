@@ -42,11 +42,11 @@ Options include \code{\link{conv.crit.elbo}} (the default),
 \code{\link{conv.crit.loadings}}, and \code{\link{conv.crit.factors}}.
 Custom functions may also be used. They should accept three parameters,
 \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
-\code{\link{flash.fit}} object from the current iteration and \code{old}
-refers to the \code{\link{flash.fit}} object from the previous iteration.
-Custom functions can safely ignore parameter \code{k}, which is
-included for uniformity with custom "verbose" display functions (see
-\code{\link{flash.set.verbose}}).}
+\code{\link{flash.fit}} object from the current iteration, \code{old}
+refers to the \code{\link{flash.fit}} object from the previous iteration,
+and \code{k} identifies the factor/loadings pair that is currently
+being updated during sequential backfits (that is, in calls to function
+\code{\link{flash.backfit}} where \code{extrapolate = FALSE}).}
 
 \item{tol}{The convergence tolerance (see parameter \code{conv.crit.fn}
 above).}

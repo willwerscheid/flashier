@@ -21,7 +21,8 @@ than \code{g_init}.}
   arguments to parameter \code{ebnm.fn} in functions \code{\link{flash}},
   \code{\link{flash.add.greedy}}, and \code{\link{flash.init.factors}} (see
   \strong{Examples} below). It is also possible to write a custom function
-  from scratch: see \strong{Details} below.
+  from scratch: see \strong{Details} below for a simple example. A more
+  involved example can be found in the "Advanced flashier" vignette.
 }
 \details{
 As input to parameter \code{ebnm.fn}, it should suffice for many purposes to

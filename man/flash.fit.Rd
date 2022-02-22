@@ -4,17 +4,12 @@
 \alias{flash.fit}
 \alias{ff.pm}
 \alias{ff.p2m}
-\alias{ff.var.type}
-\alias{ff.fixed.var.type}
 \alias{ff.est.tau}
 \alias{ff.fixed.tau}
 \alias{ff.tau}
 \alias{ff.elbo}
 \alias{ff.KL}
 \alias{ff.g}
-\alias{ff.data}
-\alias{ff.nonmissing}
-\alias{ff.R2}
 \title{Extract a flash.fit object}
 \usage{
 flash.fit(flash)
@@ -22,10 +17,6 @@ flash.fit(flash)
 ff.pm(f, n)
 
 ff.p2m(f, n)
-
-ff.var.type(f)
-
-ff.fixed.var.type(f)
 
 ff.est.tau(f)
 
@@ -35,27 +26,17 @@ ff.tau(f)
 
 ff.elbo(f)
 
-ff.KL(f, k, n)
+ff.KL(f, n)
 
-ff.g(f, k, n)
-
-ff.data(f)
-
-ff.nonmissing(f)
-
-ff.R2(f)
+ff.g(f, n)
 }
 \arguments{
 \item{flash}{A \code{flash} object.}
 
 \item{f}{A \code{flash.fit} object.}
 
-\item{n}{The "mode" (set \code{n = 1} for loadings \eqn{L} and \code{n = 2}
+\item{n}{The dimension (set \code{n = 1} for loadings \eqn{L} and \code{n = 2}
 for factors \eqn{F}).}
-
-\item{k}{Only used during sequential backfits (that is, calls to
-\code{flash.backfit} where \code{extrapolate = FALSE}). It then gives the
-index of the factor/loadings pair currently being optimized.}
 }
 \description{
 \code{flash.fit} objects are the "internal" objects used by \code{flash}
@@ -74,7 +55,9 @@ index of the factor/loadings pair currently being optimized.}
   and methods enumerated below may prove useful.
 }
 \details{
-The following S3 methods are available for \code{flash.fit} objects:
+The following S3 methods are available for \code{flash.fit} objects at all
+  times except while optimizing new factor/loadings pairs as part of a
+  "greedy" fit:
   \describe{
     \item{\code{\link{fitted.flash.fit}}}{Returns the "fitted values"
       \eqn{E(LF') = E(L) E(F)'}.}
@@ -86,20 +69,17 @@ The following S3 methods are available for \code{flash.fit} objects:
 }
 \section{Functions}{
 \itemize{
-\item \code{ff.pm}: The matrix of posterior means for the loadings matrix
-\eqn{L} (when parameter \code{n} is equal to \code{1}) or factors matrix
-\eqn{F} (when \code{n = 2}).
+\item \code{ff.pm}: The posterior means for the loadings matrix \eqn{L}
+(when parameter \code{n} is equal to \code{1}) or factor matrix \eqn{F}
+(when \code{n = 2}). While optimizing new factor/loadings pairs as part of
+a "greedy" fit, only the posterior means for the new loadings \eqn{\ell_k}
+or factor \eqn{f_k} will be returned.
 
-\item \code{ff.p2m}: The matrix of posterior second moments for the
-loadings matrix \eqn{L} (when \code{n = 1}) or factors matrix \eqn{F}
-(when \code{n = 2}).
-
-\item \code{ff.var.type}: Describes the structure of the estimated portion of
-the residual variance. Identical to parameter \code{var.type} in function
-\code{\link{flash}}.
-
-\item \code{ff.fixed.var.type}: Describes the structure of the fixed portion of
-the residual variance. Analogous to \code{ff.var.type}.
+\item \code{ff.p2m}: The posterior second moments for the loadings matrix
+\eqn{L} (when parameter \code{n} is equal to \code{1}) or factor matrix
+\eqn{F} (when \code{n = 2}). While optimizing new factor/loadings pairs,
+only the posterior second moments for the new loadings \eqn{\ell_k} or
+factor \eqn{f_k} will be returned.
 
 \item \code{ff.est.tau}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
 is the estimated portion of the residual variance (total, by row, or
@@ -112,24 +92,14 @@ fixed portion of the residual variance (total, by row, or by column).
 
 \item \code{ff.elbo}: The variational lower bound (ELBO).
 
-\item \code{ff.KL}: The KL-divergence portion of the ELBO for the
-\eqn{k}th set of loadings (when \code{n = 1}) or factor (when
-\code{n = 2}). During extrapolated backfits, a vector will be
-returned with one value for each factor/loadings pair.
+\item \code{ff.KL}: A vector containing the KL-divergence portions of
+the ELBO, with one value for each factor (when \code{n = 2}) or set of
+loadings (when \code{n = 1}). While optimizing new factor/loadings pairs,
+only the KL-divergence for the new loadings or factor will be returned.
 
-\item \code{ff.g}: The estimated prior \eqn{\hat{g}} for loadings
-\eqn{\ell_k} (when \code{n = 1}) or for factor \eqn{f_k} (when
-\code{n = 2}). During extrapolated backfits, a list of priors will be
-returned with one element for each factor/loadings pair.
-
-\item \code{ff.data}: The data matrix, with missing data (NAs) replaced by
-zeros.
-
-\item \code{ff.nonmissing}: A matrix of 0s and 1s indicating whether data
-is missing (0) or present (1). If there is no missing data, then a scalar
-might be stored rather than a full matrix of 1s.
-
-\item \code{ff.R2}: The sum of expected squared residuals (total, by row,
-or by column, depending on the variance type).
+\item \code{ff.g}: A list containing estimated priors on loadings
+\eqn{\hat{g}_\ell} (when \code{n = 1}) or on factors \eqn{\hat{g}_f} (when
+\code{n = 2}). While optimizing new factor/loadings pairs, only the
+estimated prior on the new loadings or factor will be returned.
 }}
 
