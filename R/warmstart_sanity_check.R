@@ -1,4 +1,7 @@
 # Check that an initial value of g has a fighting chance of fitting the data.
+#
+#' @importFrom stats pnorm
+#'
 warmstart.sanity.check = function(g, x, s) {
   # Find rough limits for the region where g can have significantly positive
   #   density (pi can be ignored because it will be re-estimated).

@@ -3,6 +3,7 @@ default.extrapolate.param <- list(beta.init = 0.5,
                                   beta.decrease = 0.5,
                                   beta.max = 2)
 
+#' @importFrom utils modifyList
 set.extrapolate.param <- function(control) {
   par <- default.extrapolate.param
   if (!all(names(control) %in% names(par))) {

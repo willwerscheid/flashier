@@ -135,7 +135,7 @@ init.fn.softImpute <- function(flash, seed = 666, ...) {
   if (inherits(get.Y(flash), "lowrank"))
     stop("softImpute cannot be used with low-rank matrix representations.")
 
-  si.res <- softImpute::softImpute(fitted(flash), rank.max = 1, ...)
+  si.res <- softImpute(fitted(flash), rank.max = 1, ...)
   EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))
 
   return(EF)
@@ -171,7 +171,7 @@ init.fn.irlba <- function(flash, seed = 666, ...) {
     stop("irlba cannot be used when there is missing data.")
   }
 
-  irlba.res <- irlba::irlba(fitted(flash), nv = 1, nu = 1, ...)
+  irlba.res <- irlba(fitted(flash), nv = 1, nu = 1, ...)
 
   EF <- list(
     as.vector(irlba.res$u * sqrt(irlba.res$d)),
