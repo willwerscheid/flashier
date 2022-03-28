@@ -197,7 +197,7 @@ calc.normalized.loadings <- function(flash, for.pve = FALSE, type = "f") {
 propagate.names <- function(mats, flash) {
   data.dimnames <- get.dimnames(flash)
   for (n in 1:get.dim(flash)) {
-    if (!is.null(mats) && !is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
+    if (!is.null(mats[[n]]) && !is.null(data.dimnames) && !is.null(data.dimnames[[n]]))
       rownames(mats[[n]]) <- data.dimnames[[n]]
   }
   return(mats)
