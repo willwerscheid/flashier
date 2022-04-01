@@ -140,7 +140,7 @@ lfsr.one.n <- function(flash, k, n) {
       if (!is.null(fix.dim) && (fix.dim == n))
         lfsr[get.fix.idx(factor)] <- NA
     } else {
-      lfsr <- NULL
+      lfsr <- rep(NA, get.dims(flash)[n])
     }
   }
   return(lfsr)
