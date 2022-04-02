@@ -112,12 +112,12 @@ flash.set.verbose <- function(flash,
     if (length(fns) == 0 && verbose == -1) {
       # Default output columns for verbose.lvl = -1.
       fns       <- c(display.elbo, display.elbo.diff, display.max.chg)
-      colnames  <- c("ELBO", "ELBO.diff", "Max.chg")
+      colnames  <- c("ELBO", "ELBO.diff", "LF.max.chg")
       colwidths <- c(14, 12, 12)
     } else if (length(fns) == 0) {
       # Default output columns for verbose.lvl = 3.
       fns       <- c(display.elbo.diff, display.max.chg)
-      colnames  <- c("ELBO Diff", "Max Chg")
+      colnames  <- c("ELBO Diff", "LF Max Chg")
       colwidths <- c(12, 12)
     } else if (missing(verbose)) {
       verbose <- 3
