@@ -55,7 +55,7 @@ display.elbo.diff <- function(new, old, k) {
 #' @export
 #'
 display.max.chg <- function(new, old, k) {
-  return(calc.max.chg.EF(new, old, k, n = NULL))
+  return(calc.max.abs.chg.EF(new, old, k, n = NULL))
 }
 
 #' Display the maximum difference in scaled loadings
@@ -71,7 +71,7 @@ display.max.chg <- function(new, old, k) {
 #' @export
 #'
 display.L.max.chg <- function(new, old, k) {
-  return(calc.max.chg.EF(new, old, k, n = 1))
+  return(calc.max.abs.chg.EF(new, old, k, n = 1))
 }
 
 #' Display the maximum difference in scaled factors
@@ -87,7 +87,7 @@ display.L.max.chg <- function(new, old, k) {
 #' @export
 #'
 display.F.max.chg <- function(new, old, k) {
-  return(calc.max.chg.EF(new, old, k, n = 2))
+  return(calc.max.abs.chg.EF(new, old, k, n = 2))
 }
 
 calc.update.info <- function(new, old, conv.crit.fn, verbose.fns, k = NULL) {
