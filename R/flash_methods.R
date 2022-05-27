@@ -30,7 +30,8 @@ fitted.flash <- function(object, ...) {
 #'
 fitted.flash.fit <- function(object, ...) {
   if (get.n.factors(object) == 0) {
-    stop("Flash object does not have any factors.")
+    warning("Flash object does not have any factors.")
+    return(matrix(data = 0, nrow = nrow(object$Y), ncol = ncol(object$Y)))
   }
   if (get.dim(object) > 2) {
     stop("S3 method \"fitted\" not yet implemented for tensors.")
