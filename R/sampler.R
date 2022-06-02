@@ -24,16 +24,19 @@ all.post.samplers <- function(flash) {
 
 one.post.sampler <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
-  if (is.zero(factor)) {
-    sampler <- function(nsamp) {matrix(0,
-                                       nrow = nsamp,
-                                       ncol = get.dims(flash)[n])}
-  } else if (all.fixed(factor, n)) {
-    sampler <- function(nsamp) {matrix(get.fix.vals(flash, k),
+  # is.zero is being triggered here which might be fine but I'm not sure
+  # I might want to switch the order of the conditions
+  if (all.fixed(factor, n)) {
+    sampler <- function(nsamp) {matrix(get.EF(factor)[[n]],
                                        nrow = nsamp,
                                        ncol = get.dims(flash)[n],
                                        byrow = TRUE)}
-  } else {
+  } else if (is.zero(factor)) {
+    sampler <- function(nsamp) {matrix(0,
+                                       nrow = nsamp,
+                                       ncol = get.dims(flash)[n])}
+  }
+  else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "posterior_sampler")
     sampler <- ebnm.res$posterior_sampler
   }
