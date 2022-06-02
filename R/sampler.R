@@ -24,8 +24,6 @@ all.post.samplers <- function(flash) {
 
 one.post.sampler <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
-  # is.zero is being triggered here which might be fine but I'm not sure
-  # I might want to switch the order of the conditions
   if (all.fixed(factor, n)) {
     sampler <- function(nsamp) {matrix(get.EF(factor)[[n]],
                                        nrow = nsamp,
