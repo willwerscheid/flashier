@@ -308,7 +308,7 @@ is.tau.lowrank <- function(f) {
 }
 
 get.R2.n <- function(f) {
-  n <- max(get.est.tau.dim(f), 0)
+  n <- max(get.est.tau.dim(f), get.given.tau.dim(f), 0)
   if (n == 0)
     n <- which.min(get.dims(f))
   return(n)
