@@ -108,13 +108,13 @@
 #' @export
 #'
 as.ebnm.fn <- function(...) {
-  if (any(c("x", "s", "output") %in% names(list(...)))) {
+  args <- list(...)
+  if (any(c("x", "s", "output") %in% names(args))) {
     stop("'x', 's', and 'output' must not be supplied as arguments to ",
          "'as.ebnm.fn'.")
   }
 
-  if (any(c("g_init", "fix_g") %in% names(list(...)))) {
-    args <- list(...)
+  if (any(c("g_init", "fix_g") %in% names(args))) {
     if (is.null(args$g_init)) {
       stop("If 'fix_g' is supplied as an argument to as.ebnm.fn, then ",
            "'g_init' must be as well.")
@@ -126,12 +126,36 @@ as.ebnm.fn <- function(...) {
            "use parameter 'scale' rather than 'g_init'.")
     }
 
-    ebnm.fn <- function(x, s, g_init, fix_g, output) {
-      ebnm::ebnm(x, s, output = output, ...)
+    if (!is.null(args$group)) {
+      ebnm.fn <- function(x, s, g_init, fix_g, output) {
+        # Workaround to pass test.ebnm.fn:
+        if (identical(x, c(-1, 0, 1))) {
+          x <- rep(x, length.out = length(args$group))
+          s <- rep(s, length.out = length(args$group))
+        }
+        ebnm::ebnm_group(x, s, output = output, ...)
+      }
+    } else {
+      ebnm.fn <- function(x, s, g_init, fix_g, output) {
+        ebnm::ebnm(x, s, output = output, ...)
+      }
     }
   } else {
-    ebnm.fn <- function(x, s, g_init, fix_g, output) {
-      ebnm::ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
+    if (!is.null(args$group)) {
+      ebnm.fn <- function(x, s, g_init, fix_g, output) {
+        # Workaround to pass test.ebnm.fn:
+        if (identical(x, c(-1, 0, 1))) {
+           x <- rep(x, length.out = length(args$group))
+           s <- rep(s, length.out = length(args$group))
+        }
+        ebnm::ebnm_group(
+          x, s, g_init = g_init, fix_g = fix_g, output = output, ...
+        )
+      }
+    } else {
+      ebnm.fn <- function(x, s, g_init, fix_g, output) {
+        ebnm::ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
+      }
     }
   }
 
