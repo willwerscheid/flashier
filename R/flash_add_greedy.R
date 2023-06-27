@@ -102,7 +102,7 @@
 flash.add.greedy <- function(flash,
                              Kmax = 1,
                              ebnm.fn = ebnm::ebnm_point_normal,
-                             init.fn = init.fn.default,
+                             init.fn = NULL,
                              extrapolate = FALSE,
                              warmstart = FALSE,
                              conv.crit.fn = conv.crit.elbo,
@@ -117,7 +117,11 @@ flash.add.greedy <- function(flash,
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
 
-  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
+  ebnm.chk <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
+  ebnm.fn <- ebnm.chk$ebnm.fn
+  if (is.null(init.fn)) {
+    init.fn <- function(f) init.fn.default(f, dim.signs = ebnm.chk$dim.signs)
+  }
 
   if (missing(tol)) {
     report.tol.setting(verbose.lvl, tol)

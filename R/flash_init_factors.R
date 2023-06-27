@@ -87,7 +87,7 @@ flash.init.factors <- function(flash,
     stop("The initialization may not have missing data.")
   }
 
-  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
+  ebnm.fn <- handle.ebnm.fn(ebnm.fn, get.dim(flash))$ebnm.fn
 
   flash <- set.EF(flash, lowranks.combine(get.EF(flash), EF))
   flash <- set.EF2(flash, lowranks.combine(get.EF2(flash), EF2))

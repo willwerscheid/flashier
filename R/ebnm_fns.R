@@ -172,22 +172,30 @@ handle.ebnm.fn <- function(ebnm.fn, data.dim) {
   if (length(ebnm.fn) != data.dim)
     stop(error.msg)
 
-  for (i in 1:length(ebnm.fn))
-    test.ebnm.fn(ebnm.fn[[i]], error.msg)
+  dim.signs <- sapply(ebnm.fn, test.ebnm.fn, error.msg)
 
-  return(ebnm.fn)
+  return(list(ebnm.fn = ebnm.fn, dim.signs = dim.signs))
 }
 
 test.ebnm.fn <- function(ebnm.fn, error.msg) {
   tryCatch(
     tmp <- ebnm.fn(
-      x = c(-1, 0, 1),
+      x = c(-10, 0, 10),
       s = rep(1, 3),
       g_init = NULL,
       fix_g = FALSE,
       output = default.ebnm.output
     ),
     error = function(e) stop(error.msg))
+
+  # Check for nonnegativity/nonpositivity:
+  if (all(coef(tmp) >= 0)) {
+    return(1)
+  } else if (all(coef(tmp) <= 0)) {
+    return(-1)
+  } else {
+    return(0)
+  }
 }
 
 # Output required for usual flash updates.
