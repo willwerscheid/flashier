@@ -8,7 +8,7 @@ flash.add.greedy(
   flash,
   Kmax = 1,
   ebnm.fn = ebnm::ebnm_point_normal,
-  init.fn = init.fn.default,
+  init.fn = NULL,
   extrapolate = FALSE,
   warmstart = FALSE,
   conv.crit.fn = conv.crit.elbo,
@@ -50,11 +50,14 @@ increase the ELBO.}
 \code{\link{init.fn.irlba}} have been supplied
 (\code{\link{init.fn.softImpute}} can yield better results than the
 default initialization function when there is missing data). Custom
-initialization functions may also be used. It is especially important to
-use an appropriate initialization function when factors or loadings must be
-constrained in some fashion --- otherwise, the greedy algorithm can stop
-adding factor/loadings pairs too early. Custom initialization functions
-should accept a single
+initialization functions may also be used. If \code{init.fn = NULL} then
+\code{init.fn.default} will be used; \code{flash.add.greedy} will
+attempt to set argument \code{dim.signs} appropriately via test calls to
+the EBNM function(s) specified by \code{ebnm.fn}. If factors or loadings
+are constrained in some other fashion (e.g., bounded support), then the
+initialization function should be modified to account for the constraints
+--- otherwise, the greedy algorithm can stop adding factor/loadings pairs
+too early. Custom initialization functions should accept a single
 parameter referring to a \code{\link{flash.fit}} object and should output
 a list consisting of two vectors, which will be used as initial values for
 the new loadings \eqn{\ell_k} and the new factor \eqn{f_k}. Typically,
@@ -118,13 +121,6 @@ Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
 #   method.
 fl <- flash.init(gtex) \%>\%
   flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
-
-# Fit a semi-nonnegative matrix factorization.
-snmf.fl <- flash.init(gtex) \%>\%
-  flash.add.greedy(
-    ebnm.fn = c(ebnm::ebnm_unimodal_nonnegative, ebnm::ebnm_point_normal),
-    init.fn = function(f) init.fn.default(f, dim.signs = c(1, 0))
-  )
 
 # Use a custom initialization function that wraps function nnmf from
 #   package NNLM.

@@ -38,11 +38,11 @@ Method \code{ldf} scales columns \eqn{\ell_k} and \eqn{f_k}
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{flash}: LDF decomposition for flash objects
+\item \code{ldf(flash)}: LDF decomposition for flash objects
 
-\item \code{flash.fit}: LDF decomposition for flash fit objects
+\item \code{ldf(flash.fit)}: LDF decomposition for flash fit objects
+
 }}
-
 \seealso{
 \code{\link{flash}}
 }
