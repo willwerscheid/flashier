@@ -215,6 +215,11 @@ fl <- flash(gtex,
 fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
 
 }
+\references{
+Wei Wang and Matthew Stephens (2021).
+  "Empirical Bayes matrix factorization." \emph{Journal of Machine Learning
+  Research} 22, 1--40.
+}
 \seealso{
 \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
