@@ -294,6 +294,8 @@ fitted.flash.fit <- function(object, ...) {
 #'
 #' @seealso \code{\link{flash}}
 #'
+#' @method residuals flash
+#'
 #' @export
 #'
 residuals.flash <- function(object, ...) {
@@ -308,6 +310,8 @@ residuals.flash <- function(object, ...) {
 #' @inheritParams fitted.flash.fit
 #'
 #' @seealso \code{\link{flash}}
+#'
+#' @method residuals flash.fit
 #'
 #' @export
 #'
@@ -358,6 +362,8 @@ ldf <- function(object, ...) {
 
 #' @describeIn ldf LDF decomposition for flash objects
 #'
+#' @method ldf flash
+#'
 #' @export
 #'
 ldf.flash <- function(object, type = "f") {
@@ -365,6 +371,8 @@ ldf.flash <- function(object, type = "f") {
 }
 
 #' @describeIn ldf LDF decomposition for flash fit objects
+#'
+#' @method ldf flash.fit
 #'
 #' @export
 #'
