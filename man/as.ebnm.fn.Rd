@@ -27,7 +27,7 @@ than \code{g_init}.}
 \details{
 As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
   provide functions from package \code{ebnm} as is (for example, one might
-  set \code{ebnm.fn = ebnm::ebnm_point_laplace}). To use non-default
+  set \code{ebnm.fn = ebnm_point_laplace}). To use non-default
   arguments, function \code{as.ebnm.fn} may be used (see \strong{Examples}).
   Custom functions may also be written. In general, any function that is
   used as an argument to parameter \code{ebnm.fn} must accept parameters:
@@ -81,7 +81,7 @@ As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
 # A custom EBNM function might be written as follows:
 
 my.ebnm.fn <- function(x, s, g_init, fix_g, output) {
-  ebnm.res <- ebnm::ebnm_point_laplace(
+  ebnm.res <- ebnm_point_laplace(
     x = x,
     s = s,
     g_init = g_init,

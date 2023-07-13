@@ -182,8 +182,8 @@
 #' # Fit a unimodal distribution with mean zero to each set of loadings
 #' #   and a scale mixture of normals with mean zero to each factor.
 #' fl <- flash(gtex,
-#'             ebnm.fn = c(ebnm::ebnm_unimodal,
-#'                         ebnm::ebnm_normal_scale_mixture),
+#'             ebnm.fn = c(ebnm_unimodal,
+#'                         ebnm_normal_scale_mixture),
 #'             greedy.Kmax = 5)
 #'
 #' # Fit point-laplace priors using a non-default optimization method.
@@ -216,7 +216,7 @@
 #'
 flash <- function(data,
                   S = NULL,
-                  ebnm.fn = ebnm::ebnm_point_normal,
+                  ebnm.fn = ebnm_point_normal,
                   var.type = 0L,
                   greedy.Kmax = 50L,
                   backfit = FALSE,

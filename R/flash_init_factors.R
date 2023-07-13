@@ -56,7 +56,7 @@
 #'
 flash.init.factors <- function(flash,
                                init,
-                               ebnm.fn = ebnm::ebnm_point_normal) {
+                               ebnm.fn = ebnm_point_normal) {
   flash <- get.fit(flash)
 
   if (inherits(init, "flash")) {

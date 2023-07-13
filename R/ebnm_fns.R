@@ -10,7 +10,7 @@
 #'
 #' As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
 #'   provide functions from package \code{ebnm} as is (for example, one might
-#'   set \code{ebnm.fn = ebnm::ebnm_point_laplace}). To use non-default
+#'   set \code{ebnm.fn = ebnm_point_laplace}). To use non-default
 #'   arguments, function \code{as.ebnm.fn} may be used (see \strong{Examples}).
 #'   Custom functions may also be written. In general, any function that is
 #'   used as an argument to parameter \code{ebnm.fn} must accept parameters:
@@ -75,7 +75,7 @@
 #' # A custom EBNM function might be written as follows:
 #'
 #' my.ebnm.fn <- function(x, s, g_init, fix_g, output) {
-#'   ebnm.res <- ebnm::ebnm_point_laplace(
+#'   ebnm.res <- ebnm_point_laplace(
 #'     x = x,
 #'     s = s,
 #'     g_init = g_init,
@@ -103,7 +103,7 @@
 #'   greedy.Kmax = 2
 #' )
 #'
-#' @importFrom ebnm ebnm
+#' @importFrom ebnm ebnm ebnm_group
 #'
 #' @export
 #'
@@ -133,11 +133,11 @@ as.ebnm.fn <- function(...) {
           x <- rep(x, length.out = length(args$group))
           s <- rep(s, length.out = length(args$group))
         }
-        ebnm::ebnm_group(x, s, output = output, ...)
+        ebnm_group(x, s, output = output, ...)
       }
     } else {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
-        ebnm::ebnm(x, s, output = output, ...)
+        ebnm(x, s, output = output, ...)
       }
     }
   } else {
@@ -148,13 +148,13 @@ as.ebnm.fn <- function(...) {
            x <- rep(x, length.out = length(args$group))
            s <- rep(s, length.out = length(args$group))
         }
-        ebnm::ebnm_group(
+        ebnm_group(
           x, s, g_init = g_init, fix_g = fix_g, output = output, ...
         )
       }
     } else {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
-        ebnm::ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
+        ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
       }
     }
   }

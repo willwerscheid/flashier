@@ -7,7 +7,7 @@
 flash.add.greedy(
   flash,
   Kmax = 1,
-  ebnm.fn = ebnm::ebnm_point_normal,
+  ebnm.fn = ebnm_point_normal,
   init.fn = NULL,
   extrapolate = FALSE,
   warmstart = FALSE,
@@ -129,7 +129,7 @@ nmf.init.fn <- function(f) {
   return(list(as.vector(nmf.res$w), as.vector(nmf.res$h)))
 }
 fl.nmf <- flash.init(gtex) \%>\%
-  flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
+  flash.add.greedy(ebnm.fn = ebnm_unimodal_nonnegative,
                    init.fn = nmf.init.fn)
 
 }

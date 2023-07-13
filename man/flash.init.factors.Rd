@@ -4,7 +4,7 @@
 \alias{flash.init.factors}
 \title{Initialize flash factors at specified values}
 \usage{
-flash.init.factors(flash, init, ebnm.fn = ebnm::ebnm_point_normal)
+flash.init.factors(flash, init, ebnm.fn = ebnm_point_normal)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object to which factors are
