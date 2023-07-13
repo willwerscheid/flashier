@@ -9,12 +9,12 @@ Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2021).
 Depends: 
     R (>= 3.4),
-    magrittr
+    magrittr,
+    ebnm (>= 0.1-21)
 Remotes: 
     stephenslab/ebnm
 Imports:
     Matrix,
-    ebnm (>= 0.1-21),
     parallel,
     ggplot2,
     dplyr,
