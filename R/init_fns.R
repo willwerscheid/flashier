@@ -122,6 +122,7 @@ scale.EF <- function(EF) {
 #'
 #' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.irlba}}
 #'
+#' @importFrom stats residuals
 #' @importFrom softImpute softImpute
 #'
 #' @export
@@ -154,6 +155,7 @@ init.fn.softImpute <- function(flash, seed = 666, ...) {
 #'
 #' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}
 #'
+#' @importFrom stats residuals
 #' @importFrom irlba irlba
 #'
 #' @export

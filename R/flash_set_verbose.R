@@ -153,9 +153,9 @@ look.up.verbose.fns <- function(verbose, data.dim) {
       if (!is.null(n))
         warning("Dimension ignored for verbose objective output.")
       if (chars[[1]] == "O") {
-        return(display.obj)
+        return(display.elbo)
       } else { # if chars[[1]] == "D"
-        return(display.obj.diff)
+        return(display.elbo.diff)
       }
     } else if (chars[[1]] == "L") {
       return(function(new, old, k) calc.max.chg.EF(new, old, k, n))

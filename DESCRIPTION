@@ -2,7 +2,7 @@ Package: flashier
 Type: Package
 Date: 2023-07-13
 Title: Empirical Bayes Matrix Factorization
-Version: 0.2.38
+Version: 0.2.39
 Author: Jason Willwerscheid
 Maintainer: Jason Willwerscheid <willwerscheid@github.com>
 Description: Methods for matrix factorization based on "Empirical
@@ -27,7 +27,8 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    RcppML
+    RcppML,
+    rsvd
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true

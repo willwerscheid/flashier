@@ -177,6 +177,8 @@ handle.ebnm.fn <- function(ebnm.fn, data.dim) {
   return(list(ebnm.fn = ebnm.fn, dim.signs = dim.signs))
 }
 
+#' @importFrom stats coef
+#'
 test.ebnm.fn <- function(ebnm.fn, error.msg) {
   tryCatch(
     tmp <- ebnm.fn(

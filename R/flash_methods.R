@@ -70,6 +70,7 @@
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom tidyr pivot_longer
+#' @importFrom stats density
 #' @importFrom grDevices devAskNewPage
 #'
 #' @export
@@ -93,6 +94,9 @@ plot.flash <- function(x,
     stop("Include either the scree plot (via argument incl.scree) or the plot ",
          " of posterior means (via incl.pm).")
   }
+
+  # Bind variables to get rid of annoying R CMD check note:
+  pve <- k.order <- Name <- k <- grp <- NULL
 
   # Scree plot:
   all.plots <- list()
