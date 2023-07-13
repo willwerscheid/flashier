@@ -76,15 +76,15 @@
 #' fl <- flash.init(gtex) %>%
 #'   flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
 #'
-#' # Use a custom initialization function that wraps function nnmf from
-#' #   package NNLM.
-#' nnmf.init.fn <- function(f) {
-#'   nnmf.res <- NNLM::nnmf(resid(f), verbose = FALSE)
-#'   return(list(as.vector(nnmf.res$W), as.vector(nnmf.res$H)))
+#' # Use a custom initialization function that wraps function nmf from
+#' #   package RcppML.
+#' nmf.init.fn <- function(f) {
+#'   nmf.res <- RcppML::nmf(resid(f), k = 1, verbose = FALSE)
+#'   return(list(as.vector(nmf.res$w), as.vector(nmf.res$h)))
 #' }
-#' fl.nnmf <- flash.init(gtex) %>%
+#' fl.nmf <- flash.init(gtex) %>%
 #'   flash.add.greedy(ebnm.fn = ebnm::ebnm_unimodal_nonnegative,
-#'                    init.fn = nnmf.init.fn)
+#'                    init.fn = nmf.init.fn)
 #'
 #' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
 #'   \code{\link{init.fn.irlba}}
