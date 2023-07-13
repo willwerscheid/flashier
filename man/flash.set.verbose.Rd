@@ -67,7 +67,7 @@ fl <- flash.init(gtex) \%>\%
 
 # Set custom verbose output.
 sparsity.F <- function(new, old, k) {
-  g.F <- ff.g(new, k, n = 2)
+  g.F <- ff.g(new, n = 2)
   g.F.pi0 <- g.F$pi[1] # Mixture weight of the "null" component.
   return(g.F.pi0)
 }
