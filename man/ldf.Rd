@@ -6,7 +6,7 @@
 \alias{ldf.flash.fit}
 \title{LDF method for flash and flash fit objects}
 \usage{
-ldf(object, ...)
+ldf(object, type)
 
 \method{ldf}{flash}(object, type = "f")
 

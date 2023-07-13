@@ -356,7 +356,7 @@ residuals.flash.fit <- function(object, ...) {
 #'
 #' @export
 #'
-ldf <- function(object, ...) {
+ldf <- function(object, type) {
   UseMethod("ldf", object)
 }
 
