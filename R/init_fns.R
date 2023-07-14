@@ -17,7 +17,7 @@
 #'
 #' @param tol Convergence tolerance.
 #'
-#' @param maxiter Maximum number of iterations.
+#' @param maxiter Maximum number of power iterations.
 #'
 #' @param seed Since initialization is random, a default seed is set for
 #'   reproducibility.

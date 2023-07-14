@@ -25,7 +25,7 @@ the sign of the factor \eqn{f_k}.}
 
 \item{tol}{Convergence tolerance.}
 
-\item{maxiter}{Maximum number of iterations.}
+\item{maxiter}{Maximum number of power iterations.}
 
 \item{seed}{Since initialization is random, a default seed is set for
 reproducibility.}
