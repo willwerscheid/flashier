@@ -1,6 +1,9 @@
 #' Initialize a flash factor
 #'
-#' The default method for initializing a new flash factor.
+#' The default method for initializing a new flash factor. Essentially an
+#'   implementation of the power method which (unlike many existing
+#'   implementations) can handle missing data and sign constraints. For details,
+#'   see Chapter 2.2.3 in the reference below.
 #'
 #' @param flash A \code{flash.fit} object.
 #'
@@ -20,6 +23,10 @@
 #'   reproducibility.
 #'
 #' @seealso \code{\link{init.fn.softImpute}}, \code{\link{init.fn.irlba}}
+#'
+#' @references
+#' Jason Willwerscheid (2021), \emph{Empirical Bayes Matrix Factorization:
+#'   Methods and Applications}. Ph.D. thesis, University of Chicago.
 #'
 #' @export
 #'
