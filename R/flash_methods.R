@@ -58,7 +58,7 @@
 #'
 #' @method plot flash
 #'
-#' @importFrom magrittr `%>%`
+#' @importFrom magrittr %>%
 #' @importFrom dplyr mutate left_join
 #' @importFrom ggplot2 ggplot aes geom_point geom_line geom_col
 #' @importFrom ggplot2 geom_histogram geom_vline after_stat
