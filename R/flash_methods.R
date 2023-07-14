@@ -255,6 +255,7 @@ plot.flash <- function(x,
 #'
 #' @seealso \code{\link{flash}}
 #'
+#' @importFrom stats fitted
 #' @method fitted flash
 #'
 #' @export
@@ -274,6 +275,7 @@ fitted.flash <- function(object, ...) {
 #'
 #' @seealso \code{\link{flash}}
 #'
+#' @importFrom stats fitted
 #' @method fitted flash.fit
 #'
 #' @export
@@ -299,6 +301,7 @@ fitted.flash.fit <- function(object, ...) {
 #'
 #' @seealso \code{\link{flash}}
 #'
+#' @importFrom stats residuals
 #' @method residuals flash
 #'
 #' @export
@@ -316,6 +319,7 @@ residuals.flash <- function(object, ...) {
 #'
 #' @seealso \code{\link{flash}}
 #'
+#' @importFrom stats residuals
 #' @method residuals flash.fit
 #'
 #' @export
