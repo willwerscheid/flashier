@@ -51,22 +51,6 @@
 #'   Control parameters are handled via global options and can be set by
 #'   calling \code{options("extrapolate.control") <- control.param}.
 #'
-#' @param conv.crit.fn The function used to calculate the optimization objective.
-#'   Fitting terminates (i.e., the fit is considered to have "converged") when
-#'   this objective drops below the value specified by parameter \code{tol}.
-#'   Options include \code{\link{conv.crit.elbo}} (the default),
-#'   \code{\link{conv.crit.loadings}}, and \code{\link{conv.crit.factors}}.
-#'   Custom functions may also be used. They should accept three parameters,
-#'   \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
-#'   \code{\link{flash.fit}} object from the current iteration, \code{old}
-#'   refers to the \code{\link{flash.fit}} object from the previous iteration,
-#'   and \code{k} identifies the factor/loadings pair that is currently
-#'   being updated during sequential backfits (that is, in calls to function
-#'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}).
-#'
-#' @param tol The convergence tolerance (see parameter \code{conv.crit.fn}
-#'   above).
-#'
 #' @param maxiter The maximum number of iterations when optimizing a greedily
 #'   added factor.
 #'
@@ -101,12 +85,12 @@ flash.add.greedy <- function(flash,
                              init.fn = NULL,
                              extrapolate = FALSE,
                              warmstart = FALSE,
-                             conv.crit.fn = conv.crit.elbo,
-                             tol = set.default.tol(flash),
                              maxiter = 500,
+                             tol = NULL,
                              verbose = NULL) {
   flash <- get.fit(flash)
 
+  tol <- handle.tol.param(tol, flash)
   verbose.lvl <- handle.verbose.param(verbose, flash)
 
   must.be.integer(Kmax, lower = 1, allow.null = FALSE)
@@ -117,12 +101,6 @@ flash.add.greedy <- function(flash,
   ebnm.fn <- ebnm.chk$ebnm.fn
   if (is.null(init.fn)) {
     init.fn <- function(f) init.fn.default(f, dim.signs = ebnm.chk$dim.signs)
-  }
-
-  if (missing(tol)) {
-    report.tol.setting(verbose.lvl, tol)
-  } else {
-    must.be.numeric(tol, allow.infinite = FALSE, allow.null = FALSE)
   }
 
   if (uses.R(flash)) {
@@ -142,6 +120,8 @@ flash.add.greedy <- function(flash,
   verbose.fns <- get.verbose.fns(flash)
   verbose.colnames <- get.verbose.colnames(flash)
   verbose.colwidths <- get.verbose.colwidths(flash)
+
+  conv.crit.fn <- get.conv.crit.fn(flash)
 
   factors.added <- 0
   greedy.failed <- FALSE

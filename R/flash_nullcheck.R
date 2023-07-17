@@ -12,6 +12,7 @@
 #'   \code{flash} object. Note that this might change the indices of existing
 #'   factors.
 #'
+#' TODO: move this info
 #' @param tol The tolerance parameter: if a factor does not improve the ELBO
 #'   by at least \code{tol}, then it will be set to zero.
 #'
@@ -28,10 +29,11 @@
 flash.nullcheck <- function(flash,
                             kset = NULL,
                             remove = TRUE,
-                            tol = set.default.tol(flash),
+                            tol = NULL,
                             verbose = NULL) {
   fit <- get.fit(flash)
 
+  tol <- handle.tol.param(tol, flash)
   verbose.lvl <- handle.verbose.param(verbose, fit)
 
   if (is.null(kset)) {
@@ -44,7 +46,6 @@ flash.nullcheck <- function(flash,
   }
   must.be.valid.kset(fit, kset)
 
-  must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3)
 
   announce.nullchk(verbose.lvl, length(kset), sum(is.zero(fit)))
@@ -77,6 +78,7 @@ nullcheck.factor <- function(flash, k, verbose.lvl, tol) {
 
   factor <- zero.factor(flash, k)
   factor <- update.R2.tau.and.obj(factor, flash)
+  # TO DO: use user-defined conv crit, not just ELBO
   obj.diff <- get.obj(factor) - get.obj(flash)
 
   if (obj.diff >= -tol) {

@@ -170,6 +170,14 @@ get.verbose.colwidths <- function(f) {
   f <- get.fit(f)
   f[["verbose.colwidths"]]
 }
+get.conv.crit.fn <- function(f) {
+  f <- get.fit(f)
+  f[["conv.crit.fn"]]
+}
+get.conv.tol <- function(f) {
+  f <- get.fit(f)
+  f[["conv.tol"]]
+}
 
 
 # Additional getters that are only used by factors ----------------------------
@@ -631,6 +639,10 @@ set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {
   f[["verbose.colnames"]] <- colnames
   f[["verbose.colwidths"]] <- colwidths
   return(f)
+}
+set.conv.crit <- function(f, fn, tol) {
+  f[["conv.crit.fn"]] <- fn
+  f[["conv.tol"]] <- tol
 }
 set.max.backfit.iter.reached.flag <- function(f) {
   f[["maxiter.reached"]] <- TRUE

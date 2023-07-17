@@ -50,7 +50,7 @@ for factors \eqn{F}).}
   objects as input (see parameter \code{init.fn} in function
   \code{\link{flash.add.greedy}}; parameter \code{conv.crit.fn} in
   \code{\link{flash.add.greedy}} and \code{\link{flash.backfit}};
-  and parameter \code{disp.fns} in \code{\link{flash.set.verbose}}).
+  and parameter \code{fns} in \code{\link{flash_set_verbose}}).
   For users who would like to write custom functions, the getter functions
   and methods enumerated below may prove useful.
 }

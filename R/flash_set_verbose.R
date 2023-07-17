@@ -1,9 +1,44 @@
 #' Set verbose output
 #'
-#' Determines the output that will be displayed when fitting a \code{flash}
-#'   object.
+#' Used in a \code{\link{flash}} pipeline to set the output that will be printed
+#'   after each greedy or backfitting iteration.
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @details Function \code{flash_set_verbose} can be used to customize
+#'   the output that is printed to console while fitting a \code{flash} object.
+#'   After each greedy or backfitting iteration (see, respectively,
+#'   \code{\link{flash_add_greedy}} and \code{\link{flash_backfit}}), each
+#'   function in argument \code{fns} is successively evaluated and the
+#'   result is printed to console in a table with column names defined by
+#'   argument \code{colnames} and column widths defined by argument
+#'   \code{colwidths}.
+#'
+#'   Each function in \code{fns} must accept exactly three parameters,
+#'   \code{curr}, \code{prev}, and \code{k}: \code{curr} refers to the
+#'   \code{\link{flash_fit}} object from the current iteration; \code{prev},
+#'   to the \code{flash_fit} object from the previous iteration;
+#'   and, if the iteration is a sequential backfitting iteration (that is, a
+#'   \code{\link{flash_backfit}} iteration with argument
+#'   \code{extrapolate = FALSE}), \code{k} identifies the factor/loadings pair
+#'   that is currently being updated (in all other cases, \code{k} is
+#'   \code{NULL}). Package \code{flashier} provides a number of functions that
+#'   may be used to customize output: see
+#'   \code{\link{flash_verbose_elbo}},
+#'   \code{\link{flash_verbose_elbo_diff}},
+#'   \code{\link{flash_verbose_max_chg}},
+#'   \code{\link{flash_verbose_max_chg_L}}, and
+#'   \code{\link{flash_verbose_max_chg_F}}. Custom functions may also be
+#'   defined. They might inspect the current \code{flash_fit} object
+#'   via argument \code{curr}; compare the fit in \code{curr} to the fit from the
+#'   previous iteration (provided by argument \code{prev}); or
+#'   ignore both \code{flash_fit} objects entirely (for example, to
+#'   track progress over time, one might simply call \code{\link{Sys.time}}).
+#'   To facilitate working with \code{flash_fit} objects, package
+#'   \code{flashier} provides a number of accessors, which are enumerated in
+#'   the documentation for object \code{\link{flash_fit}}. Custom functions
+#'   should return a character string that contains the output exactly as it is
+#'   to displayed; see below for an example.
+#'
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
 #' @param verbose When and how to display progress updates. Set to \code{0}
 #'   for no updates; \code{1} for updates after a "greedy" factor is added or
@@ -12,82 +47,74 @@
 #'   iteration. By default, per-iteration update information includes the
 #'   change in ELBO and the maximum (absolute) change over all L2-normalized
 #'   loadings \eqn{\ell_1, \ldots, \ell_K} and factors \eqn{f_1, \ldots, f_K}.
-#'   Update information is customizable via parameters \code{disp.fns},
+#'   Update information is customizable via parameters \code{fns},
 #'   \code{colnames}, and \code{colwidths}.
 #'
 #' A single tab-delimited table of values may also be output using
 #'   option \code{verbose = -1}. This format is especially convenient for
-#'   downstream analysis of the fitting history (for example, it may be used
-#'   to plot the value of the ELBO after each iteration).
+#'   downstream analysis of the fitting history. For example, it may be used
+#'   to plot the value of the ELBO after each iteration (see the "Advanced
+#'   Flashier" vignette for an illustration).
 #'
-#' @param disp.fns A vector of functions. Used to calculate values to display
-#'   after each greedy/backfit iteration when \code{verbose} is either -1 or 3.
-#'   Options include \code{\link{display.elbo}},
-#'   \code{\link{display.elbo.diff}}, \code{\link{display.max.chg}},
-#'   \code{\link{display.L.max.chg}}, and \code{\link{display.F.max.chg}}.
-#'   Custom functions may also be used. They should accept three parameters,
-#'   \code{new}, \code{old}, and \code{k}, where \code{new} refers to the
-#'   \code{\link{flash.fit}} object from the current iteration, \code{old}
-#'   refers to the \code{flash.fit} object from the previous iteration,
-#'   and \code{k} identifies the factor/loadings pair that is currently
-#'   being updated during sequential backfits (that is, in calls to function
-#'   \code{\link{flash.backfit}} where \code{extrapolate = FALSE}). See below
-#'   for an example.
+#' @param fns A vector of functions. Used to calculate values to display
+#'   after each greedy/backfit iteration when \code{verbose} is either -1 or 3
+#'   (see Details below). Ignored for other values of \code{verbose} (0, 1, or 2).
 #'
 #' @param colnames A vector of column names, one for each function in
-#'   \code{disp.fns}.
+#'   \code{fns}.
 #'
 #' @param colwidths A vector of column widths, one for each function in
-#'   \code{disp.fns}.
+#'   \code{fns}.
 #'
-#' @return A \code{\link{flash}} object.
-#'
-#' @seealso \code{\link{display.elbo}}, \code{\link{display.elbo.diff}},
-#'   \code{\link{display.max.chg}}, \code{\link{display.L.max.chg}},
-#'   \code{\link{display.F.max.chg}}
+#' @return The \code{\link{flash}} object from argument \code{flash}, with the
+#'   new verbose settings reflected in updates to the "internal"
+#'   \code{flash_fit} object. These settings will persist across
+#'   all subsequent calls to \code{flash_xxx} functions in the same
+#'   \code{flash} pipeline (unless, of course, \code{flash_set_verbose} is
+#'   again called within the same pipeline).
 #'
 #' @examples
 #' data(gtex)
 #'
+#' # TODO: check example
 #' # Suppress all verbose output.
-#' fl <- flash.init(gtex) %>%
-#'   flash.set.verbose(0) %>%
-#'   flash.add.greedy(Kmax = 5L)
+#' fl <- flash_init(gtex) %>%
+#'   flash_set_verbose(0) %>%
+#'   flash_add_greedy(Kmax = 5)
 #'
-#' # Set custom verbose output.
-#' sparsity.F <- function(new, old, k) {
-#'   g.F <- ff.g(new, n = 2)
+#' # Set custom verbose output. TODO: rewrite
+#' sparsity_F <- function(curr, prev, k) {
+#'   g.F <- ff.g(curr, n = 2)
 #'   g.F.pi0 <- g.F$pi[1] # Mixture weight of the "null" component.
 #'   return(g.F.pi0)
 #' }
-#' disp.fns <- c(display.elbo, display.F.max.chg, sparsity.F)
+#' verbose_fns <- c(flash_verbose_elbo, flash_verbose_max_chg_F, sparsity_F)
 #' colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
 #' colwidths <- c(12, 18, 18)
-#' fl <- flash.init(gtex) %>%
-#'   flash.set.verbose(
-#'     3L,
-#'     disp.fns = disp.fns,
+#' fl <- flash_init(gtex) %>%
+#'   flash_set_verbose(
+#'     verbose = 3,
+#'     fns = verbose_fns,
 #'     colnames = colnames,
 #'     colwidths = colwidths
 #'   ) %>%
-#'   flash.add.greedy(Kmax = 3L)
+#'   flash_add_greedy(Kmax = 3)
 #'
 #' # Output can be changed as needed.
-#' fl <- flash.init(gtex) %>%
-#'   flash.set.verbose(verbose = 1) %>%
-#'   flash.add.greedy(Kmax = 5L) %>%
-#'   flash.backfit(verbose = 3) %>%
-#'   flash.add.greedy(Kmax = 1L)
+#' fl <- flash_init(gtex) %>%
+#'   flash_set_verbose(verbose = 1) %>%
+#'   flash_add_greedy(Kmax = 5L) %>%
+#'   flash_backfit(verbose = 3) %>%
+#'   flash_add_greedy(Kmax = 1L)
 #'
 #' @export
 #'
-flash.set.verbose <- function(flash,
+flash_set_verbose <- function(flash,
                               verbose = 1L,
-                              disp.fns = NULL,
+                              fns = NULL,
                               colnames = NULL,
                               colwidths = NULL) {
   fit <- get.fit(flash)
-  fns <- disp.fns
 
   if (!all(length(fns) == c(length(colnames), length(colwidths)))) {
     stop("Arguments to fns, colnames, and colwidths must all have the same ",
@@ -111,12 +138,12 @@ flash.set.verbose <- function(flash,
   } else {
     if (length(fns) == 0 && verbose == -1) {
       # Default output columns for verbose.lvl = -1.
-      fns       <- c(display.elbo, display.elbo.diff, display.max.chg)
+      fns       <- c(flash_verbose_elbo, flash_verbose_elbo_diff, flash_verbose_max_chg)
       colnames  <- c("ELBO", "ELBO.diff", "LF.max.chg")
       colwidths <- c(14, 12, 12)
     } else if (length(fns) == 0) {
       # Default output columns for verbose.lvl = 3.
-      fns       <- c(display.elbo.diff, display.max.chg)
+      fns       <- c(flash_verbose_elbo_diff, flash_verbose_max_chg)
       colnames  <- c("ELBO Diff", "LF Max Chg")
       colwidths <- c(12, 12)
     } else if (missing(verbose)) {
@@ -138,6 +165,8 @@ flash.set.verbose <- function(flash,
 
 look.up.verbose.fns <- function(verbose, data.dim) {
   fns <- lapply(verbose, function(symbol) {
+    # There is the option to pass in a character string as shorthand; this
+    #   option has not yet been documented except in the advanced vignette.
     chars <- unlist(strsplit(symbol, ""))
 
     if (length(chars) > 2) {
@@ -153,20 +182,20 @@ look.up.verbose.fns <- function(verbose, data.dim) {
       if (!is.null(n))
         warning("Dimension ignored for verbose objective output.")
       if (chars[[1]] == "O") {
-        return(display.elbo)
+        return(flash_verbose_elbo)
       } else { # if chars[[1]] == "D"
-        return(display.elbo.diff)
+        return(flash_verbose_elbo_diff)
       }
     } else if (chars[[1]] == "L") {
-      return(function(new, old, k) calc.max.chg.EF(new, old, k, n))
+      return(function(curr, prev, k) calc.max.chg.EF(curr, prev, k, n))
     } else if (chars[[1]] == "W") {
-      return(function(new, old, k) which.max.chg.EF(new, old, k, n))
+      return(function(curr, prev, k) which.max.chg.EF(curr, prev, k, n))
     } else if (chars[[1]] == "S") {
       if (is.null(n))
         stop("Dimension must be specified for verbose sparsity output.")
-      return(function(new, old, k) get.sparsity(new, old, k, n))
+      return(function(curr, prev, k) get.sparsity(curr, prev, k, n))
     } else if (chars[[1]] == "E") {
-      return(function(new, old, k) get.exclusion.count(new, old, k, n))
+      return(function(curr, prev, k) get.exclusion.count(curr, prev, k, n))
     }
 
     stop("Unrecognized verbose output character.")
@@ -228,7 +257,7 @@ handle.verbose.param <- function(verbose, flash) {
     verbose.lvl <- get.verbose.lvl(flash)
   } else if (verbose == -1) {
     stop("To output a tab-delimited table of values, use function ",
-         "flash.set.verbose with verbose = -1. See ?flash.set.verbose ",
+         "flash_set_verbose with verbose = -1. See ?flash_set_verbose ",
          "for usage.")
   } else {
     verbose.lvl <- verbose

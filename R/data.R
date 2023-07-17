@@ -40,7 +40,7 @@
 #'
 NULL
 
-#' @name gtex.colors
+#' @name gtex_colors
 #'
 #' @title Colors for plotting GTEx Data
 #'
@@ -55,7 +55,7 @@ NULL
 #'   are shades of pink or red; etc.
 #'
 #' @format
-#' \code{gtex.colors} is a named vector of length 44, with names corresponding
+#' \code{gtex_colors} is a named vector of length 44, with names corresponding
 #'   to tissues (columns) in the \code{\link{gtex}} dataset and values
 #'   giving hexadecimal color codes.
 #'
@@ -69,6 +69,6 @@ NULL
 #'   Research} 22, 1--40.
 #'
 #' @examples
-#' fl <- flash(gtex, greedy.Kmax = 4)
-#' plot(fl, incl.scree = FALSE, pm.colors = gtex.colors)
+#' fl <- flash(gtex, greedy_Kmax = 4)
+#' plot(fl, incl_scree = FALSE, pm_colors = gtex_colors)
 NULL

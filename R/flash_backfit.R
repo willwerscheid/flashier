@@ -28,12 +28,12 @@ flash.backfit <- function(flash,
                           kset = NULL,
                           extrapolate = TRUE,
                           warmstart = TRUE,
-                          conv.crit.fn = conv.crit.elbo,
-                          tol = set.default.tol(flash),
                           maxiter = 500,
+                          tol = NULL,
                           verbose = NULL) {
   flash <- get.fit(flash)
 
+  tol <- handle.tol.param(tol, flash)
   verbose.lvl <- handle.verbose.param(verbose, flash)
 
   if (is.null(kset)) {
@@ -60,6 +60,7 @@ flash.backfit <- function(flash,
   if (method == "parallel") {
     check.parallel.ok(flash, kset)
 
+    # TODO: address this
     if (missing(conv.crit.fn)) {
       # Since decreases in the ELBO are possible, use absolute values.
       conv.crit.fn <- function(new, old, k) {
@@ -68,17 +69,13 @@ flash.backfit <- function(flash,
     }
   }
 
-  if (missing(tol)) {
-    report.tol.setting(verbose.lvl, tol)
-  } else {
-    must.be.numeric(tol, allow.infinite = FALSE, allow.null = FALSE)
-  }
-
   flash <- set.warmstart(flash, warmstart)
 
   verbose.fns <- get.verbose.fns(flash)
   verbose.colnames <- get.verbose.colnames(flash)
   verbose.colwidths <- get.verbose.colwidths(flash)
+
+  conv.crit.fn <- get.conv.crit.fn(flash)
 
   conv.crit <- rep(Inf, get.n.factors(flash))
   conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0

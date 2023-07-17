@@ -9,9 +9,8 @@ flash.backfit(
   kset = NULL,
   extrapolate = TRUE,
   warmstart = TRUE,
-  conv.crit.fn = conv.crit.elbo,
-  tol = set.default.tol(flash),
   maxiter = 500,
+  tol = NULL,
   verbose = NULL
 )
 }
@@ -35,22 +34,6 @@ are large changes in the scale of the estimated prior over the
 course of the fitting process. However, allowing the grid to
 vary can occasionally result in decreases in ELBO.}
 
-\item{conv.crit.fn}{The function used to calculate the optimization objective.
-Fitting terminates (i.e., the fit is considered to have "converged") when
-this objective drops below the value specified by parameter \code{tol}.
-Options include \code{\link{conv.crit.elbo}} (the default),
-\code{\link{conv.crit.loadings}}, and \code{\link{conv.crit.factors}}.
-Custom functions may also be used. They should accept three parameters,
-\code{new}, \code{old}, and \code{k}, where \code{new} refers to the
-\code{\link{flash.fit}} object from the current iteration, \code{old}
-refers to the \code{\link{flash.fit}} object from the previous iteration,
-and \code{k} identifies the factor/loadings pair that is currently
-being updated during sequential backfits (that is, in calls to function
-\code{\link{flash.backfit}} where \code{extrapolate = FALSE}).}
-
-\item{tol}{The convergence tolerance (see parameter \code{conv.crit.fn}
-above).}
-
 \item{maxiter}{The maximum number of backfitting iterations. An "iteration"
 is defined such that all factors in \code{kset} get updated at each
 iteration.}
@@ -60,7 +43,7 @@ iteration.}
 backfit is completed, \code{2} for additional notifications about the
 variational lower bound, and \code{3} for updates after every iteration.
 It is also possible to output a single tab-delimited table of values
-using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.}
+using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.}
 }
 \value{
 A \code{\link{flash}} object.

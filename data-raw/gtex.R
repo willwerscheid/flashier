@@ -9,8 +9,8 @@ usethis::use_data(gtex, overwrite = TRUE)
 
 
 missing.tissues <- c(7, 8, 19, 20, 24, 25, 31, 34, 37)
-gtex.colors <- read.table("https://github.com/stephenslab/gtexresults/blob/master/data/GTExColors.txt?raw=TRUE", sep = '\t', comment.char = '')[-missing.tissues, 2]
-gtex.colors <- as.character(gtex.colors)
-names(gtex.colors) <- colnames(gtex)
+gtex_colors <- read.table("https://github.com/stephenslab/gtexresults/blob/master/data/GTExColors.txt?raw=TRUE", sep = '\t', comment.char = '')[-missing.tissues, 2]
+gtex_colors <- as.character(gtex_colors)
+names(gtex_colors) <- colnames(gtex)
 
-usethis::use_data(gtex.colors, overwrite = TRUE)
+usethis::use_data(gtex_colors, overwrite = TRUE)

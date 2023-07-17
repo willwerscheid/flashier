@@ -1,64 +1,170 @@
+# TODO rename file
+
+#' Set convergence criterion and tolerance parameter
+#'
+#' Used in a \code{\link{flash}} pipeline to set the criterion for
+#'   determining whether a greedy fit or backfit has "converged."
+#'
+#' @details Function \code{flash_set_conv_crit} can be used to customize
+#'   the convergence criterion for a \code{flash} object. This criterion
+#'   determines when to stop optimizing a newly added factor
+#'   (see \code{\link{flash_add_greedy}}), when to stop backfitting
+#'   (\code{\link{flash_backfit}}), and when to remove factors during a
+#'   nullcheck (\code{\link{flash_nullcheck}}).
+#'
+#'   The criterion is defined by the function supplied as argument to \code{fn},
+#'   which must accept exactly three parameters,
+#'   \code{curr}, \code{prev}, and \code{k}. \code{curr} refers to the
+#'   \code{\link{flash_fit}} object from the current iteration; \code{prev},
+#'   to the \code{flash_fit} object from the previous iteration;
+#'   and, if the iteration is a sequential backfitting iteration (that is, a
+#'   \code{\link{flash_backfit}} iteration with argument
+#'   \code{extrapolate = FALSE}), \code{k} identifies the factor/loadings pair
+#'   that is currently being updated (in all other cases, \code{k} is
+#'   \code{NULL}). The function must output a numeric value; if the value is
+#'   less than or equal to \code{tol}, then the fit is considered to have
+#'   "converged." The meaning of "convergence" here varies according to the
+#'   operation being performed.
+#'   In the greedy algorithm, \code{fn} simply compares the fit from
+#'   one iteration to the next. During a backfit, it similarly compares fits from
+#'   one iteration to the next, but it only considers the fit to have
+#'   converged when the value of \code{fn} over successive updates to
+#'   \emph{all} factor/loading pairs is less than or equal to \code{tol}. If,
+#'   for example, factor/loading pairs
+#'   \eqn{1, \ldots, K} are being backfitted, then fits are compared before and
+#'   after the update to factor/loading 1, before and after the update to
+#'   factor/loading 2, and so on through factor/loading \eqn{K},
+#'   and backfitting only terminates when \code{fn} returns a value less
+#'   than or equal to \code{tol} for all \eqn{K} updates. Finally, during a nullcheck,
+#'   factors are removed one at a time, and fits are compared before and after
+#'   adding the factor back in; if the value returned by \code{fn} is less than
+#'   or equal to \code{tol}, then the factor is not considered to substantially
+#'   improve the fit, so it is removed from the final fit.
+#'
+#'   Package \code{flashier} provides a number of functions that may be supplied
+#'   as convergence criteria: see
+#'   \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_max_chg_L}}, and
+#'   \code{\link{flash_conv_crit_max_chg_F}}. Custom functions may also be
+#'   defined. Typically, they will compare the fit in \code{curr} (the current
+#'   iteration) to the fit in \code{prev} (the previous iteration).
+#'   To facilitate working with \code{flash_fit} objects, package
+#'   \code{flashier} provides a number of accessors, which are enumerated in
+#'   the documentation for object \code{\link{flash_fit}}. Custom functions
+#'   should return a numeric value that can be compared against \code{tol}; see
+#'   below for an example.
+#'
+#' @param tol The tolerance parameter (see Details below). The default, which is
+#'   set when the \code{flash} object is initialized (see
+#'   \code{\link{flash_init}}), is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+#'   number of rows in the dataset, \eqn{p} is the number of columns, and
+#'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
+#'
+#' @param fn The convergence criterion function (see Details below). If
+#'   \code{NULL}, then only the tolerance parameter is updated (thus a
+#'   convergence criterion can be set at the beginning of a \code{flash} pipeline,
+#'   allowing the tolerance parameter to be updated at will without needing to
+#'   re-specify the convergence criterion each time). The default convergence
+#'   criterion, which is set when the \code{flash} object is initialized, is
+#'   \code{\link{flash_conv_crit_elbo_diff}}, which calculates the
+#'   difference in the variational lower bound or "ELBO" from one iteration to
+#'   the next.
+#'
+#' @return The \code{\link{flash}} object from argument \code{flash}, with the
+#'   new convergence criterion reflected in updates to the "internal"
+#'   \code{flash_fit} object. These settings will persist across
+#'   all subsequent calls to \code{flash_xxx} functions in the same
+#'   \code{flash} pipeline (unless, of course, \code{flash_set_conv_crit} is
+#'   again called within the same pipeline).
+#'
+#' @examples
+#' data(gtex)
+#'
+#' TODO: write examples
+#'
+#' @export
+#'
+flash_set_conv_crit <- function(flash,
+                                tol,
+                                fn = NULL) {
+  fit <- get.fit(flash)
+
+  if (is.null(fn)) {
+    fn <- get.conv.crit.fn(flash)
+  }
+  must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
+
+  fit <- set.conv.crit(fn, tol)
+  flash <- set.fit(flash, fit)
+
+  return(flash)
+}
+
 #' Calculate the difference in ELBO
 #'
 #' The default objective function used to determine convergence when fitting
 #'   a \code{\link{flash}} object. Calculates the difference in the
-#'   variational lower bound from one iteration to the next.
+#'   variational lower bound ("ELBO") from one iteration to the next.
 #'
-#' @param new The \code{flash.fit} object from the current iteration.
+#' @details This function is an example of a function that may be passed to
+#'   parameter \code{fn} in function \code{\link{flash_set_conv_crit}} to set
+#'   the convergence criterion for a flash pipeline. See
+#'   \code{\link{flash_set_conv_crit}} for details and examples.
 #'
-#' @param old The \code{flash.fit} object from the previous iteration.
+#' @inheritParams flash_verbose_elbo
 #'
-#' @param k Ignored.
-#'
-#' @seealso \code{\link{conv.crit.loadings}}, \code{\link{conv.crit.factors}}
+#' @seealso \code{\link{flash_conv_crit_max_chg_L}}, \code{\link{flash_conv_crit_max_chg_F}}
 #'
 #' @export
 #'
-conv.crit.elbo <- function(new, old, k) {
-  return(calc.obj.diff(new, old, k))
+flash_conv_crit_elbo_diff <- function(curr, prev, k) {
+  return(calc.obj.diff(curr, prev, k))
 }
 
 #' Calculate the maximum absolute difference in scaled loadings
 #'
 #' An alternative objective function that can be used to determine
 #'   convergence when fitting a \code{\link{flash}} object. Calculates the
-#'   maximum absolute difference in the L2-normalized loadings,
-#'   \eqn{\max_{i, k} | \frac{\ell_ik^{new}}{\| \ell_k^{new} \|_2} -
-#'   \frac{\ell_ik^{old}}{\| \ell_k^{old} \|_2} |}.
+#'   maximum (absolute) change over all (posterior expected values for)
+#'   loadings \eqn{\ell_{ik}}. At each iteration, the loadings vectors
+#'   \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} are \eqn{L^2}-normalized.
 #'
-#' @inheritParams conv.crit.elbo
+#' @inheritParams flash_verbose_elbo
 #'
-#' @seealso \code{\link{conv.crit.elbo}}, \code{\link{conv.crit.factors}}
+#' @seealso \code{\link{flash_conv_crit_elbo_diff}}, \code{\link{flash_conv_crit_max_chg_F}}
 #'
 #' @export
 #'
-conv.crit.loadings <- function(new, old, k) {
-  return(calc.max.abs.chg.EF(new, old, k, n = 1))
+flash_conv_crit_max_chg_L <- function(curr, prev, k) {
+  return(calc.max.abs.chg.EF(curr, prev, k, n = 1))
 }
 
 #' Calculate the maximum absolute difference in scaled factors
 #'
 #' An alternative objective function that can be used to determine
 #'   convergence when fitting a \code{\link{flash}} object. Calculates the
-#'   maximum absolute difference in the L2-normalized factors,
-#'   \eqn{\max_{j, k} | \frac{f_jk^{new}}{\| f_jk^{new} \|_2} -
-#'   \frac{f_jk^{old}}{\| f_jk^{old} \|_2} |}.
+#'   maximum (absolute) change over all (posterior expected values for)
+#'   factors \eqn{f_{jk}}. At each iteration, the factors
+#'   \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
 #'
-#' @inheritParams conv.crit.elbo
+#' @inheritParams flash_verbose_elbo
 #'
-#' @seealso \code{\link{conv.crit.elbo}}, \code{\link{conv.crit.loadings}}
+#' @seealso \code{\link{flash_conv_crit_elbo_diff}}, \code{\link{flash_conv_crit_max_chg_L}}
 #'
 #' @export
 #'
-conv.crit.factors <- function(new, old, k) {
-  return(calc.max.abs.chg.EF(new, old, k, n = 2))
+flash_conv_crit_max_chg_F <- function(curr, prev, k) {
+  return(calc.max.abs.chg.EF(curr, prev, k, n = 2))
 }
 
 get.conv.crit <- function(update.info) {
   return(update.info[[length(update.info)]])
 }
 
-set.default.tol <- function(flash) {
-  flash <- get.fit(flash)
-  return(sqrt(.Machine$double.eps) * prod(get.dims(flash)))
+handle.tol.param <- function(tol, flash) {
+  if (is.null(tol)) {
+    tol <- get.conv.tol(flash)
+  }
+  must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
+  return(tol)
 }

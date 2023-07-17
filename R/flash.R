@@ -127,7 +127,7 @@
 #'   backfit is completed, \code{2} for additional notifications about the
 #'   variational lower bound, and \code{3} for updates after every iteration.
 #'   It is also possible to output a single tab-delimited table of values
-#'   using function \code{\link{flash.set.verbose}} with \code{verbose = -1}.
+#'   using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.
 #'
 #' @return A \code{flash} object. Contains elements:
 #'   \describe{
@@ -204,7 +204,8 @@
 #'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash.init.factors}},
 #'   \code{\link{flash.fix.factors}}, \code{\link{flash.set.factors.to.zero}},
-#'   \code{\link{flash.remove.factors}}, and \code{\link{flash.set.verbose}}.
+#'   \code{\link{flash.remove.factors}}, \code{\link{flash_set_verbose}}, and
+#'   \code{\link{flash_set_conv_crit}}.
 #'   For extracting useful data from \code{flash} objects, see
 #'   \code{\link{fitted.flash}}, \code{\link{residuals.flash}}, and
 #'   \code{\link{ldf.flash}}.

@@ -51,7 +51,10 @@ flash.init <- function(data, S = NULL, var.type = 0L, S.dim = NULL) {
   flash$exclusions <- list()
 
   flash <- wrapup.flash(flash, output.lvl = 3L)
-  flash <- flash.set.verbose(flash, verbose = 1L)
+  flash <- flash_set_verbose(flash, verbose = 1L)
+
+  tol <- sqrt(.Machine$double.eps) * prod(get.dims(fit))
+  flash <- flash_set_conv_crit(flash, tol, flash_conv_crit_elbo_diff)
 
   return(flash)
 }

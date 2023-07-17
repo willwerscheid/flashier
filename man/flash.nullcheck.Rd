@@ -4,13 +4,7 @@
 \alias{flash.nullcheck}
 \title{Nullcheck flash factors}
 \usage{
-flash.nullcheck(
-  flash,
-  kset = NULL,
-  remove = TRUE,
-  tol = set.default.tol(flash),
-  verbose = NULL
-)
+flash.nullcheck(flash, kset = NULL, remove = TRUE, tol = NULL, verbose = NULL)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash.fit} object.}
@@ -19,8 +13,10 @@ flash.nullcheck(
 If \code{kset = NULL}, then all existing factors will be checked.}
 
 \item{remove}{Whether to remove factors that have been set to zero from the
-\code{flash} object. Note that this might change the indices of existing
-factors.}
+  \code{flash} object. Note that this might change the indices of existing
+  factors.
+
+TODO: move this info}
 
 \item{tol}{The tolerance parameter: if a factor does not improve the ELBO
 by at least \code{tol}, then it will be set to zero.}

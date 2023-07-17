@@ -16,7 +16,7 @@ EF1 <- cbind(1, 1:n)
 EF2 <- t(solve(crossprod(EF1), crossprod(EF1, M)))
 
 fl <- flash.init(M) %>%
-  flash.set.verbose(0) %>%
+  flash_set_verbose(0) %>%
   flash.init.factors(list(EF1, EF2)) %>%
   flash.fix.factors(1:2, mode = 1) %>%
   flash.backfit()
@@ -27,7 +27,7 @@ test_that("Fixed factors are correctly added to a new flash object", {
 })
 
 fl <- flash.init(M) %>%
-  flash.set.verbose(0) %>%
+  flash_set_verbose(0) %>%
   flash.add.greedy(1) %>%
   flash.init.factors(list(EF1, EF2)) %>%
   flash.fix.factors(2:3, mode = 1) %>%
