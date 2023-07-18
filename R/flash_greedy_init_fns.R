@@ -29,7 +29,7 @@
 #' @param seed Since initialization is random, a default seed is set for
 #'   reproducibility.
 #'
-#' @seealso \code{\link{flash_add_greedy}},
+#' @seealso \code{\link{flash_greedy}},
 #'   \code{\link{flash_greedy_init_softImpute}},
 #'   \code{\link{flash_greedy_init_irlba}}
 #'
@@ -142,7 +142,7 @@ scale.EF <- function(EF) {
 #' @param ... Additional parameters to be passed to
 #'   \code{\link[softImpute]{softImpute}}.
 #'
-#' @seealso \code{\link{flash_add_greedy}},
+#' @seealso \code{\link{flash_greedy}},
 #'   \code{\link{flash_greedy_init_default}},
 #'   \code{\link{flash_greedy_init_irlba}}
 #'
@@ -177,7 +177,7 @@ flash_greedy_init_softImpute <- function(flash, seed = 666, ...) {
 #'
 #' @param ... Additional parameters to be passed to \code{\link[irlba]{irlba}}.
 #'
-#' @seealso \code{\link{flash_add_greedy}},
+#' @seealso \code{\link{flash_greedy}},
 #'   \code{\link{flash_greedy_init_default}},
 #'   \code{\link{flash_greedy_init_softImpute}}
 #'
