@@ -1,28 +1,37 @@
 #' Initialize a flash factor
 #'
-#' The default method for initializing a new flash factor. Essentially an
-#'   implementation of the power method which (unlike many existing
-#'   implementations) can handle missing data and sign constraints. For details,
+#' The default method for initializing the loadings \eqn{\ell_{\cdot k}} and
+#'   factor values \eqn{f_{\cdot k}} of a new ("greedy") flash factor. It is
+#'   essentially an implementation of the power method, but unlike many existing
+#'   implementations, it can handle missing data and sign constraints. For details,
 #'   see Chapter 2.2.3 in the reference below.
 #'
-#' @param flash A \code{flash.fit} object.
+#' @param flash A \code{flash_fit} object.
 #'
-#' @param dim.signs This parameter can be used to constrain the sign of the
-#'   initial loadings. It should be a vector of length two with entries equal
-#'   to -1, 0, or 1. The first entry dictates the sign of the loadings
-#'   \eqn{\ell_k}, with -1 yielding nonpositive loadings, +1 yielding
-#'   nonnegative loadings, and 0 indicating that loadings should not be
-#'   constrained. The second entry of \code{dim.signs} similarly constrains
-#'   the sign of the factor \eqn{f_k}.
+#' @param sign_constraints This parameter can be used to constrain the sign of
+#'   the initial factor and loadings. It should be a vector of length two with
+#'   entries equal to -1, 0, or 1. The first entry constrains the sign of the
+#'   loadings \eqn{\ell_{\cdot k}}, with -1 yielding nonpositive loadings, +1
+#'   yielding nonnegative loadings, and 0 indicating that loadings should not be
+#'   constrained. The second entry of \code{sign_constraints} similarly
+#'   constrains the sign of factor values \eqn{f_{\cdot k}}. If
+#'   \code{sign_constraints = NULL}, then no constraints will be applied.
 #'
-#' @param tol Convergence tolerance.
+#' @param tol Convergence tolerance parameter. When the maximum (absolute)
+#'   change over all values \eqn{\ell_{ik}} and \eqn{f_{jk}} is less than or
+#'   equal to \code{tol}, initialization terminates. At each iteration, the
+#'   factor and loadings are \eqn{L^2}-normalized. The default tolerance
+#'   parameter is \eqn{\min(1 / n, 1 / p)}, where \eqn{n} is
+#'   the number of rows in the data matrix and \eqn{p} is the number of columns.
 #'
 #' @param maxiter Maximum number of power iterations.
 #'
 #' @param seed Since initialization is random, a default seed is set for
 #'   reproducibility.
 #'
-#' @seealso \code{\link{init.fn.softImpute}}, \code{\link{init.fn.irlba}}
+#' @seealso \code{\link{flash_add_greedy}},
+#'   \code{\link{flash_greedy_init_softImpute}},
+#'   \code{\link{flash_greedy_init_irlba}}
 #'
 #' @references
 #' Jason Willwerscheid (2021), \emph{Empirical Bayes Matrix Factorization:
@@ -30,17 +39,23 @@
 #'
 #' @export
 #'
-init.fn.default <- function(flash,
-                            dim.signs = rep(0, get.dim(flash)),
-                            tol = 1 / max(get.dims(flash)),
-                            maxiter = 100,
-                            seed = 666) {
+flash_greedy_init_default <- function(flash,
+                                      sign_constraints = NULL,
+                                      tol = NULL,
+                                      maxiter = 100,
+                                      seed = 666) {
   set.seed(seed)
-  EF <- r1.random(get.dims(flash), dim.signs)
+  if (is.null(sign_constraints)) {
+    sign_constraints <- rep(0, get.dim(flash))
+  }
+  if (is.null(tol)) {
+    tol <- 1 / max(get.dims(flash))
+  }
+  EF <- r1.random(get.dims(flash), sign_constraints)
 
   update.order <- 1:get.dim(flash)
   # Nonnegative/nonpositive dimensions are updated last.
-  signed.dims <- which(dim.signs %in% c(-1, 1))
+  signed.dims <- which(sign_constraints %in% c(-1, 1))
   if (length(signed.dims) > 0) {
     which.signed <- which(update.order %in% signed.dims)
     update.order <- c(update.order[-which.signed], update.order[which.signed])
@@ -51,7 +66,7 @@ init.fn.default <- function(flash,
   while (max.chg > tol && iter < maxiter) {
     iter <- iter + 1
     old.EF <- EF
-    EF <- update.init.EF(EF, flash, update.order, dim.signs)
+    EF <- update.init.EF(EF, flash, update.order, sign_constraints)
     max.chg <- calc.max.abs.chg(EF, old.EF)
   }
 
@@ -61,12 +76,12 @@ init.fn.default <- function(flash,
   return(EF)
 }
 
-update.init.EF <- function(EF, flash, update.order, dim.signs) {
-  if (is.null(dim.signs))
-    dim.signs <- rep(0, get.dim(flash))
+update.init.EF <- function(EF, flash, update.order, sign_constraints) {
+  if (is.null(sign_constraints))
+    sign_constraints <- rep(0, get.dim(flash))
 
   for (n in update.order) {
-    sign <- dim.signs[n]
+    sign <- sign_constraints[n]
     EF <- update.init.EF.one.n(EF, n, flash, sign)
   }
 
@@ -118,23 +133,25 @@ scale.EF <- function(EF) {
 
 #' Initialize a flash factor using softImpute
 #'
-#' Initializes a new flash factor using \code{\link[softImpute]{softImpute}}.
+#' Initializes a new ("greedy") flash factor using \code{\link[softImpute]{softImpute}}.
 #'   When there is missing data, this can yield better results than
-#'   \code{\link{init.fn.default}} without sacrificing much (if any) speed.
+#'   \code{\link{flash_greedy_init_default}} without sacrificing much (if any) speed.
 #'
-#' @inheritParams init.fn.default
+#' @inheritParams flash_greedy_init_default
 #'
 #' @param ... Additional parameters to be passed to
 #'   \code{\link[softImpute]{softImpute}}.
 #'
-#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.irlba}}
+#' @seealso \code{\link{flash_add_greedy}},
+#'   \code{\link{flash_greedy_init_default}},
+#'   \code{\link{flash_greedy_init_irlba}}
 #'
 #' @importFrom stats residuals
 #' @importFrom softImpute softImpute
 #'
 #' @export
 #'
-init.fn.softImpute <- function(flash, seed = 666, ...) {
+flash_greedy_init_softImpute <- function(flash, seed = 666, ...) {
   set.seed(seed)
 
   if (get.dim(flash) > 2)
@@ -151,23 +168,25 @@ init.fn.softImpute <- function(flash, seed = 666, ...) {
 
 #' Initialize a flash factor using IRLBA
 #'
-#' Initializes a new flash factor using \code{\link[irlba]{irlba}}. This
-#'   can be somewhat faster than \code{\link{init.fn.default}} for large,
+#' Initializes a new ("greedy") flash factor using \code{\link[irlba]{irlba}}. This
+#'   can be somewhat faster than \code{\link{flash_greedy_init_default}} for large,
 #'   dense data matrices. For sparse matrices of class \code{Matrix}, the
 #'   default initialization should generally be preferred.
 #'
-#' @inheritParams init.fn.default
+#' @inheritParams flash_greedy_init_default
 #'
 #' @param ... Additional parameters to be passed to \code{\link[irlba]{irlba}}.
 #'
-#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}
+#' @seealso \code{\link{flash_add_greedy}},
+#'   \code{\link{flash_greedy_init_default}},
+#'   \code{\link{flash_greedy_init_softImpute}}
 #'
 #' @importFrom stats residuals
 #' @importFrom irlba irlba
 #'
 #' @export
 #'
-init.fn.irlba <- function(flash, seed = 666, ...) {
+flash_greedy_init_irlba <- function(flash, seed = 666, ...) {
   set.seed(seed)
 
   if (get.dim(flash) > 2)

@@ -145,8 +145,8 @@ as.ebnm.fn <- function(...) {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
         # Workaround to pass test.ebnm.fn:
         if (identical(x, c(-1, 0, 1))) {
-           x <- rep(x, length.out = length(args$group))
-           s <- rep(s, length.out = length(args$group))
+          x <- rep(x, length.out = length(args$group))
+          s <- rep(s, length.out = length(args$group))
         }
         ebnm_group(
           x, s, g_init = g_init, fix_g = fix_g, output = output, ...
