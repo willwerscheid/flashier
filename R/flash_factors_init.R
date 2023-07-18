@@ -34,7 +34,7 @@
 #' @examples
 #' data(gtex)
 #'
-#' TODO: update examples
+#' # TODO: update examples
 #'
 #' # Initialize several factors at once and backfit.
 #' fl <- flash_init(gtex) %>%

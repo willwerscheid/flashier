@@ -7,6 +7,8 @@
 flash_set_conv_crit(flash, fn = NULL, tol)
 }
 \arguments{
+\item{flash}{A \code{flash} or \code{flash_fit} object.}
+
 \item{fn}{The convergence criterion function (see Details below). If
 \code{NULL}, then only the tolerance parameter is updated (thus a
 convergence criterion can be set at the beginning of a \code{flash} pipeline,
@@ -89,6 +91,6 @@ Function \code{flash_set_conv_crit} can be used to customize
 \examples{
 data(gtex)
 
-TODO: write examples
+# TODO: write examples
 
 }
