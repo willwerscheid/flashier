@@ -27,5 +27,7 @@ This function is an example of a function that may be passed to
   \code{\link{flash_set_conv_crit}} for details and examples.
 }
 \seealso{
-\code{\link{flash_conv_crit_max_chg_L}}, \code{\link{flash_conv_crit_max_chg_F}}
+\code{\link{flash_conv_crit_max_chg}}
+  \code{\link{flash_conv_crit_max_chg_L}},
+  \code{\link{flash_conv_crit_max_chg_F}}
 }

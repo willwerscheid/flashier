@@ -23,5 +23,7 @@ An alternative objective function that can be used to determine
   \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
 }
 \seealso{
-\code{\link{flash_conv_crit_elbo_diff}}, \code{\link{flash_conv_crit_max_chg_L}}
+\code{\link{flash_conv_crit_elbo_diff}},
+  \code{\link{flash_conv_crit_max_chg}}
+  \code{\link{flash_conv_crit_max_chg_L}}
 }

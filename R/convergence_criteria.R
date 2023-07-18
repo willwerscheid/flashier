@@ -44,6 +44,7 @@
 #'   Package \code{flashier} provides a number of functions that may be supplied
 #'   as convergence criteria: see
 #'   \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_max_chg}},
 #'   \code{\link{flash_conv_crit_max_chg_L}}, and
 #'   \code{\link{flash_conv_crit_max_chg_F}}. Custom functions may also be
 #'   defined. Typically, they will compare the fit in \code{curr} (the current
@@ -54,12 +55,6 @@
 #'   should return a numeric value that can be compared against \code{tol}; see
 #'   below for an example.
 #'
-#' @param tol The tolerance parameter (see Details below). The default, which is
-#'   set when the \code{flash} object is initialized (see
-#'   \code{\link{flash_init}}), is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
-#'   number of rows in the dataset, \eqn{p} is the number of columns, and
-#'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
-#'
 #' @param fn The convergence criterion function (see Details below). If
 #'   \code{NULL}, then only the tolerance parameter is updated (thus a
 #'   convergence criterion can be set at the beginning of a \code{flash} pipeline,
@@ -69,6 +64,12 @@
 #'   \code{\link{flash_conv_crit_elbo_diff}}, which calculates the
 #'   difference in the variational lower bound or "ELBO" from one iteration to
 #'   the next.
+#'
+#' @param tol The tolerance parameter (see Details below). The default, which is
+#'   set when the \code{flash} object is initialized (see
+#'   \code{\link{flash_init}}), is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+#'   number of rows in the dataset, \eqn{p} is the number of columns, and
+#'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
 #'
 #' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   new convergence criterion reflected in updates to the "internal"
@@ -85,8 +86,8 @@
 #' @export
 #'
 flash_set_conv_crit <- function(flash,
-                                tol,
-                                fn = NULL) {
+                                fn = NULL,
+                                tol) {
   fit <- get.fit(flash)
 
   if (is.null(fn)) {
@@ -113,12 +114,35 @@ flash_set_conv_crit <- function(flash,
 #'
 #' @inheritParams flash_verbose_elbo
 #'
-#' @seealso \code{\link{flash_conv_crit_max_chg_L}}, \code{\link{flash_conv_crit_max_chg_F}}
+#' @seealso \code{\link{flash_conv_crit_max_chg}}
+#'   \code{\link{flash_conv_crit_max_chg_L}},
+#'   \code{\link{flash_conv_crit_max_chg_F}}
 #'
 #' @export
 #'
 flash_conv_crit_elbo_diff <- function(curr, prev, k) {
   return(calc.obj.diff(curr, prev, k))
+}
+
+#' Calculate the maximum absolute difference in scaled loadings and factors
+#'
+#' An alternative objective function that can be used to determine
+#'   convergence when fitting a \code{\link{flash}} object. Calculates the
+#'   maximum (absolute) change over all (posterior expected values for)
+#'   loadings \eqn{\ell_{ik}} and factors \eqn{f_{jk}}. At each iteration, the
+#'   loadings vectors \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} and factors
+#'   \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
+#'
+#' @inheritParams flash_verbose_elbo
+#'
+#' @seealso \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_max_chg_L}}
+#'   \code{\link{flash_conv_crit_max_chg_F}}
+#'
+#' @export
+#'
+flash_conv_crit_max_chg <- function(curr, prev, k) {
+  return(calc.max.abs.chg.EF(curr, prev, k, n = NULL))
 }
 
 #' Calculate the maximum absolute difference in scaled loadings
@@ -131,7 +155,9 @@ flash_conv_crit_elbo_diff <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
-#' @seealso \code{\link{flash_conv_crit_elbo_diff}}, \code{\link{flash_conv_crit_max_chg_F}}
+#' @seealso \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_max_chg}}
+#'   \code{\link{flash_conv_crit_max_chg_F}}
 #'
 #' @export
 #'
@@ -149,7 +175,9 @@ flash_conv_crit_max_chg_L <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
-#' @seealso \code{\link{flash_conv_crit_elbo_diff}}, \code{\link{flash_conv_crit_max_chg_L}}
+#' @seealso \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_max_chg}}
+#'   \code{\link{flash_conv_crit_max_chg_L}}
 #'
 #' @export
 #'

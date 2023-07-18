@@ -4,15 +4,9 @@
 \alias{flash_set_conv_crit}
 \title{Set convergence criterion and tolerance parameter}
 \usage{
-flash_set_conv_crit(flash, tol, fn = NULL)
+flash_set_conv_crit(flash, fn = NULL, tol)
 }
 \arguments{
-\item{tol}{The tolerance parameter (see Details below). The default, which is
-set when the \code{flash} object is initialized (see
-\code{\link{flash_init}}), is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
-number of rows in the dataset, \eqn{p} is the number of columns, and
-\eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.}
-
 \item{fn}{The convergence criterion function (see Details below). If
 \code{NULL}, then only the tolerance parameter is updated (thus a
 convergence criterion can be set at the beginning of a \code{flash} pipeline,
@@ -22,6 +16,12 @@ criterion, which is set when the \code{flash} object is initialized, is
 \code{\link{flash_conv_crit_elbo_diff}}, which calculates the
 difference in the variational lower bound or "ELBO" from one iteration to
 the next.}
+
+\item{tol}{The tolerance parameter (see Details below). The default, which is
+set when the \code{flash} object is initialized (see
+\code{\link{flash_init}}), is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+number of rows in the dataset, \eqn{p} is the number of columns, and
+\eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with the
@@ -75,6 +75,7 @@ Function \code{flash_set_conv_crit} can be used to customize
   Package \code{flashier} provides a number of functions that may be supplied
   as convergence criteria: see
   \code{\link{flash_conv_crit_elbo_diff}},
+  \code{\link{flash_conv_crit_max_chg}},
   \code{\link{flash_conv_crit_max_chg_L}}, and
   \code{\link{flash_conv_crit_max_chg_F}}. Custom functions may also be
   defined. Typically, they will compare the fit in \code{curr} (the current
