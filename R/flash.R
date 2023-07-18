@@ -5,7 +5,7 @@
 #'   object (short for Factors and Loadings using Adaptive SHrinkage). Two
 #'   interfaces are provided. The \code{flash} function provides a simple
 #'   interface that allows a flash object to be fit in a single pass, while
-#'   \code{flash.xxx} functions are pipeable functions that allow for more
+#'   \code{flash_xxx} functions are pipeable functions that allow for more
 #'   complex flash objects to be fit incrementally (available functions are
 #'   listed below under \strong{See Also}). See the vignettes and
 #'   \strong{Examples} for usage.
@@ -105,13 +105,13 @@
 #'   is typically much slower than other options, so it should be used with
 #'   care.
 #'
-#' @param greedy.Kmax The maximum number of factors to be added. This will not
+#' @param greedy_Kmax The maximum number of factors to be added. This will not
 #'   necessarily be the total number of factors added by \code{flash}, since
 #'   factors are only added as long as they increase the variational lower
 #'   bound on the log likelihood for the model.
 #'
 #' @param backfit A "greedy" fit is performed by adding up to
-#'   \code{greedy.Kmax} factors, optimizing each newly added factor in one go
+#'   \code{greedy_Kmax} factors, optimizing each newly added factor in one go
 #'   without returning to optimize previously added factors. When
 #'   \code{backfit = TRUE}, \code{flash} will additionally perform a final
 #'   "backfit" where all factors are cyclically updated until convergence.
@@ -172,7 +172,7 @@
 #' data(gtex)
 #'
 #' # Fit up to 10 factors and backfit.
-#' fl <- flash(gtex, greedy.Kmax = 10L, backfit = TRUE)
+#' fl <- flash(gtex, greedy_Kmax = 10L, backfit = TRUE)
 #'
 #' # This is equivalent to the series of calls:
 #' fl <- flash_init(gtex) %>%
@@ -185,16 +185,16 @@
 #' fl <- flash(gtex,
 #'             ebnm_fn = c(ebnm_unimodal,
 #'                         ebnm_normal_scale_mixture),
-#'             greedy.Kmax = 5)
+#'             greedy_Kmax = 5)
 #'
 #' # Fit point-laplace priors using a non-default optimization method.
 #' fl <- flash(gtex,
 #'             ebnm_fn = as.ebnm.fn(prior_family = "point_laplace",
 #'                                  optmethod = "trust"),
-#'             greedy.Kmax = 5)
+#'             greedy_Kmax = 5)
 #'
 #' # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-#' fl <- flash(gtex, var_type = c(1, 2), greedy.Kmax = 5L)
+#' fl <- flash(gtex, var_type = c(1, 2), greedy_Kmax = 5L)
 #'
 #' @references
 #' Wei Wang and Matthew Stephens (2021).
@@ -220,13 +220,13 @@ flash <- function(data,
                   S = NULL,
                   ebnm_fn = ebnm_point_normal,
                   var_type = 0L,
-                  greedy.Kmax = 50L,
+                  greedy_Kmax = 50L,
                   backfit = FALSE,
                   nullcheck = TRUE,
                   verbose = 1L) {
   fl <- flash_init(data, S = S, var_type = var_type)
 
-  fl <- flash_greedy(fl, Kmax = greedy.Kmax, ebnm_fn = ebnm_fn,
+  fl <- flash_greedy(fl, Kmax = greedy_Kmax, ebnm_fn = ebnm_fn,
                      verbose = verbose)
 
   if (backfit) {

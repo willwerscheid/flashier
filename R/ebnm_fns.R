@@ -91,7 +91,7 @@
 #' fl1 <- flash(
 #'   gtex,
 #'   ebnm.fn = my.ebnm.fn,
-#'   greedy.Kmax = 2
+#'   greedy_Kmax = 2
 #' )
 #'
 #' fl2 <- flash(
@@ -100,7 +100,7 @@
 #'     prior_family = "point_laplace",
 #'     control = list(iterlim = 10)
 #'   ),
-#'   greedy.Kmax = 2
+#'   greedy_Kmax = 2
 #' )
 #'
 #' @importFrom ebnm ebnm ebnm_group
