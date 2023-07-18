@@ -1,4 +1,4 @@
-# Helpers for the flash (not flash.fit) object --------------------------------
+# Helpers for the flash (not flash_fit) object --------------------------------
 
 get.fit <- function(f) {
   if (inherits(f, "flash"))
@@ -9,13 +9,13 @@ get.fit <- function(f) {
        "initialize a flash_fit object.")
 }
 set.fit <- function(f, fit) {
-  f[["flash.fit"]] <- fit
+  f[["flash_fit"]] <- fit
   return(f)
 }
 get.conv.stat <- function(f) f[["convergence.status"]]
 
 
-# Getters for the flash.fit object (also used by the smaller factors) ---------
+# Getters for the flash_fit object (also used by the smaller factors) ---------
 
 get.R                 <- function(f) f[["R"]]
 get.nonmissing        <- function(f) f[["Z"]]

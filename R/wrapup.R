@@ -1,5 +1,5 @@
 wrapup.flash <- function(flash, output.lvl) {
-  class(flash) <- c("flash.fit", "list")
+  class(flash) <- c("flash_fit", "list")
 
   if (output.lvl == 0) {
     flash <- set.bypass.init.flag(flash)

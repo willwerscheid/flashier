@@ -69,7 +69,7 @@ flash_factors_init <- function(flash,
   EF2 <- NULL
   if (is.udv(init)) {
     EF <- udv.to.lowrank(init)
-  } else if (inherits(init, "flash.fit")) {
+  } else if (inherits(init, "flash_fit")) {
     EF <- get.EF(init)
     EF2 <- get.EF2(init)
   } else if (is.list(init) && all(sapply(init, is.matrix))) {
