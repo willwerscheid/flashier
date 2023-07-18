@@ -73,7 +73,7 @@ gtex_byrow <- flash(gtex, greedy_Kmax = 5, var_type = 1, verbose = 0)
 c(const_elbo = gtex_const$elbo, byrow_elbo = gtex_byrow$elbo)
 ```
 
-(I set `verbose = 0` to suppress progress updates.) Since the assumption of row-specific variances is much more flexible than the assumption of a constant residual variance (and includes it as a special case), the objective has increased considerably. The factors appear as follows:
+(I set `verbose = 0` to suppress progress updates.) Since the assumption of row-specific variances is much more flexible than the assumption of a constant residual variance (and includes it as a special case), the objective has increased considerably. The factors now appear as follows:
 
 ```{r gtex.byrow.plot}
 plot(gtex_byrow, pm_colors = gtex_colors, include_scree = FALSE)
