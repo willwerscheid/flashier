@@ -35,7 +35,7 @@ The \code{\link{flash}} object from argument \code{flash}, with
 }
 \description{
 Sets factor/loadings pairs to zero if doing so improves the variational
-  lower bound (ELBO).
+  lower bound (ELBO). See \code{\link{flash}} for examples of usage.
 }
 \seealso{
 \code{\link{flash_factors_remove}},

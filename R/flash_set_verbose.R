@@ -36,7 +36,7 @@
 #'   \code{flashier} provides a number of accessors, which are enumerated in
 #'   the documentation for object \code{\link{flash_fit}}. Custom functions
 #'   should return a character string that contains the output exactly as it is
-#'   to displayed; see below for an example.
+#'   to displayed; see \strong{Examples} below.
 #'
 #' @param flash A \code{flash} or \code{flash_fit} object.
 #'
@@ -76,17 +76,16 @@
 #' @examples
 #' data(gtex)
 #'
-#' # TODO: check example
 #' # Suppress all verbose output.
 #' fl <- flash_init(gtex) %>%
 #'   flash_set_verbose(0) %>%
 #'   flash_greedy(Kmax = 5)
 #'
-#' # Set custom verbose output. TODO: rewrite
+#' # Set custom verbose output.
 #' sparsity_F <- function(curr, prev, k) {
-#'   g.F <- ff.g(curr, n = 2)
-#'   g.F.pi0 <- g.F$pi[1] # Mixture weight of the "null" component.
-#'   return(g.F.pi0)
+#'   g_F <- flash_fit_get_g(curr, n = 2)
+#'   g_F_pi0 <- g_F$pi[1] # Mixture weight of the "null" component.
+#'   return(g_F_pi0)
 #' }
 #' verbose_fns <- c(flash_verbose_elbo, flash_verbose_max_chg_F, sparsity_F)
 #' colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")

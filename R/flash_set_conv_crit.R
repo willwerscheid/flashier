@@ -51,7 +51,7 @@
 #'   \code{flashier} provides a number of accessors, which are enumerated in
 #'   the documentation for object \code{\link{flash_fit}}. Custom functions
 #'   should return a numeric value that can be compared against \code{tol}; see
-#'   below for an example.
+#'   \strong{Examples} below.
 #'
 #' @param flash A \code{flash} or \code{flash_fit} object.
 #'
@@ -81,7 +81,15 @@
 #' @examples
 #' data(gtex)
 #'
-#' # TODO: write examples
+#' fl <- flash_init(gtex) %>%
+#'   flash_set_conv_crit(flash_conv_crit_max_chg, tol = 1e-3) %>%
+#'   flash_set_verbose(
+#'     verbose = 3,
+#'     fns = flash_verbose_max_chg,
+#'     colnames = "Max Chg",
+#'     colwidths = 20
+#'   ) %>%
+#'   flash_greedy(Kmax = 3)
 #'
 #' @export
 #'

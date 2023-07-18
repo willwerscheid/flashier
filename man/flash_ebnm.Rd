@@ -15,6 +15,11 @@ included. Finally, if \code{g_init} is included, then \code{fix_g = TRUE}
 must be as well. To fix a prior grid, use parameter \code{scale} rather
 than \code{g_init}.}
 }
+\value{
+A function that can be passed as argument to parameter
+  \code{ebnm_fn} in functions \code{\link{flash}},
+  \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}}.
+}
 \description{
 \code{flash_ebnm} is a helper function that provides readable syntax for
   constructing \code{\link[ebnm]{ebnm}} functions that can serve as
@@ -83,7 +88,6 @@ As input to parameter \code{ebnm_fn} in functions \code{\link{flash}},
 }
 \examples{
 # A custom EBNM function might be written as follows:
-
 my_ebnm_fn <- function(x, s, g_init, fix_g, output) {
   ebnm_res <- ebnm_point_laplace(
     x = x,
@@ -97,13 +101,11 @@ my_ebnm_fn <- function(x, s, g_init, fix_g, output) {
 }
 
 # The following are equivalent:
-
 fl1 <- flash(
   gtex,
   ebnm_fn = my_ebnm_fn,
   greedy_Kmax = 2
 )
-
 fl2 <- flash(
   gtex,
   ebnm_fn = flash_ebnm(
@@ -115,6 +117,5 @@ fl2 <- flash(
 
 }
 \seealso{
-\code{\link[ebnm]{ebnm}}, \code{\link{flash}},
-  \code{\link{flash_greedy}}, \code{\link{flash_factors_init}}.
+\code{\link[ebnm]{ebnm}}
 }

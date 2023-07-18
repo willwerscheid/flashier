@@ -76,5 +76,5 @@ The \code{\link{flash}} object from argument \code{flash}, backfitted
 Backfits existing flash factor/loadings pairs. Whereas a "greedy" fit optimizes
   each newly added factor/loadings pair in one go without returning to optimize
   previously added pairs, a "backfit" updates all existing pairs in a cyclical
-  fashion.
+  fashion. See \code{\link{flash}} for examples of usage.
 }

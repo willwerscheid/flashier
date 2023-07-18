@@ -62,5 +62,5 @@ An initialized \code{\link{flash}} object (with no factors).
 Sets up a \code{\link{flash}} object with no factors. Since all other
 \code{flash_xxx} functions take a \code{flash} or \code{flash_fit} object
 as their first argument, calling \code{flash_init} should be the first step
-in any \code{flash} pipeline.
+in any \code{flash} pipeline. See \code{\link{flash}} for examples of usage.
 }

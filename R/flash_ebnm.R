@@ -72,12 +72,14 @@
 #'   must be as well. To fix a prior grid, use parameter \code{scale} rather
 #'   than \code{g_init}.
 #'
-#' @seealso \code{\link[ebnm]{ebnm}}, \code{\link{flash}},
-#'   \code{\link{flash_greedy}}, \code{\link{flash_factors_init}}.
+#' @return A function that can be passed as argument to parameter
+#'   \code{ebnm_fn} in functions \code{\link{flash}},
+#'   \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}}.
+#'
+#' @seealso \code{\link[ebnm]{ebnm}}
 #'
 #' @examples
 #' # A custom EBNM function might be written as follows:
-#'
 #' my_ebnm_fn <- function(x, s, g_init, fix_g, output) {
 #'   ebnm_res <- ebnm_point_laplace(
 #'     x = x,
@@ -91,13 +93,11 @@
 #' }
 #'
 #' # The following are equivalent:
-#'
 #' fl1 <- flash(
 #'   gtex,
 #'   ebnm_fn = my_ebnm_fn,
 #'   greedy_Kmax = 2
 #' )
-#'
 #' fl2 <- flash(
 #'   gtex,
 #'   ebnm_fn = flash_ebnm(

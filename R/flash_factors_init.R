@@ -34,8 +34,6 @@
 #' @examples
 #' data(gtex)
 #'
-#' # TODO: update examples
-#'
 #' # Initialize several factors at once and backfit.
 #' fl <- flash_init(gtex) %>%
 #'   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) %>%
@@ -46,10 +44,10 @@
 #' #   row-wise means.
 #' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 #' # Initialize the factor at the least squares solution.
-#' ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
+#' ls_soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 #' fl <- flash_init(gtex) %>%
-#'   flash_factors_init(init = list(ones, ls.soln)) %>%
-#'   flash_factors_fix(kset = 1, mode = 1L) %>%
+#'   flash_factors_init(init = list(ones, ls_soln)) %>%
+#'   flash_factors_fix(kset = 1, which_dim = "loadings") %>%
 #'   flash_backfit() %>%
 #'   flash_greedy(Kmax = 5L)
 #'

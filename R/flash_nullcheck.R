@@ -1,7 +1,7 @@
 #' Nullcheck flash factors
 #'
 #' Sets factor/loadings pairs to zero if doing so improves the variational
-#'   lower bound (ELBO).
+#'   lower bound (ELBO). See \code{\link{flash}} for examples of usage.
 #'
 #' @param flash A \code{flash} or \code{flash_fit} object.
 #'

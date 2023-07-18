@@ -117,23 +117,26 @@ Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
   attempts to find an optimal additional (rank-one) factor given all
   previously added factors. The additional factor is retained if it
   increases the variational lower bound (ELBO); otherwise, fitting terminates.
+  See \code{\link{flash}} for examples of usage.
 }
 \examples{
-# TODO: review examples
+# The following are examples of advanced usage. See ?flash for basic usage.
+
 # Increase the maximum number of iterations in the default initialization
 #   method.
+my_init_fn <- function(f) flash_greedy_init_default(f, maxiter = 500)
 fl <- flash_init(gtex) \%>\%
-  flash_greedy(init_fn = function(f) flash_greedy_init_default(f, maxiter = 500))
+  flash_greedy(init_fn = my_init_fn)
 
 # Use a custom initialization function that wraps function nmf from
 #   package RcppML.
-nmf.init_fn <- function(f) {
-  nmf.res <- RcppML::nmf(resid(f), k = 1, verbose = FALSE)
-  return(list(as.vector(nmf.res$w), as.vector(nmf.res$h)))
+nmf_init_fn <- function(f) {
+  nmf_res <- RcppML::nmf(resid(f), k = 1, verbose = FALSE)
+  return(list(as.vector(nmf_res$w), as.vector(nmf_res$h)))
 }
 fl.nmf <- flash_init(gtex) \%>\%
   flash_greedy(ebnm_fn = ebnm_unimodal_nonnegative,
-                   init_fn = nmf.init_fn)
+               init_fn = nmf_init_fn)
 
 }
 \seealso{

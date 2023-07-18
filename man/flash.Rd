@@ -190,12 +190,12 @@ Typically, \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} will be closed under
 \examples{
 data(gtex)
 
-# Fit up to 10 factors and backfit.
-fl <- flash(gtex, greedy_Kmax = 10L, backfit = TRUE)
+# Fit up to 3 factors and backfit.
+fl <- flash(gtex, greedy_Kmax = 3L, backfit = TRUE)
 
 # This is equivalent to the series of calls:
 fl <- flash_init(gtex) \%>\%
-  flash_greedy(Kmax = 10L) \%>\%
+  flash_greedy(Kmax = 3L) \%>\%
   flash_backfit() \%>\%
   flash_nullcheck()
 
@@ -204,16 +204,16 @@ fl <- flash_init(gtex) \%>\%
 fl <- flash(gtex,
             ebnm_fn = c(ebnm_unimodal,
                         ebnm_normal_scale_mixture),
-            greedy_Kmax = 5)
+            greedy_Kmax = 3)
 
 # Fit point-laplace priors using a non-default optimization method.
 fl <- flash(gtex,
             ebnm_fn = flash_ebnm(prior_family = "point_laplace",
                                  optmethod = "trust"),
-            greedy_Kmax = 5)
+            greedy_Kmax = 3)
 
 # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-fl <- flash(gtex, var_type = c(1, 2), greedy_Kmax = 5L)
+fl <- flash(gtex, var_type = c(1, 2), greedy_Kmax = 3L)
 
 }
 \references{
