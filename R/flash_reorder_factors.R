@@ -1,18 +1,19 @@
 #' Reorder factors in a flash object
 #'
-#' Reorders the factor/loadings pairs in a \code{flash} object.
+#' Reorders the factor/loadings pairs in a \code{\link{flash}} object.
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
 #' @param kset A vector of integers specifying the new order of the
 #'   factor/loadings pairs. All existing factors must be included in
-#'   \code{kset}; to drop factors, use \code{\link{flash.remove.factors}}.
+#'   \code{kset}; to drop factors, use \code{\link{flash_remove_factors}}.
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{flash} object from argument \code{flash}, with the
+#'   factors reordered according to argument \code{kset}.
 #'
 #' @export
 #'
-flash.reorder.factors <- function(flash, kset) {
+flash_reorder_factors <- function(flash, kset) {
   flash <- get.fit(flash)
   must.be.valid.kset(flash, kset)
 

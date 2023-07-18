@@ -32,6 +32,6 @@ Sets factor/loadings pairs to zero if doing so improves the variational
   lower bound (ELBO).
 }
 \seealso{
-\code{\link{flash.remove.factors}},
-  \code{\link{flash.set.factors.to.zero}}
+\code{\link{flash_remove_factors}},
+  \code{\link{flash_set_factors_to_zero}}
 }

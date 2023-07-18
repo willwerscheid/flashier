@@ -21,8 +21,8 @@
 #'
 #' @return A \code{\link{flash}} object.
 #'
-#' @seealso \code{\link{flash.remove.factors}},
-#'   \code{\link{flash.set.factors.to.zero}}
+#' @seealso \code{\link{flash_remove_factors}},
+#'   \code{\link{flash_set_factors_to_zero}}
 #'
 #' @export
 #'
@@ -61,7 +61,7 @@ flash.nullcheck <- function(flash,
   if (sum(is.zero(fit)) > 0) {
     announce.wrapup(verbose.lvl)
     if (remove) {
-      flash <- flash.remove.factors(fit, which(is.zero(fit)))
+      flash <- flash_remove_factors(fit, which(is.zero(fit)))
       report.factor.removal(verbose.lvl, sum(is.zero(fit)))
     } else {
       flash <- wrapup.flash(fit, output.lvl = 3L)

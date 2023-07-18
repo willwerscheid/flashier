@@ -1,20 +1,23 @@
 #' Remove factors from a flash object
 #'
-#' Sets factor/loadings pairs to zero and then removes them from the \code{flash}
-#'   object. Note that this will change the indices of existing pairs.
+#' Sets factor/loadings pairs to zero and then removes them from the
+#'   \code{\link{flash}} object. Note that this will change the indices of
+#'   existing pairs.
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
-#' @param kset A vector of integers specifying which factors to set to zero.
+#' @param kset A vector of integers specifying which factor/loadings pairs to
+#'   remove.
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{flash} object from argument \code{flash}, with the
+#'   factors specified by \code{kset} removed.
 #'
-#' @seealso \code{\link{flash.set.factors.to.zero}}
+#' @seealso \code{\link{flash_set_factors_to_zero}}
 #'
 #' @export
 #'
-flash.remove.factors <- function(flash, kset) {
-  flash <- flash.set.factors.to.zero(flash, kset)
+flash_remove_factors <- function(flash, kset) {
+  flash <- flash_set_factors_to_zero(flash, kset)
   flash <- get.fit(flash)
 
   flash <- set.EF(flash, lowrank.drop.k(get.EF(flash), kset))
@@ -42,19 +45,22 @@ flash.remove.factors <- function(flash, kset) {
 #' Set flash factors to zero
 #'
 #' Sets factor/loadings pairs to zero but does not remove them from the
-#'   \code{flash} object (so as to keep the indices of existing pairs the same).
+#'   \code{\link{flash}} object (so as to keep the indices of existing pairs
+#'   the same).
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
-#' @param kset A vector of integers specifying which factors to remove.
+#' @param kset A vector of integers specifying which factor/loadings pairs to
+#'   set to zero.
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{flash} object from argument \code{flash}, with the
+#'   factors specified by \code{kset} set to zero.
 #'
-#' @seealso \code{\link{flash.remove.factors}}
+#' @seealso \code{\link{flash_remove_factors}}
 #'
 #' @export
 #
-flash.set.factors.to.zero <- function(flash, kset) {
+flash_set_factors_to_zero <- function(flash, kset) {
   flash <- get.fit(flash)
   must.be.valid.kset(flash, kset)
 

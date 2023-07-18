@@ -21,7 +21,7 @@
 \item{x}{An object inheriting from class \code{flash}.}
 
 \item{incl.scree}{Whether to include a figure showing the proportion of
-variance explained by each factor/loading pair ("scree plot").}
+variance explained by each factor/loadings pair ("scree plot").}
 
 \item{incl.pm}{Whether to include a figure showing the posterior means for
 either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
@@ -31,13 +31,13 @@ corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
 Otherwise, overlapping histograms will be
 produced, with each histogram corresponding to one of the groups
 specified by \code{pm.groups}. One plot is produced for each
-factor/loading pair \eqn{k}.}
+factor/loadings pair \eqn{k}.}
 
-\item{order.by.pve}{If \code{TRUE}, then the factor/loading pairs will be
+\item{order.by.pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
 
-\item{kset}{A vector of integers specifying the factor/loading pairs to be
+\item{kset}{A vector of integers specifying the factor/loadings pairs to be
 plotted. If \code{kset = NULL}, then all will be plotted.}
 
 \item{pm.which}{Whether to plot loadings \eqn{L} or factors \eqn{F} in the
@@ -58,7 +58,7 @@ above). Otherwise, a group must be provided for each observation, so that
 the length of \code{pm.groups} is exactly equal to the number of rows or
 columns in the full dataset or, if \code{pm.subset} is specified, in the
 subsetted dataset. If \code{pm.groups} is not \code{NULL}, then a set of
-overlapping histograms will be produced for each factor/loading pair, with
+overlapping histograms will be produced for each factor/loadings pair, with
 one histogram per group (again see \code{incl.pm}).}
 
 \item{pm.colors}{A vector specifying a color for each bar (if

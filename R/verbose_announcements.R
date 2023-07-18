@@ -34,9 +34,9 @@ announce.no.backfit <- function(verbose.lvl) {
 
 report.backfit.progress <- function(verbose.lvl, tol) {
   if (verbose.lvl > 0 && verbose.lvl < 3) {
-      cat(paste0("  Difference between iterations is within ",
-          formatC(tol, format = "e", digits = 1),
-          "...\n"))
+    cat(paste0("  Difference between iterations is within ",
+               formatC(tol, format = "e", digits = 1),
+               "...\n"))
   }
 }
 

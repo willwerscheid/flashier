@@ -17,12 +17,12 @@
 #'   increase the ELBO.
 #'
 #' @param init.fn The function used to initialize factor/loadings pairs. Functions
-#'   \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}}, and
-#'   \code{\link{init.fn.irlba}} have been supplied
-#'   (\code{\link{init.fn.softImpute}} can yield better results than the
+#'   \code{\link{flash_init_greedy_default}}, \code{\link{flash_init_greedy_softImpute}}, and
+#'   \code{\link{flash_init_greedy_irlba}} have been supplied
+#'   (\code{\link{flash_init_greedy_softImpute}} can yield better results than the
 #'   default initialization function when there is missing data). Custom
 #'   initialization functions may also be used. If \code{init.fn = NULL} then
-#'   \code{init.fn.default} will be used; \code{flash.add.greedy} will
+#'   \code{flash_init_greedy_default} will be used; \code{flash.add.greedy} will
 #'   attempt to set argument \code{dim.signs} appropriately via test calls to
 #'   the EBNM function(s) specified by \code{ebnm.fn}. If factors or loadings
 #'   are constrained in some other fashion (e.g., bounded support), then the
@@ -58,7 +58,7 @@
 #' # Increase the maximum number of iterations in the default initialization
 #' #   method.
 #' fl <- flash.init(gtex) %>%
-#'   flash.add.greedy(init.fn = function(f) init.fn.default(f, maxiter = 500))
+#'   flash.add.greedy(init.fn = function(f) flash_init_greedy_default(f, maxiter = 500))
 #'
 #' # Use a custom initialization function that wraps function nmf from
 #' #   package RcppML.
@@ -70,8 +70,8 @@
 #'   flash.add.greedy(ebnm.fn = ebnm_unimodal_nonnegative,
 #'                    init.fn = nmf.init.fn)
 #'
-#' @seealso \code{\link{init.fn.default}}, \code{\link{init.fn.softImpute}},
-#'   \code{\link{init.fn.irlba}}
+#' @seealso \code{\link{flash_init_greedy_default}}, \code{\link{flash_init_greedy_softImpute}},
+#'   \code{\link{flash_init_greedy_irlba}}
 #'
 #' @return A \code{\link{flash}} object.
 #'
@@ -100,7 +100,7 @@ flash.add.greedy <- function(flash,
   ebnm.chk <- handle.ebnm.fn(ebnm.fn, get.dim(flash))
   ebnm.fn <- ebnm.chk$ebnm.fn
   if (is.null(init.fn)) {
-    init.fn <- function(f) init.fn.default(f, dim.signs = ebnm.chk$dim.signs)
+    init.fn <- function(f) flash_init_greedy_default(f, dim.signs = ebnm.chk$dim.signs)
   }
 
   if (uses.R(flash)) {
