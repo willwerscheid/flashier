@@ -67,8 +67,8 @@ Function \code{flash_set_conv_crit} can be used to customize
   one iteration to the next, but it only considers the fit to have
   converged when the value of \code{fn} over successive updates to
   \emph{all} factor/loadings pairs is less than or equal to \code{tol}. If,
-  for example, factor/loadings pairs
-  \eqn{1, \ldots, K} are being backfitted, then fits are compared before and
+  for example, factor/loadings pairs \eqn{1, \ldots, K} are being
+  sequentially backfitted, then fits are compared before and
   after the update to factor/loadings 1, before and after the update to
   factor/loadings 2, and so on through factor/loadings \eqn{K},
   and backfitting only terminates when \code{fn} returns a value less

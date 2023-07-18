@@ -25,8 +25,8 @@
 #'   The backfit is considered to have "converged" when the value of the
 #'   convergence criterion function over successive updates to
 #'   \emph{all} factor/loadings pairs is less than or equal to \code{tol}. If,
-#'   for example, factor/loadings pairs
-#'   \eqn{1, \ldots, K} are being backfitted, then fits are compared before and
+#'   for example, factor/loadings pairs \eqn{1, \ldots, K} are being
+#'   sequentially backfitted, then fits are compared before and
 #'   after the update to factor/loadings 1, before and after the update to
 #'   factor/loadings 2, and so on through factor/loadings \eqn{K},
 #'   and backfitting only terminates when the convergence criterion function
