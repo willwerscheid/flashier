@@ -6,14 +6,14 @@
 #'
 #' @param kset A vector of integers specifying the new order of the
 #'   factor/loadings pairs. All existing factors must be included in
-#'   \code{kset}; to drop factors, use \code{\link{flash_remove_factors}}.
+#'   \code{kset}; to drop factors, use \code{\link{flash_factors_remove}}.
 #'
 #' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors reordered according to argument \code{kset}.
 #'
 #' @export
 #'
-flash_reorder_factors <- function(flash, kset) {
+flash_factors_reorder <- function(flash, kset) {
   flash <- get.fit(flash)
   must.be.valid.kset(flash, kset)
 

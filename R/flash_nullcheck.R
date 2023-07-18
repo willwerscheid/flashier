@@ -28,8 +28,8 @@
 #'   factors that do not improve the ELBO by at least \code{tol} either set
 #'   to zero or removed (depending on the argument to parameter \code{remove}).
 #'
-#' @seealso \code{\link{flash_remove_factors}},
-#'   \code{\link{flash_set_factors_to_zero}}
+#' @seealso \code{\link{flash_factors_remove}},
+#'   \code{\link{flash_factors_set_to_zero}}
 #'
 #' @export
 #'
@@ -71,7 +71,7 @@ flash_nullcheck <- function(flash,
   if (sum(is.zero(fit)) > 0) {
     announce.wrapup(verbose.lvl)
     if (remove) {
-      flash <- flash_remove_factors(fit, which(is.zero(fit)))
+      flash <- flash_factors_remove(fit, which(is.zero(fit)))
       report.factor.removal(verbose.lvl, sum(is.zero(fit)))
     } else {
       flash <- wrapup.flash(fit, output.lvl = 3L)

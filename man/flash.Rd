@@ -225,8 +225,8 @@ Wei Wang and Matthew Stephens (2021).
 \code{\link{flash_init}}, \code{\link{flash.add.greedy}},
   \code{\link{flash.backfit}}, and \code{\link{flash_nullcheck}}. For more
   advanced functionality, see \code{\link{flash.init.factors}},
-  \code{\link{flash.fix.factors}}, \code{\link{flash_set_factors_to_zero}},
-  \code{\link{flash_remove_factors}}, \code{\link{flash_set_verbose}}, and
+  \code{\link{flash.fix.factors}}, \code{\link{flash_factors_set_to_zero}},
+  \code{\link{flash_factors_remove}}, \code{\link{flash_set_verbose}}, and
   \code{\link{flash_set_conv_crit}}.
   For extracting useful data from \code{flash} objects, see
   \code{\link{fitted.flash}}, \code{\link{residuals.flash}}, and

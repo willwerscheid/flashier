@@ -12,12 +12,12 @@
 #' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors specified by \code{kset} removed.
 #'
-#' @seealso \code{\link{flash_set_factors_to_zero}}
+#' @seealso \code{\link{flash_factors_set_to_zero}}
 #'
 #' @export
 #'
-flash_remove_factors <- function(flash, kset) {
-  flash <- flash_set_factors_to_zero(flash, kset)
+flash_factors_remove <- function(flash, kset) {
+  flash <- flash_factors_set_to_zero(flash, kset)
   flash <- get.fit(flash)
 
   flash <- set.EF(flash, lowrank.drop.k(get.EF(flash), kset))
@@ -56,11 +56,11 @@ flash_remove_factors <- function(flash, kset) {
 #' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors specified by \code{kset} set to zero.
 #'
-#' @seealso \code{\link{flash_remove_factors}}
+#' @seealso \code{\link{flash_factors_remove}}
 #'
 #' @export
 #
-flash_set_factors_to_zero <- function(flash, kset) {
+flash_factors_set_to_zero <- function(flash, kset) {
   flash <- get.fit(flash)
   must.be.valid.kset(flash, kset)
 
