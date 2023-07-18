@@ -56,7 +56,7 @@ flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL) {
   flash <- wrapup.flash(flash, output.lvl = 3L)
   flash <- flash_set_verbose(flash, verbose = 1L)
 
-  tol <- sqrt(.Machine$double.eps) * prod(get.dims(fit))
+  tol <- sqrt(.Machine$double.eps) * prod(get.dims(flash))
   flash <- flash_set_conv_crit(flash, flash_conv_crit_elbo_diff, tol)
 
   return(flash)

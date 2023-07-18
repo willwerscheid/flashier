@@ -93,7 +93,7 @@ flash_set_conv_crit <- function(flash,
   }
   must.be.numeric(tol, allow.infinite = TRUE, allow.null = FALSE)
 
-  fit <- set.conv.crit(fn, tol)
+  fit <- set.conv.crit(fit, fn, tol)
   flash <- set.fit(flash, fit)
 
   return(flash)

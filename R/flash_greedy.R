@@ -121,7 +121,9 @@ flash_greedy <- function(flash,
   ebnm.chk <- handle.ebnm.fn(ebnm_fn, get.dim(flash))
   ebnm.fn <- ebnm.chk$ebnm.fn
   if (is.null(init_fn)) {
-    init_fn <- function(f) flash_greedy_init_default(f, dim.signs = ebnm.chk$dim.signs)
+    init_fn <- function(f) flash_greedy_init_default(
+      f, sign_constraints = ebnm.chk$dim.signs
+    )
   }
 
   if (uses.R(flash)) {

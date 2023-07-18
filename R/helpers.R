@@ -643,6 +643,7 @@ set.verbose.options <- function(f, lvl, fns, colnames, colwidths) {
 set.conv.crit <- function(f, fn, tol) {
   f[["conv.crit.fn"]] <- fn
   f[["conv.tol"]] <- tol
+  return(f)
 }
 set.max.backfit.iter.reached.flag <- function(f) {
   f[["maxiter.reached"]] <- TRUE
