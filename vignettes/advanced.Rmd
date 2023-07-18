@@ -1,5 +1,5 @@
 ---
-title: "Advanced flashier"
+title: "Advanced `flashier`"
 author: "Jason Willwerscheid"
 date: "02/21/2022"
 output: 
@@ -20,127 +20,95 @@ library(ggplot2)
 
 ## Introduction
 
-In addition to the main `flash` function, `flashier` provides a collection of pipeable `flash.xxx` functions. Any call to `flash` can be rewritten using these functions, which make the individual fitting operations more explicit and also provide many more options. For example, the following are equivalent:
+In addition to the main `flash` function, `flashier` provides a collection of pipeable `flash_xxx` functions. Any call to `flash` can be rewritten using these functions, which make the individual fitting operations more explicit and also provide many more options. For example, the following are equivalent:
 
 ```{r adv_interface}
 # Basic interface:
-gtex.bf <- flash(
+gtex_bf <- flash(
     gtex,
-    greedy.Kmax = 5,
-    var.type = 1,
+    greedy_Kmax = 5,
+    var_type = 1,
     backfit = TRUE,
     verbose = 0
   )
 
 # Pipeable interface:
-bf.time <- system.time(
-  gtex.bf <- flash.init(gtex, var.type = 1) %>%
-    flash.set.verbose(verbose = 0) %>%
-    flash.add.greedy(Kmax = 5) %>%
-    flash.backfit() %>%
-    flash.nullcheck()
+bf_time <- system.time(
+  gtex_bf <- flash_init(gtex, var_type = 1) %>%
+    flash_set_verbose(verbose = 0) %>%
+    flash_greedy(Kmax = 5) %>%
+    flash_backfit() %>%
+    flash_nullcheck()
 )
 ```
 
-Function `flash.init` sets up the `flash` object and handles global parameters; `flash.set.verbose` determines the output that will be printed to console; and the remaining functions perform the greedy, backfitting, and nullcheck operations discussed in the introductory vignette.
+Function `flash_init` sets up the `flash` object and handles global parameters; `flash_set_verbose` determines the output that will be printed to console; `flash_greedy` and `flash_backfit` perform the greedy and backfitting operations discussed in the introductory vignette; and `flash_nullcheck` runs a simple check that removes each factor/loadings pair one at a time and verifies that its removal doesn't produce an improvement in the ELBO. (If it does, then the factor/loadings pair is removed from the final fit.)
 
-Below, some useful recipes are provided that illustrate some of the flexibility of the pipeable interface. In all examples, I use the same GTEx dataset and plotting function that was used in the introductory vignette:
+Below, some useful recipes are provided that illustrate some of the flexibility of the pipeable interface. In all examples, I use the same GTEx dataset that was used in the introductory vignette.
 
-```{r plot.fn}
-data(gtex, gtex.colors)
-
-plot.factors <- function(fl) {
-  vals <- ldf(fl)$F
-  
-  data <- reshape2::melt(vals)
-  min.val <- min(0, min(vals))
-  max.val <- max(0, max(vals))
-  
-  colnames(data) <- c("variable", "k", "value")
-  data$k <- as.factor(data$k)
-  ggplot(data, aes_string(x = "variable", y = "value", fill = "variable")) +
-    geom_bar(stat = "identity", width = 0.6) +
-    scale_fill_manual(values = gtex.colors) +
-    scale_x_discrete(labels = NULL) +
-    ylim(min.val, max.val) +
-    theme_grey() +
-    theme(
-      legend.position = "right",
-      legend.text = element_text(size = 6),
-      legend.title = element_blank()
-    ) +
-    labs(y = "", x = "") +
-    facet_wrap(~k, ncol = 2) +
-    guides(fill = guide_legend(
-      ncol = 1, 
-      keyheight = 3.75 / 6, 
-      keywidth = 3.75 / 15)
-    )
-}
-```
 
 ## Troubleshooting: turn off extrapolation
 
-To accelerate backfits, `flashier` uses an "extrapolation" technique inspired by Ang and Gillis (2018). While this can dramatically improve runtime for large datasets, it can be finicky and occasionally results in errors that are difficult to track down. To turn off extrapolation, set `extrapolate = FALSE` in the call to `flash.backfit`:
+To accelerate backfits, `flashier` uses an "extrapolation" technique inspired by Ang and Gillis (2018). While this can dramatically improve runtime for large datasets, it can be finicky and occasionally results in errors that are difficult to track down. To turn off extrapolation, set `extrapolate = FALSE` in the call to `flash_backfit`:
 
 ```{r no.extrap}
-no.extrapolate.time <- system.time(
-  gtex.no.extrapolate <- flash.init(gtex, var.type = 1) %>%
-    flash.set.verbose(verbose = 0) %>%
-    flash.add.greedy(Kmax = 5) %>%
-    flash.backfit(extrapolate = FALSE) %>%
-    flash.nullcheck()
+no_extrapolate_time <- system.time(
+  gtex_no_extrapolate <- flash_init(gtex, var_type = 1) %>%
+    flash_set_verbose(verbose = 0) %>%
+    flash_greedy(Kmax = 5) %>%
+    flash_backfit(extrapolate = FALSE) %>%
+    flash_nullcheck()
 )
-c(bf.elbo = gtex.bf$elbo, no.extrapolate.elbo = gtex.no.extrapolate$elbo)
-c(bf = bf.time[3], no.extrapolate = no.extrapolate.time[3])
+c(bf_elbo = gtex_bf$elbo, no_extrapolate_elbo = gtex_no_extrapolate$elbo)
+c(bf = bf_time[3], no_extrapolate = no_extrapolate_time[3])
 ```
 
 ## Use an alternative backfitting approach
   
-The `flash` function adds factors one at a time in a "greedy" fashion, optimizing them individually along the way, and then optionally performs a final backfit to improve the overall fit. One might instead like to add several factors at once (without optimizing) and then do a single backfit. This can be accomplished using function `flash.init.factors`:
+The `flash` function adds factors one at a time in a "greedy" fashion, optimizing them individually along the way, and then optionally performs a final backfit to improve the overall fit. One might instead like to add several factors at once (without optimizing) and then do a single backfit. This can be accomplished using function `flash_factors_init`:
   
 ```{r init.factors}
-gtex.svd <- flash.init(gtex, var.type = 1) %>%
-  flash.init.factors(svd(gtex, nu = 5, nv = 5)) %>%
-  flash.backfit(verbose = 0)
-c(svd.bf.elbo = gtex.svd$elbo, greedy.bf.elbo = gtex.bf$elbo)
+gtex_svd <- flash_init(gtex, var_type = 1) %>%
+  flash_factors_init(svd(gtex, nu = 5, nv = 5)) %>%
+  flash_backfit(verbose = 0)
+c(svd_bf_elbo = gtex_svd$elbo, greedy_bf_elbo = gtex_bf$elbo)
 
-plot.factors(gtex.svd)
+plot(gtex_svd, pm_colors = gtex_colors, include_scree = FALSE)
 ```
 
 ## Add a fixed mean factor
 
-To capture effects that are equally shared across all tissues (which is essentially what the first factor in the previous fit does), one can use function `flash.fix.factors` to fix a factor where all elements are equal:
+To capture effects that are equally shared across all tissues (which is essentially what the first factor in the previous fit does), one can use function `flash_factors_fix` to fix a factor where all elements are equal:
 
 ```{r fix.mean}
 ones <- matrix(1, nrow = ncol(gtex), ncol = 1)
-init.loadings <- (gtex %*% ones) / sum(ones)
+init_loadings <- (gtex %*% ones) / sum(ones)
 
-gtex.fix.mean <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(0) %>%
-  flash.init.factors(list(init.loadings, ones)) %>%
-  flash.fix.factors(kset = 1, mode = 2) %>%
-  flash.add.greedy(Kmax = 4) %>%
-  flash.backfit()
+gtex_fix_mean <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(0) %>%
+  flash_factors_init(list(init_loadings, ones)) %>%
+  flash_factors_fix(kset = 1, which_dim = "factors") %>%
+  flash_greedy(Kmax = 4) %>%
+  flash_backfit()
 
-plot.factors(gtex.fix.mean)
+plot(gtex_fix_mean, pm_colors = gtex_colors, include_scree = FALSE)
 ```
 
 ## Perform semi-nonnegative matrix factorization
 
-In some scenarios, the interpretability of factors can be enhanced by constraining factors to be nonnegative while loadings are left unconstrained. Below, I estimate $g_\ell$ from the family of point-normal priors and $g_f$ from the family of all nonnegative distributions that are unimodal at zero. For priors that constrain loadings or factors, it's important to also supply an appropriate initialization function using parameter `init.fn`. If the factor/loadings pair is initialized very poorly (for example, if loadings are constrained to be nonnegative but are all initialized at negative values), then it can be zeroed out during optimization, which causes fitting to terminate too early.
+In some scenarios, the interpretability of factors can be enhanced by constraining factors to be nonnegative while loadings are left unconstrained. Below, I estimate $g_\ell$ from the family of point-normal priors and $g_f$ from the family of all nonnegative distributions that are unimodal at zero. 
+<!-- For priors that constrain loadings or factors, it can be important to also supply an appropriate initialization function using parameter `init_fn`. If the factor/loadings pair is initialized very poorly (for example, if loadings are constrained to be nonnegative but are all initialized at negative values), then it can be zeroed out during optimization, which causes fitting to terminate too early. -->
 
 ```{r snmf}
-gtex.snmf <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(0) %>%
-  flash.add.greedy(
+gtex_snmf <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(0) %>%
+  flash_greedy(
     Kmax = 5,
-    ebnm.fn = c(ebnm::ebnm_point_normal, ebnm::ebnm_unimodal_nonnegative),
-    init.fn = function(f) init.fn.default(f, dim.signs = c(0, 1))
+    ebnm_fn = c(ebnm_point_normal, ebnm_unimodal_nonnegative)
   ) %>%
-  flash.backfit()
+  flash_backfit()
 
-plot.factors(gtex.snmf)
+plot(gtex_snmf, pm_colors = gtex_colors, include_scree = FALSE)
 ```
 
 ## Fit factors with fixed sparsity patterns
@@ -149,42 +117,43 @@ In the fit from the previous section, factor 2 deals primarily with brain tissue
 
 ```{r fixed.sprs}
 tissues <- colnames(gtex)
-fixed.factors <- 1L * cbind(
+fixed_factors <- 1L * cbind(
   rep(TRUE, length(tissues)),
   grepl("Brain", tissues),
   grepl("Whole|Spleen|Lung|EBV", tissues),
   grepl("Heart|Muscle", tissues),
   grepl("Artery|Esophagus", tissues)
 )
-init.loadings <- (gtex %*% fixed.factors) %*% solve(crossprod(fixed.factors))
+init_loadings <- (gtex %*% fixed_factors) %*% solve(crossprod(fixed_factors))
 
-gtex.fixed.sprs <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(0) %>%
-  flash.init.factors(list(init.loadings, fixed.factors)) %>%
-  flash.fix.factors(kset = 1:5, mode = 2, is.fixed = (fixed.factors == 0)) %>%
-  flash.backfit()
+gtex_fixed_sprs <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(0) %>%
+  flash_factors_init(list(init_loadings, fixed_factors)) %>%
+  flash_factors_fix(kset = 1:5, 
+                    which_dim = "factors", 
+                    fixed_idx = (fixed_factors == 0)) %>%
+  flash_backfit()
 
-plot.factors(gtex.fixed.sprs)
+plot(gtex_fixed_sprs, pm_colors = gtex_colors, include_scree = FALSE)
 ```
 
 ## Modify the convergence criterion and verbose output
 
-The default behavior is to iterate until the variational lower bound on the log likelihood (ELBO) increases by no more than $np \sqrt{\epsilon}$ (where $\epsilon$ denotes machine epsilon). The convergence criterion is set by parameter `conv.crit.fn`, and tolerances are set by parameter `tol`. 
+The default behavior is to iterate until the variational lower bound on the log likelihood (ELBO) increases by no more than $np \sqrt{\epsilon}$ (where $\epsilon$ denotes machine epsilon). The convergence criterion can be changed using function
+`flash_set_conv_crit`.
 
-If one is primarily interested in the factor values (rather than loadings), then one might like to stop optimization when their normalized absolute values no longer change by more than, say, .001. To confirm that this criterion is respected, I also modify the output printed to console using function `flash.set.verbose`:
+If one is primarily interested in the factor values (rather than loadings), then one might like to stop optimization when their normalized absolute values no longer change by more than, say, .001. To confirm that this criterion is respected, I also modify the output printed to console using function `flash_set_verbose`:
 
 ```{r conv.crit}
-gtex.conv.crit <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(
-    disp.fns = c(display.elbo, display.F.max.chg),
+gtex_conv_crit <- flash_init(gtex, var_type = 1) %>%
+  flash_set_conv_crit(fn = flash_conv_crit_max_chg_F, tol = .001) %>%
+  flash_set_verbose(
+    fns = c(flash_verbose_elbo, flash_verbose_max_chg_F),
     colnames = c("ELBO", "Max.Chg.Factors"),
     colwidths = c(18, 18)
   ) %>%
-  flash.init.factors(svd(gtex, nu = 5, nv = 5)) %>%
-  flash.backfit(
-    conv.crit.fn = conv.crit.factors,
-    tol = .001
-  )
+  flash_factors_init(svd(gtex, nu = 5, nv = 5)) %>%
+  flash_backfit()
 ```
 
 ## Plot the fit history
@@ -193,95 +162,98 @@ Setting `verbose = -1` outputs a single tab-delimited table of values that makes
 
 ```{r plot.history, eval = FALSE}
 sink("zz.tsv")
-tmp <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(-1) %>%
-  flash.init.factors(svd(gtex, nu = 5, nv = 5)) %>%
-  flash.backfit()
-progress.bf <- read.delim("zz.tsv")
+tmp <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(-1) %>%
+  flash_factors_init(svd(gtex, nu = 5, nv = 5)) %>%
+  flash_backfit()
+progress_bf <- read.delim("zz.tsv")
 sink()
 
 sink("zz.tsv")
-tmp <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(-1) %>%
-  flash.init.factors(svd(gtex, nu = 5, nv = 5)) %>%
-  flash.backfit(extrapolate = FALSE)
-progress.no.extrapolate <- read.delim("zz.tsv")
+tmp <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(-1) %>%
+  flash_factors_init(svd(gtex, nu = 5, nv = 5)) %>%
+  flash_backfit(extrapolate = FALSE)
+progress_no_extrapolate <- read.delim("zz.tsv")
 sink()
 
 rm(tmp)
 file.remove("zz.tsv")
 
-progress.bf <- progress.bf %>%
+progress_bf <- progress_bf %>%
   mutate(Extrapolate = TRUE) %>%
   select(Iter, ELBO, Extrapolate)
 
-progress.no.extrapolate <- progress.no.extrapolate %>%
+progress_no_extrapolate <- progress_no_extrapolate %>%
   group_by(Iter) %>%
   summarize(ELBO = max(ELBO, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(Extrapolate = FALSE)
 
-tib <- progress.bf %>%
-  bind_rows(progress.no.extrapolate)
+tib <- progress_bf %>%
+  bind_rows(progress_no_extrapolate) %>%
+  mutate(Iter = as.numeric(Iter),
+         ELBO = as.numeric(ELBO))
 
 ggplot(tib, aes(x = Iter, y = ELBO, col = Extrapolate)) +
   geom_line() +
   theme_minimal()
 ```
 
-## Write custom functions that use flash.fit objects 
+## Write custom functions that use flash_fit objects 
 
-Since `flash.set.verbose` accepts functions as arguments to parameter `disp.fns`, output is highly customizable. Custom functions should take three parameters as input: `new` (the current `flash.fit` object); `old` (the `flash.fit` object from the previous iteration); and `k` (which gives the index of the factor currently being optimized by `flash.backfit` when `extrapolate = FALSE`). Several getter functions are provided to facilitate working with `flash.fit` objects: for a full list, see the documentation in `?flash.fit`.
+Since `flash_set_verbose` accepts functions as arguments to parameter `fns`, output is highly customizable. Custom functions should take three parameters as input: `curr` (the current `flash_fit` object); `prev` (the `flash_fit` object from the previous iteration); and `k` (which gives the index of the factor currently being optimized by `flash_backfit` when `extrapolate = FALSE`). Several accessor functions are provided to facilitate working with `flash_fit` objects: for a full list, see the documentation in `?flash_fit`.
 
 For example, let's say that we would like to monitor the sparsity of factors 2-5 (defined as the mixture weight of the pointmass in estimates of priors $g_f$) over the course of a backfit. This can be done as follows:
 
 ```{r custom}
-disp.sparsity <- function(new, old, k, f.idx) {
-  g <- ff.g(new, n = 2) # setting n = 2 gets g_f (n = 1 would get g_\ell)
-  return(g[[f.idx]]$pi[1])
+verbose_sparsity <- function(new, old, k, f_idx) {
+  g <- flash_fit_get_g(new, n = 2) # setting n = 2 gets g_f (n = 1 would get g_\ell)
+  return(g[[f_idx]]$pi[1])
 }
-disp.sprs2 <- function(new, old, k) disp.sparsity(new, old, k, 2)
-disp.sprs3 <- function(new, old, k) disp.sparsity(new, old, k, 3)
-disp.sprs4 <- function(new, old, k) disp.sparsity(new, old, k, 4)
-disp.sprs5 <- function(new, old, k) disp.sparsity(new, old, k, 5)
+verbose_sprs2 <- function(new, old, k) verbose_sparsity(new, old, k, 2)
+verbose_sprs3 <- function(new, old, k) verbose_sparsity(new, old, k, 3)
+verbose_sprs4 <- function(new, old, k) verbose_sparsity(new, old, k, 4)
+verbose_sprs5 <- function(new, old, k) verbose_sparsity(new, old, k, 5)
 
-gtex.sprs <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(
-    disp.fns = c(display.elbo, disp.sprs2, disp.sprs3, disp.sprs4, disp.sprs5),
+gtex_sprs <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(
+    verbose = 3,
+    fns = c(flash_verbose_elbo, verbose_sprs2, verbose_sprs3, verbose_sprs4, verbose_sprs5),
     colnames = c("ELBO", paste0("Sparsity (", 2:5, ")")),
     colwidths = rep(14, 5)
   ) %>%
-  flash.init.factors(svd(gtex, nu = 5, nv = 5)) %>%
-  flash.backfit()
+  flash_factors_init(svd(gtex, nu = 5, nv = 5)) %>%
+  flash_backfit()
 ```
 
 ## Write custom EBNM functions
 
-When very specialized prior families are required, then custom EBNM functions may be created: for details, see the documentation in `?as.ebnm.fn`. To ensure that the return object is correctly formatted, it's often simplest to call into function `ebnm` from package `ebnm` before returning. Below, I create an EBNM function where the prior family $\mathcal{G}$ is the family of two-component distributions where one component is a pointmass at zero and the other is a normal distribution (not necessarily centered at zero): 
+When very specialized prior families are required, then custom EBNM functions may be created: for details, see the documentation in `?flash_ebnm`. To ensure that the return object is correctly formatted, it's often simplest to call into function `ebnm` from package `ebnm` before returning. Below, I create an EBNM function where the prior family $\mathcal{G}$ is the family of two-component distributions where one component is a pointmass at zero and the other is a normal distribution (not necessarily centered at zero): 
 
 ```{r custom.ebnm}
-ebnm.custom <- function(x, s, g_init, fix_g, output) {
+ebnm_custom <- function(x, s, g_init, fix_g, output) {
   if (!fix_g) {
     # Parameters are mixture wt on pointmass and mean/sd of normal:
-    neg.llik <- function(par) {
+    neg_llik <- function(par) {
       g <- ashr::normalmix(c(par[1], 1 - par[1]), c(0, par[2]), c(0, par[3]))
-      ebnm.res <- ebnm::ebnm_normal_scale_mixture(x, s, g_init = g, fix_g = FALSE)
-      return(-ebnm.res$log_likelihood)
+      ebnm_res <- ebnm_normal_scale_mixture(x, s, g_init = g, fix_g = FALSE)
+      return(-ebnm_res$log_likelihood)
     }
     
-    opt.res <- optim(
+    opt_res <- optim(
       c(0.5, 0, 1), 
-      neg.llik, 
+      neg_llik, 
       method = "L-BFGS-B", 
       lower = c(0, -Inf, 0.01), 
       upper = c(1, Inf, Inf)
     )
     
-    par <- opt.res$par
+    par <- opt_res$par
     g_init <- ashr::normalmix(c(par[1], 1 - par[1]), c(0, par[2]), c(0, par[3]))
   }
   
-  ebnm.res <- ebnm::ebnm_normal_scale_mixture(
+  ebnm.res <- ebnm_normal_scale_mixture(
     x, 
     s, 
     g_init = g_init, 
@@ -292,12 +264,12 @@ ebnm.custom <- function(x, s, g_init, fix_g, output) {
   return(ebnm.res)
 }
 
-gtex.custom <- flash.init(gtex, var.type = 1) %>%
-  flash.set.verbose(0) %>%
-  flash.add.greedy(
+gtex_custom <- flash_init(gtex, var_type = 1) %>%
+  flash_set_verbose(0) %>%
+  flash_greedy(
     Kmax = 3,
-    ebnm.fn = c(ebnm::ebnm_point_normal, ebnm.custom)
+    ebnm_fn = c(ebnm_point_normal, ebnm_custom)
   )
 
-gtex.custom$F.ghat
+gtex_custom$F_ghat
 ```
