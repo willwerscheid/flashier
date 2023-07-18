@@ -202,7 +202,7 @@
 #'   Research} 22, 1--40.
 #'
 #' @seealso \code{\link{flash_init}}, \code{\link{flash_greedy}},
-#'   \code{\link{flash.backfit}}, and \code{\link{flash_nullcheck}}. For more
+#'   \code{\link{flash_backfit}}, and \code{\link{flash_nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash_factors_init}},
 #'   \code{\link{flash_factors_fix}}, \code{\link{flash_factors_set_to_zero}},
 #'   \code{\link{flash_factors_remove}}, \code{\link{flash_set_verbose}}, and
@@ -230,7 +230,7 @@ flash <- function(data,
                      verbose = verbose)
 
   if (backfit) {
-    fl <- flash.backfit(fl, verbose = verbose)
+    fl <- flash_backfit(fl, verbose = verbose)
   }
 
   if (nullcheck) {

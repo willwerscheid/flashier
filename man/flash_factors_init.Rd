@@ -65,7 +65,7 @@ TODO: update examples
 # Initialize several factors at once and backfit.
 fl <- flash_init(gtex) \%>\%
   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) \%>\%
-  flash.backfit()
+  flash_backfit()
 
 # Add fixed loadings with \ell_i identically equal to one. This can be
 #   interpreted as giving a "mean" factor that accounts for different

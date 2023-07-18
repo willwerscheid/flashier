@@ -26,7 +26,7 @@
 #'     \eqn{g} is fixed during the wrap-up phase when estimating local false
 #'     sign rates and constructing a sampler; \code{g_init} is used
 #'     with \code{fix_g = FALSE} to "warmstart" backfits
-#'     (see \code{\link{flash.backfit}}). If none of these features (local
+#'     (see \code{\link{flash_backfit}}). If none of these features (local
 #'     false sign rates, samplers, or warmstarts) are needed,
 #'     then both \code{g_init} and \code{fix_g} can be ignored (the EBNM
 #'     function must still accept them as parameters, but it need not do

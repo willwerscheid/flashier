@@ -19,14 +19,14 @@ test_that("tensor factor initialization is correct", {
 })
 
 suppressWarnings({
-  f.b <- flash.backfit(f, extrapolate = FALSE, maxiter = 1, verbose = 0)
+  f.b <- flash_backfit(f, extrapolate = FALSE, maxiter = 1, verbose = 0)
 })
 
 test_that ("the backfit objective improves after one iteration", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flash.backfit(f, extrapolate = FALSE, verbose = 0)
+f.b2 <- flash_backfit(f, extrapolate = FALSE, verbose = 0)
 
 test_that ("the final backfit objective improves again", {
   expect_true(f.b2$elbo > f.b$elbo)
@@ -44,14 +44,14 @@ test_that("tensor factor initialization is correct (with missing)", {
 })
 
 suppressWarnings({
-  f.b <- flash.backfit(f, maxiter = 1, verbose = 0)
+  f.b <- flash_backfit(f, maxiter = 1, verbose = 0)
 })
 
 test_that ("the backfit objective improves after one iteration (using Y, with missing)", {
   expect_true(f.b$elbo > f$elbo)
 })
 
-f.b2 <- flash.backfit(f, verbose = 0)
+f.b2 <- flash_backfit(f, verbose = 0)
 
 test_that ("the final backfit objective improves again (with missing)", {
   expect_true(f.b2$elbo > f.b$elbo)

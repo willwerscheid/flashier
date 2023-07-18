@@ -19,7 +19,7 @@ fl <- flash_init(M) %>%
   flash_set_verbose(0) %>%
   flash_factors_init(list(EF1, EF2)) %>%
   flash_factors_fix(1:2, mode = 1) %>%
-  flash.backfit()
+  flash_backfit()
 
 test_that("Fixed factors are correctly added to a new flash object", {
   expect_equal(fl$flash.fit$EF[[1]][, 1], rep(1, n))
@@ -31,7 +31,7 @@ fl <- flash_init(M) %>%
   flash_greedy(1) %>%
   flash_factors_init(list(EF1, EF2)) %>%
   flash_factors_fix(2:3, mode = 1) %>%
-  flash.backfit()
+  flash_backfit()
 
 test_that("Fixed factors are correctly added to an existing flash object", {
   expect_equal(fl$flash.fit$EF[[1]][, 2], rep(1, n))

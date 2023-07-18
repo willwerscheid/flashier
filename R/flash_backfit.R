@@ -9,7 +9,7 @@
 #'
 #' @inheritParams flash_greedy
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
 #' @param kset A vector of integers specifying which factors to backfit.
 #'   If \code{kset = NULL}, then all existing factors will be backfitted.
@@ -18,13 +18,37 @@
 #'   is defined such that all factors in \code{kset} get updated at each
 #'   iteration.
 #'
+#' @param tol The convergence tolerance parameter. After each update, the fit
+#'   is compared to the fit from before the update using a convergence
+#'   criterion function (by default, the difference in ELBO, but the criterion
+#'   can be changed via \code{\link{flash_set_conv_crit}}).
+#'   The backfit is considered to have "converged" when the value of the
+#'   convergence criterion function over successive updates to
+#'   \emph{all} factor/loadings pairs is less than or equal to \code{tol}. If,
+#'   for example, factor/loadings pairs
+#'   \eqn{1, \ldots, K} are being backfitted, then fits are compared before and
+#'   after the update to factor/loadings 1, before and after the update to
+#'   factor/loadings 2, and so on through factor/loadings \eqn{K},
+#'   and backfitting only terminates when the convergence criterion function
+#'   returns a value less
+#'   than or equal to \code{tol} for all \eqn{K} updates. Note that
+#'   specifying \code{tol} here will override any value set by
+#'   \code{flash_set_conv_crit}; to use the "global" tolerance parameter,
+#'   \code{tol} must be left unspecified (\code{NULL}).
+#'   If \code{tol = NULL} and a global tolerance
+#'   parameter has not been set, then the default
+#'   tolerance used is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+#'   number of rows in the dataset, \eqn{p} is the number of columns, and
+#'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
+#'
 #' @importFrom parallel makeCluster stopCluster
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{\link{flash}} object from argument \code{flash}, backfitted
+#'   as specified.
 #'
 #' @export
 #'
-flash.backfit <- function(flash,
+flash_backfit <- function(flash,
                           kset = NULL,
                           extrapolate = TRUE,
                           warmstart = TRUE,

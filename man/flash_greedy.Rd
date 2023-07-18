@@ -108,7 +108,8 @@ It is also possible to output a single tab-delimited table of values
 using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.}
 }
 \value{
-A \code{\link{flash}} object.
+The \code{\link{flash}} object from argument \code{flash}, with up
+  to \code{Kmax} new factor/loadings pairs "greedily" added.
 }
 \description{
 Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
@@ -136,6 +137,7 @@ fl.nmf <- flash_init(gtex) \%>\%
 
 }
 \seealso{
-\code{\link{flash_greedy_init_default}}, \code{\link{flash_greedy_init_softImpute}},
+\code{\link{flash_greedy_init_default}},
+  \code{\link{flash_greedy_init_softImpute}},
   \code{\link{flash_greedy_init_irlba}}
 }

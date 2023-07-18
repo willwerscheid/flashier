@@ -89,24 +89,26 @@
 #'   flash_greedy(ebnm_fn = ebnm_unimodal_nonnegative,
 #'                    init_fn = nmf.init_fn)
 #'
-#' @seealso \code{\link{flash_greedy_init_default}}, \code{\link{flash_greedy_init_softImpute}},
+#' @seealso \code{\link{flash_greedy_init_default}},
+#'   \code{\link{flash_greedy_init_softImpute}},
 #'   \code{\link{flash_greedy_init_irlba}}
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{\link{flash}} object from argument \code{flash}, with up
+#'   to \code{Kmax} new factor/loadings pairs "greedily" added.
 #'
 #' @importFrom ebnm ebnm_point_normal
 #'
 #' @export
 #'
 flash_greedy <- function(flash,
-                             Kmax = 1,
-                             ebnm_fn = ebnm_point_normal,
-                             init_fn = NULL,
-                             extrapolate = FALSE,
-                             warmstart = FALSE,
-                             maxiter = 500,
-                             tol = NULL,
-                             verbose = NULL) {
+                         Kmax = 1,
+                         ebnm_fn = ebnm_point_normal,
+                         init_fn = NULL,
+                         extrapolate = FALSE,
+                         warmstart = FALSE,
+                         maxiter = 500,
+                         tol = NULL,
+                         verbose = NULL) {
   flash <- get.fit(flash)
 
   tol <- handle.tol.param(tol, flash)
@@ -204,7 +206,7 @@ flash_greedy <- function(flash,
     }
 
     if (!is.zero(factor) &&
-        (get.obj(factor) > get.obj(flash) + tol
+        (get.obj(factor) > get.obj(flash) + tol # TODO: remove + tol here
          || !is.obj.valid(flash, factor))) {
       flash <- add.new.factor.to.flash(factor, flash)
       factors.added <- factors.added + 1
