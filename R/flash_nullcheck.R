@@ -3,7 +3,7 @@
 #' Sets factor/loadings pairs to zero if doing so improves the variational
 #'   lower bound (ELBO).
 #'
-#' @param flash A \code{flash} or \code{flash.fit} object.
+#' @param flash A \code{flash} or \code{flash_fit} object.
 #'
 #' @param kset A vector of integers specifying which factors to nullcheck.
 #'   If \code{kset = NULL}, then all existing factors will be checked.
@@ -12,28 +12,38 @@
 #'   \code{flash} object. Note that this might change the indices of existing
 #'   factors.
 #'
-#' TODO: move this info
-#' @param tol The tolerance parameter: if a factor does not improve the ELBO
-#'   by at least \code{tol}, then it will be set to zero.
+#' @param tol The "tolerance" parameter: if a factor does not improve the ELBO
+#'   by at least \code{tol}, then it will be set to zero. Note that
+#'   \code{flash_nullcheck} does not respect "global" tolerance parameters set
+#'   by \code{\link{flash_set_conv_crit}} (which only affects the convergence
+#'   tolerance for greedy fits and backfits). The default tolerance is
+#'   \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+#'   number of rows in the dataset, \eqn{p} is the number of columns, and
+#'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
 #'
 #' @param verbose When and how to display progress updates. For nullchecks,
-#'   updates are only displayed when \code{verbose.lvl} > 0.
+#'   updates are only displayed when \code{verbose} > 0.
 #'
-#' @return A \code{\link{flash}} object.
+#' @return The \code{\link{flash}} object from argument \code{flash}, with
+#'   factors that do not improve the ELBO by at least \code{tol} either set
+#'   to zero or removed (depending on the argument to parameter \code{remove}).
 #'
 #' @seealso \code{\link{flash_remove_factors}},
 #'   \code{\link{flash_set_factors_to_zero}}
 #'
 #' @export
 #'
-flash.nullcheck <- function(flash,
+flash_nullcheck <- function(flash,
                             kset = NULL,
                             remove = TRUE,
                             tol = NULL,
                             verbose = NULL) {
   fit <- get.fit(flash)
 
-  tol <- handle.tol.param(tol, flash)
+  must.be.numeric(tol, allow.infinite = TRUE, allow.null = TRUE)
+  if (is.null(tol)) {
+    tol <- sqrt(.Machine$double.eps) * prod(get.dims(fit))
+  }
   verbose.lvl <- handle.verbose.param(verbose, fit)
 
   if (is.null(kset)) {
@@ -78,7 +88,6 @@ nullcheck.factor <- function(flash, k, verbose.lvl, tol) {
 
   factor <- zero.factor(flash, k)
   factor <- update.R2.tau.and.obj(factor, flash)
-  # TO DO: use user-defined conv crit, not just ELBO
   obj.diff <- get.obj(factor) - get.obj(flash)
 
   if (obj.diff >= -tol) {

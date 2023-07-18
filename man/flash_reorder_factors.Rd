@@ -14,7 +14,7 @@ factor/loadings pairs. All existing factors must be included in
 \code{kset}; to drop factors, use \code{\link{flash_remove_factors}}.}
 }
 \value{
-The \code{flash} object from argument \code{flash}, with the
+The \code{\link{flash}} object from argument \code{flash}, with the
   factors reordered according to argument \code{kset}.
 }
 \description{

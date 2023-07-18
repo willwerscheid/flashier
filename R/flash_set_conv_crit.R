@@ -6,9 +6,13 @@
 #' @details Function \code{flash_set_conv_crit} can be used to customize
 #'   the convergence criterion for a \code{flash} object. This criterion
 #'   determines when to stop optimizing a newly added factor
-#'   (see \code{\link{flash_add_greedy}}), when to stop backfitting
-#'   (\code{\link{flash_backfit}}), and when to remove factors during a
-#'   nullcheck (\code{\link{flash_nullcheck}}).
+#'   (see \code{\link{flash_add_greedy}}) and when to stop backfitting
+#'   (\code{\link{flash_backfit}}). Note that, because most alternative
+#'   convergence criteria do not make sense in the context of a nullcheck, it
+#'   does not set the "convergence" criterion for \code{\link{flash_nullcheck}}
+#'   (for example, \code{\link{flash_conv_crit_max_chg_L}} would simply return
+#'   the maximum \eqn{L^2}-normalized loading for each set of loadings
+#'   \eqn{\ell_{\cdot k}}).
 #'
 #'   The criterion is defined by the function supplied as argument to \code{fn},
 #'   which must accept exactly three parameters,
@@ -33,15 +37,11 @@
 #'   after the update to factor/loadings 1, before and after the update to
 #'   factor/loadings 2, and so on through factor/loadings \eqn{K},
 #'   and backfitting only terminates when \code{fn} returns a value less
-#'   than or equal to \code{tol} for all \eqn{K} updates. Finally, during a nullcheck,
-#'   factors are removed one at a time, and fits are compared before and after
-#'   adding the factor back in; if the value returned by \code{fn} is less than
-#'   or equal to \code{tol}, then the factor is not considered to substantially
-#'   improve the fit, so it is removed from the final fit.
+#'   than or equal to \code{tol} for all \eqn{K} updates.
 #'
 #'   Package \code{flashier} provides a number of functions that may be supplied
 #'   as convergence criteria: see
-#'   \code{\link{flash_conv_crit_elbo_diff}},
+#'   \code{\link{flash_conv_crit_elbo_diff}} (the default criterion),
 #'   \code{\link{flash_conv_crit_max_chg}},
 #'   \code{\link{flash_conv_crit_max_chg_L}}, and
 #'   \code{\link{flash_conv_crit_max_chg_F}}. Custom functions may also be

@@ -31,7 +31,7 @@ test_that("nullcheck works as expected", {
     flash.fix.factors(kset = 1:3, mode = 1, is.fixed = is.fixed) %>%
     flash.backfit(verbose = 0)
 
-  f <- flash.nullcheck(f, remove = TRUE)
+  f <- flash_nullcheck(f, remove = TRUE)
 
   expect_equal(f$n.factors, 2)
 })

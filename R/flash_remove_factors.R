@@ -9,7 +9,7 @@
 #' @param kset A vector of integers specifying which factor/loadings pairs to
 #'   remove.
 #'
-#' @return The \code{flash} object from argument \code{flash}, with the
+#' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors specified by \code{kset} removed.
 #'
 #' @seealso \code{\link{flash_set_factors_to_zero}}
@@ -53,7 +53,7 @@ flash_remove_factors <- function(flash, kset) {
 #' @param kset A vector of integers specifying which factor/loadings pairs to
 #'   set to zero.
 #'
-#' @return The \code{flash} object from argument \code{flash}, with the
+#' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors specified by \code{kset} set to zero.
 #'
 #' @seealso \code{\link{flash_remove_factors}}

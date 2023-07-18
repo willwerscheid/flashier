@@ -175,9 +175,9 @@
 #'
 #' # This is equivalent to the series of calls:
 #' fl <- flash.init(gtex) %>%
-#'   flash.add.greedy(Kmax = 10L) %>%
-#'   flash.backfit() %>%
-#'   flash.nullcheck()
+#'   flash_add_greedy(Kmax = 10L) %>%
+#'   flash_backfit() %>%
+#'   flash_nullcheck()
 #'
 #' # Fit a unimodal distribution with mean zero to each set of loadings
 #' #   and a scale mixture of normals with mean zero to each factor.
@@ -201,7 +201,7 @@
 #'   Research} 22, 1--40.
 #'
 #' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
-#'   \code{\link{flash.backfit}}, and \code{\link{flash.nullcheck}}. For more
+#'   \code{\link{flash.backfit}}, and \code{\link{flash_nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash.init.factors}},
 #'   \code{\link{flash.fix.factors}}, \code{\link{flash_set_factors_to_zero}},
 #'   \code{\link{flash_remove_factors}}, \code{\link{flash_set_verbose}}, and
@@ -233,7 +233,7 @@ flash <- function(data,
   }
 
   if (nullcheck) {
-    fl <- flash.nullcheck(fl, verbose = verbose)
+    fl <- flash_nullcheck(fl, verbose = verbose)
   }
 
   return(fl)

@@ -13,7 +13,7 @@ flash_remove_factors(flash, kset)
 remove.}
 }
 \value{
-The \code{flash} object from argument \code{flash}, with the
+The \code{\link{flash}} object from argument \code{flash}, with the
   factors specified by \code{kset} removed.
 }
 \description{

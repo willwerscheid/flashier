@@ -13,7 +13,7 @@ flash_set_factors_to_zero(flash, kset)
 set to zero.}
 }
 \value{
-The \code{flash} object from argument \code{flash}, with the
+The \code{\link{flash}} object from argument \code{flash}, with the
   factors specified by \code{kset} set to zero.
 }
 \description{

@@ -8,7 +8,7 @@
 #'   factor/loadings pairs. All existing factors must be included in
 #'   \code{kset}; to drop factors, use \code{\link{flash_remove_factors}}.
 #'
-#' @return The \code{flash} object from argument \code{flash}, with the
+#' @return The \code{\link{flash}} object from argument \code{flash}, with the
 #'   factors reordered according to argument \code{kset}.
 #'
 #' @export
