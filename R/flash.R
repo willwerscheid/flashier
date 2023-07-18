@@ -50,10 +50,10 @@
 #'   \eqn{\ell_k} and \eqn{f_k} for \eqn{k = 1, ..., K}.
 #'
 #' @param data The observations. Usually a matrix, but can also be a sparse
-#'   matrix of class \code{Matrix} or a low-rank matrix
+#'   matrix of class \code{\link[Matrix]{Matrix}} or a low-rank matrix
 #'   representation as returned by, for example, \code{\link{svd}},
 #'   \code{\link[irlba]{irlba}}, \code{\link[rsvd]{rsvd}}, or
-#'   \code{\link[softImpute]{softImpute}} (in general, any list object that
+#'   \code{\link[softImpute]{softImpute}} (in general, any list that
 #'   includes fields \code{u}, \code{d}, and \code{v} will be interpreted
 #'   as a low-rank matrix representation).
 #'
@@ -61,11 +61,11 @@
 #'   variance will be estimated) or a matrix, vector, or scalar. \code{S}
 #'   should be a scalar if standard errors are identical across observations. It
 #'   should be a vector if standard errors either vary across columns but are
-#'   constant within any given row, or vary across rows and are constant within
+#'   constant within any given row, or vary across rows but are constant within
 #'   any given column (\code{flash} will use the length of the vector
 #'   to determine whether the supplied values correspond to rows or columns; if the
 #'   data matrix is square, then the sense must be specified using parameter
-#'   \code{S.dim} in function \code{\link{flash.init}}).
+#'   \code{S_dim} in function \code{\link{flash_init}}).
 #'
 #' @param ebnm.fn The function or functions used to solve the empirical Bayes
 #'   normal means (EBNM) subproblems. Most importantly, these functions specify
@@ -86,14 +86,14 @@
 #'   the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
 #'   also be used: for details, see \code{\link{as.ebnm.fn}}.
 #'
-#' @param var.type Describes the structure of the estimated residual variance.
+#' @param var_type Describes the structure of the estimated residual variance.
 #'   Can be \code{NULL}, \code{0}, \code{1}, \code{2}, or \code{c(1, 2)}. If
 #'   \code{NULL}, then \code{S} accounts for all residual variance. If
-#'   \code{var.type = 0}, then the estimated residual variance (which is added
+#'   \code{var_type = 0}, then the estimated residual variance (which is added
 #'   to any variance given by \code{S}) is assumed to be constant
-#'   across all observations. Setting \code{var.type = 1} estimates a single
-#'   variance parameter for each row; \code{var.type = 2} estimates one
-#'   parameter for each column; and \code{var.type = c(1, 2)} optimizes over
+#'   across all observations. Setting \code{var_type = 1} estimates a single
+#'   variance parameter for each row; \code{var_type = 2} estimates one
+#'   parameter for each column; and \code{var_type = c(1, 2)} optimizes over
 #'   all rank-one matrices (that is, it assumes that the residual variance
 #'   parameter \eqn{s_{ij}} can be written \eqn{s_{ij} = a_i b_j}, where the
 #'   \eqn{n}-vector \eqn{a} and the \eqn{p}-vector \eqn{b} are to be
@@ -101,8 +101,9 @@
 #'
 #'   Note that if any portion of the residual variance is to be estimated, then
 #'   it is usually faster to set \code{S = NULL} and to let \code{flash}
-#'   estimate all of the residual variance. Further, \code{var.type = c(1, 2)}
-#'   is much slower than all other options, so it should be used with care.
+#'   estimate all of the residual variance. Further, \code{var_type = c(1, 2)}
+#'   is typically much slower than other options, so it should be used with
+#'   care.
 #'
 #' @param greedy.Kmax The maximum number of factors to be added. This will not
 #'   necessarily be the total number of factors added by \code{flash}, since
@@ -174,7 +175,7 @@
 #' fl <- flash(gtex, greedy.Kmax = 10L, backfit = TRUE)
 #'
 #' # This is equivalent to the series of calls:
-#' fl <- flash.init(gtex) %>%
+#' fl <- flash_init(gtex) %>%
 #'   flash_add_greedy(Kmax = 10L) %>%
 #'   flash_backfit() %>%
 #'   flash_nullcheck()
@@ -193,14 +194,14 @@
 #'             greedy.Kmax = 5)
 #'
 #' # Fit a "Kronecker" (rank-one) variance structure (this can be slow).
-#' fl <- flash(gtex, var.type = c(1, 2), greedy.Kmax = 5L)
+#' fl <- flash(gtex, var_type = c(1, 2), greedy.Kmax = 5L)
 #'
 #' @references
 #' Wei Wang and Matthew Stephens (2021).
 #'   "Empirical Bayes matrix factorization." \emph{Journal of Machine Learning
 #'   Research} 22, 1--40.
 #'
-#' @seealso \code{\link{flash.init}}, \code{\link{flash.add.greedy}},
+#' @seealso \code{\link{flash_init}}, \code{\link{flash.add.greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash_nullcheck}}. For more
 #'   advanced functionality, see \code{\link{flash.init.factors}},
 #'   \code{\link{flash.fix.factors}}, \code{\link{flash_set_factors_to_zero}},
@@ -218,12 +219,12 @@
 flash <- function(data,
                   S = NULL,
                   ebnm.fn = ebnm_point_normal,
-                  var.type = 0L,
+                  var_type = 0L,
                   greedy.Kmax = 50L,
                   backfit = FALSE,
                   nullcheck = TRUE,
                   verbose = 1L) {
-  fl <- flash.init(data, S = S, var.type = var.type)
+  fl <- flash_init(data, S = S, var_type = var_type)
 
   fl <- flash.add.greedy(fl, Kmax = greedy.Kmax, ebnm.fn = ebnm.fn,
                          verbose = verbose)

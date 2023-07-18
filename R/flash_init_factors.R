@@ -34,7 +34,7 @@
 #' data(gtex)
 #'
 #' # Initialize several factors at once and backfit.
-#' fl <- flash.init(gtex) %>%
+#' fl <- flash_init(gtex) %>%
 #'   flash.init.factors(init = svd(gtex, nu = 5, nv = 5)) %>%
 #'   flash.backfit()
 #'
@@ -44,7 +44,7 @@
 #' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 #' # Initialize the factor at the least squares solution.
 #' ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
-#' fl <- flash.init(gtex) %>%
+#' fl <- flash_init(gtex) %>%
 #'   flash.init.factors(init = list(ones, ls.soln)) %>%
 #'   flash.fix.factors(kset = 1, mode = 1L) %>%
 #'   flash.backfit() %>%

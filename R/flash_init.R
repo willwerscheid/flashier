@@ -1,26 +1,29 @@
 #' Initialize flash object
 #'
-#' Sets up a \code{flash} object with no factors. Since all other
-#' \code{flash.xxx} functions take a \code{flash} or \code{flash.fit} object
-#' as their first argument, calling \code{flash.init} should be the first step
+#' Sets up a \code{\link{flash}} object with no factors. Since all other
+#' \code{flash_xxx} functions take a \code{flash} or \code{flash_fit} object
+#' as their first argument, calling \code{flash_init} should be the first step
 #' in any \code{flash} pipeline.
 #'
 #' @inheritParams flash
 #'
-#' @param S.dim The dimension along which \code{S} lies when \code{S} is a
-#'   vector. If \code{S.dim = 1}, then \code{S} will be interpreted as giving
-#'   standard errors that vary across rows but are constant within any given
-#'   column; if \code{S.dim = 2}, then it will be interpreted as giving
+#' @param S_dim If the argument to \code{S} is a vector and the data matrix is
+#'   square, then \code{S_dim} must specify whether \code{S} encodes row-wise or
+#'   column-wise standard errors. More precisely,
+#'   if \code{S_dim = 1}, then \code{S} will be interpreted as giving
+#'   standard errors that vary across rows but are constant within any particular
+#'   row; if \code{S_dim = 2}, then it will be interpreted as giving
 #'   standard errors that vary across columns but are constant within any
-#'   given row. It is only necessary to specify \code{S.dim} when it cannot
-#'   be inferred from the data (i.e., when \code{data} is a square matrix).
+#'   particular column. If \code{S} is a matrix or scalar, or if the data
+#'   matrix is not square, then \code{S_dim} should be left unspecified
+#'   (\code{NULL}).
 #'
-#' @return A \code{\link{flash}} object.
+#' @return An initialized \code{\link{flash}} object (with no factors).
 #'
 #' @export
 #'
-flash.init <- function(data, S = NULL, var.type = 0L, S.dim = NULL) {
-  flash <- set.flash.data(data, S = S, S.dim = S.dim, var.type = var.type)
+flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL) {
+  flash <- set.flash.data(data, S = S, S.dim = S_dim, var.type = var_type)
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {
     flash$R <- flash$Y

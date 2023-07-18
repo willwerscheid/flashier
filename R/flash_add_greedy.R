@@ -57,7 +57,7 @@
 #' @examples
 #' # Increase the maximum number of iterations in the default initialization
 #' #   method.
-#' fl <- flash.init(gtex) %>%
+#' fl <- flash_init(gtex) %>%
 #'   flash.add.greedy(init.fn = function(f) flash_init_greedy_default(f, maxiter = 500))
 #'
 #' # Use a custom initialization function that wraps function nmf from
@@ -66,7 +66,7 @@
 #'   nmf.res <- RcppML::nmf(resid(f), k = 1, verbose = FALSE)
 #'   return(list(as.vector(nmf.res$w), as.vector(nmf.res$h)))
 #' }
-#' fl.nmf <- flash.init(gtex) %>%
+#' fl.nmf <- flash_init(gtex) %>%
 #'   flash.add.greedy(ebnm.fn = ebnm_unimodal_nonnegative,
 #'                    init.fn = nmf.init.fn)
 #'
