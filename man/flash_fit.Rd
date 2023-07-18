@@ -2,41 +2,41 @@
 % Please edit documentation in R/flash_fit_object.R
 \name{flash_fit}
 \alias{flash_fit}
-\alias{ff.pm}
-\alias{ff.p2m}
-\alias{ff.est.tau}
-\alias{ff.fixed.tau}
-\alias{ff.tau}
-\alias{ff.elbo}
-\alias{ff.KL}
-\alias{ff.g}
+\alias{flash_fit_get_pm}
+\alias{flash_fit_get_p2m}
+\alias{flash_fit_get_est_tau}
+\alias{flash_fit_get_fixed_tau}
+\alias{flash_fit_get_tau}
+\alias{flash_fit_get_elbo}
+\alias{flash_fit_get_KL}
+\alias{flash_fit_get_g}
 \title{Extract a flash_fit object}
 \usage{
 flash_fit(flash)
 
-ff.pm(f, n)
+flash_fit_get_pm(f, n)
 
-ff.p2m(f, n)
+flash_fit_get_p2m(f, n)
 
-ff.est.tau(f)
+flash_fit_get_est_tau(f)
 
-ff.fixed.tau(f)
+flash_fit_get_fixed_tau(f)
 
-ff.tau(f)
+flash_fit_get_tau(f)
 
-ff.elbo(f)
+flash_fit_get_elbo(f)
 
-ff.KL(f, n)
+flash_fit_get_KL(f, n)
 
-ff.g(f, n)
+flash_fit_get_g(f, n)
 }
 \arguments{
 \item{flash}{A \code{flash} object.}
 
 \item{f}{A \code{flash_fit} object.}
 
-\item{n}{The dimension (set \code{n = 1} for loadings \eqn{L} and \code{n = 2}
-for factors \eqn{F}).}
+\item{n}{Set \code{n = 1} to access loadings \eqn{L} and \code{n = 2} to
+access factors \eqn{F}).}
 }
 \description{
 \code{flash_fit} objects are the "internal" objects used by \code{flash}
@@ -47,12 +47,13 @@ for factors \eqn{F}).}
   \code{flash} functionality requires the wielding of
   \code{flash_fit} objects. In particular, initialization, convergence,
   and "verbose" display functions all take one or more \code{flash_fit}
-  objects as input (see parameter \code{init.fn} in function
-  \code{\link{flash_greedy}}; parameter \code{conv.crit.fn} in
-  \code{\link{flash_greedy}} and \code{\link{flash_backfit}};
+  objects as input (see parameter \code{init_fn} in function
+  \code{\link{flash_greedy}}; parameter \code{fn} in
+  \code{\link{flash_set_conv_crit}};
   and parameter \code{fns} in \code{\link{flash_set_verbose}}).
-  For users who would like to write custom functions, the getter functions
-  and methods enumerated below may prove useful.
+  For users who would like to write custom functions, the accessor functions
+  and methods enumerated below may prove useful. See
+  \code{\link{flash_set_verbose}} for an example.
 }
 \details{
 The following S3 methods are available for \code{flash_fit} objects at all
@@ -69,37 +70,37 @@ The following S3 methods are available for \code{flash_fit} objects at all
 }
 \section{Functions}{
 \itemize{
-\item \code{ff.pm()}: The posterior means for the loadings matrix \eqn{L}
+\item \code{flash_fit_get_pm()}: The posterior means for the loadings matrix \eqn{L}
 (when parameter \code{n} is equal to \code{1}) or factor matrix \eqn{F}
 (when \code{n = 2}). While optimizing new factor/loadings pairs as part of
-a "greedy" fit, only the posterior means for the new loadings \eqn{\ell_k}
-or factor \eqn{f_k} will be returned.
+a "greedy" fit, only the posterior means for the new loadings
+\eqn{\ell_{\cdot k}} or factor \eqn{f_{\cdot k}} will be returned.
 
-\item \code{ff.p2m()}: The posterior second moments for the loadings matrix
+\item \code{flash_fit_get_p2m()}: The posterior second moments for the loadings matrix
 \eqn{L} (when parameter \code{n} is equal to \code{1}) or factor matrix
 \eqn{F} (when \code{n = 2}). While optimizing new factor/loadings pairs,
-only the posterior second moments for the new loadings \eqn{\ell_k} or
-factor \eqn{f_k} will be returned.
+only the posterior second moments for the new loadings \eqn{\ell_{\cdot k}}
+or factor \eqn{f_{\cdot k}} will be returned.
 
-\item \code{ff.est.tau()}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
+\item \code{flash_fit_get_est_tau()}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
 is the estimated portion of the residual variance (total, by row, or
 by column, depending on the variance type).
 
-\item \code{ff.fixed.tau()}: Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
+\item \code{flash_fit_get_fixed_tau()}: Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
 fixed portion of the residual variance (total, by row, or by column).
 
-\item \code{ff.tau()}: The overall precision \eqn{1 / (\sigma^2 + s^2)}.
+\item \code{flash_fit_get_tau()}: The overall precision \eqn{1 / (\sigma^2 + s^2)}.
 
-\item \code{ff.elbo()}: The variational lower bound (ELBO).
+\item \code{flash_fit_get_elbo()}: The variational lower bound (ELBO).
 
-\item \code{ff.KL()}: A vector containing the KL-divergence portions of
+\item \code{flash_fit_get_KL()}: A vector containing the KL-divergence portions of
 the ELBO, with one value for each factor (when \code{n = 2}) or set of
 loadings (when \code{n = 1}). While optimizing new factor/loadings pairs,
-only the KL-divergence for the new loadings or factor will be returned.
+only the KL-divergence for the new factor or loadings will be returned.
 
-\item \code{ff.g()}: A list containing estimated priors on loadings
-\eqn{\hat{g}_\ell} (when \code{n = 1}) or on factors \eqn{\hat{g}_f} (when
+\item \code{flash_fit_get_g()}: A list containing estimated priors on loadings
+\eqn{\hat{g}_\ell} (when \code{n = 1}) or factors \eqn{\hat{g}_f} (when
 \code{n = 2}). While optimizing new factor/loadings pairs, only the
-estimated prior on the new loadings or factor will be returned.
+estimated prior on the new factor or loadings will be returned.
 
 }}
