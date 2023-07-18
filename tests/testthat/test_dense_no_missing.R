@@ -14,7 +14,7 @@ M <- LF + 0.1 * rnorm(n * p)
 
 test_that("matrix factor initialization is correct", {
   f <- flash(M, greedy_Kmax = 2, verbose = 0)
-  expect_equal(f$n.factors, 2)
+  expect_equal(f$n_factors, 2)
   expect_equal(fitted(f), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
@@ -33,5 +33,5 @@ test_that("nullcheck works as expected", {
 
   f <- flash_nullcheck(f, remove = TRUE)
 
-  expect_equal(f$n.factors, 2)
+  expect_equal(f$n_factors, 2)
 })

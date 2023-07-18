@@ -14,8 +14,8 @@ M <- LF + 0.1 * rnorm(m * n * p)
 f <- flash(M, greedy_Kmax = 2, verbose = 0)
 
 test_that("tensor factor initialization is correct", {
-  expect_equal(f$n.factors, 2)
-  expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n_factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$flash_fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 suppressWarnings({
@@ -39,8 +39,8 @@ M.missing[missing] <- NA
 f <- flash(M.missing, greedy_Kmax = 2, verbose = 0)
 
 test_that("tensor factor initialization is correct (with missing)", {
-  expect_equal(f$n.factors, 2)
-  expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n_factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$flash_fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })
 
 suppressWarnings({

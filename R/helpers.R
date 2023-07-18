@@ -2,8 +2,8 @@
 
 get.fit <- function(f) {
   if (inherits(f, "flash"))
-    return(f[["flash.fit"]])
-  if (inherits(f, "flash.fit"))
+    return(f[["flash_fit"]])
+  if (inherits(f, "flash_fit"))
     return(f)
   stop("flash must be a flash or flash_fit object. Use flash_init to ",
        "initialize a flash_fit object.")

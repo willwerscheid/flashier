@@ -22,8 +22,8 @@ fl <- flash_init(M) %>%
   flash_backfit()
 
 test_that("Fixed factors are correctly added to a new flash object", {
-  expect_equal(fl$flash.fit$EF[[1]][, 1], rep(1, n))
-  expect_equal(fl$flash.fit$EF[[1]][, 2], 1:n)
+  expect_equal(fl$flash_fit$EF[[1]][, 1], rep(1, n))
+  expect_equal(fl$flash_fit$EF[[1]][, 2], 1:n)
 })
 
 fl <- flash_init(M) %>%
@@ -34,6 +34,6 @@ fl <- flash_init(M) %>%
   flash_backfit()
 
 test_that("Fixed factors are correctly added to an existing flash object", {
-  expect_equal(fl$flash.fit$EF[[1]][, 2], rep(1, n))
-  expect_equal(fl$flash.fit$EF[[1]][, 3], 1:n)
+  expect_equal(fl$flash_fit$EF[[1]][, 2], rep(1, n))
+  expect_equal(fl$flash_fit$EF[[1]][, 3], 1:n)
 })

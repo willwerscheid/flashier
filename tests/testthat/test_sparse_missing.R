@@ -17,6 +17,6 @@ M[missing] <- NA
 f <- flash(M, greedy_Kmax = 2, verbose = 0)
 
 test_that("matrix factor initialization is correct (sparse)", {
-  expect_equal(f$n.factors, 2)
-  expect_equal(lowrank.expand(get.EF(f$flash.fit)), LF1 + LF2, tol = 0.25, scale = 1)
+  expect_equal(f$n_factors, 2)
+  expect_equal(lowrank.expand(get.EF(f$flash_fit)), LF1 + LF2, tol = 0.25, scale = 1)
 })

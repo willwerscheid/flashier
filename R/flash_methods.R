@@ -91,7 +91,7 @@ plot.flash <- function(x,
                        ...) {
   pm_which <- match.arg(pm_which)
 
-  if (x$n.factors == 0) {
+  if (x$n_factors == 0) {
     stop("Flash object has no factors, so there is nothing to plot.")
   }
   if (!include_scree && !include_pm) {
@@ -105,7 +105,7 @@ plot.flash <- function(x,
   # Scree plot:
   all.plots <- list()
   if (is.null(kset)) {
-    kset <- 1:x$n.factors
+    kset <- 1:x$n_factors
   } else {
     must.be.valid.kset(get.fit(x), kset)
   }
@@ -145,11 +145,11 @@ plot.flash <- function(x,
     if (pm_which == "factors") {
       which.dim <- "column"
       val <- ldf(x, type = "i")$F
-      colnames(val) <- 1:x$n.factors
+      colnames(val) <- 1:x$n_factors
     } else {
       which.dim <- "row"
       val <- ldf(x, type = "i")$L
-      colnames(val) <- 1:x$n.factors
+      colnames(val) <- 1:x$n_factors
     }
     if (is.null(pm_subset)) {
       val <- val[, kset, drop = FALSE]
@@ -467,13 +467,13 @@ propagate.names <- function(mats, flash) {
 
 #' @export
 print.flash = function(x, ...) {
-  if (x$n.factors == 0) {
+  if (x$n_factors == 0) {
     cat("Flash object with zero factors.\n")
-  } else if (x$n.factors == 1) {
+  } else if (x$n_factors == 1) {
     cat("Flash object with one factor.\n")
     cat(sprintf("  Proportion of variance explained: %0.3f\n", x$pve))
   } else {
-    cat(sprintf("Flash object with %d factors.\n", x$n.factors))
+    cat(sprintf("Flash object with %d factors.\n", x$n_factors))
     if (all(x$pve < 0.001)) {
       cat("  All factors have PVE < 0.001.")
     } else {

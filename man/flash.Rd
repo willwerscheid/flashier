@@ -100,7 +100,7 @@ using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.}
 \value{
 A \code{flash} object. Contains elements:
   \describe{
-    \item{\code{n.factors}}{The total number of factor/loadings pairs \eqn{K}
+    \item{\code{n_factors}}{The total number of factor/loadings pairs \eqn{K}
       in the fitted model.}
     \item{\code{pve}}{The proportion of variance explained by each
       factor/loadings pair. Since factors and loadings are not required to be
@@ -108,22 +108,22 @@ A \code{flash} object. Contains elements:
       proportion of variance explained could be larger than 1.}
     \item{\code{elbo}}{The variational lower bound achieved by the
       fitted model.}
-    \item{\code{residuals.sd}}{Estimated residual standard deviations (these
+    \item{\code{residuals_sd}}{Estimated residual standard deviations (these
       include any variance component given as an argument to \code{S}).}
-    \item{\code{L.pm, L.psd, L.lfsr}}{Posterior means,
+    \item{\code{L_pm, L_psd, L_lfsr}}{Posterior means,
       standard deviations, and local false sign rates for loadings \eqn{L}.}
-    \item{\code{F.pm, F.psd, F.lfsr}}{Posterior means,
+    \item{\code{F_pm, F_psd, F_lfsr}}{Posterior means,
       standard deviations, and local false sign rates for factors \eqn{F}.}
-    \item{\code{L.ghat}}{The fitted priors on loadings
+    \item{\code{L_ghat}}{The fitted priors on loadings
       \eqn{\hat{g}_\ell^{(k)}}.}
-    \item{\code{F.ghat}}{The fitted priors on factors
+    \item{\code{F_ghat}}{The fitted priors on factors
       \eqn{\hat{g}_f^{(k)}}.}
     \item{\code{sampler}}{A function that takes a single argument
       \code{nsamp} and returns \code{nsamp} samples from the posterior
       distributions for factors \eqn{F} and loadings \eqn{L}.}
-    \item{\code{flash.fit}}{A \code{\link{flash.fit}} object. Used by
+    \item{\code{flash_fit}}{A \code{\link{flash_fit}} object. Used by
       \code{flash} when fitting is not performed all at once, but
-      incrementally via calls to various \code{flash.xxx} functions.}
+      incrementally via calls to various \code{flash_xxx} functions.}
   }
   The following methods are available:
   \describe{
