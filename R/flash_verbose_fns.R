@@ -1,5 +1,3 @@
-# TODO rename file
-
 #' Display the current ELBO
 #'
 #' Displays the value of the variational lower bound (ELBO) at the current
