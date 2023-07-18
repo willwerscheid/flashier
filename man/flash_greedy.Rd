@@ -41,8 +41,8 @@ increase the ELBO.}
 
   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
   used as input. Non-default arguments to parameters can be supplied using
-  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
-  also be used: for details, see \code{\link{as.ebnm.fn}}.}
+  the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{flash_ebnm}}.}
 
 \item{init_fn}{The function used to initialize factor/loadings pairs. Functions
 \code{\link{flash_greedy_init_default}}, \code{\link{flash_greedy_init_softImpute}}, and

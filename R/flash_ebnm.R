@@ -1,19 +1,21 @@
-#' EBNM functions
+#' Construct an EBNM function
 #'
-#' \code{as.ebnm.fn} is a helper function that provides readable syntax for
+#' \code{flash_ebnm} is a helper function that provides readable syntax for
 #'   constructing \code{\link[ebnm]{ebnm}} functions that can serve as
-#'   arguments to parameter \code{ebnm.fn} in functions \code{\link{flash}},
+#'   arguments to parameter \code{ebnm_fn} in functions \code{\link{flash}},
 #'   \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}} (see
 #'   \strong{Examples} below). It is also possible to write a custom function
 #'   from scratch: see \strong{Details} below for a simple example. A more
 #'   involved example can be found in the "Advanced flashier" vignette.
 #'
-#' As input to parameter \code{ebnm.fn}, it should suffice for many purposes to
+#' As input to parameter \code{ebnm_fn} in functions \code{\link{flash}},
+#'   \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}},
+#'   it should suffice for many purposes to
 #'   provide functions from package \code{ebnm} as is (for example, one might
-#'   set \code{ebnm.fn = ebnm_point_laplace}). To use non-default
-#'   arguments, function \code{as.ebnm.fn} may be used (see \strong{Examples}).
+#'   set \code{ebnm_fn = ebnm_point_laplace}). To use non-default
+#'   arguments, function \code{flash_ebnm} may be used (see \strong{Examples}).
 #'   Custom functions may also be written. In general, any function that is
-#'   used as an argument to parameter \code{ebnm.fn} must accept parameters:
+#'   used as an argument to \code{ebnm_fn} must accept parameters:
 #'   \describe{
 #'   \item{\code{x}}{A vector of observations.}
 #'   \item{\code{s}}{A vector of standard errors, or a scalar if all standard
@@ -22,9 +24,11 @@
 #'     (\code{NULL}) and estimated from the data. If it is supplied and
 #'     \code{fix_g = TRUE}, then the prior is fixed at \code{g_init}; if
 #'     \code{fix_g = FALSE}, then \code{g_init} gives the
-#'     initial value of \eqn{g} used during optimization. In \code{flashier},
+#'     initial value of \eqn{g} used during optimization.
+#'
+#'     In \code{flashier},
 #'     \eqn{g} is fixed during the wrap-up phase when estimating local false
-#'     sign rates and constructing a sampler; \code{g_init} is used
+#'     sign rates and constructing a sampler; and \code{g_init} is used
 #'     with \code{fix_g = FALSE} to "warmstart" backfits
 #'     (see \code{\link{flash_backfit}}). If none of these features (local
 #'     false sign rates, samplers, or warmstarts) are needed,
@@ -35,7 +39,7 @@
 #'     instead of estimated. See the description of \code{g_init} above.}
 #'   \item{\code{output}}{A character vector indicating which values are to be
 #'     returned. Custom EBNM functions can safely ignore this parameter (again,
-#'     it must accept it as a parameter, but it does not need to do anything
+#'     they must accept it as a parameter, but they do not need to do anything
 #'     with its argument).}
 #'   }
 #'   The return object must be a list that includes fields:
@@ -74,8 +78,8 @@
 #' @examples
 #' # A custom EBNM function might be written as follows:
 #'
-#' my.ebnm.fn <- function(x, s, g_init, fix_g, output) {
-#'   ebnm.res <- ebnm_point_laplace(
+#' my_ebnm_fn <- function(x, s, g_init, fix_g, output) {
+#'   ebnm_res <- ebnm_point_laplace(
 #'     x = x,
 #'     s = s,
 #'     g_init = g_init,
@@ -83,20 +87,20 @@
 #'     output = output,
 #'     control = list(iterlim = 10)
 #'   )
-#'   return(ebnm.res)
+#'   return(ebnm_res)
 #' }
 #'
 #' # The following are equivalent:
 #'
 #' fl1 <- flash(
 #'   gtex,
-#'   ebnm.fn = my.ebnm.fn,
+#'   ebnm_fn = my_ebnm_fn,
 #'   greedy_Kmax = 2
 #' )
 #'
 #' fl2 <- flash(
 #'   gtex,
-#'   ebnm.fn = as.ebnm.fn(
+#'   ebnm_fn = flash_ebnm(
 #'     prior_family = "point_laplace",
 #'     control = list(iterlim = 10)
 #'   ),
@@ -107,20 +111,20 @@
 #'
 #' @export
 #'
-as.ebnm.fn <- function(...) {
+flash_ebnm <- function(...) {
   args <- list(...)
   if (any(c("x", "s", "output") %in% names(args))) {
     stop("'x', 's', and 'output' must not be supplied as arguments to ",
-         "'as.ebnm.fn'.")
+         "'flash_ebnm'.")
   }
 
   if (any(c("g_init", "fix_g") %in% names(args))) {
     if (is.null(args$g_init)) {
-      stop("If 'fix_g' is supplied as an argument to as.ebnm.fn, then ",
+      stop("If 'fix_g' is supplied as an argument to flash_ebnm, then ",
            "'g_init' must be as well.")
     }
     if (is.null(args$fix_g) || !args$fix_g) {
-      stop("If 'g_init' is supplied as an argument to as.ebnm.fn, then it ",
+      stop("If 'g_init' is supplied as an argument to flash_ebnm, then it ",
            "must be fixed (i.e., 'fix_g = TRUE' should be included as an ",
            "argument). If you were trying to fix the grid of the prior, then ",
            "use parameter 'scale' rather than 'g_init'.")
@@ -164,7 +168,7 @@ as.ebnm.fn <- function(...) {
 
 handle.ebnm.fn <- function(ebnm.fn, data.dim) {
   error.msg <- paste(
-    "Argument to ebnm.fn is incorrectly specified. See ?as.ebnm.fn for details."
+    "Argument to ebnm.fn is incorrectly specified. See ?flash_ebnm for details."
   )
 
   if (length(ebnm.fn) == 1)

@@ -83,8 +83,8 @@
 #'
 #'   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
 #'   used as input. Non-default arguments to parameters can be supplied using
-#'   the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
-#'   also be used: for details, see \code{\link{as.ebnm.fn}}.
+#'   the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
+#'   also be used: for details, see \code{\link{flash_ebnm}}.
 #'
 #' @param var_type Describes the structure of the estimated residual variance.
 #'   Can be \code{NULL}, \code{0}, \code{1}, \code{2}, or \code{c(1, 2)}. If
@@ -189,7 +189,7 @@
 #'
 #' # Fit point-laplace priors using a non-default optimization method.
 #' fl <- flash(gtex,
-#'             ebnm_fn = as.ebnm.fn(prior_family = "point_laplace",
+#'             ebnm_fn = flash_ebnm(prior_family = "point_laplace",
 #'                                  optmethod = "trust"),
 #'             greedy_Kmax = 5)
 #'

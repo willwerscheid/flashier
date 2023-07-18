@@ -39,8 +39,8 @@ are not allowed.}
 
   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
   used as input. Non-default arguments to parameters can be supplied using
-  the helper function \code{\link{as.ebnm.fn}}. Custom EBNM functions can
-  also be used: for details, see \code{\link{as.ebnm.fn}}.}
+  the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
+  also be used: for details, see \code{\link{flash_ebnm}}.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
