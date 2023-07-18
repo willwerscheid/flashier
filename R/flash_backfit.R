@@ -7,7 +7,7 @@
 #'
 #' @inheritParams flash
 #'
-#' @inheritParams flash.add.greedy
+#' @inheritParams flash_greedy
 #'
 #' @param flash A \code{flash} or \code{flash.fit} object.
 #'

@@ -3,7 +3,7 @@
 #' \code{as.ebnm.fn} is a helper function that provides readable syntax for
 #'   constructing \code{\link[ebnm]{ebnm}} functions that can serve as
 #'   arguments to parameter \code{ebnm.fn} in functions \code{\link{flash}},
-#'   \code{\link{flash.add.greedy}}, and \code{\link{flash.init.factors}} (see
+#'   \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}} (see
 #'   \strong{Examples} below). It is also possible to write a custom function
 #'   from scratch: see \strong{Details} below for a simple example. A more
 #'   involved example can be found in the "Advanced flashier" vignette.
@@ -69,7 +69,7 @@
 #'   than \code{g_init}.
 #'
 #' @seealso \code{\link[ebnm]{ebnm}}, \code{\link{flash}},
-#'   \code{\link{flash.add.greedy}}, \code{\link{flash.init.factors}}.
+#'   \code{\link{flash_greedy}}, \code{\link{flash_factors_init}}.
 #'
 #' @examples
 #' # A custom EBNM function might be written as follows:

@@ -48,8 +48,8 @@ for factors \eqn{F}).}
   \code{flash.fit} objects. In particular, initialization, convergence,
   and "verbose" display functions all take one or more \code{flash.fit}
   objects as input (see parameter \code{init.fn} in function
-  \code{\link{flash.add.greedy}}; parameter \code{conv.crit.fn} in
-  \code{\link{flash.add.greedy}} and \code{\link{flash.backfit}};
+  \code{\link{flash_greedy}}; parameter \code{conv.crit.fn} in
+  \code{\link{flash_greedy}} and \code{\link{flash.backfit}};
   and parameter \code{fns} in \code{\link{flash_set_verbose}}).
   For users who would like to write custom functions, the getter functions
   and methods enumerated below may prove useful.

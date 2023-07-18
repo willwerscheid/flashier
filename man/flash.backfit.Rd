@@ -38,6 +38,24 @@ vary can occasionally result in decreases in ELBO.}
 is defined such that all factors in \code{kset} get updated at each
 iteration.}
 
+\item{tol}{The convergence tolerance parameter. At each iteration, the fit
+is compared to the fit from the previous iteration using a convergence
+criterion function (by default, the difference in ELBO, but the criterion
+can be changed via \code{\link{flash_set_conv_crit}}). When
+the value returned by this function is less than or equal to \code{tol},
+the newly added factor/loadings pair is considered to have "converged,"
+so that \code{flash_greedy} moves on and attempts to add another new
+factor (or, if the maximum number of factors \code{Kmax} has been reached,
+the process terminates). Note that
+specifying \code{tol} here will override any value set by
+\code{flash_set_conv_crit}; to use the "global" tolerance parameter,
+\code{tol} must be left unspecified (\code{NULL}).
+If \code{tol = NULL} and a global tolerance
+parameter has not been set, then the default
+tolerance used is \eqn{np\sqrt{\epsilon}}, where \eqn{n} is the
+number of rows in the dataset, \eqn{p} is the number of columns, and
+\eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.}
+
 \item{verbose}{When and how to display progress updates. Set to
 \code{0} for none, \code{1} for updates after a factor is added or a
 backfit is completed, \code{2} for additional notifications about the

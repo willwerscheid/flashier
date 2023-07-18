@@ -21,7 +21,7 @@ Initializes a new ("greedy") flash factor using \code{\link[softImpute]{softImpu
   \code{\link{flash_greedy_init_default}} without sacrificing much (if any) speed.
 }
 \seealso{
-\code{\link{flash_add_greedy}},
+\code{\link{flash_greedy}},
   \code{\link{flash_greedy_init_default}},
   \code{\link{flash_greedy_init_irlba}}
 }

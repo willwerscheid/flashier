@@ -21,7 +21,7 @@ Initializes a new ("greedy") flash factor using \code{\link[irlba]{irlba}}. This
   default initialization should generally be preferred.
 }
 \seealso{
-\code{\link{flash_add_greedy}},
+\code{\link{flash_greedy}},
   \code{\link{flash_greedy_init_default}},
   \code{\link{flash_greedy_init_softImpute}}
 }

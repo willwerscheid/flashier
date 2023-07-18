@@ -6,7 +6,7 @@
 #' @details Function \code{flash_set_conv_crit} can be used to customize
 #'   the convergence criterion for a \code{flash} object. This criterion
 #'   determines when to stop optimizing a newly added factor
-#'   (see \code{\link{flash_add_greedy}}) and when to stop backfitting
+#'   (see \code{\link{flash_greedy}}) and when to stop backfitting
 #'   (\code{\link{flash_backfit}}). Note that, because most alternative
 #'   convergence criteria do not make sense in the context of a nullcheck, it
 #'   does not set the "convergence" criterion for \code{\link{flash_nullcheck}}

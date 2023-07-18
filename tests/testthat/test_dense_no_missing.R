@@ -25,9 +25,9 @@ test_that("nullcheck works as expected", {
   is.fixed <- matrix(TRUE, nrow = n, ncol = 3)
   is.fixed[6:n, 2] <- FALSE
 
-  f <- flash.init(M) %>%
+  f <- flash_init(M) %>%
     flash_set_verbose(0) %>%
-    flash.init.factors(list(EF1, EF2)) %>%
+    flash_factors_init(list(EF1, EF2)) %>%
     flash_factors_fix(kset = 1:3, mode = 1, is.fixed = is.fixed) %>%
     flash.backfit(verbose = 0)
 

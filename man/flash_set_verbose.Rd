@@ -57,7 +57,7 @@ Used in a \code{\link{flash}} pipeline to set the output that will be printed
 Function \code{flash_set_verbose} can be used to customize
   the output that is printed to console while fitting a \code{flash} object.
   After each greedy or backfitting iteration (see, respectively,
-  \code{\link{flash_add_greedy}} and \code{\link{flash_backfit}}), each
+  \code{\link{flash_greedy}} and \code{\link{flash_backfit}}), each
   function in argument \code{fns} is successively evaluated and the
   result is printed to console in a table with column names defined by
   argument \code{colnames} and column widths defined by argument
@@ -96,7 +96,7 @@ data(gtex)
 # Suppress all verbose output.
 fl <- flash_init(gtex) \%>\%
   flash_set_verbose(0) \%>\%
-  flash_add_greedy(Kmax = 5)
+  flash_greedy(Kmax = 5)
 
 # Set custom verbose output. TODO: rewrite
 sparsity_F <- function(curr, prev, k) {
@@ -114,13 +114,13 @@ fl <- flash_init(gtex) \%>\%
     colnames = colnames,
     colwidths = colwidths
   ) \%>\%
-  flash_add_greedy(Kmax = 3)
+  flash_greedy(Kmax = 3)
 
 # Output can be changed as needed.
 fl <- flash_init(gtex) \%>\%
   flash_set_verbose(verbose = 1) \%>\%
-  flash_add_greedy(Kmax = 5L) \%>\%
+  flash_greedy(Kmax = 5L) \%>\%
   flash_backfit(verbose = 3) \%>\%
-  flash_add_greedy(Kmax = 1L)
+  flash_greedy(Kmax = 1L)
 
 }

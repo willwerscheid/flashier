@@ -62,8 +62,8 @@ flash_factors_fix <- function(flash,
   }
   if (!((is.vector(fixed_idx) && length(fixed_idx) %in% c(1, expect.nrow))
         || identical(dim(fixed_idx), c(expect.nrow, expect.ncol)))) {
-      stop("fixed_idx must be a vector of length ", expect.nrow, " or a ",
-           expect.nrow, " by ", expect.ncol, " matrix.")
+    stop("fixed_idx must be a vector of length ", expect.nrow, " or a ",
+         expect.nrow, " by ", expect.ncol, " matrix.")
   }
   fixed_idx <- array(as.logical(fixed_idx), dim = c(expect.nrow, expect.ncol))
 

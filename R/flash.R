@@ -67,19 +67,19 @@
 #'   data matrix is square, then the sense must be specified using parameter
 #'   \code{S_dim} in function \code{\link{flash_init}}).
 #'
-#' @param ebnm.fn The function or functions used to solve the empirical Bayes
+#' @param ebnm_fn The function or functions used to solve the empirical Bayes
 #'   normal means (EBNM) subproblems. Most importantly, these functions specify
 #'   the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
 #'   priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
 #'   assumed to belong. If the same function is to be used for both loadings
-#'   \eqn{L} and factors \eqn{F}, then \code{ebnm.fn} can be a single function.
+#'   \eqn{L} and factors \eqn{F}, then \code{ebnm_fn} can be a single function.
 #'   If one function is to be used for loadings and a second for factors,
-#'   then \code{ebnm.fn} should be a list of length two, with the first
+#'   then \code{ebnm_fn} should be a list of length two, with the first
 #'   element giving the function for loadings and the second the function
 #'   for factors. If different functions are to be used for different values of
 #'   \eqn{k}, then factor/loadings pairs must be added successively using
-#'   multiple calls to either \code{\link{flash.add.greedy}} or
-#'   \code{\link{flash.init.factors}}.
+#'   multiple calls to either \code{\link{flash_greedy}} or
+#'   \code{\link{flash_factors_init}}.
 #'
 #'   Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
 #'   used as input. Non-default arguments to parameters can be supplied using
@@ -176,20 +176,20 @@
 #'
 #' # This is equivalent to the series of calls:
 #' fl <- flash_init(gtex) %>%
-#'   flash_add_greedy(Kmax = 10L) %>%
+#'   flash_greedy(Kmax = 10L) %>%
 #'   flash_backfit() %>%
 #'   flash_nullcheck()
 #'
 #' # Fit a unimodal distribution with mean zero to each set of loadings
 #' #   and a scale mixture of normals with mean zero to each factor.
 #' fl <- flash(gtex,
-#'             ebnm.fn = c(ebnm_unimodal,
+#'             ebnm_fn = c(ebnm_unimodal,
 #'                         ebnm_normal_scale_mixture),
 #'             greedy.Kmax = 5)
 #'
 #' # Fit point-laplace priors using a non-default optimization method.
 #' fl <- flash(gtex,
-#'             ebnm.fn = as.ebnm.fn(prior_family = "point_laplace",
+#'             ebnm_fn = as.ebnm.fn(prior_family = "point_laplace",
 #'                                  optmethod = "trust"),
 #'             greedy.Kmax = 5)
 #'
@@ -201,9 +201,9 @@
 #'   "Empirical Bayes matrix factorization." \emph{Journal of Machine Learning
 #'   Research} 22, 1--40.
 #'
-#' @seealso \code{\link{flash_init}}, \code{\link{flash.add.greedy}},
+#' @seealso \code{\link{flash_init}}, \code{\link{flash_greedy}},
 #'   \code{\link{flash.backfit}}, and \code{\link{flash_nullcheck}}. For more
-#'   advanced functionality, see \code{\link{flash.init.factors}},
+#'   advanced functionality, see \code{\link{flash_factors_init}},
 #'   \code{\link{flash_factors_fix}}, \code{\link{flash_factors_set_to_zero}},
 #'   \code{\link{flash_factors_remove}}, \code{\link{flash_set_verbose}}, and
 #'   \code{\link{flash_set_conv_crit}}.
@@ -218,7 +218,7 @@
 #'
 flash <- function(data,
                   S = NULL,
-                  ebnm.fn = ebnm_point_normal,
+                  ebnm_fn = ebnm_point_normal,
                   var_type = 0L,
                   greedy.Kmax = 50L,
                   backfit = FALSE,
@@ -226,8 +226,8 @@ flash <- function(data,
                   verbose = 1L) {
   fl <- flash_init(data, S = S, var_type = var_type)
 
-  fl <- flash.add.greedy(fl, Kmax = greedy.Kmax, ebnm.fn = ebnm.fn,
-                         verbose = verbose)
+  fl <- flash_greedy(fl, Kmax = greedy.Kmax, ebnm_fn = ebnm_fn,
+                     verbose = verbose)
 
   if (backfit) {
     fl <- flash.backfit(fl, verbose = verbose)

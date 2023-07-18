@@ -48,7 +48,7 @@ Jason Willwerscheid (2021), \emph{Empirical Bayes Matrix Factorization:
   Methods and Applications}. Ph.D. thesis, University of Chicago.
 }
 \seealso{
-\code{\link{flash_add_greedy}},
+\code{\link{flash_greedy}},
   \code{\link{flash_greedy_init_softImpute}},
   \code{\link{flash_greedy_init_irlba}}
 }

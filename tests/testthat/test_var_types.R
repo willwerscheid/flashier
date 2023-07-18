@@ -18,8 +18,8 @@ test_that("constant S + constant estimation works", {
 
 test_that("by column S + by column estimation works", {
   tau = c(rep(50, 10), rep(250, p - 10))
-  f <- flash.init(M, S = 1 / sqrt(tau), S.dim = 2, var.type = 2) %>%
-    flash.add.greedy(1, verbose = 0)
+  f <- flash_init(M, S = 1 / sqrt(tau), S.dim = 2, var.type = 2) %>%
+    flash_greedy(1, verbose = 0)
   expect_equal(f$flash.fit$tau[1:10], rep(50, 10))
   expect_equal(f$flash.fit$tau[-(1:10)], f$flash.fit$est.tau[-(1:10)])
 })
@@ -59,8 +59,8 @@ test_that("fixed + by_column estimation works", {
 })
 
 test_that("fixed + kronecker estimation works", {
-  f.kron <- flash.init(M, var.type = c(1, 2))
-  f.noisy <- flash.init(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
+  f.kron <- flash_init(M, var.type = c(1, 2))
+  f.noisy <- flash_init(M, S = matrix(0.01, nrow = nrow(M), ncol = ncol(M)),
                         var.type = c(1, 2))
 
   expect_equal(r1.expand(f.kron$flash.fit$tau), f.noisy$flash.fit$tau, tol = 0.01, scale = 1)

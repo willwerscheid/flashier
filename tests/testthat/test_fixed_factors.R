@@ -15,9 +15,9 @@ M <- LF + 0.1 * rnorm(n * p)
 EF1 <- cbind(1, 1:n)
 EF2 <- t(solve(crossprod(EF1), crossprod(EF1, M)))
 
-fl <- flash.init(M) %>%
+fl <- flash_init(M) %>%
   flash_set_verbose(0) %>%
-  flash.init.factors(list(EF1, EF2)) %>%
+  flash_factors_init(list(EF1, EF2)) %>%
   flash_factors_fix(1:2, mode = 1) %>%
   flash.backfit()
 
@@ -26,10 +26,10 @@ test_that("Fixed factors are correctly added to a new flash object", {
   expect_equal(fl$flash.fit$EF[[1]][, 2], 1:n)
 })
 
-fl <- flash.init(M) %>%
+fl <- flash_init(M) %>%
   flash_set_verbose(0) %>%
-  flash.add.greedy(1) %>%
-  flash.init.factors(list(EF1, EF2)) %>%
+  flash_greedy(1) %>%
+  flash_factors_init(list(EF1, EF2)) %>%
   flash_factors_fix(2:3, mode = 1) %>%
   flash.backfit()
 
