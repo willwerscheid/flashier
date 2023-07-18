@@ -12,9 +12,6 @@
 \item{...}{Additional parameters are ignored.}
 }
 \description{
-Given a \code{flash} object, returns the "fitted values"
+Given a \code{\link{flash}} object, returns the "fitted values"
   \eqn{E(LF') = E(L) E(F)'}.
-}
-\seealso{
-\code{\link{flash}}
 }

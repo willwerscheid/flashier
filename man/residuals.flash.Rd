@@ -12,9 +12,6 @@
 \item{...}{Additional parameters are ignored.}
 }
 \description{
-Given a \code{flash} object, returns the expected residuals
+Given a \code{\link{flash}} object, returns the expected residuals
   \eqn{Y - E(LF') = Y - E(L) E(F)'}.
-}
-\seealso{
-\code{\link{flash}}
 }

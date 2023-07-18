@@ -3,26 +3,32 @@
 \name{ldf}
 \alias{ldf}
 \alias{ldf.flash}
-\alias{ldf.flash.fit}
+\alias{ldf.flash_fit}
 \title{LDF method for flash and flash fit objects}
 \usage{
 ldf(object, type)
 
 \method{ldf}{flash}(object, type = "f")
 
-\method{ldf}{flash.fit}(object, type = "f")
+\method{ldf}{flash_fit}(object, type = "f")
 }
 \arguments{
 \item{object}{An object inheriting from class \code{flash} or
-\code{flash.fit}.}
+\code{flash_fit}.}
 
 \item{type}{Takes identical arguments to function \code{\link[base]{norm}}. Use
 \code{"f"} or \code{"2"} for the 2-norm (Euclidean norm); \code{"o"} or
 \code{"1"} for the 1-norm (taxicab norm); and \code{"i"} or \code{"m"} for
 the infinity norm (maximum norm).}
 }
+\value{
+A list with fields \code{L}, \code{D}, and \code{F}, each of which
+  contains one of the matrices in the decomposition \eqn{Y \approx LDF'},
+  with the columns of \eqn{L} and \eqn{F} scaled according to
+  the argument to parameter \code{type}.
+}
 \description{
-Given a \code{flash} or \code{flash.fit} object, returns the LDF
+Given a \code{\link{flash}} or \code{\link{flash_fit}} object, returns the LDF
   decomposition \eqn{Y \approx LDF'}.
 }
 \details{
@@ -38,11 +44,8 @@ Method \code{ldf} scales columns \eqn{\ell_k} and \eqn{f_k}
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ldf(flash)}: LDF decomposition for flash objects
+\item \code{ldf(flash)}: LDF decomposition for \code{\link{flash}} objects
 
-\item \code{ldf(flash.fit)}: LDF decomposition for flash fit objects
+\item \code{ldf(flash_fit)}: LDF decomposition for \code{\link{flash_fit}} objects
 
 }}
-\seealso{
-\code{\link{flash}}
-}

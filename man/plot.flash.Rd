@@ -6,73 +6,76 @@
 \usage{
 \method{plot}{flash}(
   x,
-  incl.scree = TRUE,
-  incl.pm = TRUE,
-  order.by.pve = TRUE,
+  include_scree = TRUE,
+  include_pm = TRUE,
+  order_by_pve = TRUE,
   kset = NULL,
-  pm.which = c("factors", "loadings"),
-  pm.subset = NULL,
-  pm.groups = NULL,
-  pm.colors = NULL,
+  pm_which = c("factors", "loadings"),
+  pm_subset = NULL,
+  pm_groups = NULL,
+  pm_colors = NULL,
   ...
 )
 }
 \arguments{
 \item{x}{An object inheriting from class \code{flash}.}
 
-\item{incl.scree}{Whether to include a figure showing the proportion of
-variance explained by each factor/loadings pair ("scree plot").}
+\item{include_scree}{Whether to include a figure ("scree plot") showing the
+proportion of variance explained by each factor/loadings pair.}
 
-\item{incl.pm}{Whether to include a figure showing the posterior means for
+\item{include_pm}{Whether to include a figure showing the posterior means for
 either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
-\code{pm.which}). If argument \code{pm.groups}
+parameter \code{pm_which}). One plot panel is produced for each
+factor/loadings pair \eqn{k}. If argument \code{pm_groups}
 is left unspecified, then bar plots will be produced, with each bar
 corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
 Otherwise, overlapping histograms will be
 produced, with each histogram corresponding to one of the groups
-specified by \code{pm.groups}. One plot is produced for each
-factor/loadings pair \eqn{k}.}
+specified by \code{pm_groups}.}
 
-\item{order.by.pve}{If \code{TRUE}, then the factor/loadings pairs will be
+\item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
 
 \item{kset}{A vector of integers specifying the factor/loadings pairs to be
 plotted. If \code{kset = NULL}, then all will be plotted.}
 
-\item{pm.which}{Whether to plot loadings \eqn{L} or factors \eqn{F} in the
-plots of posterior means.}
+\item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F} in the
+plots of posterior means.
+This parameter is ignored when \code{include_pm = FALSE}.}
 
-\item{pm.subset}{A vector of loading indices \eqn{i} or factor indices
-\eqn{j} (depending on the argument to \code{pm.which})
+\item{pm_subset}{A vector of row indices \eqn{i} or column indices
+\eqn{j} (depending on the argument to \code{pm_which})
 specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
 to be shown in the plots of posterior means. If the dataset has row or
 column names, then names rather than indices may be specified. If
-\code{pm.subset = NULL}, then all values will be plotted.}
+\code{pm_subset = NULL}, then all values will be plotted.
+This parameter is ignored when \code{include_pm = FALSE}.}
 
-\item{pm.groups}{A vector specifying the group to which each row
-\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} of the data belongs
-(groups may be numeric indices or strings). If \code{pm.groups = NULL},
-then a bar plot of the ungrouped data will be produced (see \code{incl.pm}
-above). Otherwise, a group must be provided for each observation, so that
-the length of \code{pm.groups} is exactly equal to the number of rows or
-columns in the full dataset or, if \code{pm.subset} is specified, in the
-subsetted dataset. If \code{pm.groups} is not \code{NULL}, then a set of
-overlapping histograms will be produced for each factor/loadings pair, with
-one histogram per group (again see \code{incl.pm}).}
+\item{pm_groups}{A vector specifying the group to which each row of the data
+\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs
+(groups may be numeric indices or strings). If \code{pm_groups = NULL},
+then a bar plot of the ungrouped data is produced (see \code{include_pm}
+above). Otherwise, a group must be provided for each plotted row \eqn{i} or
+column \eqn{j}, so that
+the length of \code{pm_groups} is exactly equal to the number of rows or
+columns in the full dataset or, if \code{pm_subset} is specified, in the
+subsetted dataset. When \code{pm_groups} is not \code{NULL}, a set of
+overlapping histograms is produced for each factor/loadings pair, with
+one histogram per group (again see \code{include_pm}).
+This parameter is ignored when \code{include_pm = FALSE}.}
 
-\item{pm.colors}{A vector specifying a color for each bar (if
-\code{pm.groups = NULL}) or histogram (if \code{pm.groups} is not
-\code{NULL}). Passed directly to argument \code{values} in \strong{ggplot2}
-function \code{\link[ggplot2]{scale_color_manual}}.}
+\item{pm_colors}{A vector specifying a color for each bar (if
+\code{pm_groups = NULL}) or histogram (if \code{pm_groups} is not
+\code{NULL}). Passed directly to parameter \code{values} in \strong{ggplot2}
+function \code{\link[ggplot2]{scale_color_manual}}.
+This parameter is ignored when \code{include_pm = FALSE}.}
 
 \item{...}{Additional parameters are ignored.}
 }
 \description{
 Given a \code{\link{flash}} object, produces up to two figures: one showing
-  the proportion of variance explained per factor, and one that plots
-  posterior means.
-}
-\seealso{
-\code{\link{flash}}
+  the proportion of variance explained per factor/loadings pair, and one that
+  plots posterior means for either factors or loadings (depending on the
+  argument to parameter \code{pm_which}).
 }
