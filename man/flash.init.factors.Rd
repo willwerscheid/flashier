@@ -53,7 +53,7 @@ Initializes factor/loadings pairs at values specified by \code{init}. This
   a better fit than adding them one at a time via
   \code{\link{flash.add.greedy}}. 2. One can initialize factor/loadings pairs
   and then fix the factor (or loadings) via function
-  \code{\link{flash.fix.factors}} to incorporate "known" factors into a
+  \code{\link{flash_factors_fix}} to incorporate "known" factors into a
   \code{flash} object. See below for examples of both use cases.
 }
 \examples{
@@ -72,7 +72,7 @@ ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 ls.soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
 fl <- flash_init(gtex) \%>\%
   flash.init.factors(init = list(ones, ls.soln)) \%>\%
-  flash.fix.factors(kset = 1, mode = 1L) \%>\%
+  flash_factors_fix(kset = 1, mode = 1L) \%>\%
   flash.backfit() \%>\%
   flash.add.greedy(Kmax = 5L)
 
