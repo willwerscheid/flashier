@@ -28,7 +28,7 @@ test_that("nullcheck works as expected", {
   f <- flash.init(M) %>%
     flash_set_verbose(0) %>%
     flash.init.factors(list(EF1, EF2)) %>%
-    flash.fix.factors(kset = 1:3, mode = 1, is.fixed = is.fixed) %>%
+    flash_factors_fix(kset = 1:3, mode = 1, is.fixed = is.fixed) %>%
     flash.backfit(verbose = 0)
 
   f <- flash_nullcheck(f, remove = TRUE)
