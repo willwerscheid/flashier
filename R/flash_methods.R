@@ -163,9 +163,16 @@ plot.flash <- function(x,
     }
 
     pm.df <- data.frame(val = val) %>%
-      rownames_to_column(var = "Name") %>%
-      pivot_longer(-Name, names_to = "k", values_to = "val") %>%
-      mutate(k = as.numeric(str_remove(k, "val."))) %>%
+      rownames_to_column(var = "Name")
+    if (length(kset) > 1) {
+      pm.df <- pm.df %>%
+        pivot_longer(-Name, names_to = "k", values_to = "val") %>%
+        mutate(k = as.numeric(str_remove(k, "val.")))
+    } else {
+      pm.df <- pm.df %>%
+        mutate(k = kset)
+    }
+    pm.df <- pm.df %>%
       left_join(pve.df, by = "k")
 
     if (is.null(pm_groups)) {
@@ -174,16 +181,16 @@ plot.flash <- function(x,
                 " readable plot.")
       }
       if (is.null(pm_colors)) {
-        p2 <- ggplot(pm.df) +
-          geom_col(aes(x = Name, y = val), fill = "dodgerblue")
+        p2 <- ggplot(pm.df, aes(x = Name, y = val)) +
+          geom_col(fill = "dodgerblue")
       } else {
         if (length(pm_colors) < nrow(val)) {
           stop("Argument to pm_colors must be a vector consisting of one ",
                "color for each ", which.dim, " in the data (or each ",
                "subsetted ", which.dim, ").")
         }
-        p2 <- ggplot(pm.df) +
-          geom_col(aes(x = Name, y = val, fill = Name)) +
+        p2 <- ggplot(pm.df, aes(x = Name, y = val, fill = Name)) +
+          geom_col() +
           scale_fill_manual(values = pm_colors) +
           guides(fill = "none")
       }
@@ -201,11 +208,9 @@ plot.flash <- function(x,
       }
       pm.df <- pm.df %>%
         mutate(grp = rep(factor(pm_groups), each = length(kset)))
-      p2 <- ggplot(pm.df) +
-        geom_histogram(
-          aes(x = val, y = after_stat(density), color = grp, fill = grp),
-          position = "identity", bins = 20, alpha = 0.5
-        )
+      p2 <- ggplot(pm.df,
+                   aes(x = val, y = after_stat(density), color = grp, fill = grp)) +
+        geom_histogram(position = "identity", bins = 20, alpha = 0.5)
       if (is.null(pm_colors)) {
         if (length(unique(pm_groups)) > 9) {
           warning("Consider reducing the number of groups or defining a",
