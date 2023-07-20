@@ -14,6 +14,8 @@ Then have a look at:
 
 ```vignette("advanced", "flashier")```.
 
+Please note that function names changed in Version 0.2.44. If you are using `flashier` code from previous versions, please make the following substitutions:
+
 Old Name	| New Name
 --- | ---
 as.ebnm.fn | flash_ebnm
