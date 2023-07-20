@@ -117,6 +117,11 @@ flash_greedy <- function(flash,
   tol <- handle.tol.param(tol, flash)
   verbose.lvl <- handle.verbose.param(verbose, flash)
 
+  if (is.timed.out(flash)) {
+    report.timeout.no.greedy(verbose.lvl)
+    verbose.lvl <- 0
+  }
+
   must.be.integer(Kmax, lower = 1, allow.null = FALSE)
   must.be.integer(maxiter, lower = 1, allow.null = FALSE)
   must.be.integer(verbose.lvl, lower = -1, upper = 3, allow.null = FALSE)
@@ -152,7 +157,7 @@ flash_greedy <- function(flash,
   factors.added <- 0
   greedy.failed <- FALSE
 
-  while (factors.added < Kmax && !greedy.failed) {
+  while (factors.added < Kmax && !greedy.failed && !is.timed.out(flash)) {
     announce.add.factor(verbose.lvl, k = get.next.k(flash))
 
     factor <- init.factor(flash, init_fn)
@@ -170,7 +175,7 @@ flash_greedy <- function(flash,
       old.f <- factor
       extrapolate.param <- init.beta(extrapolate.param)
     }
-    while (conv.crit > tol && iter < maxiter) {
+    while (conv.crit > tol && iter < maxiter && !is.timed.out(flash)) {
       iter <- iter + 1
 
       if (extrapolate) {
@@ -204,6 +209,12 @@ flash_greedy <- function(flash,
                         info,
                         get.next.k(flash),
                         backfit = FALSE)
+    }
+
+    if (is.timed.out(flash)) {
+      t.diff <- Sys.time() - get.timeout.set.time(flash)
+      report.timeout.reached(verbose.lvl, t.diff)
+      flash <- set.timeout.reached.flag(flash)
     }
 
     if (iter == maxiter) {

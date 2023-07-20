@@ -178,7 +178,14 @@ get.conv.tol <- function(f) {
   f <- get.fit(f)
   f[["conv.tol"]]
 }
-
+get.timeout <- function(f) {
+  f <- get.fit(f)
+  f[["timeout"]]
+}
+get.timeout.set.time <- function(f) {
+  f <- get.fit(f)
+  f[["timeout.set"]]
+}
 
 # Additional getters that are only used by factors ----------------------------
 
@@ -620,6 +627,22 @@ clear.bypass.init.flag <- function(f) {
   f[["bypass.init"]] <- NULL
   return(f)
 }
+set.max.backfit.iter.reached.flag <- function(f) {
+  f[["maxiter.reached"]] <- TRUE
+  return(f)
+}
+clear.max.backfit.iter.reached.flag <- function(f) {
+  f[["maxiter.reached"]] <- NULL
+  return(f)
+}
+set.timeout.reached.flag <- function(f) {
+  f[["timeout.reached"]] <- TRUE
+  return(f)
+}
+clear.timeout.reached.flag <- function(f) {
+  f[["timeout.reached"]] <- NULL
+  return(f)
+}
 add.subset.data <- function(factor, flash, fix.dim, idx.subset) {
   factor[["subset.data"]] <- get.subset.data(flash, fix.dim, idx.subset)
   factor[["idx.subset"]]  <- NULL
@@ -645,12 +668,9 @@ set.conv.crit <- function(f, fn, tol) {
   f[["conv.tol"]] <- tol
   return(f)
 }
-set.max.backfit.iter.reached.flag <- function(f) {
-  f[["maxiter.reached"]] <- TRUE
-  return(f)
-}
-clear.max.backfit.iter.reached.flag <- function(f) {
-  f[["maxiter.reached"]] <- NULL
+set.timeout <- function(f, tim) {
+  f[["timeout"]] <- tim
+  f[["timeout.set"]] <- Sys.time()
   return(f)
 }
 

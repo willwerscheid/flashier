@@ -48,6 +48,30 @@ report.maxiter.reached <- function(verbose.lvl) {
   }
 }
 
+report.timeout.reached <- function(verbose.lvl, t.diff) {
+  if (verbose.lvl > 0) {
+    cat("  --Fit timed out after", format(t.diff), "!\n")
+  } else {
+    warning("Fit timed out after ", format(t.diff), ".")
+  }
+}
+
+report.timeout.no.greedy <- function(verbose.lvl) {
+  if (verbose.lvl > 0) {
+    cat("Fit timed out. Skipping greedy fit.\n")
+  } else {
+    warning("Fit timed out. Greedy fit skipped.")
+  }
+}
+
+report.timeout.no.backfit <- function(verbose.lvl) {
+  if (verbose.lvl > 0) {
+    cat("Fit timed out. Skipping backfit.\n")
+  } else {
+    warning("Fit timed out. Backfit skipped.")
+  }
+}
+
 report.backfit.obj.decrease <- function(verbose.lvl, obj.diff, k) {
   if (verbose.lvl > 0)
     cat("An update to factor ", k, " decreased the objective by ",

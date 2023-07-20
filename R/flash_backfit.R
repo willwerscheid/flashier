@@ -60,6 +60,11 @@ flash_backfit <- function(flash,
   tol <- handle.tol.param(tol, flash)
   verbose.lvl <- handle.verbose.param(verbose, flash)
 
+  if (is.timed.out(flash)) {
+    report.timeout.no.backfit(verbose.lvl)
+    verbose.lvl <- 0
+  }
+
   if (is.null(kset)) {
     if (get.n.factors(flash) > 0) {
       kset <- 1:get.n.factors(flash)
@@ -130,7 +135,7 @@ flash_backfit <- function(flash,
     extrapolate.param <- init.beta(extrapolate.param)
     old.f <- flash
   }
-  while (iter < maxiter && max(conv.crit) > tol) {
+  while (iter < maxiter && max(conv.crit) > tol && !is.timed.out(flash)) {
     iter <- iter + 1
 
     kset <- get.next.kset(method, kset, conv.crit, tol)
@@ -194,8 +199,10 @@ flash_backfit <- function(flash,
     }
   }
 
-  if (method == "parallel") {
-    parallel::stopCluster(cl)
+  if (iter > 0 && is.timed.out(flash)) {
+    t.diff <- Sys.time() - get.timeout.set.time(flash)
+    report.timeout.reached(verbose.lvl, t.diff)
+    flash <- set.timeout.reached.flag(flash)
   }
 
   if (iter == maxiter) {
@@ -203,6 +210,10 @@ flash_backfit <- function(flash,
     flash <- set.max.backfit.iter.reached.flag(flash)
   } else {
     flash <- clear.max.backfit.iter.reached.flag(flash)
+  }
+
+  if (method == "parallel") {
+    parallel::stopCluster(cl)
   }
 
   if (get.obj(flash) > old.obj) {
