@@ -15,6 +15,7 @@ Then have a look at:
 ```vignette("advanced", "flashier")```.
 
 OLD NAME	| NEW NAME
+--- | ---
 as.ebnm.fn | flash_ebnm
 conv.crit.elbo	| flash_conv_crit_elbo_diff
 conv.crit.factors	| flash_conv_crit_max_chg_F
