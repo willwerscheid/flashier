@@ -45,9 +45,8 @@ after each greedy/backfit iteration when \code{verbose} is either -1 or 3
 The \code{\link{flash}} object from argument \code{flash}, with the
   new verbose settings reflected in updates to the "internal"
   \code{flash_fit} object. These settings will persist across
-  all subsequent calls to \code{flash_xxx} functions in the same
-  \code{flash} pipeline (unless, of course, \code{flash_set_verbose} is
-  again called within the same pipeline).
+  all subsequent calls to \code{flash_xxx} functions until they are modified
+  by another call to \code{flash_set_verbose}.
 }
 \description{
 Used in a \code{\link{flash}} pipeline to set the output that will be printed
