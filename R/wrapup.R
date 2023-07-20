@@ -3,6 +3,7 @@ wrapup.flash <- function(flash, output.lvl) {
 
   if (output.lvl == 0) {
     flash <- set.bypass.init.flag(flash)
+    flash$t.final <- Sys.time()
     return(flash)
   }
 
@@ -83,6 +84,7 @@ wrapup.flash <- function(flash, output.lvl) {
     flash <- remove.auxiliary.elements(flash)
   }
 
+  flash$t.final <- Sys.time()
   flash.object$flash_fit <- flash
 
   class(flash.object) <- list("flash", "list")

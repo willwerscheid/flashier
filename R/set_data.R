@@ -6,6 +6,8 @@
 #   also contain fields "given.S2" or "given.tau" and "given.tau.dim".
 #
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
+  flash.data <- list(t.init = Sys.time(), t.final = Sys.time())
+
   must.be.supported.data.type(data, allow.null = FALSE, allow.lowrank = TRUE)
   must.be.supported.data.type(S, allow.vector = TRUE)
   must.be.compatible.data.types(data, S)
@@ -24,7 +26,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   must.be.valid.var.type(var.type, length(data.dim))
 
   # Set Y, Z, and est.tau.dim.
-  flash.data <- list(Y = data)
+  flash.data$Y <- data
   if (anyNA(data)) {
     flash.data$Y[is.na(data)] <- 0
     flash.data$Z <- 1L * !is.na(data)
