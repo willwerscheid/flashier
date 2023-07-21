@@ -24,8 +24,6 @@
 #'   \code{flash_set_timeout}.
 #'
 #' @examples
-#' data(gtex)
-#'
 #' fl <- flash_init(gtex) %>%
 #'   flash_set_timeout(1, "secs") %>%
 #'   flash_greedy(Kmax = 30) %>%

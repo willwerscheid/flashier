@@ -73,8 +73,6 @@
 #'   by another call to \code{flash_set_verbose}.
 #'
 #' @examples
-#' data(gtex)
-#'
 #' # Suppress all verbose output.
 #' fl <- flash_init(gtex) %>%
 #'   flash_set_verbose(0) %>%

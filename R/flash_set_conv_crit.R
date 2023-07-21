@@ -79,8 +79,6 @@
 #'   again called within the same pipeline).
 #'
 #' @examples
-#' data(gtex)
-#'
 #' fl <- flash_init(gtex) %>%
 #'   flash_set_conv_crit(flash_conv_crit_max_chg, tol = 1e-3) %>%
 #'   flash_set_verbose(

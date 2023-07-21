@@ -58,8 +58,6 @@ Initializes factor/loadings pairs at values specified by \code{init}. This
   \code{\link{flash}} object. See below for examples of both use cases.
 }
 \examples{
-data(gtex)
-
 # Initialize several factors at once and backfit.
 fl <- flash_init(gtex) \%>\%
   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) \%>\%

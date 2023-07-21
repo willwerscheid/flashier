@@ -89,8 +89,6 @@ Function \code{flash_set_verbose} can be used to customize
   to displayed; see \strong{Examples} below.
 }
 \examples{
-data(gtex)
-
 # Suppress all verbose output.
 fl <- flash_init(gtex) \%>\%
   flash_set_verbose(0) \%>\%

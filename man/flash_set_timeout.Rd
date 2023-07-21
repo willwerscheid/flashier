@@ -37,8 +37,6 @@ Used in a \code{\link{flash}} pipeline to set a maximum amount of fitting
   before any re-fitting is attempted.
 }
 \examples{
-data(gtex)
-
 fl <- flash_init(gtex) \%>\%
   flash_set_timeout(1, "secs") \%>\%
   flash_greedy(Kmax = 30) \%>\%

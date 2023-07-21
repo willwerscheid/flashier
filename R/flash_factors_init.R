@@ -32,8 +32,6 @@
 #'   factors and loadings initialized as specified.
 #'
 #' @examples
-#' data(gtex)
-#'
 #' # Initialize several factors at once and backfit.
 #' fl <- flash_init(gtex) %>%
 #'   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) %>%
