@@ -296,7 +296,9 @@ is.var.type.noisy.kron <- function(f) {
          && (length(get.est.tau.dim(f)) > 1))
 }
 is.tau.constant <- function(f) {
-  return(!is.null(get.est.tau.dim(f)) && get.est.tau.dim(f) == 0)
+  return(!is.null(get.est.tau.dim(f))
+         && length(get.est.tau.dim(f)) == 1
+         && get.est.tau.dim(f) == 0)
 }
 is.tau.simple <- function(f) {
   if (is.var.type.noisy(f) || is.var.type.noisy.kron(f))
