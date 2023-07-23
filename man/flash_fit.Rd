@@ -70,37 +70,37 @@ The following S3 methods are available for \code{flash_fit} objects at all
 }
 \section{Functions}{
 \itemize{
-\item \code{flash_fit_get_pm()}: The posterior means for the loadings matrix \eqn{L}
+\item \code{flash_fit_get_pm}: The posterior means for the loadings matrix \eqn{L}
 (when parameter \code{n} is equal to \code{1}) or factor matrix \eqn{F}
 (when \code{n = 2}). While optimizing new factor/loadings pairs as part of
 a "greedy" fit, only the posterior means for the new loadings
 \eqn{\ell_{\cdot k}} or factor \eqn{f_{\cdot k}} will be returned.
 
-\item \code{flash_fit_get_p2m()}: The posterior second moments for the loadings matrix
+\item \code{flash_fit_get_p2m}: The posterior second moments for the loadings matrix
 \eqn{L} (when parameter \code{n} is equal to \code{1}) or factor matrix
 \eqn{F} (when \code{n = 2}). While optimizing new factor/loadings pairs,
 only the posterior second moments for the new loadings \eqn{\ell_{\cdot k}}
 or factor \eqn{f_{\cdot k}} will be returned.
 
-\item \code{flash_fit_get_est_tau()}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
+\item \code{flash_fit_get_est_tau}: Equal to \eqn{1 / \sigma^2}, where \eqn{\sigma^2}
 is the estimated portion of the residual variance (total, by row, or
 by column, depending on the variance type).
 
-\item \code{flash_fit_get_fixed_tau()}: Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
+\item \code{flash_fit_get_fixed_tau}: Equal to \eqn{1 / s^2}, where \eqn{s^2} is the
 fixed portion of the residual variance (total, by row, or by column).
 
-\item \code{flash_fit_get_tau()}: The overall precision \eqn{1 / (\sigma^2 + s^2)}.
+\item \code{flash_fit_get_tau}: The overall precision \eqn{1 / (\sigma^2 + s^2)}.
 
-\item \code{flash_fit_get_elbo()}: The variational lower bound (ELBO).
+\item \code{flash_fit_get_elbo}: The variational lower bound (ELBO).
 
-\item \code{flash_fit_get_KL()}: A vector containing the KL-divergence portions of
+\item \code{flash_fit_get_KL}: A vector containing the KL-divergence portions of
 the ELBO, with one value for each factor (when \code{n = 2}) or set of
 loadings (when \code{n = 1}). While optimizing new factor/loadings pairs,
 only the KL-divergence for the new factor or loadings will be returned.
 
-\item \code{flash_fit_get_g()}: A list containing estimated priors on loadings
+\item \code{flash_fit_get_g}: A list containing estimated priors on loadings
 \eqn{\hat{g}_\ell} (when \code{n = 1}) or factors \eqn{\hat{g}_f} (when
 \code{n = 2}). While optimizing new factor/loadings pairs, only the
 estimated prior on the new factor or loadings will be returned.
-
 }}
+
