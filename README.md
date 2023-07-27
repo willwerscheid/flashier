@@ -1,20 +1,8 @@
 # flashier
 
-This package is in active development. The interface is likely to change from time to time.
+Functions documentation and vignettes are available [here](https://willwerscheid.github.io/flashier/).
 
-Install using:
-
-```devtools::install_github("willwerscheid/flashier", build_vignettes = TRUE)```.
-
-The vignettes take around 2 minutes to build. Start with:
-
-```vignette("intro", "flashier")```.
-
-Then have a look at:
-
-```vignette("advanced", "flashier")```.
-
-Please note that function names changed in Version 0.2.44. If you are using `flashier` code from previous versions, please make the following substitutions:
+Please note that function names changed in Version 0.2.44. If you are using `flashier` code from previous versions, please make the following substitutions, and note that many parameter names have changed as well:
 
 Old Name	| New Name
 --- | ---
@@ -49,6 +37,3 @@ flash.set.verbose	| flash_set_verbose
 init.fn.default	| flash_greedy_init_default
 init.fn.irlba	| flash_greedy_init_irlba
 init.fn.softImpute	| flash_greedy_init_softImpute
-
-Parameter names have changed as well. Please see the documentation for details.
-

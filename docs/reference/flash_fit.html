@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.49</span>
       </span>
     </div>
 
@@ -41,6 +41,12 @@
 </li>
 <li>
   <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../articles/intro.html">Getting Started</a>
+</li>
+<li>
+  <a href="../articles/advanced.html">Advanced flashier</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/willwerscheid/flashier" class="external-link">Source</a>
@@ -78,23 +84,23 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_fit</span><span class="op">(</span><span class="va">flash</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_pm</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_p2m</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_est_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_fixed_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_elbo</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_KL</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
-
-<span class="fu">flash_fit_get_g</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_fit</span><span class="op">(</span><span class="va">flash</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_pm</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_p2m</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_est_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_fixed_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_elbo</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_KL</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">flash_fit_get_g</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -133,28 +139,28 @@ access factors \(F\)).</p></dd>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>flash_fit_get_pm</code>: The posterior means for the loadings matrix \(L\)
+<ul><li><p><code>flash_fit_get_pm()</code>: The posterior means for the loadings matrix \(L\)
 (when parameter <code>n</code> is equal to <code>1</code>) or factor matrix \(F\)
 (when <code>n = 2</code>). While optimizing new factor/loadings pairs as part of
 a "greedy" fit, only the posterior means for the new loadings
 \(\ell_{\cdot k}\) or factor \(f_{\cdot k}\) will be returned.</p></li>
-<li><p><code>flash_fit_get_p2m</code>: The posterior second moments for the loadings matrix
+<li><p><code>flash_fit_get_p2m()</code>: The posterior second moments for the loadings matrix
 \(L\) (when parameter <code>n</code> is equal to <code>1</code>) or factor matrix
 \(F\) (when <code>n = 2</code>). While optimizing new factor/loadings pairs,
 only the posterior second moments for the new loadings \(\ell_{\cdot k}\)
 or factor \(f_{\cdot k}\) will be returned.</p></li>
-<li><p><code>flash_fit_get_est_tau</code>: Equal to \(1 / \sigma^2\), where \(\sigma^2\)
+<li><p><code>flash_fit_get_est_tau()</code>: Equal to \(1 / \sigma^2\), where \(\sigma^2\)
 is the estimated portion of the residual variance (total, by row, or
 by column, depending on the variance type).</p></li>
-<li><p><code>flash_fit_get_fixed_tau</code>: Equal to \(1 / s^2\), where \(s^2\) is the
+<li><p><code>flash_fit_get_fixed_tau()</code>: Equal to \(1 / s^2\), where \(s^2\) is the
 fixed portion of the residual variance (total, by row, or by column).</p></li>
-<li><p><code>flash_fit_get_tau</code>: The overall precision \(1 / (\sigma^2 + s^2)\).</p></li>
-<li><p><code>flash_fit_get_elbo</code>: The variational lower bound (ELBO).</p></li>
-<li><p><code>flash_fit_get_KL</code>: A vector containing the KL-divergence portions of
+<li><p><code>flash_fit_get_tau()</code>: The overall precision \(1 / (\sigma^2 + s^2)\).</p></li>
+<li><p><code>flash_fit_get_elbo()</code>: The variational lower bound (ELBO).</p></li>
+<li><p><code>flash_fit_get_KL()</code>: A vector containing the KL-divergence portions of
 the ELBO, with one value for each factor (when <code>n = 2</code>) or set of
 loadings (when <code>n = 1</code>). While optimizing new factor/loadings pairs,
 only the KL-divergence for the new factor or loadings will be returned.</p></li>
-<li><p><code>flash_fit_get_g</code>: A list containing estimated priors on loadings
+<li><p><code>flash_fit_get_g()</code>: A list containing estimated priors on loadings
 \(\hat{g}_\ell\) (when <code>n = 1</code>) or factors \(\hat{g}_f\) (when
 <code>n = 2</code>). While optimizing new factor/loadings pairs, only the
 estimated prior on the new factor or loadings will be returned.</p></li>
