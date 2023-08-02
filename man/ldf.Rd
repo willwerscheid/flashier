@@ -44,8 +44,8 @@ Method \code{ldf} scales columns \eqn{\ell_k} and \eqn{f_k}
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{ldf(flash)}: LDF decomposition for \code{\link{flash}} objects
+\item \code{flash}: LDF decomposition for \code{\link{flash}} objects
 
-\item \code{ldf(flash_fit)}: LDF decomposition for \code{\link{flash_fit}} objects
-
+\item \code{flash_fit}: LDF decomposition for \code{\link{flash_fit}} objects
 }}
+

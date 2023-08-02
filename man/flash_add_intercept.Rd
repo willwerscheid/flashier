@@ -29,13 +29,13 @@ Adds an all-ones vector as a fixed set of loadings (if \code{rowwise = TRUE})
   a fixed set of loadings gives:
   \deqn{\mathbf{y}_{i \cdot} \approx \mathbf{f}_1 + \sum_{k = 2}^K \ell_{i k}
   \mathbf{f}_k,}
-  so that the (estimated) factor \eqn{\mathbf{f}_1 \in \mathbb{R}^p} is shared
-  by all row-wise observations \eqn{\mathbf{y}_{i \cdot} \in \mathbb{R}^p}.
+  so that the (estimated) factor \eqn{\mathbf{f}_1 \in \mathbf{R}^p} is shared
+  by all row-wise observations \eqn{\mathbf{y}_{i \cdot} \in \mathbf{R}^p}.
   A fixed factor gives:
   \deqn{\mathbf{y}_{\cdot j} \approx \boldsymbol{\ell}_1 + \sum_{k = 2}^K f_{j k}
   \boldsymbol{\ell}_k,}
-  so that the (estimated) set of loadings \eqn{\ell_1 \in \mathbb{R}^n} is
-  shared by all column-wise observations \eqn{y_{\cdot j} \in \mathbb{R}^n}.
+  so that the (estimated) set of loadings \eqn{\ell_1 \in \mathbf{R}^n} is
+  shared by all column-wise observations \eqn{y_{\cdot j} \in \mathbf{R}^n}.
 }
 \details{
 The estimated factor (if \code{rowwise = TRUE}) or set of loadings
