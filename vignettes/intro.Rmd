@@ -1,7 +1,7 @@
 ---
 title: "Introduction to flashier"
 author: "Jason Willwerscheid"
-date: "07/24/2023"
+date: "09/11/2023"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -14,15 +14,20 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       fig.width = 6, fig.height = 6, warning = FALSE)
+```
+
+In addition to `flashier`, we will make use of package `cowplot` below in order to arrange plots into grids:
+
+```{r load_packages}
 library(flashier)
-library(ggplot2)
 library(cowplot)
 ```
+
 
 ## The EBMF Model
 
 Empirical Bayes matrix factorization (Wang and Stephens, 2021) decomposes a data matrix $Y \in \mathbb{R}^{n \times p}$ as
-$$ Y = LF^T + E, $$
+$$ Y = LF' + E, $$
 with "loadings" $L \in \mathbb{R}^{n \times K}$, "factors" $F \in \mathbb{R}^{p \times K}$, and residual errors
 $$ e_{ij} \sim N(0, 1 / \tau_{ij}).$$
 The model puts priors on each factor and each set of loadings:
@@ -87,7 +92,7 @@ c(const_elbo = fit_default$elbo, bycol_elbo = fit_var_bycol$elbo)
 ```
 
 The most general possible assumption allowed by `flashier` is that the matrix of precision parameters $\tau_{ij}$ is an arbitrary rank-one matrix. That is, for each $i$ and $j$, $\tau_{ij} = \tau^{(1)}_i \tau^{(2)}_j$, where $\tau^{(1)}$ is a $n$-vector to be estimated and $\tau^{(2)}$ is a $p$-vector to be estimated. This assumption, which we refer to as the "Kronecker" variance assumption, can be motivated by noting that it describes a model in which residuals are distributed $e_{ij} \sim N(0, 1)$, but the rows and columns of $Y$ have each been scaled by some (unknown) constants: 
-$$ \text{diag} (\tau^{(1)}) Y \text{diag} (\tau^{(2)}) = L F^T + E.$$
+$$ \text{diag} (\tau^{(1)}) Y \text{diag} (\tau^{(2)}) = L F' + E.$$
 
 Just as the by-column assumption usually yields an increase in ELBO relative to the constant variance assumption, the Kronecker assumption will generally yield a higher ELBO than the by-column assumption:
 
@@ -103,6 +108,7 @@ p1 <- plot(
   fit_var_bycol, 
   pm_which = "factors", 
   pm_colors = gtex_colors, 
+  order_by_pve = FALSE,
   include_scree = FALSE
 ) + ggtitle("By-column variance assumption")
 
@@ -110,12 +116,28 @@ p2 <- plot(
   fit_var_kronecker, 
   pm_which = "factors", 
   pm_colors = gtex_colors, 
+  order_by_pve = FALSE,
   include_scree = FALSE
 ) + ggtitle("Kronecker variance assumption")
 
 plot_grid(p1, p2, nrow = 2)
 ```
 
+To compare the fits more directly, we can use function `ldf()` to extract factor values, with argument `type` set to `"m"` in order to match the values displayed by `plot.flash` (`"m"` stands for maximum norm; setting `type = "m"` scales the columns of $F$ so that the maximum absolute value over each column is equal to 1). A scatterplot confirms that estimates are very similar, with minor differences in factors 2, 4, and 5:
+
+```{r var.compare}
+comparison_df <- data.frame(
+  var_by_col = as.vector(ldf(fit_var_bycol, type = "m")$F),
+  var_kronecker = as.vector(ldf(fit_var_kronecker, type = "m")$F),
+  k = factor(rep(1:5, each = ncol(gtex)))
+)
+ggplot(comparison_df, aes(x = var_by_col, y = var_kronecker, col = k)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, linetype = "dashed") +
+  scale_color_brewer(palette = "Set1") +
+  labs(x = "By-column variance assumption", y = "Kronecker variance assumption") +
+  theme_minimal() 
+```
 
 ## Measurement error
 
@@ -236,7 +258,7 @@ fit_backfit <- flash(
 c(greedy_elbo = fit_greedy$elbo, bf_elbo = fit_backfit$elbo)
 ```
 
-Qualitatively, results can vary: for large, complex fits, the improvement can be considerable; for smaller fits, there might be few obvious differences. Interestingly, backfitting the semi-nonnegative fit from above produces a visually *less* appealing fit. We suspect that this occurs because 5 factor/loadings pairs is not enough to account for the structure in the data; if one increases `greedy_Kmax`, one obtains a more satisfying backfit.
+Qualitatively, results can vary: for large, complex fits, the improvement can be considerable; for smaller fits, there might be few obvious differences. Interestingly, backfitting the semi-nonnegative fit from above produces a *less* visually appealing fit. We suspect that this occurs because 5 factor/loadings pairs is not enough to account for the structure in the data; if one increases `greedy_Kmax`, one obtains a more satisfying backfit.
 
 ```{r backfit.plot}
 p1 <- plot(
@@ -257,6 +279,21 @@ p2 <- plot(
 plot_grid(p1, p2, nrow = 2)
 ```
 
+We again obtain a more direct comparison of fits using function `ldf()`. Here it is apparent that backfitting makes factor 2 less sparse by "borrowing" from factor 1. Other factors remain very similar:
+
+```{r bf.compare}
+comparison_df <- data.frame(
+  fit_greedy = as.vector(ldf(fit_greedy, type = "m")$F),
+  fit_backfit = as.vector(ldf(fit_backfit, type = "m")$F),
+  k = factor(rep(1:5, each = ncol(gtex)))
+)
+ggplot(comparison_df, aes(x = fit_greedy, y = fit_backfit, col = k)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, linetype = "dashed") +
+  scale_color_brewer(palette = "Set1") +
+  labs(x = "Greedy fit", y = "Backfit") +
+  theme_minimal() 
+```
 
 ## Sampling from the posterior
 

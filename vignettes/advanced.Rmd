@@ -1,7 +1,7 @@
 ---
 title: "Advanced flashier"
 author: "Jason Willwerscheid"
-date: "07/25/2023"
+date: "09/11/2023"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -14,9 +14,14 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       fig.width = 6, fig.height = 6, warning = FALSE)
+```
+
+In addition to `flashier`, we will make use of package `cowplot` for arranging plots into grids and package `dplyr` for wrangling fitting progress data:
+
+```{r load_packages, message=FALSE}
 library(flashier)
-library(ggplot2)
 library(cowplot)
+library(dplyr)
 ```
 
 
@@ -301,8 +306,6 @@ fit_custom$F_ghat
 Setting `verbose = -1` outputs a single tab-delimited table of values that makes it straightforward to analyze fitting progress. The code below backfits with and without extrapolation and then compares the per-iteration ELBO for each fit. (Since `sink` does not play well with R Markdown, this code is not evaluated.)
 
 ```{r plot.history, eval = FALSE}
-library(dplyr)
-
 sink("zz.tsv")
 tmp <- flash_init(gtex, var_type = 2) %>%
   flash_set_verbose(-1) %>%
