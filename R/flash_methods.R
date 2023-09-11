@@ -363,9 +363,11 @@ residuals.flash_fit <- function(object, ...) {
 #'   the infinity norm (maximum norm).
 #'
 #' @return A list with fields \code{L}, \code{D}, and \code{F}, each of which
-#'   contains one of the matrices in the decomposition \eqn{Y \approx LDF'},
-#'   with the columns of \eqn{L} and \eqn{F} scaled according to
-#'   the argument to parameter \code{type}.
+#'   corresponds to one of the matrices in the decomposition \eqn{Y \approx LDF'}
+#'   (with the columns of \eqn{L} and \eqn{F} scaled according to
+#'   argument \code{type}). Note that \code{D} is returned as a vector rather
+#'   than a matrix (the vector of diagonal entries in \eqn{D}). Thus, "fitted
+#'   values" \eqn{LDF'} can be recovered as \code{L \%*\% diag(D) \%*\% t(F)}.
 #'
 #' @export
 #'
