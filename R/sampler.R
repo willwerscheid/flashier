@@ -7,11 +7,16 @@ build.sampler <- function(flash) {
     samp <- rapply(all.post.samplers(flash),
                    function(f) do.call(f, list(nsamp = nsamp)),
                    how = "list")
+
     # Re-organize the list so that each element corresponds to a single sample.
     return(lapply(1:nsamp, function(trial) {
-      lapply(1:get.dim(flash),
+      retval <- lapply(1:get.dim(flash),
              function(n) do.call(cbind,
                                  lapply(samp[[n]], function(k) k[trial, ])))
+      if (get.dim(flash) == 2) {
+        names(retval) <- c("L", "F")
+      }
+      return(retval)
     }))
   })
 }
