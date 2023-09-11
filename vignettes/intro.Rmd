@@ -263,6 +263,8 @@ plot_grid(p1, p2, nrow = 2)
 One of the list elements in the object returned by `flash` is a function that can sample from posterior distributions on loadings and factors. Take the backfit above as an example. To better understand which tissues are bound up with whole blood effects, we might like confidence intervals for the third factor. We construct 95% confidence intervals using 200 samples and then finding 2.5% and 97.5% quantiles as follows:
 
 ```{r final.bf.ci}
+# Set seed for reproducibility.
+set.seed(1)
 # Use returned sampler to sample from posterior.
 samp <- fit_backfit$sampler(nsamp = 200)
 # Only keep factor 3.
