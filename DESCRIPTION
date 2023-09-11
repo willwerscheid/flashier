@@ -3,8 +3,13 @@ Type: Package
 Date: 2023-09-11
 Title: Empirical Bayes Matrix Factorization
 Version: 0.2.57
-Author: Jason Willwerscheid
-Maintainer: Jason Willwerscheid <willwerscheid@github.com>
+Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
+                    email = "jwillwer@providence.edu"),
+             person("Peter", "Carbonetto", role = "aut"),
+             person("Wei", "Wang", role = "aut"),
+             person("Matthew", "Stephens", role = "aut"),
+             person("Eric", "Weine", role = "ctb"),
+             person("Gao", "Wang", role = "ctb"))
 Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2021).
 Depends: 
