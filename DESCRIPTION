@@ -10,6 +10,8 @@ Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
              person("Matthew", "Stephens", role = "aut"),
              person("Eric", "Weine", role = "ctb"),
              person("Gao", "Wang", role = "ctb"))
+URL: https://github.com/willwerscheid/flashier
+BugReports: https://github.com/willwerscheid/flashier/issues
 Description: Methods for matrix factorization based on "Empirical
     Bayes Matrix Factorization" (W. Wang & M. Stephens, 2021).
 Depends: 
