@@ -18,7 +18,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.49</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.57</span>
       </span>
     </div>
 
@@ -48,7 +48,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set verbose output</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/willwerscheid/flashier/blob/HEAD/R/flash_set_verbose.R" class="external-link"><code>R/flash_set_verbose.R</code></a></small>
     <div class="hidden name"><code>flash_set_verbose.Rd</code></div>
     </div>
 
@@ -58,13 +58,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_set_verbose</span><span class="op">(</span></span>
-<span>  <span class="va">flash</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  fns <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  colnames <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  colwidths <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_set_verbose</span><span class="op">(</span>
+  <span class="va">flash</span>,
+  verbose <span class="op">=</span> <span class="fl">1L</span>,
+  fns <span class="op">=</span> <span class="cn">NULL</span>,
+  colnames <span class="op">=</span> <span class="cn">NULL</span>,
+  colwidths <span class="op">=</span> <span class="cn">NULL</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -156,36 +156,34 @@ after each greedy/backfit iteration when <code>verbose</code> is either -1 or 3
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Suppress all verbose output.</span></span></span>
-<span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_set_verbose</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Set custom verbose output.</span></span></span>
-<span class="r-in"><span><span class="va">sparsity_F</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">curr</span>, <span class="va">prev</span>, <span class="va">k</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">g_F</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_fit.html">flash_fit_get_g</a></span><span class="op">(</span><span class="va">curr</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">g_F_pi0</span> <span class="op">&lt;-</span> <span class="va">g_F</span><span class="op">$</span><span class="va">pi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="co"># Mixture weight of the "null" component.</span></span></span>
-<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">g_F_pi0</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="va">verbose_fns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">flash_verbose_max_chg_F</span>, <span class="va">sparsity_F</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">colnames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="st">"Max Chg (Tiss)"</span>, <span class="st">"Sparsity (Tiss)"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">colwidths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">18</span>, <span class="fl">18</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_set_verbose</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    verbose <span class="op">=</span> <span class="fl">3</span>,</span></span>
-<span class="r-in"><span>    fns <span class="op">=</span> <span class="va">verbose_fns</span>,</span></span>
-<span class="r-in"><span>    colnames <span class="op">=</span> <span class="va">colnames</span>,</span></span>
-<span class="r-in"><span>    colwidths <span class="op">=</span> <span class="va">colwidths</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># Suppress all verbose output.</span></span>
+<span class="r-in"><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu">flash_set_verbose</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># Set custom verbose output.</span></span>
+<span class="r-in"><span class="va">sparsity_F</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">curr</span>, <span class="va">prev</span>, <span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span class="r-in">  <span class="va">g_F</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_fit.html">flash_fit_get_g</a></span><span class="op">(</span><span class="va">curr</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in">  <span class="va">g_F_pi0</span> <span class="op">&lt;-</span> <span class="va">g_F</span><span class="op">$</span><span class="va">pi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="co"># Mixture weight of the "null" component.</span></span>
+<span class="r-in">  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">g_F_pi0</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">}</span></span>
+<span class="r-in"><span class="va">verbose_fns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">flash_verbose_max_chg_F</span>, <span class="va">sparsity_F</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">colnames</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="st">"Max Chg (Tiss)"</span>, <span class="st">"Sparsity (Tiss)"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">colwidths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">18</span>, <span class="fl">18</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu">flash_set_verbose</span><span class="op">(</span></span>
+<span class="r-in">    verbose <span class="op">=</span> <span class="fl">3</span>,</span>
+<span class="r-in">    fns <span class="op">=</span> <span class="va">verbose_fns</span>,</span>
+<span class="r-in">    colnames <span class="op">=</span> <span class="va">colnames</span>,</span>
+<span class="r-in">    colwidths <span class="op">=</span> <span class="va">colwidths</span></span>
+<span class="r-in">  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 1 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimizing factor...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Iteration        ELBO    Max Chg (Tiss)   Sparsity (Tiss)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             1   -86179.13          4.58e-04          2.67e-07 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             2   -86178.93          2.79e-05          2.70e-07 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             3   -86178.93          1.11e-06          2.70e-07 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             4   -86178.93          3.94e-08          2.70e-07 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             5   -86178.93          1.33e-09          2.70e-07 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Factor successfully added. Objective: -86178.931 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 2 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimizing factor...</span>
@@ -194,104 +192,61 @@ after each greedy/backfit iteration when <code>verbose</code> is either -1 or 3
 <span class="r-out co"><span class="r-pr">#&gt;</span>             2   -85147.47          4.37e-03          1.41e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             3   -85147.34          3.15e-03          1.70e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             4   -85147.29          2.23e-03          1.87e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             5   -85147.27          1.58e-03          1.98e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             6   -85147.26          1.12e-03          2.06e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             5   -85147.26          1.58e-03          1.98e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             6   -85147.25          1.12e-03          2.06e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             7   -85147.25          7.90e-04          2.11e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             8   -85147.25          5.60e-04          2.15e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             9   -85147.25          3.97e-04          2.17e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            10   -85147.25          2.83e-04          2.19e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            11   -85147.25          2.01e-04          2.21e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            12   -85147.25          1.43e-04          2.22e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            13   -85147.25          1.02e-04          2.22e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            14   -85147.25          7.30e-05          2.23e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            15   -85147.25          5.22e-05          2.23e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            16   -85147.25          3.73e-05          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            17   -85147.25          2.68e-05          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            18   -85147.25          1.92e-05          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            19   -85147.25          1.38e-05          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            20   -85147.25          9.89e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            21   -85147.25          7.11e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            22   -85147.25          5.11e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            23   -85147.25          3.68e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            24   -85147.25          2.65e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            25   -85147.25          1.91e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            26   -85147.25          1.38e-06          2.24e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            27   -85147.25          9.94e-07          2.24e-02 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Factor successfully added. Objective: -85147.246 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 3 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimizing factor...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Iteration        ELBO    Max Chg (Tiss)   Sparsity (Tiss)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             1   -84374.07          2.21e-02          1.92e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2   -84369.04          1.73e-02          2.29e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             3   -84366.16          1.53e-02          2.50e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             4   -84364.03          1.67e-02          2.73e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             5   -84362.04          1.99e-02          3.07e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             6   -84359.75          1.87e-02          3.50e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             7   -84357.58          2.03e-02          3.87e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             8   -84355.97          1.76e-02          4.13e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             9   -84355.02          8.92e-03          4.26e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            10   -84354.56          7.71e-03          4.31e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            11   -84354.27          6.50e-03          4.34e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            12   -84354.08          5.52e-03          4.36e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            13   -84353.94          4.74e-03          4.38e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            14   -84353.83          4.15e-03          4.41e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            15   -84353.74          3.70e-03          4.44e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            16   -84353.67          3.62e-03          4.48e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            17   -84353.60          3.52e-03          4.51e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            18   -84353.54          3.38e-03          4.55e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            19   -84353.49          3.16e-03          4.59e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            20   -84353.45          2.88e-03          4.63e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            21   -84353.41          2.54e-03          4.66e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            22   -84353.37          2.20e-03          4.70e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            23   -84353.35          2.00e-03          4.72e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            24   -84353.33          1.79e-03          4.75e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            25   -84353.31          1.58e-03          4.77e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            26   -84353.30          1.38e-03          4.79e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            27   -84353.29          1.18e-03          4.80e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            28   -84353.28          1.01e-03          4.81e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            29   -84353.28          8.50e-04          4.82e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            30   -84353.28          7.13e-04          4.83e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            31   -84353.27          5.94e-04          4.84e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            32   -84353.27          4.93e-04          4.84e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            33   -84353.27          4.08e-04          4.85e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            34   -84353.27          3.37e-04          4.85e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            35   -84353.27          2.77e-04          4.85e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            36   -84353.27          2.28e-04          4.85e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            37   -84353.27          1.87e-04          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            38   -84353.27          1.53e-04          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            39   -84353.27          1.26e-04          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            40   -84353.27          1.03e-04          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            41   -84353.27          8.41e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            42   -84353.27          6.88e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            43   -84353.27          5.62e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            44   -84353.27          4.60e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            45   -84353.27          3.75e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            46   -84353.27          3.07e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            47   -84353.27          2.50e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            48   -84353.27          2.05e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            49   -84353.27          1.67e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            50   -84353.27          1.36e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            51   -84353.27          1.11e-05          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            52   -84353.27          9.09e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            53   -84353.27          7.42e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            54   -84353.27          6.05e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            55   -84353.27          4.94e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            56   -84353.27          4.03e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            57   -84353.27          3.29e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            58   -84353.27          2.69e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            59   -84353.27          2.19e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            60   -84353.27          1.79e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            61   -84353.27          1.46e-06          4.86e-01 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Factor successfully added. Objective: -84353.270 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             1   -84374.20          2.21e-02          1.90e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             2   -84369.21          1.73e-02          2.26e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             3   -84366.35          1.53e-02          2.47e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             4   -84364.24          1.66e-02          2.69e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             5   -84362.26          1.97e-02          3.04e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             6   -84359.99          1.86e-02          3.47e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             7   -84357.84          2.01e-02          3.84e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             8   -84356.24          1.76e-02          4.10e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             9   -84355.29          8.89e-03          4.23e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            10   -84354.82          7.69e-03          4.29e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            11   -84354.54          6.48e-03          4.31e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            12   -84354.35          5.49e-03          4.34e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            13   -84354.21          4.71e-03          4.36e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            14   -84354.11          4.11e-03          4.39e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            15   -84354.02          3.65e-03          4.42e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            16   -84353.95          3.52e-03          4.45e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            17   -84353.88          3.42e-03          4.49e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            18   -84353.83          3.28e-03          4.52e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            19   -84353.78          3.08e-03          4.56e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            20   -84353.74          2.82e-03          4.59e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            21   -84353.70          2.51e-03          4.63e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            22   -84353.67          2.17e-03          4.66e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            23   -84353.64          1.96e-03          4.69e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            24   -84353.62          1.76e-03          4.71e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            25   -84353.61          1.57e-03          4.73e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            26   -84353.59          1.37e-03          4.75e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            27   -84353.58          1.19e-03          4.76e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            28   -84353.58          1.02e-03          4.78e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            29   -84353.57          8.62e-04          4.78e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            30   -84353.57          7.27e-04          4.79e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            31   -84353.57          6.09e-04          4.80e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            32   -84353.57          5.08e-04          4.80e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            33   -84353.57          4.22e-04          4.81e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            34   -84353.57          3.50e-04          4.81e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            35   -84353.57          2.90e-04          4.82e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Factor successfully added. Objective: -84353.565 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Output can be changed as needed.</span></span></span>
-<span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_set_verbose</span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_backfit.html">flash_backfit</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># Output can be changed as needed.</span></span>
+<span class="r-in"><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu">flash_set_verbose</span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu"><a href="flash_backfit.html">flash_backfit</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span class="r-in">  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 1 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 2 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 3 to flash object...</span>
@@ -299,48 +254,35 @@ after each greedy/backfit iteration when <code>verbose</code> is either -1 or 3
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 5 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Backfitting 5 factors (tolerance: 1.49e-08)...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Backfitting 5 factors (tolerance: 6.56e-04)...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Iteration  Factor   ELBO Diff  LF Max Chg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             1     all    6.78e+01    4.21e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             2     all    4.38e+01    5.01e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             3     all    3.68e+01    7.03e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             4     all    1.99e+01    6.16e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             5     all    2.94e+00    4.32e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             6     all    7.41e+00    6.01e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             7     all    1.28e+00    7.01e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             8     all    4.79e+00    6.20e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             9     all    4.51e+00    1.10e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            10     all    1.86e+00    1.55e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            11     all    6.87e-01    2.00e-02 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            12     all    1.68e-01    3.78e-03 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            13     all    7.60e-02    3.89e-03 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            14     all    3.13e-02    3.07e-03 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            15     all    1.23e-02    2.28e-03 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            16     all    2.58e-03    2.56e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            17     all    1.88e-03    3.46e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            18     all    1.32e-03    4.04e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            19     all    9.64e-04    4.44e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            20     all    6.29e-04    4.85e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            21     all    2.04e-04    5.45e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            22     all    1.71e-05    2.64e-05 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            23     all    1.37e-05    3.56e-05 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            24     all    6.85e-06    3.70e-05 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            25     all    2.07e-06    3.52e-05 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            26     all    6.64e-07    5.13e-06 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            27     all    5.30e-07    7.07e-06 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            28     all    3.04e-07    7.92e-06 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            29     all    1.63e-07    8.53e-06 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            30     all    8.15e-08    9.34e-06 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            31     all    2.04e-08    5.69e-07 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            32     all    1.51e-08    7.19e-07 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            33     all    3.10e-09    3.79e-07 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             1     all    6.73e+01    4.12e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             2     all    4.36e+01    5.00e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             3     all    3.76e+01    6.95e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             4     all    2.02e+01    6.23e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             5     all    2.85e+00    4.32e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             6     all    7.42e+00    6.01e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             7     all    1.44e+00    7.02e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             8     all    4.77e+00    6.20e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             9     all    4.62e+00    1.09e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            10     all    1.87e+00    1.54e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            11     all    6.74e-01    2.00e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            12     all    1.70e-01    3.78e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            13     all    7.57e-02    3.90e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            14     all    3.06e-02    3.08e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            15     all    1.17e-02    2.29e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            16     all    2.52e-03    2.52e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            17     all    1.79e-03    3.24e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            18     all    1.23e-03    3.79e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            19     all    8.99e-04    4.18e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            20     all    1.71e-04    9.81e-05 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Backfit complete. Objective: -82938.956 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 6 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>
@@ -351,7 +293,7 @@ after each greedy/backfit iteration when <code>verbose</code> is either -1 or 3
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Jason Willwerscheid.</p>
+  <p></p><p>Developed by Jason Willwerscheid, Peter Carbonetto, Wei Wang, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">

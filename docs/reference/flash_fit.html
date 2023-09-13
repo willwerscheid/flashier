@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.49</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.57</span>
       </span>
     </div>
 
@@ -61,7 +61,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Extract a flash_fit object</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/willwerscheid/flashier/blob/HEAD/R/flash_fit_object.R" class="external-link"><code>R/flash_fit_object.R</code></a></small>
     <div class="hidden name"><code>flash_fit.Rd</code></div>
     </div>
 
@@ -84,23 +84,23 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_fit</span><span class="op">(</span><span class="va">flash</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_pm</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_p2m</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_est_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_fixed_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_elbo</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_KL</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">flash_fit_get_g</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_fit</span><span class="op">(</span><span class="va">flash</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_pm</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_p2m</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_est_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_fixed_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_tau</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_elbo</span><span class="op">(</span><span class="va">f</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_KL</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span>
+
+<span class="fu">flash_fit_get_g</span><span class="op">(</span><span class="va">f</span>, <span class="va">n</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -174,7 +174,7 @@ estimated prior on the new factor or loadings will be returned.</p></li>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Jason Willwerscheid.</p>
+  <p></p><p>Developed by Jason Willwerscheid, Peter Carbonetto, Wei Wang, Matthew Stephens.</p>
 </div>
 
 <div class="pkgdown">
