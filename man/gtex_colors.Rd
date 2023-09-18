@@ -3,7 +3,7 @@
 \docType{data}
 \name{gtex_colors}
 \alias{gtex_colors}
-\title{Colors for plotting GTEx Data}
+\title{Colors for plotting GTEx data}
 \format{
 \code{gtex_colors} is a named vector of length 44, with names corresponding
   to tissues (columns) in the \code{\link{gtex}} dataset and values

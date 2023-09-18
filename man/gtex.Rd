@@ -3,7 +3,7 @@
 \docType{data}
 \name{gtex}
 \alias{gtex}
-\title{GTEx Data}
+\title{GTEx data}
 \format{
 \code{gtex} is a matrix with 1000 rows and 44 columns, with rows
   corresponding to SNP-gene pairs and columns corresponding to tissues.

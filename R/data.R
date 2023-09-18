@@ -1,6 +1,6 @@
 #' @name gtex
 #'
-#' @title GTEx Data
+#' @title GTEx data
 #'
 #' @docType data
 #'
@@ -42,7 +42,7 @@ NULL
 
 #' @name gtex_colors
 #'
-#' @title Colors for plotting GTEx Data
+#' @title Colors for plotting GTEx data
 #'
 #' @docType data
 #'
