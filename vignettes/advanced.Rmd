@@ -1,7 +1,5 @@
 ---
 title: "Advanced flashier"
-author: "Jason Willwerscheid"
-date: "09/11/2023"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -344,4 +342,12 @@ tib <- progress_extrapolate %>%
 ggplot(tib, aes(x = Iter, y = ELBO, col = Extrapolate)) +
   geom_line() +
   theme_minimal()
+```
+
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
 ```

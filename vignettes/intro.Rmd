@@ -1,7 +1,5 @@
 ---
 title: "Introduction to flashier"
-author: "Jason Willwerscheid"
-date: "09/11/2023"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -321,3 +319,11 @@ plot(fit_backfit, kset = 3, pm_colors = gtex_colors, include_scree = FALSE) +
 ```
 
 Confidence intervals for spleen tissue, lung tissue, and lymphocytes do not contain zero, so we can be reasonably confident that this pattern of sharing is "real" and not just an artefact of the data. We note, however, that empirical Bayes methods are known to underestimate uncertainty in the data (since they do not account for uncertainty in estimates $g \in \mathcal{G}$), so we offer this last conclusion with a large grain of salt.
+
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
+```
