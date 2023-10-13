@@ -16,10 +16,11 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       fig.width = 6, fig.height = 6, warning = FALSE)
 ```
 
-In addition to `flashier`, we will make use of package `cowplot` for arranging plots into grids and package `dplyr` for wrangling fitting progress data:
+In addition to `flashier` and `ggplot2`, we will make use of package `cowplot` for arranging plots into grids and package `dplyr` for wrangling fitting progress data:
 
 ```{r load_packages, message=FALSE}
 library(flashier)
+library(ggplot2)
 library(cowplot)
 library(dplyr)
 ```

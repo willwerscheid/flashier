@@ -16,10 +16,11 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       fig.width = 6, fig.height = 6, warning = FALSE)
 ```
 
-In addition to `flashier`, we will make use of package `cowplot` below in order to arrange plots into grids:
+In addition to `flashier` and `ggplot2`, we will make use of package `cowplot` below in order to arrange plots into grids:
 
 ```{r load_packages}
 library(flashier)
+library(ggplot2)
 library(cowplot)
 ```
 
