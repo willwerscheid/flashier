@@ -1,8 +1,8 @@
 Package: flashier
 Type: Package
-Date: 2023-09-11
+Date: 2023-10-13
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
