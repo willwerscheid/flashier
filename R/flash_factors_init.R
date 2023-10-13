@@ -75,12 +75,13 @@ flash_factors_init <- function(flash,
     stop("init must be an SVD-like object, a flash fit, or a list of matrices.")
   }
 
+  dims.must.match(EF, get.Y(flash))
+
   if (is.null(EF2)) {
     EF2 <- lowrank.square(EF)
+  } else {
+    dims.must.match(EF2, get.Y(flash))
   }
-
-  dims.must.match(EF, get.Y(flash))
-  dims.must.match(EF2, get.Y(flash))
 
   if (anyNA(unlist(EF))) {
     stop("The initialization may not have missing data.")
@@ -88,32 +89,34 @@ flash_factors_init <- function(flash,
 
   ebnm.fn <- handle.ebnm.fn(ebnm_fn, get.dim(flash))$ebnm.fn
 
-  flash <- set.EF(flash, lowranks.combine(get.EF(flash), EF))
-  flash <- set.EF2(flash, lowranks.combine(get.EF2(flash), EF2))
+  if (!is.null(EF) && ncol(EF[[1]]) > 0) {
+    flash <- set.EF(flash, lowranks.combine(get.EF(flash), EF))
+    flash <- set.EF2(flash, lowranks.combine(get.EF2(flash), EF2))
 
-  if (uses.R(flash)) {
-    R <- get.Y(flash) - lowrank.expand(get.EF(flash))
-    flash <- set.R(flash, get.nonmissing(flash) * R)
+    if (uses.R(flash)) {
+      R <- get.Y(flash) - lowrank.expand(get.EF(flash))
+      flash <- set.R(flash, get.nonmissing(flash) * R)
+    }
+
+    flash <- init.tau(flash)
+    flash <- set.obj(flash, calc.obj(flash))
+
+    K <- ncol(EF[[1]])
+
+    # Initialize KL at zero and g at NULL.
+    for (n in 1:get.dim(flash)) {
+      flash <- set.KL(flash, c(get.KL(flash, n), rep(0, K)), n)
+    }
+    EF.g <- rep(list(rep(list(NULL), get.dim(flash))), K)
+    flash <- set.g(flash, c(get.g(flash), EF.g))
+
+    ebnm.fn <- c(get.ebnm.fn(flash), rep(list(ebnm.fn), length.out = K))
+    flash <- set.ebnm.fn(flash, ebnm.fn)
+
+    # Initialize is.valid and is.zero.
+    flash <- set.is.valid(flash, c(is.valid(flash), rep(FALSE, K)))
+    flash <- set.is.zero(flash, c(is.zero(flash), rep(FALSE, K)))
   }
-
-  flash <- init.tau(flash)
-  flash <- set.obj(flash, calc.obj(flash))
-
-  K <- ncol(EF[[1]])
-
-  # Initialize KL at zero and g at NULL.
-  for (n in 1:get.dim(flash)) {
-    flash <- set.KL(flash, c(get.KL(flash, n), rep(0, K)), n)
-  }
-  EF.g <- rep(list(rep(list(NULL), get.dim(flash))), K)
-  flash <- set.g(flash, c(get.g(flash), EF.g))
-
-  ebnm.fn <- c(get.ebnm.fn(flash), rep(list(ebnm.fn), length.out = K))
-  flash <- set.ebnm.fn(flash, ebnm.fn)
-
-  # Initialize is.valid and is.zero.
-  flash <- set.is.valid(flash, c(is.valid(flash), rep(FALSE, K)))
-  flash <- set.is.zero(flash, c(is.zero(flash), rep(FALSE, K)))
 
   flash <- wrapup.flash(flash, output.lvl = 3L)
 
