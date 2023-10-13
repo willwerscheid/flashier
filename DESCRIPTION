@@ -2,7 +2,7 @@ Package: flashier
 Type: Package
 Date: 2023-10-13
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -17,8 +17,7 @@ Description: Methods for matrix factorization based on "Empirical
 Depends: 
     R (>= 3.4),
     ebnm (>= 0.1-21),    
-    magrittr,
-    ggplot2
+    magrittr
 Imports:
     Matrix,
     parallel,
@@ -27,7 +26,8 @@ Imports:
     tibble,
     tidyr,
     softImpute,
-    irlba
+    irlba,
+    ggplot2
 Suggests:
     ashr,
     cowplot,
