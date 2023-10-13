@@ -1,8 +1,8 @@
-pandoc: 2.17.1.1
+pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   advanced: advanced.html
   intro: intro.html
-last_built: 2023-09-13T18:28Z
+last_built: 2023-10-13T16:52Z
 

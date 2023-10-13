@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.57</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
@@ -70,10 +70,7 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced flashier</h1>
-                        <h4 data-toc-skip class="author">Jason
-Willwerscheid</h4>
             
-            <h4 data-toc-skip class="date">09/11/2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/willwerscheid/flashier/blob/HEAD/vignettes/advanced.Rmd" class="external-link"><code>vignettes/advanced.Rmd</code></a></small>
       <div class="hidden name"><code>advanced.Rmd</code></div>
@@ -82,13 +79,15 @@ Willwerscheid</h4>
 
     
     
-<p>In addition to <code>flashier</code>, we will make use of package
-<code>cowplot</code> for arranging plots into grids and package
-<code>dplyr</code> for wrangling fitting progress data:</p>
+<p>In addition to <code>flashier</code> and <code>ggplot2</code>, we
+will make use of package <code>cowplot</code> for arranging plots into
+grids and package <code>dplyr</code> for wrangling fitting progress
+data:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="pipeable-interface">Pipeable interface<a class="anchor" aria-label="anchor" href="#pipeable-interface"></a>
 </h2>
@@ -100,23 +99,23 @@ the order of fitting operations more explicit and also provide many more
 options for customization. For example, the following are
 equivalent:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># # Basic interface (not run):</span>
-<span class="co"># fit_backfit &lt;- flash(</span>
-<span class="co">#     gtex,</span>
-<span class="co">#     greedy_Kmax = 5,</span>
-<span class="co">#     var_type = 2,</span>
-<span class="co">#     backfit = TRUE,</span>
-<span class="co">#     verbose = 0</span>
-<span class="co">#   )</span>
-
-<span class="co"># Pipeable interface:</span>
-<span class="va">t_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
-  <span class="va">fit_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># # Basic interface (not run):</span></span>
+<span><span class="co"># fit_backfit &lt;- flash(</span></span>
+<span><span class="co">#     gtex,</span></span>
+<span><span class="co">#     greedy_Kmax = 5,</span></span>
+<span><span class="co">#     var_type = 2,</span></span>
+<span><span class="co">#     backfit = TRUE,</span></span>
+<span><span class="co">#     verbose = 0</span></span>
+<span><span class="co">#   )</span></span>
+<span></span>
+<span><span class="co"># Pipeable interface:</span></span>
+<span><span class="va">t_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Function <code><a href="../reference/flash_init.html">flash_init()</a></code> sets up the <code>flash</code>
 object and handles global parameter <code>var_type</code>;
 <code><a href="../reference/flash_set_verbose.html">flash_set_verbose()</a></code> manages the output that will be printed
@@ -143,19 +142,19 @@ to perform multiple intermediary backfits and nullchecks. Often,
 re-arranging the order of operations will produce a different fit,
 either for better or for worse:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Pipeable interface:</span>
-<span class="va">fit_multiple_backfits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>one_bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, two_bf_elbo <span class="op">=</span> <span class="va">fit_multiple_backfits</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt; one_bf_elbo two_bf_elbo </span>
-<span class="co">#&gt;   -80381.75   -80581.18</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Pipeable interface:</span></span>
+<span><span class="va">fit_multiple_backfits</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>one_bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, two_bf_elbo <span class="op">=</span> <span class="va">fit_multiple_backfits</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt; one_bf_elbo two_bf_elbo </span></span>
+<span><span class="co">#&gt;   -80381.75   -80581.18</span></span></code></pre></div>
 <p>Here, we do not obtain an improvement in ELBO, but results will vary
 from one scenario to the next.</p>
 </div>
@@ -173,13 +172,13 @@ list containing fields <code>u</code>, <code>d</code>, and
 <code>v</code>), so that the output of function <code><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd()</a></code> can
 be passed in directly:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_alternative_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, alt_bf_elbo <span class="op">=</span> <span class="va">fit_alternative_backfit</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt;     bf_elbo alt_bf_elbo </span>
-<span class="co">#&gt;   -80381.75   -80629.44</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit_alternative_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, alt_bf_elbo <span class="op">=</span> <span class="va">fit_alternative_backfit</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     bf_elbo alt_bf_elbo </span></span>
+<span><span class="co">#&gt;   -80381.75   -80629.44</span></span></code></pre></div>
 <p>Again, we fail to obtain an improvement in ELBO in this particular
 scenario.</p>
 </div>
@@ -195,23 +194,23 @@ recommend turning off extrapolation as a first troubleshooting step. To
 do so, set <code>extrapolate = FALSE</code> in the call to
 <code>flash_backfit</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">t_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
-  <span class="va">fit_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>extrapolate_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, no_extrapolate_elbo <span class="op">=</span> <span class="va">fit_no_extrapolate</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt;    extrapolate_elbo no_extrapolate_elbo </span>
-<span class="co">#&gt;           -80381.75           -80381.76</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">t_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>extrapolate_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span>, no_extrapolate_elbo <span class="op">=</span> <span class="va">fit_no_extrapolate</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    extrapolate_elbo no_extrapolate_elbo </span></span>
+<span><span class="co">#&gt;           -80381.75           -80381.76</span></span></code></pre></div>
 <p>Here, <code>flashier</code> appears to find the same solution with
 and without extrapolation, but without the benefit of extrapolation
 there is a large increase in run time:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>t_extrapolate <span class="op">=</span> <span class="va">t_backfit</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, t_no_extrapolate <span class="op">=</span> <span class="va">t_no_extrapolate</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>
-<span class="co">#&gt;    t_extrapolate.elapsed t_no_extrapolate.elapsed </span>
-<span class="co">#&gt;                    1.127                    2.453</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>t_extrapolate <span class="op">=</span> <span class="va">t_backfit</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, t_no_extrapolate <span class="op">=</span> <span class="va">t_no_extrapolate</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    t_extrapolate.elapsed t_no_extrapolate.elapsed </span></span>
+<span><span class="co">#&gt;                    0.577                    1.338</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="adding-an-intercept">Adding an intercept<a class="anchor" aria-label="anchor" href="#adding-an-intercept"></a>
@@ -223,26 +222,26 @@ shared across all tissues (similar to what is captured by the first
 factor from previous fits, except that factor values are constrained to
 be exactly equal rather than estimated as approximately so):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_with_intercept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_add_intercept.html">flash_add_intercept</a></span><span class="op">(</span>rowwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_backfit</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>, 
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"No intercept"</span><span class="op">)</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_with_intercept</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>, 
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"With intercept"</span><span class="op">)</span>
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit_with_intercept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_add_intercept.html">flash_add_intercept</a></span><span class="op">(</span>rowwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_backfit</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,</span>
+<span>  include_scree <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"No intercept"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_with_intercept</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,</span>
+<span>  include_scree <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"With intercept"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="advanced_files/figure-html/intercept-1.png" width="576"></p>
 <p>In essence, <code><a href="../reference/flash_add_intercept.html">flash_add_intercept()</a></code> is a convenience
 function that initializes the values of the factor or loadings at one
@@ -250,15 +249,15 @@ via <code><a href="../reference/flash_factors_init.html">flash_factors_init()</a
 <code><a href="../reference/flash_factors_fix.html">flash_factors_fix()</a></code>. Thus we could achieve the above fit as
 follows:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ones</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-<span class="va">init_loadings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
-
-<span class="va">fit_with_intercept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">init_loadings</span>, <span class="va">ones</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_fix.html">flash_factors_fix</a></span><span class="op">(</span>kset <span class="op">=</span> <span class="fl">1</span>, which_dim <span class="op">=</span> <span class="st">"factors"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ones</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">init_loadings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_with_intercept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">init_loadings</span>, <span class="va">ones</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_fix.html">flash_factors_fix</a></span><span class="op">(</span>kset <span class="op">=</span> <span class="fl">1</span>, which_dim <span class="op">=</span> <span class="st">"factors"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="fixed-sparsity-patterns">Fixed sparsity patterns<a class="anchor" aria-label="anchor" href="#fixed-sparsity-patterns"></a>
@@ -270,27 +269,27 @@ intercept, we could explicitly add a brain-specific factor by
 constraining the values for non-brain tissues to be zero and allowing
 values for brain tissues to be estimated:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">is_brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Brain"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span>
-<span class="va">init_loadings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">[</span>, <span class="va">is_brain</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">[</span>, <span class="op">!</span><span class="va">is_brain</span><span class="op">]</span><span class="op">)</span>
-
-<span class="va">fit_fixed_pattern</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_add_intercept.html">flash_add_intercept</a></span><span class="op">(</span>rowwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">init_loadings</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
-                          <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">is_brain</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_fix.html">flash_factors_fix</a></span><span class="op">(</span>kset <span class="op">=</span> <span class="fl">2</span>, 
-                    which_dim <span class="op">=</span> <span class="st">"factors"</span>, 
-                    fixed_idx <span class="op">=</span> <span class="op">!</span><span class="va">is_brain</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_fixed_pattern</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>,
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>,
-  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">is_brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Brain"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">init_loadings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">[</span>, <span class="va">is_brain</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">[</span>, <span class="op">!</span><span class="va">is_brain</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_fixed_pattern</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_add_intercept.html">flash_add_intercept</a></span><span class="op">(</span>rowwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">init_loadings</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                          <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">is_brain</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_fix.html">flash_factors_fix</a></span><span class="op">(</span>kset <span class="op">=</span> <span class="fl">2</span>, </span>
+<span>                    which_dim <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>                    fixed_idx <span class="op">=</span> <span class="op">!</span><span class="va">is_brain</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_fixed_pattern</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>,</span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, </span>
+<span>  include_scree <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="advanced_files/figure-html/fixed.sprs-1.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -308,57 +307,57 @@ values no longer change by more than, say, .001. To confirm that this
 criterion is respected, we also modify the output printed to console
 using function <code><a href="../reference/flash_set_verbose.html">flash_set_verbose()</a></code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gtex_conv_crit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_conv_crit.html">flash_set_conv_crit</a></span><span class="op">(</span>fn <span class="op">=</span> <span class="va">flash_conv_crit_max_chg_F</span>, tol <span class="op">=</span> <span class="fl">.001</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>
-    fns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">flash_verbose_max_chg_F</span><span class="op">)</span>,
-    colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="st">"Max.Chg.Factors"</span><span class="op">)</span>,
-    colwidths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">18</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Adding factor 1 to flash object...</span>
-<span class="co">#&gt;   Optimizing factor...</span>
-<span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span>
-<span class="co">#&gt;             1         -83459.01          3.79e-03 </span>
-<span class="co">#&gt;             2         -83457.60          2.19e-04 </span>
-<span class="co">#&gt;   Factor successfully added. Objective: -83457.597 </span>
-<span class="co">#&gt; Adding factor 2 to flash object...</span>
-<span class="co">#&gt;   Optimizing factor...</span>
-<span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span>
-<span class="co">#&gt;             1         -81693.22          1.25e-01 </span>
-<span class="co">#&gt;             2         -81652.56          2.72e-02 </span>
-<span class="co">#&gt;             3         -81646.81          1.01e-02 </span>
-<span class="co">#&gt;             4         -81646.03          3.85e-03 </span>
-<span class="co">#&gt;             5         -81645.93          1.41e-03 </span>
-<span class="co">#&gt;             6         -81645.91          5.14e-04 </span>
-<span class="co">#&gt;   Factor successfully added. Objective: -81645.912 </span>
-<span class="co">#&gt; Adding factor 3 to flash object...</span>
-<span class="co">#&gt;   Optimizing factor...</span>
-<span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span>
-<span class="co">#&gt;             1         -81412.09          1.16e-01 </span>
-<span class="co">#&gt;             2         -81368.96          7.56e-02 </span>
-<span class="co">#&gt;             3         -81358.14          3.87e-02 </span>
-<span class="co">#&gt;             4         -81357.39          8.20e-03 </span>
-<span class="co">#&gt;             5         -81357.31          3.45e-03 </span>
-<span class="co">#&gt;             6         -81357.29          1.36e-03 </span>
-<span class="co">#&gt;             7         -81357.28          5.08e-04 </span>
-<span class="co">#&gt;   Factor successfully added. Objective: -81357.283 </span>
-<span class="co">#&gt; Wrapping up...</span>
-<span class="co">#&gt; Done.</span>
-<span class="co">#&gt; Backfitting 3 factors (tolerance: 1.00e-03)...</span>
-<span class="co">#&gt;     Iteration  Factor              ELBO   Max.Chg.Factors</span>
-<span class="co">#&gt;             1     all         -81324.08          2.70e-02 </span>
-<span class="co">#&gt;             2     all         -81314.03          2.90e-02 </span>
-<span class="co">#&gt;             3     all         -81308.99          2.03e-02 </span>
-<span class="co">#&gt;             4     all         -81307.37          1.22e-02 </span>
-<span class="co">#&gt;             5     all         -81307.28          3.65e-03 </span>
-<span class="co">#&gt;             6     all         -81307.10          2.51e-03 </span>
-<span class="co">#&gt;             7     all         -81307.04          1.55e-03 </span>
-<span class="co">#&gt;             8     all         -81307.00          6.35e-04 </span>
-<span class="co">#&gt;   Backfit complete. Objective: -81307.003 </span>
-<span class="co">#&gt; Wrapping up...</span>
-<span class="co">#&gt; Done.</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gtex_conv_crit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_conv_crit.html">flash_set_conv_crit</a></span><span class="op">(</span>fn <span class="op">=</span> <span class="va">flash_conv_crit_max_chg_F</span>, tol <span class="op">=</span> <span class="fl">.001</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span></span>
+<span>    fns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">flash_verbose_max_chg_F</span><span class="op">)</span>,</span>
+<span>    colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="st">"Max.Chg.Factors"</span><span class="op">)</span>,</span>
+<span>    colwidths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">18</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Adding factor 1 to flash object...</span></span>
+<span><span class="co">#&gt;   Optimizing factor...</span></span>
+<span><span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span></span>
+<span><span class="co">#&gt;             1         -83459.01          3.79e-03 </span></span>
+<span><span class="co">#&gt;             2         -83457.60          2.19e-04 </span></span>
+<span><span class="co">#&gt;   Factor successfully added. Objective: -83457.597 </span></span>
+<span><span class="co">#&gt; Adding factor 2 to flash object...</span></span>
+<span><span class="co">#&gt;   Optimizing factor...</span></span>
+<span><span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span></span>
+<span><span class="co">#&gt;             1         -81693.22          1.25e-01 </span></span>
+<span><span class="co">#&gt;             2         -81652.56          2.72e-02 </span></span>
+<span><span class="co">#&gt;             3         -81646.81          1.01e-02 </span></span>
+<span><span class="co">#&gt;             4         -81646.03          3.85e-03 </span></span>
+<span><span class="co">#&gt;             5         -81645.93          1.41e-03 </span></span>
+<span><span class="co">#&gt;             6         -81645.91          5.14e-04 </span></span>
+<span><span class="co">#&gt;   Factor successfully added. Objective: -81645.912 </span></span>
+<span><span class="co">#&gt; Adding factor 3 to flash object...</span></span>
+<span><span class="co">#&gt;   Optimizing factor...</span></span>
+<span><span class="co">#&gt;     Iteration              ELBO   Max.Chg.Factors</span></span>
+<span><span class="co">#&gt;             1         -81412.09          1.16e-01 </span></span>
+<span><span class="co">#&gt;             2         -81368.96          7.56e-02 </span></span>
+<span><span class="co">#&gt;             3         -81358.14          3.87e-02 </span></span>
+<span><span class="co">#&gt;             4         -81357.39          8.20e-03 </span></span>
+<span><span class="co">#&gt;             5         -81357.31          3.45e-03 </span></span>
+<span><span class="co">#&gt;             6         -81357.29          1.36e-03 </span></span>
+<span><span class="co">#&gt;             7         -81357.28          5.08e-04 </span></span>
+<span><span class="co">#&gt;   Factor successfully added. Objective: -81357.283 </span></span>
+<span><span class="co">#&gt; Wrapping up...</span></span>
+<span><span class="co">#&gt; Done.</span></span>
+<span><span class="co">#&gt; Backfitting 3 factors (tolerance: 1.00e-03)...</span></span>
+<span><span class="co">#&gt;     Iteration  Factor              ELBO   Max.Chg.Factors</span></span>
+<span><span class="co">#&gt;             1     all         -81324.08          2.70e-02 </span></span>
+<span><span class="co">#&gt;             2     all         -81314.03          2.90e-02 </span></span>
+<span><span class="co">#&gt;             3     all         -81308.99          2.03e-02 </span></span>
+<span><span class="co">#&gt;             4     all         -81307.37          1.22e-02 </span></span>
+<span><span class="co">#&gt;             5     all         -81307.28          3.65e-03 </span></span>
+<span><span class="co">#&gt;             6     all         -81307.10          2.51e-03 </span></span>
+<span><span class="co">#&gt;             7     all         -81307.04          1.55e-03 </span></span>
+<span><span class="co">#&gt;             8     all         -81307.00          6.35e-04 </span></span>
+<span><span class="co">#&gt;   Backfit complete. Objective: -81307.003 </span></span>
+<span><span class="co">#&gt; Wrapping up...</span></span>
+<span><span class="co">#&gt; Done.</span></span></code></pre></div>
 <p>Note that <code><a href="../reference/flash_set_conv_crit.html">flash_set_conv_crit()</a></code> and
 <code><a href="../reference/flash_set_verbose.html">flash_set_verbose()</a></code> both take functions as arguments.
 Several functions <code>flash_conv_crit_xxx()</code> are provided as
@@ -390,53 +389,53 @@ that we would like to monitor the sparsity of factors 2-5 (which we
 define as the mixture weight of the point mass <span class="math inline">\(\pi_0\)</span> in estimates of priors <span class="math inline">\(g_f\)</span>) over the course of a backfit. We use
 the following custom functions:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">verbose_sparsity</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="va">f_idx</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_fit.html">flash_fit_get_g</a></span><span class="op">(</span><span class="va">new</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># setting n = 2 gets g_f (n = 1 would get g_\ell)</span>
-  <span class="va">pi0</span> <span class="op">&lt;-</span> <span class="va">g</span><span class="op">[[</span><span class="va">f_idx</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="co"># return point mass weight</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/formatc.html" class="external-link">formatC</a></span><span class="op">(</span><span class="va">pi0</span>, format <span class="op">=</span> <span class="st">"f"</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span> 
-<span class="op">}</span>
-<span class="va">verbose_sprs2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">2</span><span class="op">)</span>
-<span class="va">verbose_sprs3</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">3</span><span class="op">)</span>
-<span class="va">verbose_sprs4</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">4</span><span class="op">)</span>
-<span class="va">verbose_sprs5</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">5</span><span class="op">)</span>
-
-<span class="va">fit_monitor_sparsity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span>
-    verbose <span class="op">=</span> <span class="fl">3</span>,
-    fns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">verbose_sprs2</span>, <span class="va">verbose_sprs3</span>, <span class="va">verbose_sprs4</span>, <span class="va">verbose_sprs5</span><span class="op">)</span>,
-    colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sparsity ("</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span>,
-    colwidths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">14</span>, <span class="fl">5</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Backfitting 5 factors (tolerance: 6.56e-04)...</span>
-<span class="co">#&gt;     Iteration  Factor          ELBO  Sparsity (2)  Sparsity (3)  Sparsity (4)  Sparsity (5)</span>
-<span class="co">#&gt;             1     all     -80410.68         0.060         0.871         0.605         0.678 </span>
-<span class="co">#&gt;             2     all     -80394.59         0.060         0.888         0.594         0.672 </span>
-<span class="co">#&gt;             3     all     -80387.50         0.069         0.899         0.578         0.669 </span>
-<span class="co">#&gt;             4     all     -80385.00         0.080         0.900         0.557         0.668 </span>
-<span class="co">#&gt;             5     all     -80384.15         0.072         0.900         0.534         0.669 </span>
-<span class="co">#&gt;             6     all     -80383.58         0.061         0.899         0.510         0.670 </span>
-<span class="co">#&gt;             7     all     -80383.35         0.043         0.899         0.492         0.673 </span>
-<span class="co">#&gt;             8     all     -80382.96         0.041         0.899         0.492         0.673 </span>
-<span class="co">#&gt;             9     all     -80382.55         0.038         0.899         0.493         0.673 </span>
-<span class="co">#&gt;            10     all     -80382.27         0.033         0.899         0.493         0.674 </span>
-<span class="co">#&gt;            11     all     -80382.14         0.027         0.899         0.493         0.676 </span>
-<span class="co">#&gt;            12     all     -80382.11         0.025         0.899         0.493         0.676 </span>
-<span class="co">#&gt;            13     all     -80382.08         0.022         0.899         0.493         0.677 </span>
-<span class="co">#&gt;            14     all     -80382.04         0.018         0.899         0.492         0.678 </span>
-<span class="co">#&gt;            15     all     -80381.98         0.011         0.899         0.492         0.679 </span>
-<span class="co">#&gt;            16     all     -80381.90         0.000         0.899         0.492         0.680 </span>
-<span class="co">#&gt;            17     all     -80381.81         0.000         0.899         0.491         0.682 </span>
-<span class="co">#&gt;            18     all     -80381.78         0.000         0.899         0.490         0.685 </span>
-<span class="co">#&gt;            19     all     -80381.77         0.000         0.899         0.490         0.684 </span>
-<span class="co">#&gt;            20     all     -80381.76         0.000         0.899         0.490         0.684 </span>
-<span class="co">#&gt;            21     all     -80381.75         0.000         0.899         0.491         0.684 </span>
-<span class="co">#&gt;            22     all     -80381.75         0.000         0.899         0.491         0.684 </span>
-<span class="co">#&gt;   Backfit complete. Objective: -80381.754 </span>
-<span class="co">#&gt; Wrapping up...</span>
-<span class="co">#&gt; Done.</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">verbose_sparsity</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="va">f_idx</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_fit.html">flash_fit_get_g</a></span><span class="op">(</span><span class="va">new</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># setting n = 2 gets g_f (n = 1 would get g_\ell)</span></span>
+<span>  <span class="va">pi0</span> <span class="op">&lt;-</span> <span class="va">g</span><span class="op">[[</span><span class="va">f_idx</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">pi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="co"># return point mass weight</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/formatc.html" class="external-link">formatC</a></span><span class="op">(</span><span class="va">pi0</span>, format <span class="op">=</span> <span class="st">"f"</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="op">}</span></span>
+<span><span class="va">verbose_sprs2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">verbose_sprs3</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">verbose_sprs4</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">verbose_sprs5</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span><span class="op">)</span> <span class="fu">verbose_sparsity</span><span class="op">(</span><span class="va">new</span>, <span class="va">old</span>, <span class="va">k</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_monitor_sparsity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span></span>
+<span>    verbose <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    fns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">flash_verbose_elbo</span>, <span class="va">verbose_sprs2</span>, <span class="va">verbose_sprs3</span>, <span class="va">verbose_sprs4</span>, <span class="va">verbose_sprs5</span><span class="op">)</span>,</span>
+<span>    colnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ELBO"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sparsity ("</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">5</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    colwidths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">14</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Backfitting 5 factors (tolerance: 6.56e-04)...</span></span>
+<span><span class="co">#&gt;     Iteration  Factor          ELBO  Sparsity (2)  Sparsity (3)  Sparsity (4)  Sparsity (5)</span></span>
+<span><span class="co">#&gt;             1     all     -80410.68         0.060         0.871         0.605         0.678 </span></span>
+<span><span class="co">#&gt;             2     all     -80394.59         0.060         0.888         0.594         0.672 </span></span>
+<span><span class="co">#&gt;             3     all     -80387.50         0.069         0.899         0.578         0.669 </span></span>
+<span><span class="co">#&gt;             4     all     -80385.00         0.080         0.900         0.557         0.668 </span></span>
+<span><span class="co">#&gt;             5     all     -80384.15         0.072         0.900         0.534         0.669 </span></span>
+<span><span class="co">#&gt;             6     all     -80383.58         0.061         0.899         0.510         0.670 </span></span>
+<span><span class="co">#&gt;             7     all     -80383.35         0.043         0.899         0.492         0.673 </span></span>
+<span><span class="co">#&gt;             8     all     -80382.96         0.041         0.899         0.492         0.673 </span></span>
+<span><span class="co">#&gt;             9     all     -80382.55         0.038         0.899         0.493         0.673 </span></span>
+<span><span class="co">#&gt;            10     all     -80382.27         0.033         0.899         0.493         0.674 </span></span>
+<span><span class="co">#&gt;            11     all     -80382.14         0.027         0.899         0.493         0.676 </span></span>
+<span><span class="co">#&gt;            12     all     -80382.11         0.025         0.899         0.493         0.676 </span></span>
+<span><span class="co">#&gt;            13     all     -80382.08         0.022         0.899         0.493         0.677 </span></span>
+<span><span class="co">#&gt;            14     all     -80382.04         0.018         0.899         0.492         0.678 </span></span>
+<span><span class="co">#&gt;            15     all     -80381.98         0.011         0.899         0.492         0.679 </span></span>
+<span><span class="co">#&gt;            16     all     -80381.90         0.000         0.899         0.492         0.680 </span></span>
+<span><span class="co">#&gt;            17     all     -80381.81         0.000         0.899         0.491         0.682 </span></span>
+<span><span class="co">#&gt;            18     all     -80381.78         0.000         0.899         0.490         0.685 </span></span>
+<span><span class="co">#&gt;            19     all     -80381.77         0.000         0.899         0.490         0.684 </span></span>
+<span><span class="co">#&gt;            20     all     -80381.76         0.000         0.899         0.490         0.684 </span></span>
+<span><span class="co">#&gt;            21     all     -80381.75         0.000         0.899         0.491         0.684 </span></span>
+<span><span class="co">#&gt;            22     all     -80381.75         0.000         0.899         0.491         0.684 </span></span>
+<span><span class="co">#&gt;   Backfit complete. Objective: -80381.754 </span></span>
+<span><span class="co">#&gt; Wrapping up...</span></span>
+<span><span class="co">#&gt; Done.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="writing-custom-ebnm-functions">Writing custom EBNM functions<a class="anchor" aria-label="anchor" href="#writing-custom-ebnm-functions"></a>
@@ -448,25 +447,25 @@ families are required. Often it is sufficient to use the helper function
 choose to put a normal prior on the first factor with mode to be
 estimated (since we do not expect the first factor to be sparse):</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_flash_ebnm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>ebnm_fn <span class="op">=</span> <span class="fu"><a href="../reference/flash_ebnm.html">flash_ebnm</a></span><span class="op">(</span>prior_family <span class="op">=</span> <span class="st">"normal"</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span>, ebnm_fn <span class="op">=</span> <span class="va">ebnm_point_normal</span><span class="op">)</span>
-
-<span class="va">fit_flash_ebnm</span><span class="op">$</span><span class="va">F_ghat</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
-<span class="co">#&gt; $pi</span>
-<span class="co">#&gt; [1] 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $mean</span>
-<span class="co">#&gt; [1] -3.214884</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $sd</span>
-<span class="co">#&gt; [1] 1.041558</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "normalmix"</span>
-<span class="co">#&gt; attr(,"row.names")</span>
-<span class="co">#&gt; [1] 1</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit_flash_ebnm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>ebnm_fn <span class="op">=</span> <span class="fu"><a href="../reference/flash_ebnm.html">flash_ebnm</a></span><span class="op">(</span>prior_family <span class="op">=</span> <span class="st">"normal"</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">4</span>, ebnm_fn <span class="op">=</span> <span class="va">ebnm_point_normal</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_flash_ebnm</span><span class="op">$</span><span class="va">F_ghat</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">#&gt; $pi</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mean</span></span>
+<span><span class="co">#&gt; [1] -3.214884</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sd</span></span>
+<span><span class="co">#&gt; [1] 1.041558</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "normalmix"</span></span>
+<span><span class="co">#&gt; attr(,"row.names")</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p>For cases where <code><a href="../reference/flash_ebnm.html">flash_ebnm()</a></code> is not sufficient,
 completely custom functions can also be created; for details, see the
 documentation in <code><a href="../reference/flash_ebnm.html">?flash_ebnm</a></code>. To ensure that the return
@@ -478,82 +477,82 @@ is the family of two-component distributions where one component is a
 pointmass at zero and the other is a normal distribution (not
 necessarily centered at zero):</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ebnm_custom</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">g_init</span>, <span class="va">fix_g</span>, <span class="va">output</span><span class="op">)</span> <span class="op">{</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="va">fix_g</span><span class="op">)</span> <span class="op">{</span>
-    <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span>
-      <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g_init</span>, fix_g <span class="op">=</span> <span class="cn">TRUE</span>, output <span class="op">=</span> <span class="va">output</span>,
-      mixcompdist <span class="op">=</span> <span class="st">"normal"</span>
-    <span class="op">)</span>
-  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
-    <span class="co"># Parameters are:</span>
-    <span class="co">#   1. mean of normal component</span>
-    <span class="co">#   2. sd of normal component</span>
-    <span class="va">neg_llik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">{</span>
-      <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ashr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ashr/man/normalmix.html" class="external-link">normalmix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-      <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span>
-        <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g</span>, fix_g <span class="op">=</span> <span class="cn">FALSE</span>, mixcompdist <span class="op">=</span> <span class="st">"normal"</span>
-      <span class="op">)</span>
-      <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="op">-</span><span class="va">ebnm_res</span><span class="op">$</span><span class="va">log_likelihood</span><span class="op">)</span>
-    <span class="op">}</span>
-    
-    <span class="co"># Run optim to get mean and sd of normal component:</span>
-    <span class="va">opt_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span>
-      par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="co"># Initial values</span>
-      fn <span class="op">=</span> <span class="va">neg_llik</span>, 
-      method <span class="op">=</span> <span class="st">"L-BFGS-B"</span>, 
-      lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">0.01</span><span class="op">)</span>, 
-      upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="cn">Inf</span><span class="op">)</span>
-    <span class="op">)</span>
-    
-    <span class="co"># Now re-run ash to get mixture weights:</span>
-    <span class="va">opt_par</span> <span class="op">&lt;-</span> <span class="va">opt_res</span><span class="op">$</span><span class="va">par</span>
-    <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ashr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ashr/man/normalmix.html" class="external-link">normalmix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">opt_par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">opt_par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-    <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span>
-        <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g</span>, fix_g <span class="op">=</span> <span class="cn">FALSE</span>, output <span class="op">=</span> <span class="va">output</span>,
-        mixcompdist <span class="op">=</span> <span class="st">"normal"</span>
-    <span class="op">)</span>
-  <span class="op">}</span> 
-  
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">ebnm_res</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="va">fit_custom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span>
-    Kmax <span class="op">=</span> <span class="fl">2</span>,
-    ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_custom</span><span class="op">)</span>
-  <span class="op">)</span>
-
-<span class="va">fit_custom</span><span class="op">$</span><span class="va">F_ghat</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; $pi</span>
-<span class="co">#&gt; [1] 0.1698113 0.8301887</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $mean</span>
-<span class="co">#&gt; [1]  0.000000 -3.214882</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $sd</span>
-<span class="co">#&gt; [1] 0.000000 1.041829</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "normalmix"</span>
-<span class="co">#&gt; attr(,"row.names")</span>
-<span class="co">#&gt; [1] 1 2</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; $pi</span>
-<span class="co">#&gt; [1] 0.3037192 0.6962808</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $mean</span>
-<span class="co">#&gt; [1]  0.0000000 -0.3090665</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $sd</span>
-<span class="co">#&gt; [1] 0.000000 1.523274</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "normalmix"</span>
-<span class="co">#&gt; attr(,"row.names")</span>
-<span class="co">#&gt; [1] 1 2</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ebnm_custom</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">g_init</span>, <span class="va">fix_g</span>, <span class="va">output</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">fix_g</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span></span>
+<span>      <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g_init</span>, fix_g <span class="op">=</span> <span class="cn">TRUE</span>, output <span class="op">=</span> <span class="va">output</span>,</span>
+<span>      mixcompdist <span class="op">=</span> <span class="st">"normal"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="co"># Parameters are:</span></span>
+<span>    <span class="co">#   1. mean of normal component</span></span>
+<span>    <span class="co">#   2. sd of normal component</span></span>
+<span>    <span class="va">neg_llik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ashr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ashr/man/normalmix.html" class="external-link">normalmix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span></span>
+<span>        <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g</span>, fix_g <span class="op">=</span> <span class="cn">FALSE</span>, mixcompdist <span class="op">=</span> <span class="st">"normal"</span></span>
+<span>      <span class="op">)</span></span>
+<span>      <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="op">-</span><span class="va">ebnm_res</span><span class="op">$</span><span class="va">log_likelihood</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>    </span>
+<span>    <span class="co"># Run optim to get mean and sd of normal component:</span></span>
+<span>    <span class="va">opt_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span></span>
+<span>      par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="co"># Initial values</span></span>
+<span>      fn <span class="op">=</span> <span class="va">neg_llik</span>, </span>
+<span>      method <span class="op">=</span> <span class="st">"L-BFGS-B"</span>, </span>
+<span>      lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">0.01</span><span class="op">)</span>, </span>
+<span>      upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="cn">Inf</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Now re-run ash to get mixture weights:</span></span>
+<span>    <span class="va">opt_par</span> <span class="op">&lt;-</span> <span class="va">opt_res</span><span class="op">$</span><span class="va">par</span></span>
+<span>    <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">ashr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ashr/man/normalmix.html" class="external-link">normalmix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">opt_par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">opt_par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_ash.html" class="external-link">ebnm_ash</a></span><span class="op">(</span></span>
+<span>        <span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">g</span>, fix_g <span class="op">=</span> <span class="cn">FALSE</span>, output <span class="op">=</span> <span class="va">output</span>,</span>
+<span>        mixcompdist <span class="op">=</span> <span class="st">"normal"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span> </span>
+<span>  </span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">ebnm_res</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">fit_custom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_greedy.html">flash_greedy</a></span><span class="op">(</span></span>
+<span>    Kmax <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_custom</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_custom</span><span class="op">$</span><span class="va">F_ghat</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; $pi</span></span>
+<span><span class="co">#&gt; [1] 0.1698113 0.8301887</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mean</span></span>
+<span><span class="co">#&gt; [1]  0.000000 -3.214882</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sd</span></span>
+<span><span class="co">#&gt; [1] 0.000000 1.041829</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "normalmix"</span></span>
+<span><span class="co">#&gt; attr(,"row.names")</span></span>
+<span><span class="co">#&gt; [1] 1 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; $pi</span></span>
+<span><span class="co">#&gt; [1] 0.3037192 0.6962808</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mean</span></span>
+<span><span class="co">#&gt; [1]  0.0000000 -0.3090665</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sd</span></span>
+<span><span class="co">#&gt; [1] 0.000000 1.523274</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "normalmix"</span></span>
+<span><span class="co">#&gt; attr(,"row.names")</span></span>
+<span><span class="co">#&gt; [1] 1 2</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="a-recipe-for-plotting-fitting-progress">A recipe for plotting fitting progress<a class="anchor" aria-label="anchor" href="#a-recipe-for-plotting-fitting-progress"></a>
@@ -565,43 +564,86 @@ then compares the per-iteration ELBO for each fit. (Since
 <code>sink</code> does not play well with R Markdown, this code is not
 evaluated.)</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span>
-<span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">progress_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span>
-<span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="va">progress_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.remove</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span>
-
-<span class="va">progress_extrapolate</span> <span class="op">&lt;-</span> <span class="va">progress_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Iter</span>, <span class="va">ELBO</span>, <span class="va">Extrapolate</span><span class="op">)</span>
-
-<span class="va">progress_no_extrapolate</span> <span class="op">&lt;-</span> <span class="va">progress_no_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>ELBO <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ELBO</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="va">tib</span> <span class="op">&lt;-</span> <span class="va">progress_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">progress_no_extrapolate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Iter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">Iter</span><span class="op">)</span>,
-         ELBO <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">ELBO</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tib</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Iter</span>, y <span class="op">=</span> <span class="va">ELBO</span>, col <span class="op">=</span> <span class="va">Extrapolate</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">progress_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span>, var_type <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_set_verbose.html">flash_set_verbose</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_factors_init.html">flash_factors_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/svd.html" class="external-link">svd</a></span><span class="op">(</span><span class="va">gtex</span>, nu <span class="op">=</span> <span class="fl">5</span>, nv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/flash_backfit.html">flash_backfit</a></span><span class="op">(</span>extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">progress_no_extrapolate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sink.html" class="external-link">sink</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.remove</a></span><span class="op">(</span><span class="st">"zz.tsv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">progress_extrapolate</span> <span class="op">&lt;-</span> <span class="va">progress_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Extrapolate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Iter</span>, <span class="va">ELBO</span>, <span class="va">Extrapolate</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">progress_no_extrapolate</span> <span class="op">&lt;-</span> <span class="va">progress_no_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">Iter</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>ELBO <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ELBO</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tib</span> <span class="op">&lt;-</span> <span class="va">progress_extrapolate</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">progress_no_extrapolate</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Iter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">Iter</span><span class="op">)</span>,</span>
+<span>         ELBO <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">ELBO</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tib</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Iter</span>, y <span class="op">=</span> <span class="va">ELBO</span>, col <span class="op">=</span> <span class="va">Extrapolate</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h2>
+<p>The following R version and packages were used to generate this
+vignette:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.2.1 (2022-06-23)</span></span>
+<span><span class="co">#&gt; Platform: aarch64-apple-darwin20 (64-bit)</span></span>
+<span><span class="co">#&gt; Running under: macOS Monterey 12.3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRblas.0.dylib</span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.2-arm64/Resources/lib/libRlapack.dylib</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt; [1] dplyr_1.1.3    cowplot_1.1.1  ggplot2_3.4.3  flashier_1.0.4 magrittr_2.0.3</span></span>
+<span><span class="co">#&gt; [6] ebnm_1.1-2    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;  [1] Rcpp_1.0.11       horseshoe_0.2.0   invgamma_1.1      lattice_0.21-9   </span></span>
+<span><span class="co">#&gt;  [5] tidyr_1.3.0       rprojroot_2.0.3   digest_0.6.33     utf8_1.2.3       </span></span>
+<span><span class="co">#&gt;  [9] truncnorm_1.0-9   R6_2.5.1          evaluate_0.22     pillar_1.9.0     </span></span>
+<span><span class="co">#&gt; [13] rlang_1.1.1       rstudioapi_0.15.0 irlba_2.3.5.1     jquerylib_0.1.4  </span></span>
+<span><span class="co">#&gt; [17] Matrix_1.6-1.1    rmarkdown_2.25    pkgdown_2.0.7     labeling_0.4.3   </span></span>
+<span><span class="co">#&gt; [21] textshaping_0.3.7 desc_1.4.2        splines_4.2.1     stringr_1.5.0    </span></span>
+<span><span class="co">#&gt; [25] munsell_0.5.0     mixsqp_0.3-48     compiler_4.2.1    xfun_0.40        </span></span>
+<span><span class="co">#&gt; [29] pkgconfig_2.0.3   systemfonts_1.0.5 SQUAREM_2021.1    htmltools_0.5.6.1</span></span>
+<span><span class="co">#&gt; [33] tidyselect_1.2.0  tibble_3.2.1      fansi_1.0.5       withr_2.5.1      </span></span>
+<span><span class="co">#&gt; [37] grid_4.2.1        jsonlite_1.8.7    gtable_0.3.4      lifecycle_1.0.3  </span></span>
+<span><span class="co">#&gt; [41] scales_1.2.1      cli_3.6.1         stringi_1.7.12    cachem_1.0.8     </span></span>
+<span><span class="co">#&gt; [45] farver_2.1.1      fs_1.6.3          bslib_0.5.1       ragg_1.2.6       </span></span>
+<span><span class="co">#&gt; [49] generics_0.1.3    vctrs_0.6.3       trust_0.1-8       tools_4.2.1      </span></span>
+<span><span class="co">#&gt; [53] glue_1.6.2        softImpute_1.4-1  purrr_1.0.2       parallel_4.2.1   </span></span>
+<span><span class="co">#&gt; [57] fastmap_1.1.1     yaml_2.3.7        colorspace_2.1-0  ashr_2.2-63      </span></span>
+<span><span class="co">#&gt; [61] memoise_2.0.1     deconvolveR_1.2-1 knitr_1.44        sass_0.4.7</span></span></code></pre></div>
 </div>
   </div>
 
