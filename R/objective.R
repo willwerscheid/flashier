@@ -26,7 +26,7 @@ calc.obj <- function(flash, factor = NULL) {
     obj <- KL - 0.5 * (sum(n.nonmissing[[1]]) * (log(2 * pi) + 1)
                        - sum(unlist(n.nonmissing) * log(unlist(tau))))
   } else if (is.var.type.noisy(flash) || is.var.type.noisy.kron(flash)) {
-    if (any.missing(flash))
+    if (any_missing(flash))
       tau <- tau[tau > 0]
     obj <- KL - 0.5 * (sum(log(2 * pi / tau)) + sum.tau.R2)
   } else {

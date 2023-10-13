@@ -4,7 +4,7 @@ build.sampler <- function(flash) {
 
   return(function(nsamp) {
     # Get samples as list of dimensions with sublists of factors.
-    samp <- rapply(all.post.samplers(flash),
+    samp <- rapply(all_post.samplers(flash),
                    function(f) do.call(f, list(nsamp = nsamp)),
                    how = "list")
 
@@ -21,7 +21,7 @@ build.sampler <- function(flash) {
   })
 }
 
-all.post.samplers <- function(flash) {
+all_post.samplers <- function(flash) {
   return(lapply(1:get.dim(flash),
                 function(n) lapply(1:get.n.factors(flash),
                                    function(k) one.post.sampler(flash, k, n))))
@@ -29,7 +29,7 @@ all.post.samplers <- function(flash) {
 
 one.post.sampler <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
-  if (all.fixed(factor, n)) {
+  if (all_fixed(factor, n)) {
     sampler <- function(nsamp) {matrix(get.EF(factor)[[n]],
                                        nrow = nsamp,
                                        ncol = get.dims(flash)[n],

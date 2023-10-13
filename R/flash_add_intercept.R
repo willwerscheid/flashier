@@ -58,7 +58,7 @@ flash_add_intercept <- function(flash,
   if (rowwise) {
     fixed_dim <- "loadings"
     ones <- matrix(1, nrow = get.dims(fit)[1])
-    if (any.missing(fit)) {
+    if (any_missing(fit)) {
       init.F <- colSums(residuals(fit), na.rm = TRUE) / colSums(get.nonmissing(fit))
     } else {
       init.F <- colMeans(residuals(fit))
@@ -67,7 +67,7 @@ flash_add_intercept <- function(flash,
   } else {
     fixed_dim <- "factors"
     ones <- matrix(1, nrow = get.dims(fit)[2])
-    if (any.missing(fit)) {
+    if (any_missing(fit)) {
       init.L <- rowSums(residuals(fit), na.rm = TRUE) / rowSums(get.nonmissing(fit))
     } else {
       init.L <- rowMeans(residuals(fit))

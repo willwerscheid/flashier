@@ -195,7 +195,7 @@ flash_greedy_init_irlba <- function(flash, seed = 666, ...) {
   if (inherits(get.Y(flash), "lowrank"))
     stop("irlba cannot be used with low-rank matrix representations.")
 
-  if (any.missing(flash)) {
+  if (any_missing(flash)) {
     stop("irlba cannot be used when there is missing data.")
   }
 

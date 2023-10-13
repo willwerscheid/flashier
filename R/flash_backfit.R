@@ -110,7 +110,7 @@ flash_backfit <- function(flash,
   conv.crit[setdiff(1:get.n.factors(flash), kset)] <- 0
 
   announce.backfit(verbose.lvl, n.factors = length(kset), tol)
-  print.table.header(verbose.lvl,
+  print_table.header(verbose.lvl,
                      verbose.colnames,
                      verbose.colwidths,
                      backfit = TRUE)
@@ -150,7 +150,7 @@ flash_backfit <- function(flash,
                                   verbose.fns,
                                   k)
         conv.crit[k] <- get.conv.crit(info)
-        print.table.entry(verbose.lvl,
+        print_table.entry(verbose.lvl,
                           verbose.colwidths,
                           iter,
                           info,
@@ -181,7 +181,7 @@ flash_backfit <- function(flash,
                                conv.crit.fn,
                                verbose.fns)
       conv.crit <- get.conv.crit(info)
-      print.table.entry(verbose.lvl,
+      print_table.entry(verbose.lvl,
                         verbose.colwidths,
                         iter,
                         info,
@@ -240,7 +240,7 @@ check.parallel.ok <- function(flash, kset) {
   if (get.dim(flash) > 2) {
     stop("Parallel backfits have not yet been implemented for tensors.")
   }
-  if (any.missing(flash)) {
+  if (any_missing(flash)) {
     stop("Parallel backfits have not been implemented for missing data.")
   }
   if (!store.R2.as.scalar(flash)) {

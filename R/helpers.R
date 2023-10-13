@@ -229,7 +229,7 @@ get.dimnames <- function(f) {
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)
 }
-any.missing <- function(f) !identical(get.nonmissing(f), 1)
+any_missing <- function(f) !identical(get.nonmissing(f), 1)
 is.obj.valid <- function(flash, factor = NULL) {
   valid <- is.valid(flash)
   if (!is.null(factor))
@@ -370,7 +370,7 @@ get.unfixed.idx <- function(f, k) {
 get.next.unfixed.idx <- function(f) {
   return(get.unfixed.idx(f, get.next.k(f)))
 }
-all.fixed <- function(f, n) {
+all_fixed <- function(f, n) {
   fix.dim <- as.integer(get.fix.dim(f))
   idx.subset <- get.idx.subset(f)
   return(identical(fix.dim, n) && length(idx.subset) == 0)

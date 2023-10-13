@@ -332,7 +332,7 @@ residuals.flash_fit <- function(object, ...) {
     R <- get.Y(object) - lowrank.expand(get.EF(object))
   }
 
-  if (any.missing(object)) {
+  if (any_missing(object)) {
     R[get.nonmissing(object) == 0] <- NA
   }
 

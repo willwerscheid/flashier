@@ -59,7 +59,7 @@ calc.R2 <- function(flash) {
       EFsq <- 0
     } else {
       Y.EF <- premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
-      if (!any.missing(flash) && store.R2.as.scalar(flash)) {
+      if (!any_missing(flash) && store.R2.as.scalar(flash)) {
         EFsq <- sum(Reduce(`*`, lapply(EF, crossprod)))
       } else {
         EFsq <- premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)

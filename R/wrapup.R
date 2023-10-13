@@ -132,7 +132,7 @@ calc.lfsr <- function(flash) {
 
 lfsr.one.n <- function(flash, k, n) {
   factor <- extract.factor(flash, k)
-  if (is.zero(factor) || all.fixed(factor, n)) {
+  if (is.zero(factor) || all_fixed(factor, n)) {
     lfsr <- rep(NA, get.dims(flash)[n])
   } else {
     ebnm.res <- solve.ebnm(factor, n, flash, output = "lfsr")

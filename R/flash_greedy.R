@@ -164,7 +164,7 @@ flash_greedy <- function(flash,
     factor <- set.ebnm.fn(factor, ebnm.fn)
 
     announce.factor.opt(verbose.lvl)
-    print.table.header(verbose.lvl,
+    print_table.header(verbose.lvl,
                        verbose.colnames,
                        verbose.colwidths,
                        backfit = FALSE)
@@ -203,7 +203,7 @@ flash_greedy <- function(flash,
 
       info <- calc.update.info(factor, old.f, conv.crit.fn, verbose.fns)
       conv.crit <- get.conv.crit(info)
-      print.table.entry(verbose.lvl,
+      print_table.entry(verbose.lvl,
                         verbose.colwidths,
                         iter,
                         info,

@@ -173,7 +173,7 @@ report.greedy.obj.decrease <- function(verbose.lvl, obj.diff) {
         formatC(-obj.diff, format = "e", digits = 2), ".\n", sep="")
 }
 
-print.table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
+print_table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
   if (verbose.lvl > 2) {
     header.string <- sprintf("%13s", "Iteration")
     if (backfit)
@@ -188,7 +188,7 @@ print.table.header <- function(verbose.lvl, colnames, colwidths, backfit) {
   }
 }
 
-print.tab.delim.table.header <- function(colnames) {
+print_tab.delim.table.header <- function(colnames) {
   header.string <- "Type\tFactor\tIter"
   for (name in colnames) {
     header.string <- paste0(header.string, "\t", name)
@@ -197,7 +197,7 @@ print.tab.delim.table.header <- function(colnames) {
   cat(header.string)
 }
 
-print.table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
+print_table.entry <- function(verbose.lvl, colwidths, iter, info, k, backfit) {
   if (verbose.lvl > 2) {
     table.entry <- sprintf("%13d", iter)
     if (backfit)

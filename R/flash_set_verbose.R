@@ -153,7 +153,7 @@ flash_set_verbose <- function(flash,
   flash <- set.fit(flash, fit)
 
   if (lvl == -1) {
-    print.tab.delim.table.header(colnames)
+    print_tab.delim.table.header(colnames)
   }
 
   return(flash)

@@ -3,7 +3,7 @@ update.factor <- function(factor, flash, update.tau = TRUE) {
     return(factor)
 
   for (n in 1:get.dim(flash))
-    if (!is.zero(factor) && !all.fixed(factor, n))
+    if (!is.zero(factor) && !all_fixed(factor, n))
       factor <- update.factor.one.n(factor, n, flash)
 
   if (update.tau)
@@ -244,7 +244,7 @@ only.update.subset <- function(factor, n, flash) {
 }
 
 use.subsetted.flash.data <- function(factor, n) {
-  return((n %in% get.fix.dim(factor)) && !all.fixed(factor, n))
+  return((n %in% get.fix.dim(factor)) && !all_fixed(factor, n))
 }
 
 add.fixed.to.ebnm.args <- function(factor, n, flash, output) {
