@@ -14,6 +14,11 @@ reproducibility.}
 
 \item{...}{Additional parameters to be passed to \code{\link[irlba]{irlba}}.}
 }
+\value{
+A list of length two consisting of, respectively, the vector of
+  initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
+  factor values \eqn{f_{\cdot k}}.
+}
 \description{
 Initializes a new ("greedy") flash factor using \code{\link[irlba]{irlba}}. This
   can be somewhat faster than \code{\link{flash_greedy_init_default}} for large,

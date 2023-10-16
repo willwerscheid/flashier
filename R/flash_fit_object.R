@@ -30,6 +30,8 @@
 #'
 #' @param flash A \code{flash} object.
 #'
+#' @return See function descriptions below.
+#'
 #' @export
 #'
 flash_fit <- function(flash) {

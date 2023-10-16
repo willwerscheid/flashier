@@ -36,6 +36,11 @@ the number of rows in the data matrix and \eqn{p} is the number of columns.}
 \item{seed}{Since initialization is random, a default seed is set for
 reproducibility.}
 }
+\value{
+A list of length two consisting of, respectively, the vector of
+  initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
+  factor values \eqn{f_{\cdot k}}.
+}
 \description{
 The default method for initializing the loadings \eqn{\ell_{\cdot k}} and
   factor values \eqn{f_{\cdot k}} of a new ("greedy") flash factor. It is

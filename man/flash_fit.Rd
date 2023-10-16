@@ -38,6 +38,9 @@ flash_fit_get_g(f, n)
 \item{n}{Set \code{n = 1} to access loadings \eqn{L} and \code{n = 2} to
 access factors \eqn{F}).}
 }
+\value{
+See function descriptions below.
+}
 \description{
 \code{flash_fit} objects are the "internal" objects used by \code{flash}
   functions to fit an EBMF model. Whereas \code{flash} objects

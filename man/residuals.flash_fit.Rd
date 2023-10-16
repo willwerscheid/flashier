@@ -11,6 +11,9 @@
 
 \item{...}{Additional parameters are ignored.}
 }
+\value{
+The matrix of expected residuals.
+}
 \description{
 Given a \code{\link{flash_fit}} object, returns the expected residuals
   \eqn{Y - E(LF') = Y - E(L) E(F)'}.

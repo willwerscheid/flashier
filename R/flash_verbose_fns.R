@@ -16,6 +16,8 @@
 #'   \code{\link{flash_backfit}} where \code{extrapolate = FALSE}). It then
 #'   takes the index of the factor/loadings pair currently being optimized.
 #'
+#' @return A character string, suitable for printing progress updates.
+#'
 #' @seealso \code{\link{flash_verbose_elbo_diff}},
 #'   \code{\link{flash_verbose_max_chg}},
 #'   \code{\link{flash_verbose_max_chg_L}},
@@ -38,6 +40,8 @@ flash_verbose_elbo <- function(curr, prev, k) {
 #' @inherit flash_verbose_elbo details
 #'
 #' @inheritParams flash_verbose_elbo
+#'
+#' @inherit flash_verbose_elbo return
 #'
 #' @seealso \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_max_chg}},
 #'   \code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
@@ -62,6 +66,8 @@ flash_verbose_elbo_diff <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
+#' @inherit flash_verbose_elbo return
+#'
 #' @seealso \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_elbo_diff}},
 #'   \code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
 #'
@@ -81,6 +87,8 @@ flash_verbose_max_chg <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
+#' @inherit flash_verbose_elbo return
+#'
 #' @seealso \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_elbo_diff}},
 #'   \code{\link{flash_verbose_max_chg}}, \code{\link{flash_verbose_max_chg_F}}
 #'
@@ -99,6 +107,8 @@ flash_verbose_max_chg_L <- function(curr, prev, k) {
 #' @inherit flash_verbose_elbo details
 #'
 #' @inheritParams flash_verbose_elbo
+#'
+#' @inherit flash_verbose_elbo return
 #'
 #' @seealso \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_elbo_diff}},
 #'   \code{\link{flash_verbose_max_chg}}, \code{\link{flash_verbose_max_chg_L}}

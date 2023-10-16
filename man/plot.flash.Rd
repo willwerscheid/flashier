@@ -73,6 +73,12 @@ This parameter is ignored when \code{include_pm = FALSE}.}
 
 \item{...}{Additional parameters are ignored.}
 }
+\value{
+If arguments \code{include_scree} and \code{include_pm} specify that
+  only one figure be produced, then \code{plot.flash()} returns a
+  \code{ggplot2} object. If both figures are to be produced, then
+  \code{plot.flash()} prints both plots but does not return a value.
+}
 \description{
 Given a \code{\link{flash}} object, produces up to two figures: one showing
   the proportion of variance explained per factor/loadings pair, and one that

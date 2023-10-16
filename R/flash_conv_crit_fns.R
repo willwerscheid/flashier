@@ -11,6 +11,9 @@
 #'
 #' @inheritParams flash_verbose_elbo
 #'
+#' @return A scalar, which is compared against the tolerance parameter
+#'   \code{tol} to determine whether a fit has converged.
+#'
 #' @seealso \code{\link{flash_conv_crit_max_chg}}
 #'   \code{\link{flash_conv_crit_max_chg_L}},
 #'   \code{\link{flash_conv_crit_max_chg_F}}
@@ -32,6 +35,8 @@ flash_conv_crit_elbo_diff <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
+#' @inherit flash_conv_crit_elbo_diff return
+#'
 #' @seealso \code{\link{flash_conv_crit_elbo_diff}},
 #'   \code{\link{flash_conv_crit_max_chg_L}}
 #'   \code{\link{flash_conv_crit_max_chg_F}}
@@ -52,6 +57,8 @@ flash_conv_crit_max_chg <- function(curr, prev, k) {
 #'
 #' @inheritParams flash_verbose_elbo
 #'
+#' @inherit flash_conv_crit_elbo_diff return
+#'
 #' @seealso \code{\link{flash_conv_crit_elbo_diff}},
 #'   \code{\link{flash_conv_crit_max_chg}}
 #'   \code{\link{flash_conv_crit_max_chg_F}}
@@ -71,6 +78,8 @@ flash_conv_crit_max_chg_L <- function(curr, prev, k) {
 #'   \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
 #'
 #' @inheritParams flash_verbose_elbo
+#'
+#' @inherit flash_conv_crit_elbo_diff return
 #'
 #' @seealso \code{\link{flash_conv_crit_elbo_diff}},
 #'   \code{\link{flash_conv_crit_max_chg}}

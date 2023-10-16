@@ -15,6 +15,10 @@ flash_conv_crit_max_chg_F(curr, prev, k)
 \code{\link{flash_backfit}} where \code{extrapolate = FALSE}). It then
 takes the index of the factor/loadings pair currently being optimized.}
 }
+\value{
+A scalar, which is compared against the tolerance parameter
+  \code{tol} to determine whether a fit has converged.
+}
 \description{
 An alternative objective function that can be used to determine
   convergence when fitting a \code{\link{flash}} object. Calculates the

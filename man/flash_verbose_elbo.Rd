@@ -15,6 +15,9 @@ flash_verbose_elbo(curr, prev, k)
 \code{\link{flash_backfit}} where \code{extrapolate = FALSE}). It then
 takes the index of the factor/loadings pair currently being optimized.}
 }
+\value{
+A character string, suitable for printing progress updates.
+}
 \description{
 Displays the value of the variational lower bound (ELBO) at the current
   iteration.

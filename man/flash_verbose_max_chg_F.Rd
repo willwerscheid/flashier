@@ -15,6 +15,9 @@ flash_verbose_max_chg_F(curr, prev, k)
 \code{\link{flash_backfit}} where \code{extrapolate = FALSE}). It then
 takes the index of the factor/loadings pair currently being optimized.}
 }
+\value{
+A character string, suitable for printing progress updates.
+}
 \description{
 Displays the maximum (absolute) change over all (posterior expected values for)
   factors \eqn{f_{jk}}. At each iteration, the factors

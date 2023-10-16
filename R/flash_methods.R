@@ -60,6 +60,11 @@
 #'
 #' @param ... Additional parameters are ignored.
 #'
+#' @return If arguments \code{include_scree} and \code{include_pm} specify that
+#'   only one figure be produced, then \code{plot.flash()} returns a
+#'   \code{ggplot2} object. If both figures are to be produced, then
+#'   \code{plot.flash()} prints both plots but does not return a value.
+#'
 #' @method plot flash
 #'
 #' @importFrom magrittr %>%
@@ -262,6 +267,8 @@ plot.flash <- function(x,
 #'
 #' @param ... Additional parameters are ignored.
 #'
+#' @return The matrix of "fitted values."
+#'
 #' @importFrom stats fitted
 #' @method fitted flash
 #'
@@ -279,6 +286,8 @@ fitted.flash <- function(object, ...) {
 #' @param object An object inheriting from class \code{flash_fit}.
 #'
 #' @param ... Additional parameters are ignored.
+#'
+#' @return The matrix of "fitted values."
 #'
 #' @importFrom stats fitted
 #' @method fitted flash_fit
@@ -304,6 +313,8 @@ fitted.flash_fit <- function(object, ...) {
 #'
 #' @inheritParams fitted.flash
 #'
+#' @return The matrix of expected residuals.
+#'
 #' @importFrom stats residuals
 #' @method residuals flash
 #'
@@ -319,6 +330,8 @@ residuals.flash <- function(object, ...) {
 #'   \eqn{Y - E(LF') = Y - E(L) E(F)'}.
 #'
 #' @inheritParams fitted.flash_fit
+#'
+#' @return The matrix of expected residuals.
 #'
 #' @importFrom stats residuals
 #' @method residuals flash_fit
