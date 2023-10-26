@@ -61,7 +61,12 @@ calc.R2 <- function(flash) {
       Y.EF <- premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
       if (!any_missing(flash) && store.R2.as.scalar(flash)) {
         EFsq <- sum(Reduce(`*`, lapply(EF, crossprod)))
+      } else if (get.dim(flash) == 2) {
+        EFsq <- colSums(
+          apply(EF[[n]], 1, tcrossprod) * as.vector(crossprod(EF[[-n]]))
+        )
       } else {
+        # TODO: fix for tensors
         EFsq <- premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
       }
     }
