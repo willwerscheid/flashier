@@ -61,7 +61,8 @@ is.udv <- function(X) {
     return(FALSE)
 
   # Check u and v.
-  if (!is.matrix(X$u) || !is.matrix(X$v))
+  if (!(is.matrix(X$u) || inherits(X$u, "Matrix")) ||
+      !(is.matrix(X$v) || inherits(X$v, "Matrix")))
     return(FALSE)
   if (!identical(ncol(X$u), ncol(X$v)))
     return(FALSE)

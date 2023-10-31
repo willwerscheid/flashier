@@ -16,15 +16,17 @@ nmode.ops.error <- paste("N-mode products are not yet implemented for",
 #   \sum_k v_k X_{ijk}. v can be set to 1 to indicate an m_n-vector of all
 #   ones.
 #
+#' @importFrom Matrix colSums rowSums t crossprod
+#'
 nmode.prod.vec <- function(X, v, n) {
   # Matrices and sparse matrices:
   if (is.matrix(X) || inherits(X, "Matrix")) {
     if (n == 1 && identical(v, 1))
-      return(Matrix::colSums(X))
+      return(colSums(X))
     if (n == 1)
       return(as.vector(v %*% X))
     if (n == 2 && identical(v, 1))
-      return(Matrix::rowSums(X))
+      return(rowSums(X))
     if (n == 2)
       return(as.vector(X %*% v))
   }
@@ -164,9 +166,9 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     if (inherits(Z, "lowrank") && n == 2)
       return(rowSums(lowrank[[2]] * (Z[[2]] %*% t(crossprod(u, Z[[1]])))))
     if (n == 1)
-      return(Matrix::rowSums(lowrank[[1]] * (Z %*% u)))
+      return(rowSums(lowrank[[1]] * (Z %*% u)))
     if (n == 2)
-      return(Matrix::colSums(t(lowrank[[2]]) * (t(u) %*% Z)))
+      return(colSums(t(lowrank[[2]]) * (t(u) %*% Z)))
   }
 
   # 3-dimensional tensors:
@@ -181,15 +183,15 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
     #   m_ index.
     if (ns[[1]] == 1) {
       tmp <- tmp * as.vector(lowrank[[1]] * r1[[1]])
-      tmp <- Matrix::colSums(matrix(tmp, nrow = dim(Z)[1]))
+      tmp <- colSums(matrix(tmp, nrow = dim(Z)[1]))
       # Have m_n k vectors concatenated one after another.
-      return(Matrix::rowSums(lowrank[[n]]
+      return(rowSums(lowrank[[n]]
                              * matrix(tmp, nrow = dim(Z)[n], byrow = TRUE)))
     } else { # ns[[1]] == 2
       tmp <- tmp * rep(t(lowrank[[2]] * r1[[1]]), each = dim(Z)[1])
-      tmp <- Matrix::rowSums(tmp)
+      tmp <- rowSums(tmp)
       # Have k m_n vectors concatenated one after another.
-      return(Matrix::rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n])))
+      return(rowSums(lowrank[[n]] * matrix(tmp, nrow = dim(Z)[n])))
     }
   }
 
