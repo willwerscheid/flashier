@@ -38,42 +38,15 @@ must.be.list.of.named.lists <- function(x, valid.fields) {
     stop(error.msg)
 }
 
-must.be.supported.data.type <- function(X,
-                                        allow.null = TRUE,
-                                        allow.vector = FALSE,
-                                        allow.lowrank = FALSE) {
+must.be.supported.S.type <- function(X) {
   error.msg <- paste0("Invalid argument to ", deparse(substitute(X)), ".")
   if (!(is.matrix(X)
         || inherits(X, "Matrix")
         || (is.array(X) && length(dim(X)) == 3)
-        || (allow.null && is.null(X))
-        || (allow.vector && is.vector(X))
-        || (allow.lowrank && (inherits(X, "lowrank") || is.udv(X)))))
+        || is.null(X)
+        || is.vector(X))) {
     stop(error.msg)
-}
-
-is.udv <- function(X) {
-  if (!is.list(X))
-    return(FALSE)
-
-  # Must have fields d, u, and v.
-  if (is.null(X$d) || is.null(X$u) || is.null(X$v))
-    return(FALSE)
-
-  # Check u and v.
-  if (!(is.matrix(X$u) || inherits(X$u, "Matrix")) ||
-      !(is.matrix(X$v) || inherits(X$v, "Matrix")))
-    return(FALSE)
-  if (!identical(ncol(X$u), ncol(X$v)))
-    return(FALSE)
-  if (anyNA(X$u) || anyNA(X$v))
-    return(FALSE)
-
-  # Check d.
-  if (!is.numeric(X$d) || (length(X$d) < ncol(X$u)))
-    return(FALSE)
-
-  return(TRUE)
+  }
 }
 
 must.be.compatible.data.types <- function(X, Y) {
@@ -99,8 +72,8 @@ must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
 }
 
 must.not.have.zero.slices <- function(Y) {
-  # Skip this test for tensors.
-  if (length(dim(Y)) > 2)
+  # Skip this test for non-standard data structures.
+  if (!(is.matrix(Y) || inherits(Y, "Matrix") || inherits(Y, "lowrank")))
     return()
 
   error.msg <- paste("The data matrix must not have any rows or",

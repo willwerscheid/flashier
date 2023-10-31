@@ -8,20 +8,19 @@
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   flash.data <- list(t.init = Sys.time(), t.final = Sys.time())
 
-  must.be.supported.data.type(data, allow.null = FALSE, allow.lowrank = TRUE)
-  must.be.supported.data.type(S, allow.vector = TRUE)
+  must.be.supported.data.type(data)
+  must.be.supported.S.type(S)
   must.be.compatible.data.types(data, S)
 
   if (is.udv(data)) {
     data <- udv.to.lowrank(data)
   }
 
-  if (inherits(data, "lowrank")) {
-    data.dim <- sapply(data, nrow)
-  } else {
-    data.dim <- dim(data)
+  if (is.UVS(data)) {
+    data <- UVS.to.lrps(data)
   }
 
+  data.dim <- get.data.dims(data)
   must.be.integer(S.dim, lower = 0, upper = length(data.dim), allow.null = TRUE)
   must.be.valid.var.type(var.type, length(data.dim))
 
@@ -88,6 +87,18 @@ udv.to.lowrank <- function(udv) {
   class(LR) <- c("lowrank", "list")
 
   return(LR)
+}
+
+# Internal representation for "sparse plus low-rank" data.
+#
+UVS.to.lrps <- function(data) {
+  LR <- list(data$U, data$V)
+  class(LR) <- c("lowrank", "list")
+
+  lrps <- list(lowrank = LR, sparse = data$S)
+  class(lrps) <- c("lrps", "list")
+
+  return(lrps)
 }
 
 # If S is a vector, then attempt to infer its mode (e.g., row-wise, column-wise).

@@ -40,8 +40,8 @@ warmstart.greedy      <- function(f) f[["warmstart.greedy"]]
 
 get.Y <- function(f, require.fullrank = FALSE) {
   Y <- f[["Y"]]
-  if (require.fullrank && inherits(Y, "lowrank"))
-    Y <- lowrank.expand(Y)
+  if (require.fullrank)
+    Y <- as.fullrank(Y)
   return(Y)
 }
 get.EF <- function(f, n = NULL) {
@@ -213,18 +213,14 @@ get.dims <- function(f) {
   if (uses.R(f))
     return(dim(get.R(f)))
   Y <- get.Y(f)
-  if (inherits(Y, "lowrank"))
-    return(sapply(Y, nrow))
-  return(dim(Y))
+  return(get.data.dims(Y))
 }
 get.dim <- function(f) length(get.dims(f))
 get.dimnames <- function(f) {
   if (uses.R(f))
     return(dimnames(get.R(f)))
   Y <- get.Y(f)
-  if (inherits(Y, "lowrank"))
-    return(lapply(Y, rownames))
-  return(dimnames(Y))
+  return(get.data.dimnames(Y))
 }
 get.next.k <- function(f) {
   return(get.n.factors(f) + 1)

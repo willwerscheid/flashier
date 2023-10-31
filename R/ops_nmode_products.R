@@ -6,6 +6,53 @@
 # Ideally, they would also accept sparse tensors and tensors of arbitrary
 # dimension, but I am not aware of any good R packages for handling these types
 # of object.
+#
+# Added Nov 2023: low-rank plus sparse matrix representations (objects of
+# class "lrps" which are stored as lists of length two with field "lowrank"
+# containing an object of class "lowrank" and field "sparse" containing a
+# matrix, ideally but not necessarily of class Matrix).
+#
+# To add new data structures, each of the below functions must be updated.
+
+must.be.supported.data.type <- function(X) {
+  error.msg <- paste0("Invalid argument to ", deparse(substitute(X)), ".")
+  if (!(is.matrix(X)
+        || inherits(X, "Matrix")
+        || (is.array(X) && length(dim(X)) == 3)
+        || (inherits(X, "lowrank") || is.udv(X))
+        || (inherits(X, "lrps") || is.UVS(X))))
+    stop(error.msg)
+}
+
+get.data.dims <- function(X) {
+  if (inherits(X, "lowrank")) {
+    return(sapply(X, nrow))
+  } else if (inherits(X, "lrps")) {
+    return(dim(X[["sparse"]]))
+  } else {
+    return(dim(X))
+  }
+}
+
+get.data.dimnames <- function(X) {
+  if (inherits(X, "lowrank")) {
+    return(lapply(X, rownames))
+  } else if (inherits(X, "lrps")) {
+    return(lapply(X[["lowrank"]], rownames))
+  } else {
+    return(dimnames(X))
+  }
+}
+
+as.fullrank <- function(X) {
+  if (inherits(X, "lowrank")) {
+    return(lowrank.expand(X))
+  } else if (inherits(X, "lrps")) {
+    return(lowrank.expand(X[["lowrank"]]) + X[["sparse"]])
+  } else {
+    return(X)
+  }
+}
 
 nmode.ops.error <- paste("N-mode products are not yet implemented for",
                          "objects of that class and/or dimension.")
@@ -39,6 +86,14 @@ nmode.prod.vec <- function(X, v, n) {
       u <- t(v %*% X[[n]])
 
     return(as.vector(X[[-n]] %*% u))
+  }
+
+  # Low-rank plus sparse:
+  if (inherits(X, "lrps")) {
+    return(
+      nmode.prod.vec(X[["lowrank"]], v, n) +
+        nmode.prod.vec(X[["sparse"]], v, n)
+    )
   }
 
   # 3-dimensional tensors:
@@ -93,7 +148,8 @@ nmode.prod.r1 <- function(X, r1, n) {
 
   if (is.matrix(X)
       || inherits(X, "Matrix")
-      || (inherits(X, "lowrank") && length(X) == 2)) {
+      || (inherits(X, "lowrank") && length(X) == 2)
+      || inherits(X, "lrps")) {
     return(nmode.prod.vec(X, unlist(r1), (1:2)[-n]))
   }
 
@@ -124,6 +180,12 @@ nmode.prod.lowrank <- function(X, Y, n) {
       return(X[[2]] %*% (t(X[[1]]) %*% Y[[1]]))
   }
 
+  # Low-rank plus sparse:
+  if (inherits(X, "lrps")) {
+    return(nmode.prod.lowrank(X[["lowrank"]], Y, n) +
+             nmode.prod.lowrank(X[["sparse"]], Y, n))
+  }
+
   if ((is.array(X) && (length(dim(X)) == 3))
       || (inherits(X, "lowrank") && (length(X) == 3))) {
     stop("N-mode products of tensors with matrices have not yet been implemented.")
@@ -148,6 +210,16 @@ premult.nmode.prod.r1 <- function(Z, X, r1, n) {
 
   if (inherits(Z, "lowrank"))
     return(premult.lowrank.nmode.prod.r1(X, Z, r1, n))
+
+  if (inherits(X, "lrps")) {
+    return(premult.nmode.prod.r1(Z, X[["lowrank"]], r1, n) +
+             premult.nmode.prod.r1(Z, X[["sparse"]], r1, n))
+  }
+
+  if (inherits(Z, "lrps")) {
+    return(premult.nmode.prod.r1(Z[["lowrank"]], X, r1, n) +
+             premult.nmode.prod.r1(Z[["sparse"]], X, r1, n))
+  }
 
   return(nmode.prod.r1(Z * X, r1, n))
 }
@@ -196,4 +268,56 @@ premult.lowrank.nmode.prod.r1 <- function(Z, lowrank, r1, n) {
   }
 
   stop(nmode.ops.error)
+}
+
+is.udv <- function(X) {
+  if (!is.list(X))
+    return(FALSE)
+
+  # Must have fields d, u, and v.
+  if (is.null(X$d) || is.null(X$u) || is.null(X$v))
+    return(FALSE)
+
+  # Check u and v.
+  if (!(is.matrix(X$u) || inherits(X$u, "Matrix")) ||
+      !(is.matrix(X$v) || inherits(X$v, "Matrix")))
+    return(FALSE)
+  if (!identical(ncol(X$u), ncol(X$v)))
+    return(FALSE)
+  if (anyNA(X$u) || anyNA(X$v))
+    return(FALSE)
+
+  # Check d.
+  if (!is.numeric(X$d) || (length(X$d) < ncol(X$u)))
+    return(FALSE)
+
+  return(TRUE)
+}
+
+is.UVS <- function(X) {
+  if (!is.list(X))
+    return(FALSE)
+
+  # Must have fields U, V, and S.
+  if (is.null(X$U) || is.null(X$V) || is.null(X$S))
+    return(FALSE)
+
+  # Check U and V.
+  if (!(is.matrix(X$U) || inherits(X$U, "Matrix")) ||
+      !(is.matrix(X$V) || inherits(X$V, "Matrix")))
+    return(FALSE)
+  if (!identical(ncol(X$U), ncol(X$V)))
+    return(FALSE)
+  if (anyNA(X$U) || anyNA(X$v))
+    return(FALSE)
+
+  # Check S.
+  if (!(is.matrix(X$S) || inherits(X$S, "Matrix")))
+    return(FALSE)
+  if (!identical(nrow(X$U), nrow(X$S)))
+    return(FALSE)
+  if (!identical(nrow(X$V), ncol(X$S)))
+    return(FALSE)
+
+  return(TRUE)
 }

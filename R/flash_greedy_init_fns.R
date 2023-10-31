@@ -166,6 +166,9 @@ flash_greedy_init_softImpute <- function(flash, seed = 666, ...) {
   if (inherits(get.Y(flash), "lowrank"))
     stop("softImpute cannot be used with low-rank matrix representations.")
 
+  if (inherits(get.Y(flash), "lrps"))
+    stop("softImpute cannot be used with low-rank plus sparse representations.")
+
   si.res <- softImpute(residuals(flash), rank.max = 1, ...)
   EF <- list(si.res$u * sqrt(si.res$d), si.res$v * sqrt(si.res$d))
 
