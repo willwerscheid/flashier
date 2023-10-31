@@ -205,12 +205,6 @@ premult.nmode.prod.r1 <- function(Z, X, r1, n) {
   if (is.null(X))
     return(0)
 
-  if (inherits(X, "lowrank"))
-    return(premult.lowrank.nmode.prod.r1(Z, X, r1, n))
-
-  if (inherits(Z, "lowrank"))
-    return(premult.lowrank.nmode.prod.r1(X, Z, r1, n))
-
   if (inherits(X, "lrps")) {
     return(premult.nmode.prod.r1(Z, X[["lowrank"]], r1, n) +
              premult.nmode.prod.r1(Z, X[["sparse"]], r1, n))
@@ -220,6 +214,12 @@ premult.nmode.prod.r1 <- function(Z, X, r1, n) {
     return(premult.nmode.prod.r1(Z[["lowrank"]], X, r1, n) +
              premult.nmode.prod.r1(Z[["sparse"]], X, r1, n))
   }
+
+  if (inherits(X, "lowrank"))
+    return(premult.lowrank.nmode.prod.r1(Z, X, r1, n))
+
+  if (inherits(Z, "lowrank"))
+    return(premult.lowrank.nmode.prod.r1(X, Z, r1, n))
 
   return(nmode.prod.r1(Z * X, r1, n))
 }

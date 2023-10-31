@@ -27,9 +27,8 @@ calc.Y2 <- function(flash) {
   if (inherits(Y, "lowrank") && store.R2.as.scalar(flash)) {
     Y2 <- sum(Reduce(`*`, lapply(Y, crossprod)))
   } else {
-    Y  <- get.Y(flash, require.fullrank = TRUE)
     n  <- get.R2.n(flash)
-    Y2 <- nmode.prod.r1(Y^2, r1.ones(flash), n)
+    Y2 <- premult.nmode.prod.r1(Y, Y, r1.ones(flash), n)
     if (store.R2.as.scalar(flash))
       Y2 <- sum(Y2)
   }
