@@ -40,11 +40,11 @@ Z <- matrix(rnorm(15), nrow = 5, ncol = 3)
 
 test_that("r1 product with premultiplication is correct for matrices", {
   correct.result.1 <- (Z * (lowrank.M[[1]] %*% t(lowrank.M[[2]]))) %*% v2
-  expect_equal(premult.lowrank.nmode.prod.r1(Z, lowrank.M, list(v2), 1),
+  expect_equal(premult.nmode.prod.r1(Z, lowrank.M, list(v2), 1),
                as.vector(correct.result.1))
 
   correct.result.2 <- v1 %*% (Z * (lowrank.M[[1]] %*% t(lowrank.M[[2]])))
-  expect_equal(premult.lowrank.nmode.prod.r1(Z, lowrank.M, list(v1), 2),
+  expect_equal(premult.nmode.prod.r1(Z, lowrank.M, list(v1), 2),
                as.vector(correct.result.2))
 })
 
@@ -52,14 +52,16 @@ Z.array <- array(1:24, dim = c(4, 3, 2))
 lowrank.A2 <- list(matrix(1:8, ncol = 2),
                    matrix(1:6, ncol = 2),
                    matrix(1:4, ncol = 2))
+class(lowrank.A2) <- "lowrank"
 A2 <- lowrank.A2[[1]][, 1] %o% lowrank.A2[[2]][, 1] %o% lowrank.A2[[3]][, 1] +
   lowrank.A2[[1]][, 2] %o% lowrank.A2[[2]][, 2] %o% lowrank.A2[[3]][, 2]
 r1 <- list(rnorm(4), rnorm(3), rnorm(2))
 
 test_that("r1 product with premultiplication is correct for arrays", {
+  X <- Z.array * A2
   for (n in 1:3) {
-    correct.result <- nmode.prod.r1(Z.array * A2, r1[-n], n)
-    expect_equal(premult.lowrank.nmode.prod.r1(Z.array, lowrank.A2, r1[-n], n),
+    correct.result <- nmode.prod.r1(X, r1[-n], n)
+    expect_equal(premult.nmode.prod.r1(Z.array, lowrank.A2, r1[-n], n),
                  as.vector(correct.result))
   }
 })

@@ -24,11 +24,12 @@ calc.residuals <- function(flash, factor = NULL) {
 
 calc.Y2 <- function(flash) {
   Y <- get.Y(flash)
+  # TODO: remove ifelse; sq.nmode.prod.r1 should handle this case
   if (inherits(Y, "lowrank") && store.R2.as.scalar(flash)) {
     Y2 <- sum(Reduce(`*`, lapply(Y, crossprod)))
   } else {
     n  <- get.R2.n(flash)
-    Y2 <- premult.nmode.prod.r1(Y, Y, r1.ones(flash), n)
+    Y2 <- sq.nmode.prod.r1(Y, r1.ones(flash), n)
     if (store.R2.as.scalar(flash))
       Y2 <- sum(Y2)
   }

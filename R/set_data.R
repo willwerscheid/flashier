@@ -8,17 +8,10 @@
 set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   flash.data <- list(t.init = Sys.time(), t.final = Sys.time())
 
-  must.be.supported.data.type(data)
+  data <- handle.data(data)
+
   must.be.supported.S.type(S)
   must.be.compatible.data.types(data, S)
-
-  if (is.udv(data)) {
-    data <- udv.to.lowrank(data)
-  }
-
-  if (is.UVS(data)) {
-    data <- UVS.to.lrps(data)
-  }
 
   data.dim <- get.data.dims(data)
   must.be.integer(S.dim, lower = 0, upper = length(data.dim), allow.null = TRUE)
@@ -78,27 +71,80 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   return(flash.data)
 }
 
-# Convert a udv-type object to a flashier "lowrank" object.
-#
-udv.to.lowrank <- function(udv) {
-  d <- udv$d[1:ncol(udv$u)]
+handle.data <- function(X) {
+  # Low-rank and low-rank plus sparse representations as named lists:
+  if (is.list(X) &&
+      any(c("u", "U") %in% names(X)) &&
+      any(c("v", "V") %in% names(X))) {
+    X <- handle.udvs(X)
+  }
 
-  LR <- list(t(t(udv$u) * sqrt(d)), t(t(udv$v) * sqrt(d)))
-  class(LR) <- c("lowrank", "list")
-
-  return(LR)
+  return(X)
 }
 
-# Internal representation for "sparse plus low-rank" data.
+# Low-rank or low-rank plus sparse representations, of form:
+#   X = u diag(d) v' + s.
 #
-UVS.to.lrps <- function(data) {
-  LR <- list(data$U, data$V)
-  class(LR) <- c("lowrank", "list")
+handle.udvs <- function(X) {
+  names(X) <- tolower(names(X))
 
-  lrps <- list(lowrank = LR, sparse = data$S)
-  class(lrps) <- c("lrps", "list")
+  # Fields u and v (or U and V) are required. d and s (or D and S) are optional.
+  u <- X$u
+  v <- X$v
+  d <- X$d
+  s <- X$s
 
-  return(lrps)
+  # Check u and v.
+  if (!(is.matrix(u) || inherits(u, "Matrix"))
+      || !(is.matrix(v) || inherits(v, "Matrix"))) {
+    stop("Data fields u and v must be matrices (or sparse matrices of class ",
+         "\"Matrix\").")
+  }
+  if (anyNA(u) || anyNA(v)) {
+    stop("Data matrices u and v must not have missing data.")
+  }
+
+  if (!identical(ncol(u), ncol(v))) {
+    # Silently handle the case where v^T is provided (rather than v).
+    if (identical(ncol(u), nrow(v))) {
+      v <- t(v)
+    } else {
+      stop("Data matrices u and v are of incompatible dimensions.")
+    }
+  }
+
+  K <- ncol(u)
+
+  # Check d.
+  if (!is.null(d)) {
+    if (!is.numeric(d) || (length(d) < K)) {
+      stop("If data field d is provided, it must be a vector of length K.")
+    }
+    d <- d[1:K]
+    u <- t(t(u) * sqrt(d))
+    v <- t(t(v) * sqrt(d))
+  }
+
+  udv <- list(u, v)
+  class(udv) <- c("lowrank", "list")
+
+  # Check s.
+  if (is.null(s)) {
+    ret <- udv
+  } else {
+    if (!(is.matrix(s) || inherits(s, "Matrix"))) {
+      stop("If data field s is provided, it must be a matrix or object of ",
+           "class \"Matrix\".")
+    }
+    if (!identical(nrow(u), nrow(s)) || !identical(nrow(v), ncol(s))) {
+      stop("The dimensions of data matrix s do not match the dimensions of ",
+           "uv^T.")
+    }
+    ret <- list("lowrank" = udv, "sparse" = s)
+    class(ret) <- c("lrps", "list")
+  }
+
+  return(ret)
 }
 
 # If S is a vector, then attempt to infer its mode (e.g., row-wise, column-wise).

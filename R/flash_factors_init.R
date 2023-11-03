@@ -61,18 +61,19 @@ flash_factors_init <- function(flash,
   if (inherits(init, "flash")) {
     init <- get.fit(init)
   }
-
-  EF2 <- NULL
-  if (is.udv(init)) {
-    EF <- udv.to.lowrank(init)
-  } else if (inherits(init, "flash_fit")) {
+  if (inherits(init, "flash_fit")) {
     EF <- get.EF(init)
     EF2 <- get.EF2(init)
-  } else if (is.list(init) && all(sapply(init, is.matrix))) {
-    EF <- init
-    class(EF) <- list("lowrank", "list")
   } else {
-    stop("init must be an SVD-like object, a flash fit, or a list of matrices.")
+    # Convert udv' to lowrank as needed:
+    EF <- handle.data(init)
+    EF2 <- NULL
+    if (is.list(init) && all(sapply(init, is.matrix))) {
+      EF <- init
+      class(EF) <- c("lowrank", "list")
+    } else {
+      stop("init must be an SVD-like object, a flash fit, or a list of matrices.")
+    }
   }
 
   dims.must.match(EF, get.Y(flash))
