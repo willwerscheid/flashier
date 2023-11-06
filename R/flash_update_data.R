@@ -35,6 +35,7 @@ flash_update_data <- function(flash, newdata) {
   # Update data (Y and Z):
   Z.changed <- identical(get.nonmissing(data), get.nonmissing(flash))
   flash <- set.Y(flash, get.Y(data))
+  flash <- set.Y2(flash, NULL) # Will be recomputed by init.tau().
   flash <- set.nonmissing(flash, get.nonmissing(data))
 
   # Update precomputed quantities:
