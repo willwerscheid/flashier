@@ -105,7 +105,7 @@ dims.must.match <- function(X, Y, Y.dim = NULL) {
   }
   # If Y.dim is NULL, then Y must be a matrix or array.
   if (is.null(Y.dim)) {
-    if (!is.null(X) && !is.null(Y) && !identical(dim.X, dim(Y)))
+    if (!is.null(X) && !is.null(Y) && !identical(dim.X, get.data.dims(Y)))
       stop(error.msg)
   } else {
     # If Y.dim is zero, then Y must be a scalar.
