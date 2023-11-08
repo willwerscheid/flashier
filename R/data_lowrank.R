@@ -63,6 +63,8 @@ premult.nmode.prod.r1.lowrank <- function(x, lr, r1, n, ...) {
 }
 
 sq.nmode.prod.r1.lowrank <- function(x, r1, n, ...) {
+  if (length(x) == 2 && ncol(x[[1]])^2 > prod(get.data.dims(x)))
+    return(nmode.prod.r1(lowrank.expand(x)^2, r1, n))
   return(premult.nmode.prod.r1(x, x, r1, n))
 }
 

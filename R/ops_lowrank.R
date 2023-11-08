@@ -19,9 +19,11 @@ as.lowrank <- function(r1) {
 lowrank.expand <- function(lowrank) {
   if (is.null(lowrank))
     return(0)
-  if (is.matrix(lowrank) || inherits(lowrank, "Matrix"))
+
+  if (length(lowrank) == 2)
     return(tcrossprod(lowrank[[1]], lowrank[[2]]))
 
+  # TODO: This is probably not the best way to do this...
   K   <- ncol(lowrank[[1]])
   r1s <- lapply(lowrank, function(M) {split(M, col(M))})
   r1s <- lapply(1:K, function(k) {lapply(r1s, function(r1) {r1[[k]]})})

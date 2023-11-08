@@ -95,7 +95,7 @@ nmode.ops.error <- paste("N-mode products are not yet implemented for",
                          "that data structure.")
 
 # Imports needed for sparse matrices:
-#' @importFrom Matrix colSums rowSums t crossprod
+#' @importFrom Matrix colSums rowSums t crossprod tcrossprod
 #'
 nmode.prod.vec.default <- function(x, v, n, ...) {
   if (length(get.data.dims(x)) == 2) {
