@@ -201,8 +201,8 @@ premult.nmode.prod.r1.default <- function(x, lr, r1, n, ...) {
     }
   }
 
-  # else lr is full-rank:
-  return(nmode.prod.r1(x * lr, r1, n))
+  # else lr is full-rank (TODO: shouldn't get here):
+  return(nmode.prod.r1(as.fullrank(x) * lr, r1, n))
 }
 
 # Not currently used -----

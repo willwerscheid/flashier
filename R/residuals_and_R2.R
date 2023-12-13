@@ -57,12 +57,12 @@ calc.R2 <- function(flash) {
       Y.EF <- premult.nmode.prod.r1(Y, EF, r1.ones(flash), n)
       if (!any_missing(flash) && store.R2.as.scalar(flash)) {
         EFsq <- sum(Reduce(`*`, lapply(EF, crossprod)))
-      } else if (get.dim(flash) == 2 && identical(Z, 1)) {
-        EFsq <- colSums(
-          apply(EF[[n]], 1, tcrossprod) * as.vector(crossprod(EF[[-n]]))
-        )
+      } else if (identical(Z, 1)) {
+        other_ns <- (1:get.dim(flash))[-n]
+        tmp <- as.vector(Reduce(`*`, lapply(EF[other_ns], crossprod)))
+        EFsq <- colSums(apply(EF[[n]], 1, tcrossprod) * tmp)
       } else {
-        # TODO: fix for tensors
+        # TODO: fix for missing data
         EFsq <- premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
       }
     }
