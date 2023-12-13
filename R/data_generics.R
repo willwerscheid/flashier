@@ -13,14 +13,17 @@
 #
 # REQUIRED -----
 
+#' @export
 as.fullrank <- function(x, ...) {
   UseMethod("as.fullrank", x)
 }
 
+#' @export
 get.data.dims <- function(x, ...) {
   UseMethod("get.data.dims", x)
 }
 
+#' @export
 get.data.dimnames <- function(x, ...) {
   UseMethod("get.data.dimnames", x)
 }
@@ -32,6 +35,7 @@ get.data.dimnames <- function(x, ...) {
 #   \sum_k v_k X_{ijk}. v can be set to 1 to indicate an m_n-vector of all
 #   ones.
 #
+#' @export
 nmode.prod.vec <- function(x, ...) {
   UseMethod("nmode.prod.vec", x)
 }
@@ -47,12 +51,15 @@ nmode.prod.vec <- function(x, ...) {
 #   is returned. Any of the list elements in r1 can be set to 1 to indicate
 #   a vector of all ones.
 #
+#' @export
 nmode.prod.r1 <- function(x, ...) {
   UseMethod("nmode.prod.r1", x)
 }
 
 # Takes three arguments: X, r1, and n.
 # Calculates the n-mode product between X^2 and an r1 object.
+#
+#' @export
 sq.nmode.prod.r1 <- function(x, ...) {
   UseMethod("sq.nmode.prod.r1", x)
 }
@@ -65,6 +72,7 @@ sq.nmode.prod.r1 <- function(x, ...) {
 #   Methods should also be able to handle the case where lr is a full-rank
 #   matrix or tensor. (TODO: Eliminate need to handle full-rank objects.)
 #
+#' @export
 premult.nmode.prod.r1 <- function(x, ...) {
   UseMethod("premult.nmode.prod.r1", x)
 }
@@ -79,14 +87,17 @@ nmode.prod.lowrank <- function(x, ...) {
 
 # DEFAULT METHODS -----
 
+#' @exportS3Method as.fullrank default
 as.fullrank.default <- function(x, ...) {
   return(x)
 }
 
+#' @exportS3Method get.data.dims default
 get.data.dims.default <- function(x, ...) {
   return(dim(x))
 }
 
+#' @exportS3Method get.data.dimnames default
 get.data.dimnames.default <- function(x, ...) {
   return(dimnames(x))
 }
@@ -96,6 +107,7 @@ nmode.ops.error <- paste("N-mode products are not yet implemented for",
 
 # Imports needed for sparse matrices:
 #' @importFrom Matrix colSums rowSums t crossprod tcrossprod
+#' @exportS3Method nmode.prod.vec default
 #'
 nmode.prod.vec.default <- function(x, v, n, ...) {
   if (length(get.data.dims(x)) == 2) {
@@ -125,6 +137,7 @@ nmode.prod.vec.default <- function(x, v, n, ...) {
   }
 }
 
+#' @exportS3Method nmode.prod.r1 default
 nmode.prod.r1.default <- function(x, r1, n, ...) {
   if (is.null(x)) {
     return(0)
@@ -141,10 +154,12 @@ nmode.prod.r1.default <- function(x, r1, n, ...) {
   }
 }
 
+#' @exportS3Method sq.nmode.prod.r1 default
 sq.nmode.prod.r1.default <- function(x, r1, n, ...) {
   return(nmode.prod.r1(x^2, r1, n))
 }
 
+#' @exportS3Method premult.nmode.prod.r1 default
 premult.nmode.prod.r1.default <- function(x, lr, r1, n, ...) {
   if (is.null(lr))
     return(0)

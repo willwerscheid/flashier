@@ -5,18 +5,22 @@
 # matrices should have the same number of columns; e.g., if X is n x p, the
 # lowrank object would consist of a n x k matrix and a p x k matrix.
 #
+#' @exportS3Method as.fullrank lowrank
 as.fullrank.lowrank <- function(x, ...) {
   return(lowrank.expand(x))
 }
 
+#' @exportS3Method get.data.dims lowrank
 get.data.dims.lowrank <- function(x, ...) {
   return(sapply(x, nrow))
 }
 
+#' @exportS3Method get.data.dimnames lowrank
 get.data.dimnames.lowrank <- function(x, ...) {
   return(lapply(x, rownames))
 }
 
+#' @exportS3Method nmode.prod.vec lowrank
 nmode.prod.vec.lowrank <- function(x, v, n, ...) {
   if (length(x) == 2) {
     if (identical(v, 1))
@@ -40,6 +44,7 @@ nmode.prod.vec.lowrank <- function(x, v, n, ...) {
   }
 }
 
+#' @exportS3Method premult.nmode.prod.r1 lowrank
 premult.nmode.prod.r1.lowrank <- function(x, lr, r1, n, ...) {
   if (is.null(lr))
     return(0)
@@ -62,6 +67,7 @@ premult.nmode.prod.r1.lowrank <- function(x, lr, r1, n, ...) {
   return(premult.nmode.prod.r1.lowrank(lr, x, r1, n, ...))
 }
 
+#' @exportS3Method sq.nmode.prod.r1 lowrank
 sq.nmode.prod.r1.lowrank <- function(x, r1, n, ...) {
   if (length(x) == 2 && ncol(x[[1]])^2 > prod(get.data.dims(x)))
     return(nmode.prod.r1(lowrank.expand(x)^2, r1, n))
