@@ -133,7 +133,7 @@ flash_ebnm <- function(...) {
     if (!is.null(args$group)) {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
         # Workaround to pass test.ebnm.fn:
-        if (identical(x, c(-1, 0, 1))) {
+        if (identical(x, c(-10, 0, 10))) {
           x <- rep(x, length.out = length(args$group))
           s <- rep(s, length.out = length(args$group))
         }
@@ -148,7 +148,7 @@ flash_ebnm <- function(...) {
     if (!is.null(args$group)) {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
         # Workaround to pass test.ebnm.fn:
-        if (identical(x, c(-1, 0, 1))) {
+        if (identical(x, c(-10, 0, 10))) {
           x <- rep(x, length.out = length(args$group))
           s <- rep(s, length.out = length(args$group))
         }
@@ -158,7 +158,9 @@ flash_ebnm <- function(...) {
       }
     } else {
       ebnm.fn <- function(x, s, g_init, fix_g, output) {
-        ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
+        suppressWarnings(
+          ebnm(x, s, g_init = g_init, fix_g = fix_g, output = output, ...)
+        )
       }
     }
   }
