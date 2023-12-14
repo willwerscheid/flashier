@@ -27,7 +27,7 @@ set.flash.data <- function(data, S = NULL, S.dim = NULL, var.type = NULL) {
   }
   flash.data$est.tau.dim <- var.type
 
-  must.not.have.zero.slices(flash.data$Y)
+  must.not.have.zero.slices(flash.data$Y, S, var.type)
 
   # Set S.dim.
   if (is.null(S.dim)) {
