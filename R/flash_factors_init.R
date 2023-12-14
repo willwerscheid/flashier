@@ -66,11 +66,11 @@ flash_factors_init <- function(flash,
     EF2 <- get.EF2(init)
   } else {
     # Convert udv' to lowrank as needed:
-    EF <- handle.data(init)
-    EF2 <- NULL
+    init <- handle.data(init)
     if (is.list(init) && all(sapply(init, is.matrix))) {
       EF <- init
       class(EF) <- c("lowrank", "list")
+      EF2 <- NULL
     } else {
       stop("init must be an SVD-like object, a flash fit, or a list of matrices.")
     }
