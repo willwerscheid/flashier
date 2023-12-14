@@ -60,7 +60,10 @@ calc.R2 <- function(flash) {
       } else if (identical(Z, 1)) {
         other_ns <- (1:get.dim(flash))[-n]
         tmp <- as.vector(Reduce(`*`, lapply(EF[other_ns], crossprod)))
-        EFsq <- colSums(apply(EF[[n]], 1, tcrossprod) * tmp)
+        EFsq <- apply(EF[[n]], 1, tcrossprod) * tmp
+        if (is.matrix(EFsq)) {
+          EFsq <- colSums(EFsq)
+        }
       } else {
         # TODO: fix for missing data
         EFsq <- premult.nmode.prod.r1(Z, lowrank.expand(EF)^2, r1.ones(flash), n)
