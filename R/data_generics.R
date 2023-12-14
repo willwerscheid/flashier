@@ -186,15 +186,15 @@ premult.nmode.prod.r1.default <- function(x, lr, r1, n, ...) {
       #   m_ index.
       if (ns[[1]] == 1) {
         tmp <- tmp * as.vector(lr[[1]] * r1[[1]])
-        tmp <- colSums(matrix(tmp, nrow = dim(x)[1]))
+        tmp <- colSums(matrix(tmp, nrow = get.data.dims(x)[1]))
         # Have m_n k vectors concatenated one after another.
         return(rowSums(lr[[n]]
-                       * matrix(tmp, nrow = dim(x)[n], byrow = TRUE)))
+                       * matrix(tmp, nrow = get.data.dims(x)[n], byrow = TRUE)))
       } else { # ns[[1]] == 2
-        tmp <- tmp * rep(t(lr[[2]] * r1[[1]]), each = dim(x)[1])
+        tmp <- tmp * rep(t(lr[[2]] * r1[[1]]), each = get.data.dims(x)[1])
         tmp <- rowSums(tmp)
         # Have k m_n vectors concatenated one after another.
-        return(rowSums(lr[[n]] * matrix(tmp, nrow = dim(x)[n])))
+        return(rowSums(lr[[n]] * matrix(tmp, nrow = get.data.dims(x)[n])))
       }
     } else {
       stop(nmode.ops.error)
