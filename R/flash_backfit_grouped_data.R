@@ -115,23 +115,40 @@ update_factors_in_grouped_data <- function(cl, kset, new_F, ebnm_fn, extrapolate
       })
       # Return arguments to EBNM problem for F.
       mapply(function(fct, fl) {
-        calc.ebnm.args(fct, n = 2, fl, include.fixed = FALSE)
+        if (is.zero(fct)) {
+          args <- NULL
+        } else {
+          args <- calc.ebnm.args(fct, n = 2, fl, include.fixed = FALSE)
+          if (any(args$s == 0)) {
+            args <- NULL
+          }
+        }
+        return(args)
       }, fct_list, fl_list, SIMPLIFY = FALSE)
     })
 
     # Combine arguments across groups and solve EBNM problem for F.
     args_list <- Reduce(c, args_list)
-    tauEL2 <- 1 / sapply(args_list, `[[`, "s")^2
-    s <- 1 / sqrt(rowSums(tauEL2))
-    x <- rowSums(sapply(args_list, `[[`, "x") * tauEL2) * s^2
-    ebnm_res <- ebnm_fn(
-      x, s, output = c(
-        "posterior_mean", "posterior_second_moment", "fitted_g", "log_likelihood"
+    args_list <- args_list[!sapply(args_list, is.null)]
+    if (length(args_list) > 0) {
+      tauEL2 <- 1 / sapply(args_list, `[[`, "s")^2
+      s <- 1 / sqrt(rowSums(tauEL2))
+      x <- rowSums(sapply(args_list, `[[`, "x") * tauEL2) * s^2
+      ebnm_res <- ebnm_fn(
+        x, s, output = c(
+          "posterior_mean", "posterior_second_moment", "fitted_g", "log_likelihood"
+        )
       )
-    )
-    KL_F[k] <- ebnm_res$log_likelihood - normal.means.loglik(
-      x, s, ebnm_res$posterior$mean, ebnm_res$posterior$second_moment
-    )
+      KL_F[k] <- ebnm_res$log_likelihood - normal.means.loglik(
+        x, s, ebnm_res$posterior$mean, ebnm_res$posterior$second_moment
+      )
+    } else {
+      ebnm_res <- list(
+        posterior = data.frame(mean = 0, second_moment = 0),
+        fitted_g = NULL
+      )
+      KL_F[k] <- 0
+    }
 
     # Update F and return ELBO.
     clusterExport(cl, c("ebnm_res", "extrapolated"), envir = environment())
