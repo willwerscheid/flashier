@@ -1,4 +1,7 @@
 # TODO: handle fl in argument to init.
+#' @importFrom tictoc tic toc
+#' @importFrom snow makeCluster clusterExport clusterEvalQ sendCall
+#' @importFrom snow checkForRemoteErrors recvResult
 #' @export
 flash_init_cluster_for_grouped_data <- function(dat,
                                                 groups,
@@ -9,18 +12,18 @@ flash_init_cluster_for_grouped_data <- function(dat,
                                                 init = NULL,
                                                 quiet = FALSE) {
   if (is.null(S)) {
-    tictoc::tic("Setting lower bound on row-wise residual variances")
+    tic("Setting lower bound on row-wise residual variances")
     min_sd <- min(apply(dat, 1, sd))
-    tictoc::toc(quiet = quiet)
+    toc(quiet = quiet)
   }
 
   if (is.null(init)) {
-    tictoc::tic("Running PCA")
+    tic("Running PCA")
     init <- irlba::irlba(dat, nv = K)
-    tictoc::toc(quiet = quiet)
+    toc(quiet = quiet)
   }
 
-  tictoc::tic("Initializing grouped flash objects")
+  tic("Initializing grouped flash objects")
   group_idx <- split(seq_along(groups), groups)
   fl_list <- lapply(group_idx, function(idx) {
     grpdat <- dat[idx, ]
@@ -32,11 +35,11 @@ flash_init_cluster_for_grouped_data <- function(dat,
     return(fl)
   })
   # Note that identities of groups can be retrieved via names(fl_list).
-  tictoc::toc(quiet = quiet)
+  toc(quiet = quiet)
 
-  tictoc::tic("Setting up cluster")
-  cl <- snow::makeCluster(nCores, type = "SOCK")
-  zz <- snow::clusterExport(
+  tic("Setting up cluster")
+  cl <- makeCluster(nCores, type = "SOCK")
+  zz <- clusterExport(
     cl,
     unclass(lsf.str(envir = asNamespace("flashier"), all = TRUE)),
     envir = as.environment(asNamespace("flashier"))
@@ -52,14 +55,14 @@ flash_init_cluster_for_grouped_data <- function(dat,
       assignments[[smallest_load]] <- c(assignments[[smallest_load]], grp)
   }
   for (core in seq_along(cl)) {
-    snow::sendCall(
+    sendCall(
       cl[[core]],
       assign,
       list("fl_list", fl_list[assignments[[core]]], envir = as.environment(1))
     )
   }
-  zz <- snow::checkForRemoteErrors(lapply(cl, recvResult))
-  tictoc::toc(quiet = quiet)
+  zz <- checkForRemoteErrors(lapply(cl, recvResult))
+  toc(quiet = quiet)
 
   if (!quiet) {
     cat("Cluster initialization complete. Data object may be removed from memory.")

@@ -1,5 +1,8 @@
 # TODO: timeout parameter?
+#' @importFrom tictoc tic toc
+#' @importFrom snow clusterEvalQ clusterExport
 #' @export
+#'
 flash_backfit_grouped_data <- function(cl,
                                        maxiter,
                                        tol = 1e-6,
@@ -9,7 +12,7 @@ flash_backfit_grouped_data <- function(cl,
                                        quiet = FALSE) {
   tolparam <- match.arg(tolparam)
 
-  tictoc::tic("Backfitting flash object")
+  tic("Backfitting flash object")
   Fdim <- clusterEvalQ(cl, dim(fl_list[[1]]$EF[[2]]))[[1]]
   kset <- seq_len(Fdim[2])
   ebnm_fn <- clusterEvalQ(cl, fl_list[[1]]$ebnm.fn)[[1]][[1]][[2]]
@@ -88,7 +91,7 @@ flash_backfit_grouped_data <- function(cl,
       ))
     }
   }
-  tictoc::toc(quiet = quiet)
+  toc(quiet = quiet)
 
   clusterExport(cl, c("KL_F", "elbo"), envir = environment())
   return(invisible(new_F))
