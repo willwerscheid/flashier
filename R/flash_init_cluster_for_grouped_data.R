@@ -1,4 +1,5 @@
 # TODO: handle fl in argument to init.
+#' @export
 flash_init_cluster_for_grouped_data <- function(dat,
                                                 groups,
                                                 nCores,

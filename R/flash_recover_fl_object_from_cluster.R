@@ -1,3 +1,4 @@
+#' @export
 flash_recover_fl_object_from_cluster <- function(cl) {
   fl_list <- clusterEvalQ(cl, fl_list)
   fl_list <- Reduce(c, fl_list)

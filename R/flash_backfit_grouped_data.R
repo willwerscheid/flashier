@@ -1,4 +1,5 @@
 # TODO: timeout parameter?
+#' @export
 flash_backfit_grouped_data <- function(cl,
                                        maxiter,
                                        tol = 1e-6,
