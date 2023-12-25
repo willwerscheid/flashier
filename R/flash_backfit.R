@@ -41,7 +41,7 @@
 #'   number of rows in the dataset, \eqn{p} is the number of columns, and
 #'   \eqn{\epsilon} is equal to \code{\link{.Machine}$double.eps}.
 #'
-#' @importFrom parallel makeCluster stopCluster
+#' @importFrom snow makeCluster stopCluster
 #'
 #' @return The \code{\link{flash}} object from argument \code{flash}, backfitted
 #'   as specified.

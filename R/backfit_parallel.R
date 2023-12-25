@@ -1,4 +1,4 @@
-#' @importFrom parallel stopCluster
+#' @importFrom snow stopCluster
 #'
 update.factors.parallel <- function(flash, kset, cl) {
   is.zero <- is.zero(flash)
@@ -41,7 +41,7 @@ update.factors.parallel <- function(flash, kset, cl) {
   return(flash)
 }
 
-#' @importFrom parallel parLapply
+#' @importFrom snow parLapply
 #'
 solve.ebnm.parallel <- function(n, flash, kset, cl) {
   ebnm.args <- calc.all.ebnm.args(n, flash)
