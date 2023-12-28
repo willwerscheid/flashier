@@ -82,7 +82,6 @@ flash_backfit_grouped_data <- function(cl,
       is_converged <- F_chg < tol
     }
 
-
     if (!quiet) {
       cat(paste0(
         formatC(iter, width = 4), ".",

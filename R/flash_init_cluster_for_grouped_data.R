@@ -1,5 +1,6 @@
 # TODO: handle fl in argument to init.
 #' @importFrom tictoc tic toc
+#' @importFrom softImpute softImpute complete
 #' @importFrom snow makeCluster clusterExport clusterEvalQ sendCall
 #' @importFrom snow checkForRemoteErrors recvResult
 #' @export
@@ -11,6 +12,14 @@ flash_init_cluster_for_grouped_data <- function(dat,
                                                 S = NULL,
                                                 init = NULL,
                                                 quiet = FALSE) {
+  any_missing <- anyNA(dat)
+  if (any_missing) {
+    tic("Imputing missing data using softImpute")
+    na_mat <- is.na(dat)
+    dat <- complete(dat, softImpute(dat))
+    toc(quiet = quiet)
+  }
+
   if (is.null(S)) {
     tic("Setting lower bound on row-wise residual variances")
     min_sd <- min(apply(dat, 1, sd))
@@ -33,8 +42,10 @@ flash_init_cluster_for_grouped_data <- function(dat,
       flash_fit()
     fl$group_idx <- idx
     return(fl)
-  })
-  # Note that identities of groups can be retrieved via names(fl_list).
+  }) # Note that identities of groups can be retrieved via names(fl_list).
+  if (any_missing) {
+    na_list <- lapply(group_idx, function(idx) which(na_mat[idx, ]))
+  }
   toc(quiet = quiet)
 
   tic("Setting up cluster")
@@ -62,6 +73,16 @@ flash_init_cluster_for_grouped_data <- function(dat,
     )
   }
   zz <- checkForRemoteErrors(lapply(cl, recvResult))
+  if (any_missing) {
+    for (core in seq_along(cl)) {
+      sendCall(
+        cl[[core]],
+        assign,
+        list("na_list", na_list[assignments[[core]]], envir = as.environment(1))
+      )
+    }
+    zz <- checkForRemoteErrors(lapply(cl, recvResult))
+  }
   toc(quiet = quiet)
 
   if (!quiet) {
