@@ -12,6 +12,11 @@ flash_init_cluster_for_grouped_data <- function(dat,
                                                 S = NULL,
                                                 init = NULL,
                                                 quiet = FALSE) {
+  ngroups <- length(unique(groups))
+  if (nCores > ngroups) {
+    nCores <- ngroups
+  }
+
   any_missing <- anyNA(dat)
   if (any_missing) {
     tic("Imputing missing data")
