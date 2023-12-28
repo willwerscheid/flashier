@@ -3,7 +3,7 @@
 #' @export
 flash_impute_grouped_data <- function(cl,
                                       quiet = FALSE) {
-  tic("Imputing flash object")
+  tic("Imputing missing data")
   zz <- clusterEvalQ(cl, {
     fl_list <<- mapply(function(fl, which_na) {
       new_data <- get.Y(fl)
