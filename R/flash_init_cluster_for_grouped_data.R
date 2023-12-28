@@ -14,7 +14,7 @@ flash_init_cluster_for_grouped_data <- function(dat,
                                                 quiet = FALSE) {
   any_missing <- anyNA(dat)
   if (any_missing) {
-    tic("Imputing missing data using softImpute")
+    tic("Imputing missing data")
     na_mat <- is.na(dat)
     dat <- complete(dat, softImpute(dat))
     toc(quiet = quiet)

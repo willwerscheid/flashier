@@ -1,3 +1,6 @@
+#' @importFrom tictoc tic toc
+#' @importFrom snow clusterEvalQ
+#' @export
 flash_impute_grouped_data <- function(cl,
                                       quiet = FALSE) {
   tic("Imputing flash object")
