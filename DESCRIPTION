@@ -1,8 +1,8 @@
 Package: flashier
 Type: Package
-Date: 2023-12-13
+Date: 2024-01-04
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.20
+Version: 1.0.21
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -36,6 +36,8 @@ Suggests:
     rmarkdown,
     RcppML,
     rsvd
+Remotes: 
+    stephenslab/ebnm
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
