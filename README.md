@@ -13,10 +13,12 @@ remotes::install_github("willwerscheid/flashier")
 
 ## Citing this work
 
-If you find the mixsqp package or any of the source code in this
+If you find the flashier package or any of the source code in this
 repository useful for your work, please cite:
 
-> Jason Willwerscheid, Peter Carbonetto and Matthew Stephens. ebnm: an R package for solving the empirical Bayes normal means problem using a variety of prior families. [arXiv:2110.00152](ebnm-preprint).
+> Jason Willwerscheid, Peter Carbonetto and Matthew Stephens. ebnm: an
+> R package for solving the empirical Bayes normal means problem using
+> a variety of prior families. [arXiv:2110.00152](ebnm-preprint).
 
 ## License
 
