@@ -1,6 +1,6 @@
 # flashier
 
-Functions documentation and vignettes are available [here](https://willwerscheid.github.io/flashier/).
+Documentation and vignettes are available [here][pkgdown-site].
 
 ## Quick start
 
@@ -9,6 +9,34 @@ Install the latest version of flashier from GitHub:
 ```r
 install.packages("remotes")
 remotes::install_github("willwerscheid/flashier")
+```
+
+Once you have installed the package, load the package in R:
+
+```r
+library(flashier)
+```
+
+Next, run an example analysis of the GTEx dta set that is provided
+with the "flash" function:
+
+```r
+data(gtex)
+fl <- flash(gtex,greedy_Kmax = 3,backfit = TRUE)
+```
+
+For a more detailed introduction to flashier, see the [introductory
+vignette][pkgdown-vignette-intro] and the [advanced vignette][pkgdown-vignette-advanced].
+
+applied to the
+problem of computing maximum-likelihood estimates for a mixture model,
+read through the introductory vignette.
+
+To learn more, visit the [package website][pkgdown-site], or view the
+"flash" help page:
+
+```r
+help("flash")
 ```
 
 ## Citing this work
@@ -30,7 +58,10 @@ under the terms of the [MIT license][mit-license].
 
 ## Notes
 
-Please note that function names changed in Version 0.2.44. If you are using `flashier` code from previous versions, please make the following substitutions, and note that many parameter names have changed as well:
+Please note that function names changed in flashier version 0.2.44. If
+you are using flashier code from previous versions, please make the
+following substitutions, and note that many parameter names have
+changed as well:
 
 Old Name	| New Name
 --- | ---
@@ -73,3 +104,6 @@ Carbonetto and Matthew Stephens, with many other contributors.
 
 [mit-license]: https://opensource.org/licenses/mit-license.html
 [ebnm-preprint]: https://arxiv.org/abs/2110.00152
+[pkgdown-site]: https://willwerscheid.github.io/flashier/
+[pkgdown-vignette-intro]: https://willwerscheid.github.io/flashier/articles/intro.html
+[pkgdown-vignette-advanced]: https://willwerscheid.github.io/flashier/articles/advanced.html
