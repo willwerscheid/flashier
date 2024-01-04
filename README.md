@@ -18,7 +18,7 @@ repository useful for your work, please cite:
 
 > Jason Willwerscheid, Peter Carbonetto and Matthew Stephens. ebnm: an
 > R package for solving the empirical Bayes normal means problem using
-> a variety of prior families. [arXiv:2110.00152](ebnm-preprint).
+> a variety of prior families. [arXiv:2110.00152][ebnm-preprint].
 
 ## License
 
