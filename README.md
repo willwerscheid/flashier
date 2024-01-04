@@ -2,6 +2,32 @@
 
 Functions documentation and vignettes are available [here](https://willwerscheid.github.io/flashier/).
 
+## Quick start
+
+Install the latest version of flashier from GitHub:
+
+```r
+install.packages("remotes")
+remotes::install_github("willwerscheid/flashier")
+```
+
+## Citing this work
+
+If you find the mixsqp package or any of the source code in this
+repository useful for your work, please cite:
+
+> Jason Willwerscheid, Peter Carbonetto and Matthew Stephens. ebnm: an R package for solving the empirical Bayes normal means problem using a variety of prior families. [arXiv:2110.00152](ebnm-preprint).
+
+## License
+
+Copyright (c) 2018-2024, Jason Willwerscheid, Peter Carbonetto and
+Matthew Stephens.
+
+All source code and software in this repository are made available
+under the terms of the [MIT license][mit-license].
+
+## Notes
+
 Please note that function names changed in Version 0.2.44. If you are using `flashier` code from previous versions, please make the following substitutions, and note that many parameter names have changed as well:
 
 Old Name	| New Name
@@ -37,3 +63,11 @@ flash.set.verbose	| flash_set_verbose
 init.fn.default	| flash_greedy_init_default
 init.fn.irlba	| flash_greedy_init_irlba
 init.fn.softImpute	| flash_greedy_init_softImpute
+
+## Credits
+
+The flashier R package was developed by Jason Willwerscheid, Peter
+Carbonetto and Matthew Stephens, with many other contributors.
+
+[mit-license]: https://opensource.org/licenses/mit-license.html
+[ebnm-preprint]: https://arxiv.org/abs/2110.00152
