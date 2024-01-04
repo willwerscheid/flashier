@@ -17,23 +17,19 @@ Once you have installed the package, load the package in R:
 library(flashier)
 ```
 
-Next, run an example analysis of the GTEx dta set that is provided
-with the "flash" function:
+Next, run an example analysis of the GTEx data set:
 
 ```r
 data(gtex)
 fl <- flash(gtex,greedy_Kmax = 3,backfit = TRUE)
 ```
 
-For a more detailed introduction to flashier, see the [introductory
-vignette][pkgdown-vignette-intro] and the [advanced vignette][pkgdown-vignette-advanced].
+For a more detailed introduction to flashier, see the
+[introductory vignette][pkgdown-vignette-intro] and, later, the
+[advanced vignette][pkgdown-vignette-advanced].
 
-applied to the
-problem of computing maximum-likelihood estimates for a mixture model,
-read through the introductory vignette.
-
-To learn more, visit the [package website][pkgdown-site], or view the
-"flash" help page:
+To learn more, visit the [package website][pkgdown-site], and view the
+"flash" help page in R:
 
 ```r
 help("flash")
