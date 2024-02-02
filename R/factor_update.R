@@ -99,20 +99,44 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
     }
   }
 
-  withCallingHandlers(
-    ebnm.res <- ebnm.fn(
-      x = ebnm.args$x,
-      s = ebnm.args$s,
-      g_init = g,
-      fix_g = fixg,
-      output = output
-    ),
-    warning = function(w) {
-      if (!is.null(ignored.warnings)
-          && any(startsWith(conditionMessage(w), ignored.warnings)))
-        invokeRestart("muffleWarning")
+  ebnm.fn.ignore.warn <- function(g) {
+    withCallingHandlers(
+      ebnm.fn(
+        x = ebnm.args$x,
+        s = ebnm.args$s,
+        g_init = g,
+        fix_g = fixg,
+        output = output
+      ),
+      warning = function(w) {
+        if (!is.null(ignored.warnings)
+            && any(startsWith(conditionMessage(w), ignored.warnings)))
+          invokeRestart("muffleWarning")
+      }
+    )
+  }
+
+  # First attempt, possibly with warmstart.
+  ebnm.res <- tryCatch(
+    ebnm.fn.ignore.warn(g = g),
+    error = function (cnd) {
+      if (fixg | is.null(g)) {
+        stop(paste("EBNM solver (no warmstart) threw error:", cnd))
+      } else {
+        NULL
+      }
     }
   )
+
+  # If warmstart failed, try again.
+  if (is.null(ebnm.res)) {
+    ebnm.res <- tryCatch(
+      ebnm.fn.ignore.warn(g = NULL),
+      error = function (cnd) {
+        stop(paste("EBNM solver (after failed warmstart) threw error:", cnd))
+      }
+    )
+  }
 
   if (identical(output, default.ebnm.output)) {
     ebnm.res$KL <- (ebnm.res$log_likelihood
