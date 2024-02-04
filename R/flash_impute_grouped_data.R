@@ -8,11 +8,11 @@ flash_impute_grouped_data <- function(cl,
     fl_list <<- mapply(function(fl, which_na) {
       new_data <- get.Y(fl)
       new_data[which_na] <- fitted(fl)[which_na]
-      fl |> flash_update_data(new_data) |> flash_fit()
+      return(update_data_workhorse(fl, new_data, wrapup = FALSE))
     }, fl_list, na_list, SIMPLIFY = FALSE)
     NULL
   })
   toc(quiet = quiet)
 
-  return(NULL)
+  return(invisible(NULL))
 }

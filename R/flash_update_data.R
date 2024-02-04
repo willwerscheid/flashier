@@ -15,6 +15,10 @@
 #' @export
 #'
 flash_update_data <- function(flash, newdata) {
+  return(update_data_workhorse(flash, newdata))
+}
+
+update_data_workhorse <- function(flash, newdata, wrapup = TRUE) {
   flash <- get.fit(flash)
   fl.dims <- get.dims(flash)
 
@@ -51,8 +55,9 @@ flash_update_data <- function(flash, newdata) {
   flash <- init.tau(flash)
   flash <- set.obj(flash, calc.obj(flash))
 
-  flash <- wrapup.flash(flash, output.lvl = 3L)
-  flash <- flash_set_verbose(flash, verbose = 1L)
+  if (wrapup) {
+    flash <- wrapup.flash(flash, output.lvl = 3L)
+  }
 
   return(flash)
 }

@@ -50,6 +50,7 @@ flash_backfit_grouped_data <- function(cl,
           extrapolate.f, fl_list, old_fl_list,
           SIMPLIFY = FALSE, MoreArgs = list(par = extrapolate.param)
         )
+        old_fl_list <<- pre_list
         NULL
       })
 
@@ -99,6 +100,11 @@ flash_backfit_grouped_data <- function(cl,
 update_factors_in_grouped_data <- function(cl, kset, new_F, ebnm_fn, extrapolated) {
   KL_F <- rep(0, length(kset))
 
+  zero_factors <- clusterEvalQ(cl, sapply(fl_list, `[[`, "is.zero"))
+  zero_factors <- lapply(zero_factors, apply, 1, prod)
+  zero_factors <- Reduce(`*`, zero_factors)
+  kset <- kset[!zero_factors]
+
   for (k in kset) {
     clusterExport(cl, "k", envir = environment())
 
@@ -143,20 +149,26 @@ update_factors_in_grouped_data <- function(cl, kset, new_F, ebnm_fn, extrapolate
       )
     } else {
       ebnm_res <- list(
-        posterior = data.frame(mean = 0, second_moment = 0),
+        posterior = data.frame(
+          mean = rep(0, nrow(new_F)),
+          second_moment = rep(0, nrow(new_F))
+        ),
         fitted_g = NULL
       )
       KL_F[k] <- 0
     }
 
     # Update F and return ELBO.
-    clusterExport(cl, c("ebnm_res", "extrapolated"), envir = environment())
+    is_zero <- all(abs(ebnm_res$posterior$mean) < .Machine$double.eps)
+    clusterExport(cl, c("ebnm_res", "extrapolated", "is_zero"), envir = environment())
+
     elbo_list <- clusterEvalQ(cl, {
       fct_list <- lapply(fct_list, function(fct) {
         if (!is.null(fct)) {
           fct <- set.EF(fct, ebnm_res$posterior$mean, 2)
           fct <- set.EF2(fct, ebnm_res$posterior$second_moment, 2)
           fct <- set.g(fct, ebnm_res$fitted_g, 2)
+          fct <- set.is.zero(fct, is_zero)
         }
         return(fct)
       })
