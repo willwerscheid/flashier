@@ -1,0 +1,50 @@
+---
+title: "Analysis of single-cell RNA-seq data using Flashier"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to flashier}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+NOTE TO SELF: Check these options later
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center",dpi = 120)
+```
+
+The aim of this vignette is to introduce the basic concepts behind the R package, 'flashier', and show how to use 'flashier' to run an analysis on single-cell RNA-seq data.
+
+The example data set
+--------------------
+
+
+Data Pre-processing
+--------------------
+
+Fit Flashier
+--------------------
+
+```{r}
+library(flashier)
+library(Matrix)
+```
+
+
+Looking at memberships
+--------------------
+
+Looking at factors
+--------------------
+
+Backfitting
+--------------------
+
+Adding factors
+--------------------
+
+```{r session-info}
+sessionInfo()
+```
