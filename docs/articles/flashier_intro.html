@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
       </span>
     </div>
 
@@ -371,15 +371,59 @@ same tissue-specific effects are recovered, up to a difference in signs
 (e.g., factor 5 for fibroblasts and factor 8 for thyroid). But the
 semi-nonnegative factorization identifies factors that are arguably more
 intuitive; for example, point-normal factor 10, which combines artery
-and adipose tissues (Figure~<span class="math inline">\(\ref{fig:gtex_pn}\)</span>), is split into two
-factors in the semi-nonnegative factorization (factor 9 for artery and
-factor 11 for adipose tissue).</p>
+and adipose tissues, is split into two factors in the semi-nonnegative
+factorization (factor 9 for artery and factor 11 for adipose
+tissue).</p>
 <p>The flashier package has many more options which we did not explore
 here, including other choices of prior family, different options for
 estimating the variances of the residuals <span class="math inline">\({\bf E}\)</span>, and options for fine-tuning the
 model fitting to improve the speed and quality of EBMF model fits for
 larger data sets. Many of these options are discussed in the other
 vignettes.</p>
+<div class="section level2">
+<h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h2>
+<p>The following R version and packages were used to generate this
+vignette:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R version 3.6.2 (2019-12-12)</span>
+<span class="co">#&gt; Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
+<span class="co">#&gt; Running under: macOS Catalina 10.15.7</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Matrix products: default</span>
+<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib</span>
+<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; locale:</span>
+<span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; attached base packages:</span>
+<span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; other attached packages:</span>
+<span class="co">#&gt; [1] cowplot_1.1.1   ggrepel_0.9.1   ggplot2_3.3.6   Rtsne_0.15     </span>
+<span class="co">#&gt; [5] flashier_1.0.23 magrittr_2.0.1  ebnm_1.1-3     </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; loaded via a namespace (and not attached):</span>
+<span class="co">#&gt;  [1] Rcpp_1.0.8        horseshoe_0.2.0   invgamma_1.1      lattice_0.20-38  </span>
+<span class="co">#&gt;  [5] tidyr_1.1.3       assertthat_0.2.1  rprojroot_2.0.3   digest_0.6.23    </span>
+<span class="co">#&gt;  [9] utf8_1.1.4        truncnorm_1.0-8   R6_2.4.1          evaluate_0.14    </span>
+<span class="co">#&gt; [13] highr_0.8         pillar_1.6.2      rlang_1.0.6       irlba_2.3.3      </span>
+<span class="co">#&gt; [17] jquerylib_0.1.4   Matrix_1.3-4      rmarkdown_2.21    pkgdown_2.0.7    </span>
+<span class="co">#&gt; [21] labeling_0.3      desc_1.2.0        splines_3.6.2     stringr_1.4.0    </span>
+<span class="co">#&gt; [25] munsell_0.5.0     mixsqp_0.3-48     compiler_3.6.2    xfun_0.36        </span>
+<span class="co">#&gt; [29] pkgconfig_2.0.3   systemfonts_1.0.2 SQUAREM_2017.10-1 htmltools_0.5.4  </span>
+<span class="co">#&gt; [33] tidyselect_1.1.1  tibble_3.1.3      fansi_0.4.0       withr_2.5.0      </span>
+<span class="co">#&gt; [37] crayon_1.4.1      dplyr_1.0.7       grid_3.6.2        jsonlite_1.7.2   </span>
+<span class="co">#&gt; [41] gtable_0.3.0      lifecycle_1.0.3   DBI_1.1.0         scales_1.1.0     </span>
+<span class="co">#&gt; [45] cli_3.5.0         stringi_1.4.3     farver_2.0.1      fs_1.5.2         </span>
+<span class="co">#&gt; [49] bslib_0.3.1       ellipsis_0.3.2    ragg_0.3.1        generics_0.0.2   </span>
+<span class="co">#&gt; [53] vctrs_0.3.8       trust_0.1-8       tools_3.6.2       glue_1.4.2       </span>
+<span class="co">#&gt; [57] softImpute_1.4    purrr_0.3.4       parallel_3.6.2    fastmap_1.1.0    </span>
+<span class="co">#&gt; [61] yaml_2.2.0        colorspace_1.4-1  ashr_2.2-57       memoise_1.1.0    </span>
+<span class="co">#&gt; [65] deconvolveR_1.2-1 knitr_1.37        sass_0.4.0</span></code></pre></div>
+</div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
 </h2>

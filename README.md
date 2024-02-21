@@ -26,7 +26,7 @@ fl <- flash(gtex,greedy_Kmax = 3,backfit = TRUE)
 
 For a more detailed introduction to flashier, see the
 [introductory vignette][pkgdown-vignette-intro] and, later, the
-[advanced vignette][pkgdown-vignette-advanced].
+[other vignettes][pkgdown-vignettes].
 
 To learn more, visit the [package website][pkgdown-site], and view the
 "flash" help page in R:
@@ -101,5 +101,5 @@ Carbonetto and Matthew Stephens, with many other contributors.
 [mit-license]: https://opensource.org/licenses/mit-license.html
 [ebnm-preprint]: https://arxiv.org/abs/2110.00152
 [pkgdown-site]: https://willwerscheid.github.io/flashier/
-[pkgdown-vignette-intro]: https://willwerscheid.github.io/flashier/articles/intro.html
-[pkgdown-vignette-advanced]: https://willwerscheid.github.io/flashier/articles/advanced.html
+[pkgdown-vignettes]: https://willwerscheid.github.io/flashier/articles/index.html
+[pkgdown-vignette-intro]: https://willwerscheid.github.io/flashier/articles/flashier_intro.html
