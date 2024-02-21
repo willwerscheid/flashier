@@ -2,7 +2,7 @@ Package: flashier
 Type: Package
 Date: 2024-02-21
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.22
+Version: 1.0.23
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -30,12 +30,14 @@ Imports:
     ggplot2
 Suggests:
     ashr,
+    ggrepel,
     cowplot,
     testthat,
     knitr,
     rmarkdown,
     RcppML,
-    rsvd
+    rsvd,
+    Rtsne
 Remotes: 
     stephenslab/ebnm
 License: BSD_3_clause + file LICENSE
