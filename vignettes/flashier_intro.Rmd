@@ -219,9 +219,9 @@ same tissue-specific effects are recovered, up to a difference in
 signs (e.g., factor 5 for fibroblasts and factor 8 for thyroid). But
 the semi-nonnegative factorization identifies factors that are
 arguably more intuitive; for example, point-normal factor 10, which
-combines artery and adipose tissues (Figure~\ref{fig:gtex_pn}), is
-split into two factors in the semi-nonnegative factorization (factor 9
-for artery and factor 11 for adipose tissue).
+combines artery and adipose tissues, is split into two factors in the
+semi-nonnegative factorization (factor 9 for artery and factor 11 for
+adipose tissue).
 
 The flashier package has many more options which we did not explore
 here, including other choices of prior family, different options for
@@ -229,5 +229,13 @@ estimating the variances of the residuals ${\bf E}$, and options for
 fine-tuning the model fitting to improve the speed and quality of EBMF
 model fits for larger data sets. Many of these options are discussed
 in the other vignettes.
+
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r session-info}
+sessionInfo()
+```
 
 ## Bibliography
