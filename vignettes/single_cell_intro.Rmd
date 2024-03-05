@@ -10,8 +10,9 @@ vignette: >
 ---
 
 ```{r knitr-opts, include=FALSE}
-knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120)
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
+                      fig.width = 6, fig.height = 6, warning = FALSE,
+                      results = "hold", fig.align = "center", dpi = 120)
 ```
 
 The aim of this vignette is to introduce the basic concepts behind the R package, `flashier`, and show how `flashier` can be used to run analysis on single-cell RNA-seq data. (This vignette is modeled after the `fastTopics` vignette, "Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts").      
