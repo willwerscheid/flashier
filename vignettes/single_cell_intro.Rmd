@@ -1,13 +1,17 @@
 ---
-title: "Analysis of single-cell RNA-seq data using Flashier"
+title: "Analysis of single-cell RNA-seq data using flashier"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using Flashier}
+  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using flashier}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+The aim of this vignette is show how flashier can be used to analyze
+single-cell RNA-seq data. This vignette is modeled after the
+[fastTopics vignette on analyzing single-cell data][fasttopics-vignette].
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
@@ -15,66 +19,89 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       results = "hold", fig.align = "center", dpi = 120)
 ```
 
-The aim of this vignette is to introduce the basic concepts behind the R package, `flashier`, and show how `flashier` can be used to run analysis on single-cell RNA-seq data. (This vignette is modeled after the `fastTopics` vignette, "Analysis of single-cell RNA-seq data using a topic model, Part 1: basic concepts").      
-  
-First, we load the needed R packages. We also set the seed so that the results are reproducible.  
-```{r}
-library(flashier)
+We begin by loading the packages. We also set the seed so the results
+can be fully reproduced.
+
+```{r load-pkgs, message=FALSE}
 library(Matrix)
+library(flashier)
 library(fastTopics)
 library(cowplot)
 library(ggplot2)
-library(pheatmap)
 library(ggrepel)
+library(pheatmap)
 set.seed(3)
 ```
 
-The example data set
---------------------
-In this vignette, we analyze a single-cell RNA-seq data set from [Zheng *et al* (2017)][zheng-2017]. These data are reference transcriptome profiles from 10 bead-enriched subpopulations of peripheral blood mononuclear cells (PBMCs). For this vignette, we analyze a small subset of approximately 3,700 cells.  
-  
-The data are unique molecular identifier (UMI) counts stored as an $n \times m$ sparse matrix, where $n$ is the number of cells and $m$ is the number of genes.  
+Preparing the single-cell data for flashier
+-------------------------------------------
 
-```{r}
+The single-cell RNA-seq data are unique molecular identifier (UMI)
+counts stored as an $n \times m$ sparse matrix, where $n$ is the
+number of cells and $m$ is the number of genes.
+
+```{r load-data}
 data("pbmc_facs")
 counts <- pbmc_facs$counts
 dim(counts)
 ```
 
-Data Pre-processing
---------------------
-For count data, the matrix factorization model that `flashier` fits is misspecified. Therefore, applying `flashier` to count data requires some data pre-processing. A common method is to divide the counts for cell $i$, denoted by $X_{ij}$, by a size factor, $s_i$, add a 'pseudo-count', $\alpha$, and then take a log transformation.  
+Since the flashier model, like other linear-model-based methods (e.g.,
+principal components analysis), was not designed for count data, it is
+recommended to first transform the data in a way that makes them more
+suitable for flashier. A widely used approach is to divide the counts
+by a "size factor", add a "pseudocount", then take the log. We call
+these transformed counts "shifted log counts".
   
-We suggest using a variation of this transformation where we scale our data by $\frac{1}{\alpha s_i}$ and set our pseudo-count to be 1. This transformation is equivalent to the above by a constant offset of $\log(\alpha)$, and it has the advantage of maintaining sparsity in the data, i.e. if $X_{ij} = 0$, then the transformed value is also 0.   
+In practice, we modify this approach slightly: we first multiply the
+counts by $1/(\alpha s_i)$, where $s_i$ is the size factor for cell
+$i$, and $\alpha$ is the pseudocount. This approach has the benefit of
+maintaining sparsity in the data; that is, if the original count is
+zero, then the transformed value is also zero.
   
-The full transformation is
-$$Y_{ij} = \log \Big(\frac{X_{ij}}{\alpha s_i} + 1 \Big)$$
-where
-$$s_i = \frac{\text{total cell count for cell }i}{\text{average total cell count}} = \frac{\sum_{j}X_{ij}}{\frac{1}{n}\sum_{i,j}X_{ij}}.$$
-In this vignette, we take $\alpha = 1$.  
+More formally, we compute the transformed counts $y_{ij}$ from the
+original counts $x_{ij}$ as follows:
+$$
+y_{ij} = \log\bigg(\frac{x_{ij}}{\alpha s_i} + 1\bigg)
+$$
+in which
+$$
+s_i =
+\frac{\text{total count for cell} \; i}
+     {\text{average across all cells}} =
+\frac{\sum_{j=1}^m x_{ij}}
+     {\frac{1}{n}\sum_{i=1}^n \sum_{j=1}^m x_{ij}}.
+$$
+In our analysis below, we set the pseudocount $\alpha$ to 1.
 
-```{r}
-#function to transform sparse data
-sparse.log1p = function(X){
-  lX = X
-  lX@x = log1p(X@x)
-  return(lX)
+```{r log1p-sparse}
+log1p_sparse <- function (counts) {
+  out   <- counts
+  out@x <- log1p(counts@x)
+  return(out)
 }
 ```
 
 ```{r}
-size_factor <- rowSums(counts)/(sum(counts)/nrow(counts))
-scaled_counts <- (1/size_factor) * counts
+a <- 1
+n             <- nrow(counts)
+size_factors  <- rowSums(counts)/(sum(counts)/n)
+scaled_counts <- counts/(a*size_factors)
+shifted_log_counts <- log1p_sparse(scaled_counts)
 ```
 
-```{r}
-shifted_log_counts <- sparse.log1p(scaled_counts)
-```
+Variance regularization
+-----------------------
 
-
-Variance Regularization
---------------------
-When running `flashier`, we need to place some regularization on the variance estimates. Without regularization, it is possible for some variance estimates to be very small, and thus lead to overfitting. We suggest the following rule of thumb: compute the standard deviation of the transformed data for a Poisson random variable with rate $\mu = 1/n$, where $n$ is the number of samples. ($\mu = 1/n$ is a lower bound on the rate for each gene). This standard deviation can be thought of as a lower bound on the variance we expect, and it is used to prevent our variance estimates from getting too small.  
+When running `flashier`, we need to place some regularization on the
+variance estimates. Without regularization, it is possible for some
+variance estimates to be very small, and thus lead to overfitting. We
+suggest the following rule of thumb: compute the standard deviation of
+the transformed data for a Poisson random variable with rate $\mu =
+1/n$, where $n$ is the number of samples. ($\mu = 1/n$ is a lower
+bound on the rate for each gene). This standard deviation can be
+thought of as a lower bound on the variance we expect, and it is used
+to prevent our variance estimates from getting too small.
 
 ```{r}
 mhat = 1/nrow(counts) #estimate of rate
@@ -82,19 +109,36 @@ xx = rpois(1e7, mhat) #random poisson
 S1 <- sd(log(xx + 1)) #sd of log(X+1)
 ```
 
-Fit Flashier
+Fit a flashier model
 --------------------
-Now we fit the `flashier` model to the transformed data. To do this, we make a call to the function `flash`:  
-```{r}
+
+Now we fit the `flashier` model to the transformed data. To do this,
+we make a call to the function `flash`:
+
+```{r, eval=FALSE}
 fit.nn = flash(shifted_log_counts, ebnm_fn = c(ebnm::ebnm_point_exponential, ebnm::ebnm_point_exponential), var_type = 2, greedy_Kmax = 20, S = S1)
 ```
     
-When we call `flash`, we specify a few things. First, we specify the family of prior distributions for the loading and factor matrices. Here, we choose the point-exponential distribution for both. One note on this choice is it forces the entries of the loading and factor matrices to be non-negative. We also specify a constraint on the structure of the variance. Here, we set `var_ype = 2`, which corresponds to assuming column-wise variance. This means we estimate one variance parameter for each column of the data set. Next, we specify the maximum number of factors to be added in the factor matrix. Here, we set `greedy_Kmax = 20`. However, it is possible that the final model fit will contain fewer factors; `flash` only adds factors if they help maximize the objective function. Lastly, we specify `S`, the standard errors. Here, we set `S=S1`, our realistic lower bound on the variance.  
+When we call `flash`, we specify a few things. First, we specify the
+family of prior distributions for the loading and factor
+matrices. Here, we choose the point-exponential distribution for
+both. One note on this choice is it forces the entries of the loading
+and factor matrices to be non-negative. We also specify a constraint
+on the structure of the variance. Here, we set `var_ype = 2`, which
+corresponds to assuming column-wise variance. This means we estimate
+one variance parameter for each column of the data set. Next, we
+specify the maximum number of factors to be added in the factor
+matrix. Here, we set `greedy_Kmax = 20`. However, it is possible that
+the final model fit will contain fewer factors; `flash` only adds
+factors if they help maximize the objective function. Lastly, we
+specify `S`, the standard errors. Here, we set `S=S1`, our realistic
+lower bound on the variance.
 
 Scaling the membership and factor matrices
---------------------
+------------------------------------------
+
 The loading and factor matrix pair are unique up to a scaling. We may desire to normalize the loading matrix such that for each factor, the maximum loading value is 1. We should also scale the factor matrix accordingly.  
-```{r}
+```{r, eval=FALSE}
 L.scaled <- t(t(fit.nn$L_pm)/apply(fit.nn$L_pm,2, max))
 F.scaled <- t(t(fit.nn$F_pm)*apply(fit.nn$L_pm,2, max))
 ```
@@ -105,8 +149,8 @@ Looking at memberships
 --------------------
 For a flashier fit with $K$ factors, each cell $i$ is represented as a convex combination of these factors. For each cell, we have $K$ factor membership levels -- they are all stored in the $n \times K$ loading matrix. These proportions are learned from the data.  
   
-Here are some examples:  
-```{r}
+Here are some examples:
+```{r, eval=FALSE}
 rows <- c("GATATATGTCAGTG-1-b_cells",
           "GACAGTACCTGTGA-1-memory_t",
           "TGAAGCACACAGCT-1-b_cells")
@@ -118,15 +162,16 @@ We can see that the sample `GATATATGTCAGTG-1-b_cells` primarily shows membership
 Interpreting factors using available cell labels
 --------------------
 In the PBMC data, in addition to gene expression data, we have cell labels. Each cell is assigned to one of five labels (each corresponding to a cell type): B cells, CD14+ monocytes, CD3+ cells, natural killer (NK) cells, and T cells. This additional information can be used to help interpret our factors.  
-```{r}
+```{r, eval=FALSE}
 samples <- pbmc_facs$samples
 summary(samples$subpop)
 ```
     
 We can visualize the loadings using a structure plot. A structure plot is a stacked bar plot in which each factor is represented as a bar of a different color, and the bar heights are membership levels. This plot can help visualize the relationship between cell labels and factor membership levels.  
   
-For this structure plot, we visualize the scaled loadings from earlier.  
-```{r}
+For this structure plot, we visualize the scaled loadings from earlier.
+
+```{r, eval=FALSE}
 structure_plot_general = function(Lhat,Fhat,grouping,title=NULL, loadings_order = 'embed', print_plot=FALSE, seed=12345, n_samples = NULL, gap=40, show_legend=TRUE, K = NULL){
   set.seed(seed)
 
@@ -168,12 +213,13 @@ structure_plot_general = function(Lhat,Fhat,grouping,title=NULL, loadings_order 
 }
 ```
 
-```{r}
+```{r, eval=FALSE}
 structure_plot_general(L.scaled, F.scaled, grouping = samples$subpop, n_samples = nrow(L.scaled))
 ```
   
-We can see that the first factor is somewhat equally present in all cell types. (The first factor is often interpreted as an intercept factor). To focus on the differences between cell types, we can take that factor out of our visualization.  
-```{r}
+We can see that the first factor is somewhat equally present in all cell types. (The first factor is often interpreted as an intercept factor). To focus on the differences between cell types, we can take that factor out of our visualization.
+
+```{r, eval=FALSE}
 F0 <- F.scaled
 L0 <- L.scaled
 F0[,1] <- 0
@@ -183,8 +229,9 @@ structure_plot_general(L0, F0, grouping = samples$subpop, n_samples = nrow(L0))
   
 From the structure plot, we can see that NK cells, B cells, CD14+ cells, and T cells have high membership levels in factors 2, 6, 3, and 5, respectively.  
   
-We can also visualize the loadings with a heatmap. A heatmap visualizes the matrix of loading values, and a more saturated color corresponds to a higher value. Again, we use the scaled loadings.  
-```{r}
+We can also visualize the loadings with a heatmap. A heatmap visualizes the matrix of loading values, and a more saturated color corresponds to a higher value. Again, we use the scaled loadings.
+
+```{r, eval=FALSE}
 #code for heatmap
 loadings_heatmap <- function(fit_L, grouping, sample.names, grouping_col, subjects_subset = NULL){
   if (is.null(subjects_subset) == FALSE){
@@ -212,7 +259,7 @@ loadings_heatmap <- function(fit_L, grouping, sample.names, grouping_col, subjec
 }
 ```
 
-```{r}
+```{r, eval=FALSE}
 #plot heatmap
 grouping_col <- rainbow(5)
 names(grouping_col) <- levels(samples$subpop)
@@ -228,14 +275,15 @@ Each factor is represented as a vector of $m$ expression levels (one for each ge
     
 For the scaled factor matrix, the entries can be interpreted as the log-fold-change of a given gene in a given factor if a sample has a membership level of 1 for that factor.    
 
-```{r}
+```{r, eval=FALSE}
 dim(fit.nn$F_pm)
 ```
     
 As mentioned previously, the first factor is often interpreted as an intercept factor. It is usually loaded on all of the samples, and its expression levels across genes is relatively 'flat', i.e. there isn't a subset of genes that are more highly-expressed.    
     
 Other factors may have (relatively) high levels of expression in only a subset of genes. In addition, genes may be highly expressed in only a subset of factors. For example, genes CD79A and CD79B are important to B cells, and thus we would expect them to have higher expression in factor 6.  
-```{r}
+
+```{r, eval=FALSE}
 genes <- pbmc_facs$genes
 rbind(fit.nn$F_pm[genes$symbol == "CD79B",],
       fit.nn$F_pm[genes$symbol == "CD79A",])
@@ -244,7 +292,8 @@ rbind(fit.nn$F_pm[genes$symbol == "CD79B",],
 Annotating topics by differentially expressed genes
 --------------------
 When interpreting the factors, we can look at the top driving genes for each factor. For example, for a given factor, we can find the genes with the top 10 highest expression levels.  
-```{r}
+
+```{r, eval=FALSE}
 get_top_genes <- function(fit, threshhold = 2, rowname_F){
   FF <- fit$F_pm
   LL <- fit$L_pm
@@ -265,14 +314,15 @@ get_top_genes <- function(fit, threshhold = 2, rowname_F){
 }
 ```
   
-These are the top genes for factor 6:  
-```{r}
+These are the top genes for factor 6:
+```{r, eval=FALSE}
 top_genes_list <- get_top_genes(fit.nn, rowname_F = genes$symbol)
 print(top_genes_list[[6]][1:10,])
 ```
     
-We can also visualize the top genes for a given factor with a volcano plot. A volcano plot is a type of scatter plot. On the x-axis, we plot the log-fold-change in expression levels for a given gene in a given factor. On the y-axis, we plot the mean expression level of the given gene across all cells in the (transformed) data matrix.      
-```{r}
+We can also visualize the top genes for a given factor with a volcano plot. A volcano plot is a type of scatter plot. On the x-axis, we plot the log-fold-change in expression levels for a given gene in a given factor. On the y-axis, we plot the mean expression level of the given gene across all cells in the (transformed) data matrix.
+
+```{r, eval=FALSE}
 volcano_plot <- function(gene, lfc, z, lfsr, k){
 pdat <- data.frame(gene = gene, 
                    lfc  = lfc[,k], 
@@ -294,17 +344,18 @@ print(p)
 }
 ```
   
-This is the volcano plot for factor 6:  
-```{r}
+This is the volcano plot for factor 6:
+
+```{r, eval=FALSE}
 z <- (1/nrow(shifted_log_counts))*colSums(shifted_log_counts)
 volcano_plot(genes$symbol, fit.nn$F_pm, as.matrix(z, ncol = 1), fit.nn$F_lfsr, 6)
 ```
 
-We see that the top 10 most highly-expressed genes for factor 6 are identified in the volcano plot.  
-
+We see that the top 10 most highly-expressed genes for factor 6 are identified in the volcano plot.
 
 ```{r session-info}
 sessionInfo()
 ```
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
+[fasttopics-vignette]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
