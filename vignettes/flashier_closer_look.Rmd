@@ -1,10 +1,10 @@
 ---
-title: "Introduction to flashier"
+title: "A closer look at flashier"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Introduction to flashier}
+  %\VignetteIndexEntry{A closer look at flashier}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
