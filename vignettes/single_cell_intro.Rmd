@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Analysis of single-cell data using flashier}
+  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using Flashier}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
