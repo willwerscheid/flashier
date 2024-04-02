@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
       </span>
     </div>
 
@@ -32,13 +32,10 @@
   <a href="../index.html">Home</a>
 </li>
 <li>
+  <a href="../articles/index.html">Vignettes</a>
+</li>
+<li>
   <a href="../reference/index.html">Functions</a>
-</li>
-<li>
-  <a href="../articles/intro.html">Getting Started</a>
-</li>
-<li>
-  <a href="../articles/advanced.html">Advanced flashier</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/willwerscheid/flashier" class="external-link">Source</a>
@@ -68,11 +65,11 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_set_timeout</span><span class="op">(</span></span>
-<span>  <span class="va">flash</span>,</span>
-<span>  <span class="va">tim</span>,</span>
-<span>  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hours"</span>, <span class="st">"secs"</span>, <span class="st">"mins"</span>, <span class="st">"days"</span>, <span class="st">"weeks"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_set_timeout</span><span class="op">(</span>
+  <span class="va">flash</span>,
+  <span class="va">tim</span>,
+  units <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hours"</span>, <span class="st">"secs"</span>, <span class="st">"mins"</span>, <span class="st">"days"</span>, <span class="st">"weeks"</span><span class="op">)</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -110,12 +107,12 @@ be interpreted.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_set_timeout</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"secs"</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="flash_clear_timeout.html">flash_clear_timeout</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Always clear timeout at the end of a pipeline.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu">flash_set_timeout</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"secs"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu"><a href="flash_greedy.html">flash_greedy</a></span><span class="op">(</span>Kmax <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu"><a href="flash_backfit.html">flash_backfit</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu"><a href="flash_nullcheck.html">flash_nullcheck</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu"><a href="flash_clear_timeout.html">flash_clear_timeout</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Always clear timeout at the end of a pipeline.</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 1 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 2 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 3 to flash object...</span>
@@ -124,21 +121,13 @@ be interpreted.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 6 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 7 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 8 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 9 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 10 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 11 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 12 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 13 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 14 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 15 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 16 to flash object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   --Fit timed out after 1.007986 secs !</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   --Fit timed out after 1.003198 secs !</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fit timed out. Skipping backfit.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Nullchecking 16 factors...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Nullchecking 8 factors...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>
