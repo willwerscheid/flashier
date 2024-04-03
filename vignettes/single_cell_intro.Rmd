@@ -72,7 +72,7 @@ s_i =
 \frac{\sum_{j=1}^m x_{ij}}
      {\frac{1}{n}\sum_{i=1}^n \sum_{j=1}^m x_{ij}}.
 $$
-In our analysis below, we set the pseudocount $\alpha$ to 1.
+In our analysis below, we set the pseudocount, $\alpha$, to 1.
 
 ```{r log1p-sparse}
 log1p_sparse <- function (counts) {
