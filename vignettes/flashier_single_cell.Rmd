@@ -38,7 +38,7 @@ Preparing the single-cell data for flashier
 
 The single-cell RNA-seq data are unique molecular identifier (UMI)
 counts stored as an $n \times m$ sparse matrix, where $n$ is the
-number of cells and $m$ is the number of genes.
+number of cells and $m$ is the number of genes:
 
 ```{r load-data}
 data("pbmc_facs")
@@ -51,18 +51,20 @@ principal components analysis), was not designed for count data, it is
 recommended to first transform the data in a way that makes them more
 suitable for flashier. A widely used approach is to divide the counts
 by a "size factor", add a "pseudocount", then take the log. We call
-these transformed counts "shifted log counts".
+this transformation the "shifted logarithm", following
+[this paper][ahlmann-eltze-huber-2023], and we refer to the
+transformed counts as "shifted log counts".
   
-In practice, we modify this approach slightly: we first multiply the
-counts by $1/(\alpha s_i)$, where $s_i$ is the size factor for cell
-$i$, and $\alpha$ is the pseudocount. This approach has the benefit of
-maintaining sparsity in the data; that is, if the original count is
-zero, then the transformed value is also zero.
+In practice, the shifted log counts are computed as follows: we first
+divide the counts by $\alpha s_i$, where $s_i$ is the size factor for
+cell $i$, and $\alpha$ is the pseudocount. Done this way, the shifted
+log counts maintain sparsity in the data; that is, if the original
+count is zero, then the shifted log count is also zero.
   
-More formally, we compute the transformed counts $y_{ij}$ from the
-original counts $x_{ij}$ as follows:
+More formally, the transformed counts $y_{ij}$ obtained from the
+original counts $x_{ij}$ are
 $$
-y_{ij} = \log\bigg(\frac{x_{ij}}{\alpha s_i} + 1\bigg)
+y_{ij} = \log\bigg(1 + \frac{x_{ij}}{\alpha s_i}\bigg),
 $$
 in which
 $$
@@ -74,6 +76,9 @@ s_i =
 $$
 In our analysis below, we set the pseudocount, $\alpha$, to 1.
 
+To perform these calculations efficiently on a
+sparse matrix, we first define the "log1p_sparse" function,
+
 ```{r log1p-sparse}
 log1p_sparse <- function (counts) {
   out   <- counts
@@ -82,12 +87,13 @@ log1p_sparse <- function (counts) {
 }
 ```
 
-```{r}
+then we compute the shifted log counts:
+
+```{r shifted-log-counts}
 a <- 1
-n             <- nrow(counts)
-size_factors  <- rowSums(counts)/(sum(counts)/n)
-scaled_counts <- counts/(a*size_factors)
-shifted_log_counts <- log1p_sparse(scaled_counts)
+n <- nrow(counts)
+size_factors       <- rowSums(counts)/(sum(counts)/n)
+shifted_log_counts <- log1p_sparse(counts/(a*size_factors))
 ```
 
 Variance regularization
@@ -359,3 +365,4 @@ sessionInfo()
 
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
 [fasttopics-vignette]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
+[ahlmann-eltze-huber-2023]: https://doi.org/10.1038/s41592-023-01814-1
