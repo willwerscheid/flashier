@@ -24,6 +24,7 @@ can be fully reproduced.
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
+library(ebnm)
 library(flashier)
 library(fastTopics)
 library(cowplot)
@@ -99,46 +100,52 @@ shifted_log_counts <- log1p_sparse(counts/(a*size_factors))
 Variance regularization
 -----------------------
 
+Before we run flashier, one issue we need to confront is that flashier
+may automatically estimate the variances to be too small, which can
+especially be an issue for genes with low expression. We can avoid
+this issue by setting a sensible lower bound on the variance
+estimates.
+
 When running `flashier`, we need to place some regularization on the
 variance estimates. Without regularization, it is possible for some
 variance estimates to be very small, and thus lead to overfitting. We
-suggest the following rule of thumb: compute the standard deviation of
-the transformed data for a Poisson random variable with rate $\mu =
-1/n$, where $n$ is the number of samples. ($\mu = 1/n$ is a lower
-bound on the rate for each gene). This standard deviation can be
-thought of as a lower bound on the variance we expect, and it is used
-to prevent our variance estimates from getting too small.
+use the following rule of thumb: compute the standard deviation of the
+transformed data for a Poisson random variable with rate $\mu = 1/n$,
+where $n$ is the number of samples. ($\mu = 1/n$ is a lower bound on
+the rate for each gene). This standard deviation can be thought of as
+a lower bound on the variance we might expect, and it can be used to
+prevent the variance estimates from getting too small.
 
-```{r}
-mhat = 1/nrow(counts) #estimate of rate
-xx = rpois(1e7, mhat) #random poisson
-S1 <- sd(log(xx + 1)) #sd of log(X+1)
+```{r variance-lower-bound}
+x  <- rpois(1e7,1/n)
+s1 <- sd(log(x + 1))
 ```
 
 Fit a flashier model
 --------------------
 
-Now we fit the `flashier` model to the transformed data. To do this,
-we make a call to the function `flash`:
+Now we can call `flash` to fit a flashier model to the transformed
+data:
 
 ```{r, eval=FALSE}
-fit.nn = flash(shifted_log_counts, ebnm_fn = c(ebnm::ebnm_point_exponential, ebnm::ebnm_point_exponential), var_type = 2, greedy_Kmax = 20, S = S1)
+fit <- flash(shifted_log_counts,ebnm_fn = ebnm_point_exponential,
+             var_type = 2,greedy_Kmax = 20,S = s1)
 ```
-    
-When we call `flash`, we specify a few things. First, we specify the
-family of prior distributions for the loading and factor
-matrices. Here, we choose the point-exponential distribution for
-both. One note on this choice is it forces the entries of the loading
-and factor matrices to be non-negative. We also specify a constraint
-on the structure of the variance. Here, we set `var_ype = 2`, which
-corresponds to assuming column-wise variance. This means we estimate
-one variance parameter for each column of the data set. Next, we
-specify the maximum number of factors to be added in the factor
-matrix. Here, we set `greedy_Kmax = 20`. However, it is possible that
-the final model fit will contain fewer factors; `flash` only adds
-factors if they help maximize the objective function. Lastly, we
-specify `S`, the standard errors. Here, we set `S=S1`, our realistic
-lower bound on the variance.
+
+A few notes about this `flash` call:
+
++ `ebnm_fn = ebnm_point_exponential` forces both the L and F
+  matrices in flashier to be non-negative, so this call will generate
+  a non-negative matrix factorization (NMF) of the (transformed)
+  counts matrix. Other types of matrix factorizations can be produced
+  with different choices of the "ebnm_fn" argument; this is explained
+  in detail in the "introduction to flashier" vignette.
+
++ `var_ype = 2` means that we estimate column-wise (here, gene-wise)
+  variances; that is, we estimate a different variance for each column
+  (gene).
+
++ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors.
 
 Scaling the membership and factor matrices
 ------------------------------------------
