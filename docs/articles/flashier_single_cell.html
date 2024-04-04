@@ -84,6 +84,7 @@ vignette on analyzing single-cell data</a>.</p>
 can be fully reproduced.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/ebnm" class="external-link">ebnm</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stephenslab.github.io/fastTopics/" class="external-link">fastTopics</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
@@ -145,41 +146,58 @@ first define the “log1p_sparse” function,</p>
 <div class="section level2">
 <h2 id="variance-regularization">Variance regularization<a class="anchor" aria-label="anchor" href="#variance-regularization"></a>
 </h2>
+<p>Before we run flashier, one issue we need to confront is that
+flashier may automatically estimate the variances to be too small, which
+can especially be an issue for genes with low expression. We can avoid
+this issue by setting a sensible lower bound on the variance
+estimates.</p>
 <p>When running <code>flashier</code>, we need to place some
 regularization on the variance estimates. Without regularization, it is
 possible for some variance estimates to be very small, and thus lead to
-overfitting. We suggest the following rule of thumb: compute the
-standard deviation of the transformed data for a Poisson random variable
-with rate <span class="math inline">\(\mu = 1/n\)</span>, where <span class="math inline">\(n\)</span> is the number of samples. (<span class="math inline">\(\mu = 1/n\)</span> is a lower bound on the rate
+overfitting. We use the following rule of thumb: compute the standard
+deviation of the transformed data for a Poisson random variable with
+rate <span class="math inline">\(\mu = 1/n\)</span>, where <span class="math inline">\(n\)</span> is the number of samples. (<span class="math inline">\(\mu = 1/n\)</span> is a lower bound on the rate
 for each gene). This standard deviation can be thought of as a lower
-bound on the variance we expect, and it is used to prevent our variance
-estimates from getting too small.</p>
+bound on the variance we might expect, and it can be used to prevent the
+variance estimates from getting too small.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mhat</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span> <span class="co">#estimate of rate</span></span>
-<span><span class="va">xx</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1e7</span>, <span class="va">mhat</span><span class="op">)</span> <span class="co">#random poisson</span></span>
-<span><span class="va">S1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">xx</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="co">#sd of log(X+1)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">x</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1e7</span>,<span class="fl">1</span><span class="op">/</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="fit-a-flashier-model">Fit a flashier model<a class="anchor" aria-label="anchor" href="#fit-a-flashier-model"></a>
 </h2>
-<p>Now we fit the <code>flashier</code> model to the transformed data.
-To do this, we make a call to the function <code>flash</code>:</p>
+<p>Now we can call flash to fit a flashier model to the transformed
+data:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit.nn</span> <span class="op">=</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">shifted_log_counts</span>, ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu">ebnm</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_point_exponential.html" class="external-link">ebnm_point_exponential</a></span>, <span class="fu">ebnm</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/ebnm/man/ebnm_point_exponential.html" class="external-link">ebnm_point_exponential</a></span><span class="op">)</span>, var_type <span class="op">=</span> <span class="fl">2</span>, greedy_Kmax <span class="op">=</span> <span class="fl">20</span>, S <span class="op">=</span> <span class="va">S1</span><span class="op">)</span></span></code></pre></div>
-<p>When we call <code>flash</code>, we specify a few things. First, we
-specify the family of prior distributions for the loading and factor
-matrices. Here, we choose the point-exponential distribution for both.
-One note on this choice is it forces the entries of the loading and
-factor matrices to be non-negative. We also specify a constraint on the
-structure of the variance. Here, we set <code>var_ype = 2</code>, which
-corresponds to assuming column-wise variance. This means we estimate one
-variance parameter for each column of the data set. Next, we specify the
-maximum number of factors to be added in the factor matrix. Here, we set
-<code>greedy_Kmax = 20</code>. However, it is possible that the final
-model fit will contain fewer factors; <code>flash</code> only adds
-factors if they help maximize the objective function. Lastly, we specify
-<code>S</code>, the standard errors. Here, we set <code>S=S1</code>, our
-realistic lower bound on the variance.</p>
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">shifted_log_counts</span>,ebnm_fn <span class="op">=</span> <span class="va">ebnm_point_exponential</span>,</span>
+<span>             var_type <span class="op">=</span> <span class="fl">2</span>,greedy_Kmax <span class="op">=</span> <span class="fl">8</span>,S <span class="op">=</span> <span class="va">s1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Adding factor 1 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 2 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 3 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 4 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 5 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 6 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 7 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 8 to flash object...</span></span>
+<span><span class="co">#&gt; Wrapping up...</span></span>
+<span><span class="co">#&gt; Done.</span></span>
+<span><span class="co">#&gt; Nullchecking 8 factors...</span></span>
+<span><span class="co">#&gt; Done.</span></span></code></pre></div>
+<p>A few notes about this flash call:</p>
+<ul>
+<li><p><code>ebnm_fn = ebnm_point_exponential</code> forces both the L
+and F matrices in flashier to be non-negative, so this call will
+generate a non-negative matrix factorization (NMF) of the (transformed)
+counts matrix. Other types of matrix factorizations can be produced with
+different choices of the “ebnm_fn” argument; this is explained in detail
+in the “introduction to flashier” vignette.</p></li>
+<li><p><code>var_ype = 2</code> means that we estimate column-wise
+(here, gene-wise) variances; that is, we estimate a different variance
+for each column (gene).</p></li>
+<li><p><code>greedy_Kmax = 8</code> forces flashier to fit no more than
+8 factors.</p></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="scaling-the-membership-and-factor-matrices">Scaling the membership and factor matrices<a class="anchor" aria-label="anchor" href="#scaling-the-membership-and-factor-matrices"></a>
@@ -189,13 +207,12 @@ desire to normalize the loading matrix such that for each factor, the
 maximum loading value is 1. We should also scale the factor matrix
 accordingly.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">L.scaled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">L_pm</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">L_pm</span>,<span class="fl">2</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">F.scaled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">L_pm</span>,<span class="fl">2</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit</span>,type <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span></code></pre></div>
 <p>These scaled versions are particularly helpful for
 visualizations.</p>
 </div>
 <div class="section level2">
-<h2 id="looking-at-memberships">Looking at memberships<a class="anchor" aria-label="anchor" href="#looking-at-memberships"></a>
+<h2 id="looking-at-membership-matrix">Looking at membership matrix<a class="anchor" aria-label="anchor" href="#looking-at-membership-matrix"></a>
 </h2>
 <p>For a flashier fit with <span class="math inline">\(K\)</span>
 factors, each cell <span class="math inline">\(i\)</span> is represented
@@ -207,7 +224,11 @@ matrix. These proportions are learned from the data.</p>
 <code class="sourceCode R"><span><span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GATATATGTCAGTG-1-b_cells"</span>,</span>
 <span>          <span class="st">"GACAGTACCTGTGA-1-memory_t"</span>,</span>
 <span>          <span class="st">"TGAAGCACACAGCT-1-b_cells"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">L_pm</span><span class="op">[</span><span class="va">rows</span>,<span class="op">]</span>,digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">L</span><span class="op">[</span><span class="va">rows</span>,<span class="op">]</span>,digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                            [,1] [,2] [,3] [,4]  [,5]  [,6] [,7] [,8]</span></span>
+<span><span class="co">#&gt; GATATATGTCAGTG-1-b_cells  0.756    0    0    0 0.001 0.665    0    0</span></span>
+<span><span class="co">#&gt; GACAGTACCTGTGA-1-memory_t 0.856    0    0    0 0.391 0.000    0    0</span></span>
+<span><span class="co">#&gt; TGAAGCACACAGCT-1-b_cells  0.830    0    0    0 0.001 0.288    0    0</span></span></code></pre></div>
 <p>We can see that the sample <code>GATATATGTCAGTG-1-b_cells</code>
 primarily shows membership in factors 1 and 6, with very small levels of
 membership in factors 5 and 9. Meanwhile, the sample
@@ -223,8 +244,9 @@ to a cell type): B cells, CD14+ monocytes, CD3+ cells, natural killer
 (NK) cells, and T cells. This additional information can be used to help
 interpret our factors.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">samples</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  B cell   CD14+   CD34+ NK cell  T cell </span></span>
+<span><span class="co">#&gt;     767     163     687     673    1484</span></span></code></pre></div>
 <p>We can visualize the loadings using a structure plot. A structure
 plot is a stacked bar plot in which each factor is represented as a bar
 of a different color, and the bar heights are membership levels. This
@@ -233,66 +255,31 @@ membership levels.</p>
 <p>For this structure plot, we visualize the scaled loadings from
 earlier.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">structure_plot_general</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">Lhat</span>,<span class="va">Fhat</span>,<span class="va">grouping</span>,<span class="va">title</span><span class="op">=</span><span class="cn">NULL</span>, <span class="va">loadings_order</span> <span class="op">=</span> <span class="st">'embed'</span>, <span class="va">print_plot</span><span class="op">=</span><span class="cn">FALSE</span>, <span class="va">seed</span><span class="op">=</span><span class="fl">12345</span>, <span class="va">n_samples</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">gap</span><span class="op">=</span><span class="fl">40</span>, <span class="va">show_legend</span><span class="op">=</span><span class="cn">TRUE</span>, <span class="va">K</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co">#if not told to plot all samples, then plot a sub-sample</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">n_samples</span><span class="op">)</span><span class="op">&amp;</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">loadings_order</span> <span class="op">==</span> <span class="st">"embed"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="va">n_samples</span> <span class="op">=</span> <span class="fl">2000</span></span>
-<span>  <span class="op">}</span></span>
-<span></span>
-<span>  <span class="co">#normalize L such that each factor has a maximum loading value of 1</span></span>
-<span>  <span class="co">#results in an error if all the entries of a column are 0</span></span>
-<span>  <span class="va">Lhat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">Lhat</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">{</span><span class="va">z</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>,<span class="fl">1</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co">#if not told to plot all factors, then plot the requested subset</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">K</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="va">Lhat</span> <span class="op">=</span> <span class="va">Lhat</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="va">K</span><span class="op">]</span></span>
-<span>    <span class="va">Fhat</span> <span class="op">=</span> <span class="va">Fhat</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="va">K</span><span class="op">]</span></span>
-<span>  <span class="op">}</span></span>
-<span>  </span>
-<span>  <span class="va">Fhat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>,nrow<span class="op">=</span><span class="fl">3</span>,ncol<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Lhat</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co">#add column names to Lhat if it doesn't have column names</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Lhat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Lhat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k"</span>,<span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Lhat</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span>  </span>
-<span>  <span class="co">#define multinom_topic_model_fit for structure plot function</span></span>
-<span>  <span class="va">fit_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>L <span class="op">=</span> <span class="va">Lhat</span>,F <span class="op">=</span> <span class="va">Fhat</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">fit_list</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"multinom_topic_model_fit"</span>, <span class="st">"list"</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co">#plot</span></span>
-<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">fastTopics</span><span class="fu">::</span><span class="fu"><a href="https://stephenslab.github.io/fastTopics/reference/structure_plot.html" class="external-link">structure_plot</a></span><span class="op">(</span><span class="va">fit_list</span>,grouping <span class="op">=</span> <span class="va">grouping</span>, loadings_order <span class="op">=</span> <span class="va">loadings_order</span>, n <span class="op">=</span> <span class="va">n_samples</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Lhat</span><span class="op">)</span><span class="op">)</span>, gap <span class="op">=</span> <span class="va">gap</span>,verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"loading"</span>,color <span class="op">=</span> <span class="st">"dim"</span>,fill <span class="op">=</span> <span class="st">"dim"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="va">title</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="va">show_legend</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position<span class="op">=</span><span class="st">"none"</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="kw">if</span><span class="op">(</span><span class="va">print_plot</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">structure_plot_general</span><span class="op">(</span><span class="va">L.scaled</span>, <span class="va">F.scaled</span>, grouping <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">subpop</span>, n_samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">L.scaled</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">flashier_structure_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">ldf</span>, <span class="va">grouping</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ldf</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"multinom_topic_model_fit"</span>,<span class="st">"list"</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://stephenslab.github.io/fastTopics/reference/structure_plot.html" class="external-link">structure_plot</a></span><span class="op">(</span><span class="va">ldf</span>,grouping <span class="op">=</span> <span class="va">grouping</span>,gap <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">+</span></span>
+<span>         <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"membership"</span>,color <span class="op">=</span> <span class="st">"factor"</span>,fill <span class="op">=</span> <span class="st">"factor"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">flashier_structure_plot</span><span class="op">(</span><span class="va">res</span>,<span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_single_cell_files/figure-html/unnamed-chunk-3-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>We can see that the first factor is somewhat equally present in all
 cell types. (The first factor is often interpreted as an intercept
 factor). To focus on the differences between cell types, we can take
 that factor out of our visualization.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">F0</span> <span class="op">&lt;-</span> <span class="va">F.scaled</span></span>
-<span><span class="va">L0</span> <span class="op">&lt;-</span> <span class="va">L.scaled</span></span>
-<span><span class="va">F0</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="va">L0</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="fu">structure_plot_general</span><span class="op">(</span><span class="va">L0</span>, <span class="va">F0</span>, grouping <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">subpop</span>, n_samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">L0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res1</span> <span class="op">&lt;-</span> <span class="va">res</span></span>
+<span><span class="va">res1</span><span class="op">$</span><span class="va">L</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">res1</span><span class="op">$</span><span class="cn">F</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="fu">flashier_structure_plot</span><span class="op">(</span><span class="va">res1</span>,<span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_single_cell_files/figure-html/unnamed-chunk-4-1.png" width="900" style="display: block; margin: auto;"></p>
 <p>From the structure plot, we can see that NK cells, B cells, CD14+
 cells, and T cells have high membership levels in factors 2, 6, 3, and
 5, respectively.</p>
 <p>We can also visualize the loadings with a heatmap. A heatmap
 visualizes the matrix of loading values, and a more saturated color
 corresponds to a higher value. Again, we use the scaled loadings.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#code for heatmap</span></span>
-<span><span class="va">loadings_heatmap</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit_L</span>, <span class="va">grouping</span>, <span class="va">sample.names</span>, <span class="va">grouping_col</span>, <span class="va">subjects_subset</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">{</span></span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loadings_heatmap</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit_L</span>, <span class="va">grouping</span>, <span class="va">sample.names</span>, <span class="va">grouping_col</span>, <span class="va">subjects_subset</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">subjects_subset</span><span class="op">)</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">{</span></span>
 <span>    <span class="va">anno</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>subpop <span class="op">=</span> <span class="va">grouping</span><span class="op">[</span><span class="op">(</span><span class="va">subjects_subset</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="va">anno_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>subpop <span class="op">=</span> <span class="va">grouping_col</span><span class="op">)</span></span>
@@ -316,9 +303,8 @@ corresponds to a higher value. Again, we use the scaled loadings.</p>
 <span>          annotation_colors <span class="op">=</span> <span class="va">anno_colors</span>, angle_col <span class="op">=</span> <span class="fl">45</span>, fontsize <span class="op">=</span> <span class="fl">8</span>, color <span class="op">=</span> <span class="va">cols</span>, breaks <span class="op">=</span> <span class="va">brks</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#plot heatmap</span></span>
-<span><span class="va">grouping_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grouping_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grouping_col</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">L.scaled</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'k'</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">L.scaled</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">loadings_heatmap</span><span class="op">(</span>fit_L <span class="op">=</span> <span class="va">L.scaled</span>, grouping <span class="op">=</span> <span class="va">samples</span><span class="op">$</span><span class="va">subpop</span>, sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">L.scaled</span><span class="op">)</span>, <span class="va">grouping_col</span><span class="op">)</span></span></code></pre></div>
@@ -338,7 +324,7 @@ the log-fold change (LFC) of a given gene in a given factor.</p>
 <p>For the scaled factor matrix, the entries can be interpreted as the
 log-fold-change of a given gene in a given factor if a sample has a
 membership level of 1 for that factor.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">)</span></span></code></pre></div>
 <p>As mentioned previously, the first factor is often interpreted as an
 intercept factor. It is usually loaded on all of the samples, and its
@@ -349,7 +335,7 @@ a subset of genes. In addition, genes may be highly expressed in only a
 subset of factors. For example, genes CD79A and CD79B are important to B
 cells, and thus we would expect them to have higher expression in factor
 6.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79B"</span>,<span class="op">]</span>,</span>
 <span>      <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79A"</span>,<span class="op">]</span><span class="op">)</span></span></code></pre></div>
@@ -360,7 +346,7 @@ cells, and thus we would expect them to have higher expression in factor
 <p>When interpreting the factors, we can look at the top driving genes
 for each factor. For example, for a given factor, we can find the genes
 with the top 10 highest expression levels.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">get_top_genes</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">threshhold</span> <span class="op">=</span> <span class="fl">2</span>, <span class="va">rowname_F</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">FF</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">F_pm</span></span>
 <span>  <span class="va">LL</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">L_pm</span></span>
@@ -380,7 +366,7 @@ with the top 10 highest expression levels.</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">top_genes_list</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>These are the top genes for factor 6:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top_genes_list</span> <span class="op">&lt;-</span> <span class="fu">get_top_genes</span><span class="op">(</span><span class="va">fit.nn</span>, rowname_F <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">top_genes_list</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>We can also visualize the top genes for a given factor with a volcano
@@ -388,7 +374,7 @@ plot. A volcano plot is a type of scatter plot. On the x-axis, we plot
 the log-fold-change in expression levels for a given gene in a given
 factor. On the y-axis, we plot the mean expression level of the given
 gene across all cells in the (transformed) data matrix.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">volcano_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gene</span>, <span class="va">lfc</span>, <span class="va">z</span>, <span class="va">lfsr</span>, <span class="va">k</span><span class="op">)</span><span class="op">{</span></span>
 <span><span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>gene <span class="op">=</span> <span class="va">gene</span>, </span>
 <span>                   lfc  <span class="op">=</span> <span class="va">lfc</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>, </span>
@@ -409,12 +395,12 @@ gene across all cells in the (transformed) data matrix.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>This is the volcano plot for factor 6:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">shifted_log_counts</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">shifted_log_counts</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://stephenslab.github.io/fastTopics/reference/volcano_plot.html" class="external-link">volcano_plot</a></span><span class="op">(</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span>, <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">z</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_lfsr</span>, <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
 <p>We see that the top 10 most highly-expressed genes for factor 6 are
 identified in the volcano plot.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20 (64-bit)</span></span>
@@ -442,23 +428,23 @@ identified in the volcano plot.</p>
 <span><span class="co">#&gt;  [1] gtable_0.3.4       softImpute_1.4-1   xfun_0.42          bslib_0.6.1       </span></span>
 <span><span class="co">#&gt;  [5] htmlwidgets_1.6.4  lattice_0.22-5     quadprog_1.5-8     vctrs_0.6.5       </span></span>
 <span><span class="co">#&gt;  [9] tools_4.3.3        generics_0.1.3     parallel_4.3.3     tibble_3.2.1      </span></span>
-<span><span class="co">#&gt; [13] fansi_1.0.6        pkgconfig_2.0.3    data.table_1.15.2  SQUAREM_2021.1    </span></span>
-<span><span class="co">#&gt; [17] RColorBrewer_1.1-3 desc_1.4.3         RcppParallel_5.1.7 lifecycle_1.0.4   </span></span>
-<span><span class="co">#&gt; [21] truncnorm_1.0-9    compiler_4.3.3     stringr_1.5.1      progress_1.2.3    </span></span>
-<span><span class="co">#&gt; [25] textshaping_0.3.7  munsell_0.5.0      htmltools_0.5.7    sass_0.4.8        </span></span>
-<span><span class="co">#&gt; [29] lazyeval_0.2.2     yaml_2.3.8         plotly_4.10.4      crayon_1.5.2      </span></span>
-<span><span class="co">#&gt; [33] pillar_1.9.0       pkgdown_2.0.7      jquerylib_0.1.4    tidyr_1.3.1       </span></span>
-<span><span class="co">#&gt; [37] uwot_0.1.16        cachem_1.0.8       trust_0.1-8        gtools_3.9.5      </span></span>
-<span><span class="co">#&gt; [41] tidyselect_1.2.0   digest_0.6.34      Rtsne_0.17         stringi_1.8.3     </span></span>
-<span><span class="co">#&gt; [45] dplyr_1.1.4        purrr_1.0.2        ashr_2.2-64        splines_4.3.3     </span></span>
-<span><span class="co">#&gt; [49] fastmap_1.1.1      grid_4.3.3         colorspace_2.1-0   cli_3.6.2         </span></span>
-<span><span class="co">#&gt; [53] invgamma_1.1       utf8_1.2.4         withr_3.0.0        prettyunits_1.2.0 </span></span>
-<span><span class="co">#&gt; [57] scales_1.3.0       horseshoe_0.2.0    httr_1.4.7         rmarkdown_2.26    </span></span>
-<span><span class="co">#&gt; [61] deconvolveR_1.2-1  hms_1.1.3          ragg_1.2.7         memoise_2.0.1     </span></span>
-<span><span class="co">#&gt; [65] pbapply_1.7-2      evaluate_0.23      knitr_1.45         viridisLite_0.4.2 </span></span>
-<span><span class="co">#&gt; [69] irlba_2.3.5.1      rlang_1.1.3        Rcpp_1.0.12        mixsqp_0.3-54     </span></span>
-<span><span class="co">#&gt; [73] glue_1.7.0         jsonlite_1.8.8     R6_2.5.1           systemfonts_1.0.6 </span></span>
-<span><span class="co">#&gt; [77] fs_1.6.3</span></span></code></pre></div>
+<span><span class="co">#&gt; [13] fansi_1.0.6        highr_0.10         pkgconfig_2.0.3    data.table_1.15.2 </span></span>
+<span><span class="co">#&gt; [17] SQUAREM_2021.1     RColorBrewer_1.1-3 desc_1.4.3         RcppParallel_5.1.7</span></span>
+<span><span class="co">#&gt; [21] lifecycle_1.0.4    truncnorm_1.0-9    farver_2.1.1       compiler_4.3.3    </span></span>
+<span><span class="co">#&gt; [25] stringr_1.5.1      progress_1.2.3     textshaping_0.3.7  munsell_0.5.0     </span></span>
+<span><span class="co">#&gt; [29] htmltools_0.5.7    sass_0.4.8         lazyeval_0.2.2     yaml_2.3.8        </span></span>
+<span><span class="co">#&gt; [33] plotly_4.10.4      crayon_1.5.2       pillar_1.9.0       pkgdown_2.0.7     </span></span>
+<span><span class="co">#&gt; [37] jquerylib_0.1.4    tidyr_1.3.1        uwot_0.1.16        cachem_1.0.8      </span></span>
+<span><span class="co">#&gt; [41] trust_0.1-8        gtools_3.9.5       tidyselect_1.2.0   digest_0.6.34     </span></span>
+<span><span class="co">#&gt; [45] Rtsne_0.17         stringi_1.8.3      dplyr_1.1.4        purrr_1.0.2       </span></span>
+<span><span class="co">#&gt; [49] ashr_2.2-64        labeling_0.4.3     splines_4.3.3      fastmap_1.1.1     </span></span>
+<span><span class="co">#&gt; [53] grid_4.3.3         colorspace_2.1-0   cli_3.6.2          invgamma_1.1      </span></span>
+<span><span class="co">#&gt; [57] utf8_1.2.4         withr_3.0.0        prettyunits_1.2.0  scales_1.3.0      </span></span>
+<span><span class="co">#&gt; [61] horseshoe_0.2.0    httr_1.4.7         rmarkdown_2.26     deconvolveR_1.2-1 </span></span>
+<span><span class="co">#&gt; [65] hms_1.1.3          ragg_1.2.7         memoise_2.0.1      pbapply_1.7-2     </span></span>
+<span><span class="co">#&gt; [69] evaluate_0.23      knitr_1.45         viridisLite_0.4.2  irlba_2.3.5.1     </span></span>
+<span><span class="co">#&gt; [73] rlang_1.1.3        Rcpp_1.0.12        mixsqp_0.3-54      glue_1.7.0        </span></span>
+<span><span class="co">#&gt; [77] jsonlite_1.8.8     R6_2.5.1           systemfonts_1.0.6  fs_1.6.3</span></span></code></pre></div>
 </div>
   </div>
 
