@@ -134,77 +134,60 @@ fit <- flash(shifted_log_counts,ebnm_fn = ebnm_point_exponential,
 
 A few notes about this flash call:
 
-+ `ebnm_fn = ebnm_point_exponential` forces both the L and F
-  matrices in flashier to be non-negative, so this call will generate
-  a non-negative matrix factorization (NMF) of the (transformed)
-  counts matrix. Other types of matrix factorizations can be produced
-  with different choices of the "ebnm_fn" argument; this is explained
-  in detail in the "introduction to flashier" vignette.
++ `ebnm_fn = ebnm_point_exponential` forces both the ${\bf L}$ and
+  ${\bf F}$ matrices in flashier to be non-negative, so this call will
+  generate a non-negative matrix factorization (NMF) of the
+  (transformed) counts matrix. Other types of matrix factorizations
+  can be produced with different choices of the "ebnm_fn" argument;
+  this is explained in detail in the "introduction to flashier"
+  vignette.
 
 + `var_ype = 2` means that we estimate column-wise (here, gene-wise)
   variances; that is, we estimate a different variance for each column
   (gene).
 
-+ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors.
++ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. In
+  practice we recommend using a larger value, but to keep the example
+  simple and short we set it to 8 here.
 
-Scaling the membership and factor matrices
-------------------------------------------
+Visualizing the memberships
+---------------------------
 
-The loading and factor matrix pair are unique up to a scaling. We may
-desire to normalize the loading matrix such that for each factor, the
-maximum loading value is 1. We should also scale the factor matrix
-accordingly.
+Each cell in the single-cell data set is represented as a convex
+combination of the K factors. The estimated "membership levels", or
+"memberships", are stored in the ${\bf L}$ matrix. For example:
+
+```{r membership-example}
+cell_ids <- c("GATATATGTCAGTG-1-b_cells",
+              "GACAGTACCTGTGA-1-memory_t",
+              "TGAAGCACACAGCT-1-b_cells")
+round(fit$L_pm[cell_ids,],digits = 3)
+```
+
+The first and third cells mainly have membership in factors 1 and 6,
+whereas the second cell mostly has membership in factors 1 and 5.
+Most of the memberships are zero.
+
+We can use a "Structure plot" to visualize the relationship between
+the memberships and the cell labels, and may give us some clues about
+the biological meaning of the factors. The cell labels are the
+"sorted" cell subpopulations:
+
+```{r cell-samples}
+summary(pbmc_facs$samples$subpop)
+```
+   
+A Structure plot is a stacked bar plot in which each factor is
+represented as a bar of a different color, and the bar heights are
+given by the membership levels. For a more effective visualization, we
+recommend extracting a rescaled version of the memberships using the
+`ldf` function (the L and F matrices are unique up to rescaling):
 
 ```{r ldf}
 res <- ldf(fit,type = "i")
 ```
   
-These scaled versions are particularly helpful for visualizations.
-
-Looking at membership matrix
-----------------------------
-
-For a flashier fit with $K$ factors, each cell $i$ is represented as a
-convex combination of these factors. For each cell, we have $K$ factor
-membership levels -- they are all stored in the $n \times K$ loading
-matrix. These proportions are learned from the data.
-  
-Here are some examples:
-
-```{r}
-rows <- c("GATATATGTCAGTG-1-b_cells",
-          "GACAGTACCTGTGA-1-memory_t",
-          "TGAAGCACACAGCT-1-b_cells")
-round(res$L[rows,],digits = 3)
-```
-    
-We can see that the sample `GATATATGTCAGTG-1-b_cells` primarily shows
-membership in factors 1 and 6, with very small levels of membership in
-factors 5 and 9. Meanwhile, the sample `GACAGTACCTGTGA-1-memory_t`
-primarily shows membership in factors 1 and 5, with very small
-membership in factor 14.
-
-Interpreting factors using available cell labels
-------------------------------------------------
-
-In the PBMC data, in addition to gene expression data, we have cell
-labels. Each cell is assigned to one of five labels (each
-corresponding to a cell type): B cells, CD14+ monocytes, CD3+ cells,
-natural killer (NK) cells, and T cells. This additional information
-can be used to help interpret our factors.
-
-```{r}
-summary(pbmc_facs$samples$subpop)
-```
-    
-We can visualize the loadings using a structure plot. A structure plot
-is a stacked bar plot in which each factor is represented as a bar of
-a different color, and the bar heights are membership levels. This
-plot can help visualize the relationship between cell labels and
-factor membership levels.
-  
-For this structure plot, we visualize the scaled loadings from
-earlier.
+Now we can visualize the rescaled memberships in a Structure plot:
 
 ```{r, fig.height=2, fig.width=7.5, results="hide", message=FALSE}
 flashier_structure_plot <- function (ldf, grouping) {
@@ -214,8 +197,11 @@ flashier_structure_plot <- function (ldf, grouping) {
 }
 flashier_structure_plot(res,pbmc_facs$samples$subpop)
 ```
-  
-We can see that the first factor is somewhat equally present in all cell types. (The first factor is often interpreted as an intercept factor). To focus on the differences between cell types, we can take that factor out of our visualization.
+
+The first factor is present in all cell types, and is likely capturing
+a "baseline" level of expression throughout.. To focus on differences
+between cell types, let's remove the first factor from our
+Structure plot:
 
 ```{r, fig.height=2, fig.width=7.5, results="hide", message=FALSE}
 res1 <- res
@@ -224,9 +210,11 @@ res1$F[,1] <- 0
 flashier_structure_plot(res1,pbmc_facs$samples$subpop)
 ```
   
-From the structure plot, we can see that NK cells, B cells, CD14+
-cells, and T cells have high membership levels in factors 2, 6, 3, and
-5, respectively.
+It is quite clear from this Structure plot that factors 2-6 are
+capturing, respectively, natural killer (NK) cells, CD14+ cells, CD34+
+cells, T cells and B cells. There is also other more subtle structure
+captured by the memberships, such as the subset of T cells
+with mixed memberships to factors 2 (blue) and 5 (orange).
   
 We can also visualize the loadings with a heatmap. A heatmap
 visualizes the matrix of loading values, and a more saturated color
