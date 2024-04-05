@@ -24,13 +24,12 @@ can be fully reproduced.
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
+library(reshape)
 library(ebnm)
 library(flashier)
 library(fastTopics)
-library(cowplot)
 library(ggplot2)
-library(ggrepel)
-library(pheatmap)
+library(cowplot)
 set.seed(3)
 ```
 
@@ -189,7 +188,7 @@ res <- ldf(fit,type = "i")
   
 Now we can visualize the rescaled memberships in a Structure plot:
 
-```{r, fig.height=2, fig.width=7.5, results="hide", message=FALSE}
+```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
 flashier_structure_plot <- function (ldf, grouping) {
   class(ldf) <- c("multinom_topic_model_fit","list")
   return(structure_plot(ldf,grouping = grouping,gap = 20) +
@@ -203,7 +202,7 @@ a "baseline" level of expression throughout.. To focus on differences
 between cell types, let's remove the first factor from our
 Structure plot:
 
-```{r, fig.height=2, fig.width=7.5, results="hide", message=FALSE}
+```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
 res1 <- res
 res1$L[,1] <- 0
 res1$F[,1] <- 0
@@ -216,49 +215,25 @@ cells, T cells and B cells. There is also other more subtle structure
 captured by the memberships, such as the subset of T cells
 with mixed memberships to factors 2 (blue) and 5 (orange).
   
-We can also visualize the loadings with a heatmap. A heatmap
-visualizes the matrix of loading values, and a more saturated color
-corresponds to a higher value. Again, we use the scaled loadings.
+We can also visualize the memberships with a heatmap:
 
-```{r}
-loadings_heatmap <- function(fit_L, grouping, sample.names, grouping_col, subjects_subset = NULL){
-  if (is.null(subjects_subset) == FALSE){
-    anno <- data.frame(subpop = grouping[(subjects_subset)])
-    anno_colors <- list(subpop = grouping_col)
-  }
-  else{
-    anno <- data.frame(subpop = grouping)
-    anno_colors <- list(subpop = grouping_col)
-  }
-  if (is.null(colnames(fit_L))){
-    colnames(fit_L) <- paste0('k',c(1:ncol(fit_L)))
-  }
-  if (is.null(rownames(fit_L))){
-    rownames(fit_L) <- sample.names
-  }
-  rownames(anno) <- sample.names
-  cols <- colorRampPalette(c("gray96","red"))(50)
-  brks <- seq(min(fit_L), max(fit_L),length.out= 50)
-  rows <- order(anno$subpop)
-  p <- pheatmap(fit_L[rows,], cluster_rows = FALSE, cluster_cols = FALSE,
-          show_rownames = FALSE, annotation_row = anno, annotation_names_row = FALSE,
-          annotation_colors = anno_colors, angle_col = 45, fontsize = 8, color = cols, breaks = brks, main = "")
-  print(p)
+```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
+flashier_heatmap <- function (L, grouping, gap = 0) {
+  k <- ncol(L)
+  colnames(L) <- paste0("k",1:k)
+  rows <- order(grouping)
+  pdat <- melt(as.data.frame(L[rows,]),variable_name = "factor")
+  pdat <- cbind(pdat,grouping = grouping[rows])
+  pdat <- cbind(pdat,pos = 1:n + gap*as.numeric(pdat$grouping))
+  return(ggplot(pdat,aes(x = factor,y = pos,fill = value)) +
+    geom_tile(width = 0.8) +
+    scale_fill_gradient(low = "white",high = "darkblue") +
+    scale_y_continuous(breaks = tapply(pdat$pos,pdat$grouping,mean)) +
+    labs(y = "",fill = "membership") +
+	theme_cowplot(font_size = 10))
 }
+flashier_heatmap(res$L,pbmc_facs$samples$subpop,gap = 50)
 ```
-
-```{r, fig.height=6, fig.width=6, eval=FALSE}
-grouping_col <- rainbow(5)
-names(grouping_col) <- levels(samples$subpop)
-colnames(L.scaled) <- paste0('k',c(1:ncol(L.scaled)))
-loadings_heatmap(fit_L = L.scaled, grouping = samples$subpop, sample.names = rownames(L.scaled), grouping_col)
-```
-  
-From the heatmap, we see that almost all samples have membership in
-factor 1, supporting the interpretation of the first factor as an
-'intercept factor'. We also see that the loadings of factors 2, 4, 5,
-and 6 generally correspond with NK cells, CD34+ cells, T cells, and B
-cells, respectively.
 
 Factors capture patterns of relative expression
 -----------------------------------------------
@@ -287,7 +262,8 @@ rbind(fit.nn$F_pm[genes$symbol == "CD79B",],
 ```
 
 Annotating topics by differentially expressed genes
---------------------
+---------------------------------------------------
+
 When interpreting the factors, we can look at the top driving genes for each factor. For example, for a given factor, we can find the genes with the top 10 highest expression levels.  
 
 ```{r, eval=FALSE}
@@ -349,6 +325,12 @@ volcano_plot(genes$symbol, fit.nn$F_pm, as.matrix(z, ncol = 1), fit.nn$F_lfsr, 6
 ```
 
 We see that the top 10 most highly-expressed genes for factor 6 are identified in the volcano plot.
+
+Session info
+------------
+
+This is the version of R and the packages that were used to generate
+these results.
 
 ```{r session-info}
 sessionInfo()
