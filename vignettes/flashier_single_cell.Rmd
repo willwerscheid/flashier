@@ -19,13 +19,13 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       results = "hold", fig.align = "center", dpi = 120)
 ```
 
-We begin by loading the packages. We also set the seed so the results
+We begin by loading the required packages. We also set the seed so that results
 can be fully reproduced.
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
+library(MatrixExtra)
 library(reshape)
-library(ebnm)
 library(flashier)
 library(fastTopics)
 library(ggplot2)
@@ -36,9 +36,9 @@ set.seed(3)
 Preparing the single-cell data for flashier
 -------------------------------------------
 
-The single-cell RNA-seq data are unique molecular identifier (UMI)
-counts stored as an $n \times m$ sparse matrix, where $n$ is the
-number of cells and $m$ is the number of genes:
+The single-cell RNA-seq data (we use the `pbmc_facs` data from the `fastTopics` package) are unique molecular identifier (UMI)
+counts stored as an $n \times p$ sparse matrix, where $n$ is the
+number of cells and $p$ is the number of genes:
 
 ```{r load-data}
 data("pbmc_facs")
@@ -49,9 +49,9 @@ dim(counts)
 Since the flashier model, like other linear-model-based methods (e.g.,
 principal components analysis), was not designed for count data, it is
 recommended to first transform the data in a way that makes them more
-suitable for flashier. A widely used approach is to divide the counts
-by a "size factor", add a "pseudocount", then take the log. We call
-this transformation the "shifted logarithm", following
+suitable for flashier. A widely-used approach is to divide the counts
+by a "size factor," add a "pseudocount," then take the log. We call
+this transformation the "shifted logarithm," following
 [this paper][ahlmann-eltze-huber-2023], and we refer to the
 transformed counts as "shifted log counts".
   
@@ -64,37 +64,28 @@ count is zero, then the shifted log count is also zero.
 More formally, the transformed counts $y_{ij}$ obtained from the
 original counts $x_{ij}$ are
 $$
-y_{ij} = \log\bigg(1 + \frac{x_{ij}}{\alpha s_i}\bigg),
+y_{ij} = \log\bigg(1 + \frac{x_{ij}}{\alpha s_i}\bigg).
 $$
-in which
+In our analysis below, we use library-size normalization; that is, we set
 $$
 s_i =
 \frac{\text{total count for cell} \; i}
      {\text{average across all cells}} =
-\frac{\sum_{j=1}^m x_{ij}}
-     {\frac{1}{n}\sum_{i=1}^n \sum_{j=1}^m x_{ij}}.
+\frac{\sum_{j=1}^p x_{ij}}
+     {\frac{1}{n}\sum_{i=1}^n \sum_{j=1}^p x_{ij}},
 $$
-In our analysis below, we set the pseudocount, $\alpha$, to 1.
-
-To perform these calculations efficiently on a
-sparse matrix, we first define the "log1p_sparse" function,
-
-```{r log1p-sparse}
-log1p_sparse <- function (counts) {
-  out   <- counts
-  out@x <- log1p(counts@x)
-  return(out)
-}
-```
-
-then we compute the shifted log counts:
+and we set the pseudocount $\alpha$ to 1.
 
 ```{r shifted-log-counts}
 a <- 1
-n <- nrow(counts)
-size_factors       <- rowSums(counts)/(sum(counts)/n)
-shifted_log_counts <- log1p_sparse(counts/(a*size_factors))
+size_factors <- rowSums(counts)
+size_factors <- size_factors / mean(size_factors)
+shifted_log_counts <- mapSparse(counts / (a * size_factors), log1p)
 ```
+
+Note that to perform the `log1p` calculations efficiently on a
+sparse matrix, we used the `mapSparse` function from the `MatrixExtra` package.
+
 
 Variance regularization
 -----------------------
@@ -105,18 +96,19 @@ especially be an issue for genes with low expression. We can avoid
 this issue by setting a sensible lower bound on the variance
 estimates.
 
-When running `flashier`, we need to place some regularization on the
-variance estimates. Without regularization, it is possible for some
-variance estimates to be very small, and thus lead to overfitting. We
-use the following rule of thumb: compute the standard deviation of the
-transformed data for a Poisson random variable with rate $\mu = 1/n$,
-where $n$ is the number of samples. ($\mu = 1/n$ is a lower bound on
-the rate for each gene). This standard deviation can be thought of as
-a lower bound on the variance we might expect, and it can be used to
-prevent the variance estimates from getting too small.
+<!-- When running flashier, we need to place some regularization on the -->
+<!-- variance estimates. Without regularization, it is possible for some -->
+<!-- variance estimates to be very small, which can lead to overfitting.  -->
+We use the following rule of thumb: estimate the standard deviation of the
+transformed data for a Poisson random variable with rate $\mu = 1 / n$,
+where $n$ is the number of samples. This standard deviation corresponds to a
+gene for which we would expect to observe a single count across all $n$ cells,
+so it can serve as a reasonable lower bound to 
+prevent variance estimates from getting too small.
 
 ```{r variance-lower-bound}
-x  <- rpois(1e7,1/n)
+n <- nrow(counts)
+x  <- rpois(1e7, 1 / n)
 s1 <- sd(log(x + 1))
 ```
 
@@ -127,8 +119,11 @@ Now we can call flash to fit a flashier model to the transformed
 data:
 
 ```{r flash}
-fit <- flash(shifted_log_counts,ebnm_fn = ebnm_point_exponential,
-             var_type = 2,greedy_Kmax = 8,S = s1)
+fit <- flash(shifted_log_counts, 
+             ebnm_fn = ebnm_point_exponential,
+             var_type = 2, 
+             greedy_Kmax = 8, 
+             S = s1)
 ```
 
 A few notes about this flash call:
@@ -136,39 +131,39 @@ A few notes about this flash call:
 + `ebnm_fn = ebnm_point_exponential` forces both the ${\bf L}$ and
   ${\bf F}$ matrices in flashier to be non-negative, so this call will
   generate a non-negative matrix factorization (NMF) of the
-  (transformed) counts matrix. Other types of matrix factorizations
-  can be produced with different choices of the "ebnm_fn" argument;
-  this is explained in detail in the "introduction to flashier"
+  (transformed) counts matrix. Other types of matrix factorization
+  can be produced with different choices of the `ebnm_fn` argument;
+  this is explained in detail in the "Introduction to flashier"
   vignette.
 
-+ `var_ype = 2` means that we estimate column-wise (here, gene-wise)
++ `var_type = 2` means that we estimate column-wise (here, gene-wise)
   variances; that is, we estimate a different variance for each column
   (gene).
 
-+ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. In
-  practice we recommend using a larger value, but to keep the example
++ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. *In
+  practice we recommend using a larger value,* but to keep the example
   simple and short we set it to 8 here.
 
 Visualizing the memberships
 ---------------------------
 
 Each cell in the single-cell data set is represented as a convex
-combination of the K factors. The estimated "membership levels", or
+combination of the $K$ factors. The estimated "membership levels", or
 "memberships", are stored in the ${\bf L}$ matrix. For example:
 
 ```{r membership-example}
 cell_ids <- c("GATATATGTCAGTG-1-b_cells",
               "GACAGTACCTGTGA-1-memory_t",
               "TGAAGCACACAGCT-1-b_cells")
-round(fit$L_pm[cell_ids,],digits = 3)
+round(fit$L_pm[cell_ids, ], digits = 3)
 ```
 
 The first and third cells mainly have membership in factors 1 and 6,
 whereas the second cell mostly has membership in factors 1 and 5.
 Most of the memberships are zero.
 
-We can use a "Structure plot" to visualize the relationship between
-the memberships and the cell labels, and may give us some clues about
+We can use a "structure plot" to visualize the relationship between
+the memberships and the cell labels, and possibly get some clues about
 the biological meaning of the factors. The cell labels are the
 "sorted" cell subpopulations:
 
@@ -176,44 +171,51 @@ the biological meaning of the factors. The cell labels are the
 summary(pbmc_facs$samples$subpop)
 ```
    
-A Structure plot is a stacked bar plot in which each factor is
+A structure plot is a stacked bar plot in which each factor is
 represented as a bar of a different color, and the bar heights are
 given by the membership levels. For a more effective visualization, we
 recommend extracting a rescaled version of the memberships using the
-`ldf` function (the L and F matrices are unique up to rescaling):
+`ldf` function (note that we can scale factors $F_{\cdot k}$ by any constant $c$
+while also scaling the corresponding loadings $L_{\cdot k}$ by $1/c$ without changing the
+low-rank representation $LF'$):
 
 ```{r ldf}
-res <- ldf(fit,type = "i")
+res <- ldf(fit, type = "i")
 ```
   
-Now we can visualize the rescaled memberships in a Structure plot:
+Now we can visualize the rescaled memberships in a structure plot. We create a simple
+wrapper that converts the flashier results into an object that is usable by the
+`structure_plot()` function from the `fastTopics` package:
 
 ```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
-flashier_structure_plot <- function (ldf, grouping) {
-  class(ldf) <- c("multinom_topic_model_fit","list")
-  return(structure_plot(ldf,grouping = grouping,gap = 20) +
-         labs(y = "membership",color = "factor",fill = "factor"))
+flashier_structure_plot <- function (ldf, topics, grouping) {
+  class(ldf) <- c("multinom_topic_model_fit", "list")
+  p <- structure_plot(ldf, topics = topics, grouping = grouping, gap = 20) +
+    labs(y = "membership", color = "factor", fill = "factor")
+  return(p)
 }
-flashier_structure_plot(res,pbmc_facs$samples$subpop)
+flashier_structure_plot(res, c(2:8, 1), pbmc_facs$samples$subpop)
 ```
 
 The first factor is present in all cell types, and is likely capturing
-a "baseline" level of expression throughout.. To focus on differences
-between cell types, let's remove the first factor from our
-Structure plot:
+a "baseline" level of expression throughout. To focus on differences
+between cell types, let's remove this first factor from our
+structure plot:
 
 ```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
-res1 <- res
-res1$L[,1] <- 0
-res1$F[,1] <- 0
-flashier_structure_plot(res1,pbmc_facs$samples$subpop)
+flashier_structure_plot(res, 2:8, pbmc_facs$samples$subpop)
 ```
   
-It is quite clear from this Structure plot that factors 2-6 are
+It is quite clear from this structure plot that factors 2--6 are
 capturing, respectively, natural killer (NK) cells, CD14+ cells, CD34+
-cells, T cells and B cells. There is also other more subtle structure
+cells, T cells and B cells. There is also more subtle structure
 captured by the memberships, such as the subset of T cells
-with mixed memberships to factors 2 (blue) and 5 (orange).
+with mixed memberships (factors 2 and 5, colored blue and orange in the plot), 
+which suggest a function that is
+intermediate between that of "pure" T and NK cells. It is also interesting to note 
+the subset of CD34+ cells that are primarily loaded on factors 3 or 6 (yellow
+and green): some of these cells may be mislabeled; others may have a hybrid
+function.
   
 We can also visualize the memberships with a heatmap:
 
