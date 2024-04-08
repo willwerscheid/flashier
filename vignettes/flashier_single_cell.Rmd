@@ -83,8 +83,9 @@ size_factors <- size_factors / mean(size_factors)
 shifted_log_counts <- mapSparse(counts / (a * size_factors), log1p)
 ```
 
-Note that to perform the `log1p` calculations efficiently on a
-sparse matrix, we used the `mapSparse` function from the `MatrixExtra` package.
+Note that to perform the `log1p` calculations efficiently on a sparse
+matrix, we used the `mapSparse` function from the `MatrixExtra`
+package.
 
 
 Variance regularization
