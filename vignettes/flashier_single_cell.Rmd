@@ -240,6 +240,7 @@ We can also visualize the memberships with a heatmap:
 
 ```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
 flashier_heatmap <- function (L, grouping, gap = 0) {
+  n <- nrow(L)
   k <- ncol(L)
   colnames(L) <- paste0("k",1:k)
   rows <- order(grouping)
