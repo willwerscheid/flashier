@@ -198,7 +198,7 @@ do this, we create a simple wrapper function that converts the
 flashier results into an object that is usable by the "structure_plot"
 function in fastTopics:
 
-```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
+```{r structure-plot-1, fig.height=2, fig.width=7, results="hide", message=FALSE}
 flashier_structure_plot <- function (ldf, topics, grouping) {
   class(ldf) <- c("multinom_topic_model_fit", "list")
   p <- structure_plot(ldf, topics = topics, grouping = grouping, gap = 20) +
@@ -213,7 +213,7 @@ a "baseline" level of expression throughout. To focus on differences
 between cell types, let's remove this first factor from our
 structure plot:
 
-```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
+```{r structure-plot-2, fig.height=2, fig.width=7, results="hide", message=FALSE}
 flashier_structure_plot(res, 2:8, pbmc_facs$samples$subpop)
 ```
   
@@ -226,6 +226,13 @@ which suggest a function that is intermediate between that of the
 "pure" T and the "pure" NK cells. It is also interesting to note the
 subset of CD34+ cells that are primarily loaded on factors 3 or 6
 (yellow and green); some of these cells may be mislabeled.
+
+Note that factors 7 and 8 are present in very few cells and probably
+offer little insight:
+
+```{r inspect-loadings}
+colSums(res$L > 0.01)
+```
 
 <!-- Others may have a hybrid function. -->
   
