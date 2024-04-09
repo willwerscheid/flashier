@@ -152,9 +152,11 @@ A few notes about this flash call:
 Visualizing the memberships
 ---------------------------
 
-Each cell in the single-cell data set is represented as a convex
-combination of the $K$ factors. The estimated "membership levels", or
-"memberships", are stored in the ${\bf L}$ matrix. For example:
+<!-- Each cell in the single-cell data set is represented as a linear
+combination of the $K$ factors. -->
+
+The estimated "membership levels", or "memberships", are stored in the
+${\bf L}$ matrix. For example:
 
 ```{r membership-example}
 cell_ids <- c("GATATATGTCAGTG-1-b_cells",
