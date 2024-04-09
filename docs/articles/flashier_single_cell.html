@@ -84,7 +84,6 @@ vignette on analyzing single-cell data</a>.</p>
 that results can be fully reproduced.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org" class="external-link">Matrix</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/david-cortes/MatrixExtra" class="external-link">MatrixExtra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/reshape" class="external-link">reshape</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stephenslab.github.io/fastTopics/" class="external-link">fastTopics</a></span><span class="op">)</span></span>
@@ -103,10 +102,12 @@ identifier (UMI) counts stored as an <span class="math inline">\(n
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">counts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]  3774 16791</span></span></code></pre></div>
+<p>(Note that other R packages, for example Seurat, use the convention
+that rows are genes and columns are cells.)</p>
 <p>Since the flashier model, like other linear-model-based methods
 (e.g., principal components analysis), was not designed for count data,
 it is recommended to first transform the data in a way that makes them
-more suitable for flashier. A widely-used approach is to divide the
+more suitable for flashier. A widely used approach is to divide the
 counts by a “size factor,” add a “pseudocount,” then take the log. We
 call this transformation the “shifted logarithm,” following <a href="https://doi.org/10.1038/s41592-023-01814-1" class="external-link">this paper</a>, and we
 refer to the transformed counts as “shifted log counts”.</p>
@@ -131,10 +132,11 @@ s_i =
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">size_factors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span>
 <span><span class="va">size_factors</span> <span class="op">&lt;-</span> <span class="va">size_factors</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">size_factors</span><span class="op">)</span></span>
-<span><span class="va">shifted_log_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixExtra/man/mapSparse.html" class="external-link">mapSparse</a></span><span class="op">(</span><span class="va">counts</span> <span class="op">/</span> <span class="op">(</span><span class="va">a</span> <span class="op">*</span> <span class="va">size_factors</span><span class="op">)</span>, <span class="va">log1p</span><span class="op">)</span></span></code></pre></div>
-<p>Note that to perform the <code>log1p</code> calculations efficiently
-on a sparse matrix, we used the <code>mapSparse</code> function from the
-<code>MatrixExtra</code> package.</p>
+<span><span class="va">shifted_log_counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="va">counts</span> <span class="op">/</span> <span class="op">(</span><span class="va">a</span> <span class="op">*</span> <span class="va">size_factors</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Note that, since the counts are sparse, we could have performed this
+transformation more efficiently using, for example, the “mapSparse”
+function from <a href="https://github.com/david-cortes/MatrixExtra" class="external-link">the
+MatrixExtra package</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="variance-regularization">Variance regularization<a class="anchor" aria-label="anchor" href="#variance-regularization"></a>
@@ -146,7 +148,7 @@ this issue by setting a sensible lower bound on the variance
 estimates.</p>
 <!-- When running flashier, we need to place some regularization on the -->
 <!-- variance estimates. Without regularization, it is possible for some -->
-<!-- variance estimates to be very small, which can lead to overfitting.  -->
+<!-- variance estimates to be very small, which can lead to overfitting. -->
 <p>We use the following rule of thumb: estimate the standard deviation
 of the transformed data for a Poisson random variable with rate <span class="math inline">\(\mu = 1 / n\)</span>, where <span class="math inline">\(n\)</span> is the number of samples. This standard
 deviation corresponds to a gene for which we would expect to observe a
@@ -154,8 +156,8 @@ single count across all <span class="math inline">\(n\)</span> cells, so
 it can serve as a reasonable lower bound to prevent variance estimates
 from getting too small.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span>
-<span><span class="va">x</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1e7</span>, <span class="fl">1</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">n</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span>
+<span><span class="va">x</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1e7</span>, <span class="fl">1</span><span class="op">/</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">s1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -187,15 +189,16 @@ data:</p>
 <span class="math inline">\({\bf L}\)</span> and <span class="math inline">\({\bf F}\)</span> matrices in flashier to be
 non-negative, so this call will generate a non-negative matrix
 factorization (NMF) of the (transformed) counts matrix. Other types of
-matrix factorization can be produced with different choices of the
+matrix factorizations can be produced with different choices of the
 <code>ebnm_fn</code> argument; this is explained in detail in the
 “Introduction to flashier” vignette.</p></li>
 <li><p><code>var_type = 2</code> means that we estimate column-wise
 (here, gene-wise) variances; that is, we estimate a different variance
 for each column (gene).</p></li>
 <li><p><code>greedy_Kmax = 8</code> forces flashier to fit no more than
-8 factors. <em>In practice we recommend using a larger value,</em> but
-to keep the example simple and short we set it to 8 here.</p></li>
+8 factors. <strong>In practice we recommend using a larger
+value,</strong> but to keep the example simple and short we set it to 8
+here.</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -228,15 +231,19 @@ cell subpopulations:</p>
 represented as a bar of a different color, and the bar heights are given
 by the membership levels. For a more effective visualization, we
 recommend extracting a rescaled version of the memberships using the
-<code>ldf</code> function (note that we can scale factors <span class="math inline">\(F_{\cdot k}\)</span> by any constant <span class="math inline">\(c\)</span> while also scaling the corresponding
-loadings <span class="math inline">\(L_{\cdot k}\)</span> by <span class="math inline">\(1/c\)</span> without changing the low-rank
-representation <span class="math inline">\(LF'\)</span>):</p>
+<code>ldf</code> function:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span></code></pre></div>
-<p>Now we can visualize the rescaled memberships in a structure plot. We
-create a simple wrapper that converts the flashier results into an
-object that is usable by the <code><a href="https://stephenslab.github.io/fastTopics/reference/structure_plot.html" class="external-link">structure_plot()</a></code> function from
-the <code>fastTopics</code> package:</p>
+<p>(Note that we can multiply factors <span class="math inline">\({\bf
+F}_{\cdot k}\)</span> by any scalar constant <span class="math inline">\(c &gt; 0\)</span> while also multiplying the
+corresponding loadings <span class="math inline">\({\bf L}_{\cdot
+k}\)</span> by <span class="math inline">\(1/c\)</span> without changing
+the low-rank representation <span class="math inline">\({\bf L}{\bf
+F}^{\top}\)</span>):</p>
+<p>Now we can visualize the rescaled memberships in a structure plot. To
+do this, we create a simple wrapper function that converts the flashier
+results into an object that is usable by the “structure_plot” function
+in fastTopics:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flashier_structure_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">ldf</span>, <span class="va">topics</span>, <span class="va">grouping</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">ldf</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"multinom_topic_model_fit"</span>, <span class="st">"list"</span><span class="op">)</span></span>
@@ -253,15 +260,16 @@ structure plot:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">flashier_structure_plot</span><span class="op">(</span><span class="va">res</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">8</span>, <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_single_cell_files/figure-html/unnamed-chunk-2-1.png" width="840" style="display: block; margin: auto;"></p>
-<p>It is quite clear from this structure plot that factors 2–6 are
-capturing, respectively, natural killer (NK) cells, CD14+ cells, CD34+
-cells, T cells and B cells. There is also more subtle structure captured
-by the memberships, such as the subset of T cells with mixed memberships
-(factors 2 and 5, colored blue and orange in the plot), which suggest a
-function that is intermediate between that of “pure” T and NK cells. It
-is also interesting to note the subset of CD34+ cells that are primarily
-loaded on factors 3 or 6 (yellow and green): some of these cells may be
-mislabeled; others may have a hybrid function.</p>
+<p>It is quite clear from this structure plot that factors 2 through 6
+are capturing, respectively, natural killer (NK) cells, CD14+ cells,
+CD34+ cells, T cells and B cells. There is also more subtle structure
+captured by the memberships, such as the subset of T cells with mixed
+memberships (factors 2 and 5, colored blue and orange in the plot),
+which suggest a function that is intermediate between that of the “pure”
+T and the “pure” NK cells. It is also interesting to note the subset of
+CD34+ cells that are primarily loaded on factors 3 or 6 (yellow and
+green); some of these cells may be mislabeled.</p>
+<!-- Others may have a hybrid function. -->
 <p>We can also visualize the memberships with a heatmap:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flashier_heatmap</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">L</span>, <span class="va">grouping</span>, <span class="va">gap</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
@@ -394,38 +402,30 @@ these results.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
 <span><span class="co">#&gt; [1] cowplot_1.1.3      ggplot2_3.5.0      fastTopics_0.6-165 flashier_1.0.23   </span></span>
-<span><span class="co">#&gt; [5] magrittr_2.0.3     ebnm_1.1-25        reshape_0.8.9      MatrixExtra_0.1.15</span></span>
-<span><span class="co">#&gt; [9] Matrix_1.6-5      </span></span>
+<span><span class="co">#&gt; [5] magrittr_2.0.3     ebnm_1.1-25        reshape_0.8.9      Matrix_1.6-5      </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.4        softImpute_1.4-1    xfun_0.42          </span></span>
-<span><span class="co">#&gt;  [4] bslib_0.6.1         htmlwidgets_1.6.4   ggrepel_0.9.5      </span></span>
-<span><span class="co">#&gt;  [7] lattice_0.22-5      quadprog_1.5-8      vctrs_0.6.5        </span></span>
-<span><span class="co">#&gt; [10] tools_4.3.3         generics_0.1.3      parallel_4.3.3     </span></span>
-<span><span class="co">#&gt; [13] tibble_3.2.1        fansi_1.0.6         highr_0.10         </span></span>
-<span><span class="co">#&gt; [16] pkgconfig_2.0.3     data.table_1.15.2   SQUAREM_2021.1     </span></span>
-<span><span class="co">#&gt; [19] desc_1.4.3          RcppParallel_5.1.7  lifecycle_1.0.4    </span></span>
-<span><span class="co">#&gt; [22] truncnorm_1.0-9     farver_2.1.1        compiler_4.3.3     </span></span>
-<span><span class="co">#&gt; [25] stringr_1.5.1       progress_1.2.3      textshaping_0.3.7  </span></span>
-<span><span class="co">#&gt; [28] munsell_0.5.0       RhpcBLASctl_0.23-42 htmltools_0.5.7    </span></span>
-<span><span class="co">#&gt; [31] sass_0.4.8          lazyeval_0.2.2      yaml_2.3.8         </span></span>
-<span><span class="co">#&gt; [34] plotly_4.10.4       crayon_1.5.2        pillar_1.9.0       </span></span>
-<span><span class="co">#&gt; [37] pkgdown_2.0.7       jquerylib_0.1.4     tidyr_1.3.1        </span></span>
-<span><span class="co">#&gt; [40] uwot_0.1.16         cachem_1.0.8        trust_0.1-8        </span></span>
-<span><span class="co">#&gt; [43] gtools_3.9.5        tidyselect_1.2.0    digest_0.6.34      </span></span>
-<span><span class="co">#&gt; [46] Rtsne_0.17          stringi_1.8.3       dplyr_1.1.4        </span></span>
-<span><span class="co">#&gt; [49] purrr_1.0.2         ashr_2.2-64         labeling_0.4.3     </span></span>
-<span><span class="co">#&gt; [52] splines_4.3.3       fastmap_1.1.1       grid_4.3.3         </span></span>
-<span><span class="co">#&gt; [55] colorspace_2.1-0    cli_3.6.2           invgamma_1.1       </span></span>
-<span><span class="co">#&gt; [58] utf8_1.2.4          withr_3.0.0         prettyunits_1.2.0  </span></span>
-<span><span class="co">#&gt; [61] scales_1.3.0        float_0.3-2         horseshoe_0.2.0    </span></span>
-<span><span class="co">#&gt; [64] httr_1.4.7          rmarkdown_2.26      deconvolveR_1.2-1  </span></span>
-<span><span class="co">#&gt; [67] hms_1.1.3           ragg_1.2.7          pbapply_1.7-2      </span></span>
-<span><span class="co">#&gt; [70] memoise_2.0.1       evaluate_0.23       knitr_1.45         </span></span>
-<span><span class="co">#&gt; [73] viridisLite_0.4.2   irlba_2.3.5.1       rlang_1.1.3        </span></span>
-<span><span class="co">#&gt; [76] Rcpp_1.0.12         mixsqp_0.3-54       glue_1.7.0         </span></span>
-<span><span class="co">#&gt; [79] jsonlite_1.8.8      R6_2.5.1            plyr_1.8.9         </span></span>
-<span><span class="co">#&gt; [82] systemfonts_1.0.6   fs_1.6.3</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] gtable_0.3.4       softImpute_1.4-1   xfun_0.42          bslib_0.6.1       </span></span>
+<span><span class="co">#&gt;  [5] htmlwidgets_1.6.4  ggrepel_0.9.5      lattice_0.22-5     quadprog_1.5-8    </span></span>
+<span><span class="co">#&gt;  [9] vctrs_0.6.5        tools_4.3.3        generics_0.1.3     parallel_4.3.3    </span></span>
+<span><span class="co">#&gt; [13] tibble_3.2.1       fansi_1.0.6        highr_0.10         pkgconfig_2.0.3   </span></span>
+<span><span class="co">#&gt; [17] data.table_1.15.2  SQUAREM_2021.1     desc_1.4.3         RcppParallel_5.1.7</span></span>
+<span><span class="co">#&gt; [21] lifecycle_1.0.4    truncnorm_1.0-9    farver_2.1.1       compiler_4.3.3    </span></span>
+<span><span class="co">#&gt; [25] stringr_1.5.1      progress_1.2.3     textshaping_0.3.7  munsell_0.5.0     </span></span>
+<span><span class="co">#&gt; [29] htmltools_0.5.7    sass_0.4.8         lazyeval_0.2.2     yaml_2.3.8        </span></span>
+<span><span class="co">#&gt; [33] plotly_4.10.4      crayon_1.5.2       pillar_1.9.0       pkgdown_2.0.7     </span></span>
+<span><span class="co">#&gt; [37] jquerylib_0.1.4    tidyr_1.3.1        uwot_0.1.16        cachem_1.0.8      </span></span>
+<span><span class="co">#&gt; [41] trust_0.1-8        gtools_3.9.5       tidyselect_1.2.0   digest_0.6.34     </span></span>
+<span><span class="co">#&gt; [45] Rtsne_0.17         stringi_1.8.3      dplyr_1.1.4        purrr_1.0.2       </span></span>
+<span><span class="co">#&gt; [49] ashr_2.2-64        labeling_0.4.3     splines_4.3.3      fastmap_1.1.1     </span></span>
+<span><span class="co">#&gt; [53] grid_4.3.3         colorspace_2.1-0   cli_3.6.2          invgamma_1.1      </span></span>
+<span><span class="co">#&gt; [57] utf8_1.2.4         withr_3.0.0        prettyunits_1.2.0  scales_1.3.0      </span></span>
+<span><span class="co">#&gt; [61] horseshoe_0.2.0    httr_1.4.7         rmarkdown_2.26     deconvolveR_1.2-1 </span></span>
+<span><span class="co">#&gt; [65] hms_1.1.3          ragg_1.2.7         pbapply_1.7-2      memoise_2.0.1     </span></span>
+<span><span class="co">#&gt; [69] evaluate_0.23      knitr_1.45         viridisLite_0.4.2  irlba_2.3.5.1     </span></span>
+<span><span class="co">#&gt; [73] rlang_1.1.3        Rcpp_1.0.12        mixsqp_0.3-54      glue_1.7.0        </span></span>
+<span><span class="co">#&gt; [77] jsonlite_1.8.8     R6_2.5.1           plyr_1.8.9         systemfonts_1.0.6 </span></span>
+<span><span class="co">#&gt; [81] fs_1.6.3</span></span></code></pre></div>
 </div>
   </div>
 

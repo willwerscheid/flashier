@@ -24,7 +24,6 @@ can be fully reproduced.
 
 ```{r load-pkgs, message=FALSE}
 library(Matrix)
-library(MatrixExtra)
 library(reshape)
 library(flashier)
 library(fastTopics)
@@ -36,9 +35,10 @@ set.seed(3)
 Preparing the single-cell data for flashier
 -------------------------------------------
 
-The single-cell RNA-seq data (we use the `pbmc_facs` data from the `fastTopics` package) are unique molecular identifier (UMI)
-counts stored as an $n \times p$ sparse matrix, where $n$ is the
-number of cells and $p$ is the number of genes:
+The single-cell RNA-seq data (we use the `pbmc_facs` data from the
+`fastTopics` package) are unique molecular identifier (UMI) counts
+stored as an $n \times p$ sparse matrix, where $n$ is the number of
+cells and $p$ is the number of genes:
 
 ```{r load-data}
 data("pbmc_facs")
@@ -46,10 +46,13 @@ counts <- pbmc_facs$counts
 dim(counts)
 ```
 
+(Note that other R packages, for example Seurat, use the convention
+that rows are genes and columns are cells.)
+
 Since the flashier model, like other linear-model-based methods (e.g.,
 principal components analysis), was not designed for count data, it is
 recommended to first transform the data in a way that makes them more
-suitable for flashier. A widely-used approach is to divide the counts
+suitable for flashier. A widely used approach is to divide the counts
 by a "size factor," add a "pseudocount," then take the log. We call
 this transformation the "shifted logarithm," following
 [this paper][ahlmann-eltze-huber-2023], and we refer to the
@@ -66,7 +69,8 @@ original counts $x_{ij}$ are
 $$
 y_{ij} = \log\bigg(1 + \frac{x_{ij}}{\alpha s_i}\bigg).
 $$
-In our analysis below, we use library-size normalization; that is, we set
+In our analysis below, we use library-size normalization;
+that is, we set
 $$
 s_i =
 \frac{\text{total count for cell} \; i}
@@ -80,13 +84,12 @@ and we set the pseudocount $\alpha$ to 1.
 a <- 1
 size_factors <- rowSums(counts)
 size_factors <- size_factors / mean(size_factors)
-shifted_log_counts <- mapSparse(counts / (a * size_factors), log1p)
+shifted_log_counts <- log1p(counts / (a * size_factors))
 ```
 
-Note that to perform the `log1p` calculations efficiently on a sparse
-matrix, we used the `mapSparse` function from the `MatrixExtra`
-package.
-
+Note that, since the counts are sparse, we could have performed this
+transformation more efficiently using, for example, the "mapSparse"
+function from [the MatrixExtra package][matrixextra].
 
 Variance regularization
 -----------------------
@@ -99,17 +102,18 @@ estimates.
 
 <!-- When running flashier, we need to place some regularization on the -->
 <!-- variance estimates. Without regularization, it is possible for some -->
-<!-- variance estimates to be very small, which can lead to overfitting.  -->
-We use the following rule of thumb: estimate the standard deviation of the
-transformed data for a Poisson random variable with rate $\mu = 1 / n$,
-where $n$ is the number of samples. This standard deviation corresponds to a
-gene for which we would expect to observe a single count across all $n$ cells,
-so it can serve as a reasonable lower bound to 
-prevent variance estimates from getting too small.
+<!-- variance estimates to be very small, which can lead to overfitting. -->
+
+We use the following rule of thumb: estimate the standard deviation of
+the transformed data for a Poisson random variable with rate $\mu = 1
+/ n$, where $n$ is the number of samples. This standard deviation
+corresponds to a gene for which we would expect to observe a single
+count across all $n$ cells, so it can serve as a reasonable lower
+bound to prevent variance estimates from getting too small.
 
 ```{r variance-lower-bound}
-n <- nrow(counts)
-x  <- rpois(1e7, 1 / n)
+n  <- nrow(counts)
+x  <- rpois(1e7, 1/n)
 s1 <- sd(log(x + 1))
 ```
 
@@ -132,7 +136,7 @@ A few notes about this flash call:
 + `ebnm_fn = ebnm_point_exponential` forces both the ${\bf L}$ and
   ${\bf F}$ matrices in flashier to be non-negative, so this call will
   generate a non-negative matrix factorization (NMF) of the
-  (transformed) counts matrix. Other types of matrix factorization
+  (transformed) counts matrix. Other types of matrix factorizations
   can be produced with different choices of the `ebnm_fn` argument;
   this is explained in detail in the "Introduction to flashier"
   vignette.
@@ -141,8 +145,8 @@ A few notes about this flash call:
   variances; that is, we estimate a different variance for each column
   (gene).
 
-+ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. *In
-  practice we recommend using a larger value,* but to keep the example
++ `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. **In
+  practice we recommend using a larger value,** but to keep the example
   simple and short we set it to 8 here.
 
 Visualizing the memberships
@@ -176,17 +180,21 @@ A structure plot is a stacked bar plot in which each factor is
 represented as a bar of a different color, and the bar heights are
 given by the membership levels. For a more effective visualization, we
 recommend extracting a rescaled version of the memberships using the
-`ldf` function (note that we can scale factors $F_{\cdot k}$ by any constant $c$
-while also scaling the corresponding loadings $L_{\cdot k}$ by $1/c$ without changing the
-low-rank representation $LF'$):
+`ldf` function:
 
 ```{r ldf}
 res <- ldf(fit, type = "i")
 ```
-  
-Now we can visualize the rescaled memberships in a structure plot. We create a simple
-wrapper that converts the flashier results into an object that is usable by the
-`structure_plot()` function from the `fastTopics` package:
+
+(Note that we can multiply the $k$ column of ${\bf F}$ by any constant
+scalar $c > 0$ while also multiplying the corresponding column of
+${\bf L}$ by $1/c$ without changing the low-rank representation ${\bf
+L}{\bf F}^{\top}$):
+
+Now we can visualize the rescaled memberships in a structure plot. To
+do this, we create a simple wrapper function that converts the
+flashier results into an object that is usable by the "structure_plot"
+function in fastTopics:
 
 ```{r, fig.height=2, fig.width=7, results="hide", message=FALSE}
 flashier_structure_plot <- function (ldf, topics, grouping) {
@@ -207,16 +215,17 @@ structure plot:
 flashier_structure_plot(res, 2:8, pbmc_facs$samples$subpop)
 ```
   
-It is quite clear from this structure plot that factors 2--6 are
-capturing, respectively, natural killer (NK) cells, CD14+ cells, CD34+
-cells, T cells and B cells. There is also more subtle structure
-captured by the memberships, such as the subset of T cells
-with mixed memberships (factors 2 and 5, colored blue and orange in the plot), 
-which suggest a function that is
-intermediate between that of "pure" T and NK cells. It is also interesting to note 
-the subset of CD34+ cells that are primarily loaded on factors 3 or 6 (yellow
-and green): some of these cells may be mislabeled; others may have a hybrid
-function.
+It is quite clear from this structure plot that factors 2 through 6
+are capturing, respectively, natural killer (NK) cells, CD14+ cells,
+CD34+ cells, T cells and B cells. There is also more subtle structure
+captured by the memberships, such as the subset of T cells with mixed
+memberships (factors 2 and 5, colored blue and orange in the plot),
+which suggest a function that is intermediate between that of the
+"pure" T and the "pure" NK cells. It is also interesting to note the
+subset of CD34+ cells that are primarily loaded on factors 3 or 6
+(yellow and green); some of these cells may be mislabeled.
+
+<!-- Others may have a hybrid function. -->
   
 We can also visualize the memberships with a heatmap:
 
@@ -339,6 +348,7 @@ these results.
 sessionInfo()
 ```
 
+[matrixextra]: https://github.com/david-cortes/MatrixExtra
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
 [fasttopics-vignette]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
 [ahlmann-eltze-huber-2023]: https://doi.org/10.1038/s41592-023-01814-1
