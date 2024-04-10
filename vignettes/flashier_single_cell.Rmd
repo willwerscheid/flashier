@@ -188,10 +188,10 @@ recommend extracting a rescaled version of the memberships using the
 res <- ldf(fit, type = "i")
 ```
 
-(Note that we can multiply the $k$ column of ${\bf F}$ by any constant
-scalar $c > 0$ while also multiplying the corresponding column of
-${\bf L}$ by $1/c$ without changing the low-rank representation ${\bf
-L}{\bf F}^{\top}$):
+(Note that we can multiply the $k$th column of ${\bf F}$ by any constant
+scalar $c > 0$ while also multiplying the $k$th column of
+${\bf L}$ by $1/c$ without changing the low-rank representation, ${\bf
+L}{\bf F}^{\top}$.)
 
 Now we can visualize the rescaled memberships in a structure plot. To
 do this, we create a simple wrapper function that converts the
@@ -257,96 +257,60 @@ flashier_heatmap <- function (L, grouping, gap = 0) {
 flashier_heatmap(res$L,pbmc_facs$samples$subpop,gap = 50)
 ```
 
-Factors capture patterns of relative expression
------------------------------------------------
+Interpreting the factors by looking at changes in expression
+------------------------------------------------------------
 
-Each factor is represented as a vector of $m$ expression levels (one
-for each gene). All of the factors are stored in an $m \times K$
-matrix. The entries of this matrix approximately represent the
-log-fold change (LFC) of a given gene in a given factor.
-    
-For the scaled factor matrix, the entries can be interpreted as the
-log-fold-change of a given gene in a given factor if a sample has a
-membership level of 1 for that factor.
+Above, we used the provided cell labels to interpret five of the
+factors as capturing distinct cell types (B cells, T cells,
+etc). However, one might not always have cell labels, or the existing
+cell labels may not be informative for the factors. We can also look
+to the ${\bf F}$ matrix for interpreting the factors.
 
-```{r, eval=FALSE}
-dim(fit.nn$F_pm)
-```
-    
-As mentioned previously, the first factor is often interpreted as an intercept factor. It is usually loaded on all of the samples, and its expression levels across genes is relatively 'flat', i.e. there isn't a subset of genes that are more highly-expressed.    
-    
-Other factors may have (relatively) high levels of expression in only a subset of genes. In addition, genes may be highly expressed in only a subset of factors. For example, genes CD79A and CD79B are important to B cells, and thus we would expect them to have higher expression in factor 6.  
+The ${\bf F}$ matrix contains the estimated changes in expression,
+specifically changes in expression on the log scale (multiplicative
+changes). (The exception to this is the first factor, which in this
+example is capturing a "baseline" level of expression.) Intuitively,
+genes that were estimated to have the largest increases in expression
+might give the most helpful clues about the underlying biology. For
+example, many of the genes with the largest expression increases in
+factor 6 are also genes characteristic of B cells:
 
-```{r, eval=FALSE}
-genes <- pbmc_facs$genes
-rbind(fit.nn$F_pm[genes$symbol == "CD79B",],
-      fit.nn$F_pm[genes$symbol == "CD79A",])
+```{r top-genes-factor-6}
+F <- with(res,F %*% diag(D))
+rownames(F) <- pbmc_facs$genes$symbol
+head(sort(F[,6],decreasing = TRUE),n = 16)
 ```
 
-Annotating topics by differentially expressed genes
----------------------------------------------------
+Let's now apply this simple rule-of-thumb and examine the top 4 genes
+(by expression increase) for factors 2 through 6:
 
-When interpreting the factors, we can look at the top driving genes for each factor. For example, for a given factor, we can find the genes with the top 10 highest expression levels.  
-
-```{r, eval=FALSE}
-get_top_genes <- function(fit, threshhold = 2, rowname_F){
-  FF <- fit$F_pm
-  LL <- fit$L_pm
-  Fnorm <- t(t(FF)*apply(LL,2,max))
-  rownames(Fnorm) <- rowname_F
-  top_genes_list <- list()
-  for (k in 1:ncol(Fnorm)){
-    cur.genes <- rownames(Fnorm)[Fnorm[, k] > log(threshhold)]
-    F.tmp <- Fnorm[cur.genes,]
-    cur.genes <- rownames(F.tmp)[order(F.tmp[, k], decreasing = TRUE)] #re-order the genes
-    lfc <- round(Fnorm[cur.genes, k], 3)
-    dat <- data.frame(gene=cur.genes, lfc=lfc)
-    rownames(dat) <- 1:nrow(dat)
-    top_genes_list[[k]] <- dat # add the dataframe to the list of top driving genes
-  }
-  names(top_genes_list) <- paste0('Factor', c(1:ncol(Fnorm)))
-  return(top_genes_list)
+```{r top-genes-all, fig.height=4, fig.width=2.5, message=FALSE}
+plot_top_genes <- function (F, n = 4) {
+  F <- as.data.frame(F)
+  k <- ncol(F)
+  rows <- lapply(F,function (x) head(order(x,decreasing = TRUE),n = n))
+  rows <- rev(unique(unlist(rows)))
+  n    <- length(rows)
+  F    <- F[rows,]
+  pdat <- melt(F,variable_name = "factor")
+  pdat <- cbind(pdat,pos = 1:n)
+  return(ggplot(pdat,aes(x = factor,y = pos,fill = value)) +
+    geom_tile(width = 0.8,color = "white",linewidth = 0.5) +
+    scale_fill_gradient(low = "white",high = "darkred") +
+    scale_y_continuous(breaks = 1:n,labels = rownames(F)) +
+    labs(y = "") +
+    theme_cowplot(font_size = 10))
 }
-```
-  
-These are the top genes for factor 6:
-```{r, eval=FALSE}
-top_genes_list <- get_top_genes(fit.nn, rowname_F = genes$symbol)
-print(top_genes_list[[6]][1:10,])
-```
-    
-We can also visualize the top genes for a given factor with a volcano plot. A volcano plot is a type of scatter plot. On the x-axis, we plot the log-fold-change in expression levels for a given gene in a given factor. On the y-axis, we plot the mean expression level of the given gene across all cells in the (transformed) data matrix.
-
-```{r, eval=FALSE}
-volcano_plot <- function(gene, lfc, z, lfsr, k){
-pdat <- data.frame(gene = gene, 
-                   lfc  = lfc[,k], 
-                   z    = abs(z), 
-                   lfsr = lfsr[,k],
-                   stringsAsFactors = FALSE)
-pdat <- transform(pdat,lfsr = cut(lfsr, c(-1,0.001,0.01,0.05,Inf)))
-rows  <- with(pdat, which(!(abs(lfc) > quantile(abs(lfc),0.999))))
-pdat[rows, "gene"] <- ""
-p <- ggplot(pdat, aes(x = lfc, y = z, color = lfsr, label = gene)) +
-  geom_point() + 
-  geom_text_repel(color = "black", size = 2.3, segment.color = "black",
-                  segment.size = 0.25, min.segment.length = 0,
-                  max.overlaps = Inf, na.rm = TRUE) +
-  scale_color_manual(values = c("coral","orange","gold","deepskyblue")) +
-  labs(x = "log-fold change", y = "mean expression level") + 
-  theme_cowplot(font_size = 10)
-print(p)
-}
-```
-  
-This is the volcano plot for factor 6:
-
-```{r, eval=FALSE}
-z <- (1/nrow(shifted_log_counts))*colSums(shifted_log_counts)
-volcano_plot(genes$symbol, fit.nn$F_pm, as.matrix(z, ncol = 1), fit.nn$F_lfsr, 6)
+colnames(F) <- paste0("k",1:8)
+plot_top_genes(F[,2:6])
 ```
 
-We see that the top 10 most highly-expressed genes for factor 6 are identified in the volcano plot.
+Indeed, this approach reveals genes characteristic of the other cell
+types (e.g., GNLY for NK cells, S100A9 for CD14+ cells, CD3D for T
+cells), although not always; some genes show large expression
+increases more than one factor. We caution that this simple
+rule-of-thumb—annotating the factors by the genes with the largest
+increases in expression—may not always be helpful.
 
 Session info
 ------------

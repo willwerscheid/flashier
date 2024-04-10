@@ -204,9 +204,11 @@ here.</p></li>
 <div class="section level2">
 <h2 id="visualizing-the-memberships">Visualizing the memberships<a class="anchor" aria-label="anchor" href="#visualizing-the-memberships"></a>
 </h2>
-<p>Each cell in the single-cell data set is represented as a convex
-combination of the <span class="math inline">\(K\)</span> factors. The
-estimated “membership levels”, or “memberships”, are stored in the <span class="math inline">\({\bf L}\)</span> matrix. For example:</p>
+<!-- Each cell in the single-cell data set is represented as a linear
+combination of the $K$ factors. -->
+<p>The estimated “membership levels”, or “memberships”, are stored in
+the <span class="math inline">\({\bf L}\)</span> matrix. For
+example:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cell_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GATATATGTCAGTG-1-b_cells"</span>,</span>
 <span>              <span class="st">"GACAGTACCTGTGA-1-memory_t"</span>,</span>
@@ -234,12 +236,9 @@ recommend extracting a rescaled version of the memberships using the
 <code>ldf</code> function:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span></code></pre></div>
-<p>(Note that we can multiply factors <span class="math inline">\({\bf
-F}_{\cdot k}\)</span> by any scalar constant <span class="math inline">\(c &gt; 0\)</span> while also multiplying the
-corresponding loadings <span class="math inline">\({\bf L}_{\cdot
-k}\)</span> by <span class="math inline">\(1/c\)</span> without changing
-the low-rank representation <span class="math inline">\({\bf L}{\bf
-F}^{\top}\)</span>):</p>
+<p>(Note that we can multiply the <span class="math inline">\(k\)</span>th column of <span class="math inline">\({\bf F}\)</span> by any constant scalar <span class="math inline">\(c &gt; 0\)</span> while also multiplying the <span class="math inline">\(k\)</span>th column of <span class="math inline">\({\bf L}\)</span> by <span class="math inline">\(1/c\)</span> without changing the low-rank
+representation, <span class="math inline">\({\bf L}{\bf
+F}^{\top}\)</span>.)</p>
 <p>Now we can visualize the rescaled memberships in a structure plot. To
 do this, we create a simple wrapper function that converts the flashier
 results into an object that is usable by the “structure_plot” function
@@ -252,14 +251,14 @@ in fastTopics:</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">flashier_structure_plot</span><span class="op">(</span><span class="va">res</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">8</span>, <span class="fl">1</span><span class="op">)</span>, <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
-<p><img src="flashier_single_cell_files/figure-html/unnamed-chunk-1-1.png" width="840" style="display: block; margin: auto;"></p>
+<p><img src="flashier_single_cell_files/figure-html/structure-plot-1-1.png" width="840" style="display: block; margin: auto;"></p>
 <p>The first factor is present in all cell types, and is likely
 capturing a “baseline” level of expression throughout. To focus on
 differences between cell types, let’s remove this first factor from our
 structure plot:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">flashier_structure_plot</span><span class="op">(</span><span class="va">res</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">8</span>, <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span></code></pre></div>
-<p><img src="flashier_single_cell_files/figure-html/unnamed-chunk-2-1.png" width="840" style="display: block; margin: auto;"></p>
+<p><img src="flashier_single_cell_files/figure-html/structure-plot-2-1.png" width="840" style="display: block; margin: auto;"></p>
 <p>It is quite clear from this structure plot that factors 2 through 6
 are capturing, respectively, natural killer (NK) cells, CD14+ cells,
 CD34+ cells, T cells and B cells. There is also more subtle structure
@@ -269,10 +268,16 @@ which suggest a function that is intermediate between that of the “pure”
 T and the “pure” NK cells. It is also interesting to note the subset of
 CD34+ cells that are primarily loaded on factors 3 or 6 (yellow and
 green); some of these cells may be mislabeled.</p>
+<p>Note that factors 7 and 8 are present in very few cells and probably
+offer little insight:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">L</span> <span class="op">&gt;</span> <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 3774  825  239  630 1420  826   20   18</span></span></code></pre></div>
 <!-- Others may have a hybrid function. -->
 <p>We can also visualize the memberships with a heatmap:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">flashier_heatmap</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">L</span>, <span class="va">grouping</span>, <span class="va">gap</span> <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">L</span><span class="op">)</span></span>
 <span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">L</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">L</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k"</span>,<span class="fl">1</span><span class="op">:</span><span class="va">k</span><span class="op">)</span></span>
 <span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">grouping</span><span class="op">)</span></span>
@@ -290,98 +295,66 @@ green); some of these cells may be mislabeled.</p>
 <p><img src="flashier_single_cell_files/figure-html/heatmap-1.png" width="390" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
-<h2 id="factors-capture-patterns-of-relative-expression">Factors capture patterns of relative expression<a class="anchor" aria-label="anchor" href="#factors-capture-patterns-of-relative-expression"></a>
+<h2 id="interpreting-the-factors-by-looking-at-changes-in-expression">Interpreting the factors by looking at changes in expression<a class="anchor" aria-label="anchor" href="#interpreting-the-factors-by-looking-at-changes-in-expression"></a>
 </h2>
-<p>Each factor is represented as a vector of <span class="math inline">\(m\)</span> expression levels (one for each gene).
-All of the factors are stored in an <span class="math inline">\(m \times
-K\)</span> matrix. The entries of this matrix approximately represent
-the log-fold change (LFC) of a given gene in a given factor.</p>
-<p>For the scaled factor matrix, the entries can be interpreted as the
-log-fold-change of a given gene in a given factor if a sample has a
-membership level of 1 for that factor.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">)</span></span></code></pre></div>
-<p>As mentioned previously, the first factor is often interpreted as an
-intercept factor. It is usually loaded on all of the samples, and its
-expression levels across genes is relatively ‘flat’, i.e. there isn’t a
-subset of genes that are more highly-expressed.</p>
-<p>Other factors may have (relatively) high levels of expression in only
-a subset of genes. In addition, genes may be highly expressed in only a
-subset of factors. For example, genes CD79A and CD79B are important to B
-cells, and thus we would expect them to have higher expression in factor
-6.</p>
+<p>Above, we used the provided cell labels to interpret five of the
+factors as capturing distinct cell types (B cells, T cells, etc).
+However, one might not always have cell labels, or the existing cell
+labels may not be informative for the factors. We can also look to the
+<span class="math inline">\({\bf F}\)</span> matrix for interpreting the
+factors.</p>
+<p>The <span class="math inline">\({\bf F}\)</span> matrix contains the
+estimated changes in expression, specifically changes in expression on
+the log scale (multiplicative changes). (The exception to this is the
+first factor, which in this example is capturing a “baseline” level of
+expression.) Intuitively, genes that were estimated to have the largest
+increases in expression might give the most helpful clues about the
+underlying biology. For example, many of the genes with the largest
+expression increases in factor 6 are also genes characteristic of B
+cells:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79B"</span>,<span class="op">]</span>,</span>
-<span>      <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span><span class="op">[</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span> <span class="op">==</span> <span class="st">"CD79A"</span>,<span class="op">]</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="annotating-topics-by-differentially-expressed-genes">Annotating topics by differentially expressed genes<a class="anchor" aria-label="anchor" href="#annotating-topics-by-differentially-expressed-genes"></a>
-</h2>
-<p>When interpreting the factors, we can look at the top driving genes
-for each factor. For example, for a given factor, we can find the genes
-with the top 10 highest expression levels.</p>
+<code class="sourceCode R"><span><span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">res</span>,<span class="cn">F</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">D</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="cn">F</span><span class="op">[</span>,<span class="fl">6</span><span class="op">]</span>,decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,n <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      CD74   HLA-DRA  HLA-DRB1     CD79A  HLA-DPB1  HLA-DPA1     CD79B  HLA-DRB5 </span></span>
+<span><span class="co">#&gt; 3.4724286 2.9144905 2.3949018 2.2259586 2.1084118 1.9673726 1.8776798 1.6999751 </span></span>
+<span><span class="co">#&gt;      CD37       LTB  HLA-DQA1  HLA-DQA2     MS4A1      CD52  HLA-DQB1     TCL1A </span></span>
+<span><span class="co">#&gt; 1.6019631 1.4980763 1.3626036 1.1202287 1.1135809 1.0048497 0.9848164 0.9128516</span></span></code></pre></div>
+<p>Let’s now apply this simple rule-of-thumb and examine the top 4 genes
+(by expression increase) for factors 2 through 6:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">get_top_genes</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">threshhold</span> <span class="op">=</span> <span class="fl">2</span>, <span class="va">rowname_F</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="va">FF</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">F_pm</span></span>
-<span>  <span class="va">LL</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">L_pm</span></span>
-<span>  <span class="va">Fnorm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">FF</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">LL</span>,<span class="fl">2</span>,<span class="va">max</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Fnorm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">rowname_F</span></span>
-<span>  <span class="va">top_genes_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Fnorm</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>    <span class="va">cur.genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Fnorm</span><span class="op">)</span><span class="op">[</span><span class="va">Fnorm</span><span class="op">[</span>, <span class="va">k</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">threshhold</span><span class="op">)</span><span class="op">]</span></span>
-<span>    <span class="va">F.tmp</span> <span class="op">&lt;-</span> <span class="va">Fnorm</span><span class="op">[</span><span class="va">cur.genes</span>,<span class="op">]</span></span>
-<span>    <span class="va">cur.genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">F.tmp</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">F.tmp</span><span class="op">[</span>, <span class="va">k</span><span class="op">]</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span> <span class="co">#re-order the genes</span></span>
-<span>    <span class="va">lfc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">Fnorm</span><span class="op">[</span><span class="va">cur.genes</span>, <span class="va">k</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span>    <span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>gene<span class="op">=</span><span class="va">cur.genes</span>, lfc<span class="op">=</span><span class="va">lfc</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
-<span>    <span class="va">top_genes_list</span><span class="op">[[</span><span class="va">k</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">dat</span> <span class="co"># add the dataframe to the list of top driving genes</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">top_genes_list</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'Factor'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Fnorm</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">top_genes_list</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>These are the top genes for factor 6:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">top_genes_list</span> <span class="op">&lt;-</span> <span class="fu">get_top_genes</span><span class="op">(</span><span class="va">fit.nn</span>, rowname_F <span class="op">=</span> <span class="va">genes</span><span class="op">$</span><span class="va">symbol</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">top_genes_list</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,<span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p>We can also visualize the top genes for a given factor with a volcano
-plot. A volcano plot is a type of scatter plot. On the x-axis, we plot
-the log-fold-change in expression levels for a given gene in a given
-factor. On the y-axis, we plot the mean expression level of the given
-gene across all cells in the (transformed) data matrix.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">volcano_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gene</span>, <span class="va">lfc</span>, <span class="va">z</span>, <span class="va">lfsr</span>, <span class="va">k</span><span class="op">)</span><span class="op">{</span></span>
-<span><span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>gene <span class="op">=</span> <span class="va">gene</span>, </span>
-<span>                   lfc  <span class="op">=</span> <span class="va">lfc</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>, </span>
-<span>                   z    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>, </span>
-<span>                   lfsr <span class="op">=</span> <span class="va">lfsr</span><span class="op">[</span>,<span class="va">k</span><span class="op">]</span>,</span>
-<span>                   stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">pdat</span>,lfsr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">lfsr</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">0.001</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="cn">Inf</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">rows</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pdat</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lfc</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lfc</span><span class="op">)</span>,<span class="fl">0.999</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pdat</span><span class="op">[</span><span class="va">rows</span>, <span class="st">"gene"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">""</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pdat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lfc</span>, y <span class="op">=</span> <span class="va">z</span>, color <span class="op">=</span> <span class="va">lfsr</span>, label <span class="op">=</span> <span class="va">gene</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">geom_text_repel</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, size <span class="op">=</span> <span class="fl">2.3</span>, segment.color <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>                  segment.size <span class="op">=</span> <span class="fl">0.25</span>, min.segment.length <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>                  max.overlaps <span class="op">=</span> <span class="cn">Inf</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coral"</span>,<span class="st">"orange"</span>,<span class="st">"gold"</span>,<span class="st">"deepskyblue"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"log-fold change"</span>, y <span class="op">=</span> <span class="st">"mean expression level"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>This is the volcano plot for factor 6:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">shifted_log_counts</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">shifted_log_counts</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://stephenslab.github.io/fastTopics/reference/volcano_plot.html" class="external-link">volcano_plot</a></span><span class="op">(</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span>, <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_pm</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">z</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">fit.nn</span><span class="op">$</span><span class="va">F_lfsr</span>, <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
-<p>We see that the top 10 most highly-expressed genes for factor 6 are
-identified in the volcano plot.</p>
+<code class="sourceCode R"><span><span class="va">plot_top_genes</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">F</span>, <span class="va">n</span> <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span></span>
+<span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span></span>
+<span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="cn">F</span>,<span class="kw">function</span> <span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">x</span>,decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,n <span class="op">=</span> <span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">rows</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">n</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">rows</span><span class="op">)</span></span>
+<span>  <span class="cn">F</span>    <span class="op">&lt;-</span> <span class="cn">F</span><span class="op">[</span><span class="va">rows</span>,<span class="op">]</span></span>
+<span>  <span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/reshape/man/melt-24.html" class="external-link">melt</a></span><span class="op">(</span><span class="cn">F</span>,variable_name <span class="op">=</span> <span class="st">"factor"</span><span class="op">)</span></span>
+<span>  <span class="va">pdat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">pdat</span>,pos <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pdat</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">factor</span>,y <span class="op">=</span> <span class="va">pos</span>,fill <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.8</span>,color <span class="op">=</span> <span class="st">"white"</span>,linewidth <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient</a></span><span class="op">(</span>low <span class="op">=</span> <span class="st">"white"</span>,high <span class="op">=</span> <span class="st">"darkred"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span>,labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">""</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://wilkelab.org/cowplot/reference/theme_cowplot.html" class="external-link">theme_cowplot</a></span><span class="op">(</span>font_size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k"</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="fu">plot_top_genes</span><span class="op">(</span><span class="cn">F</span><span class="op">[</span>,<span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_single_cell_files/figure-html/top-genes-all-1.png" width="300" style="display: block; margin: auto;"></p>
+<p>Indeed, this approach reveals genes characteristic of the other cell
+types (e.g., GNLY for NK cells, S100A9 for CD14+ cells, CD3D for T
+cells), although not always; some genes show large expression increases
+more than one factor. We caution that this simple
+rule-of-thumb—annotating the factors by the genes with the largest
+increases in expression—may not always be helpful.</p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
 <p>This is the version of R and the packages that were used to generate
 these results.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20 (64-bit)</span></span>
