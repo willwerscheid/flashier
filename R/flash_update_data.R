@@ -8,13 +8,28 @@
 #' @param newdata The new observations. Can be a matrix, a sparse matrix of
 #'   class \code{\link[Matrix]{Matrix}}, or a low-rank matrix representation.
 #'
+#' @param Y2_diff Optionally, users can supply the (summed) changes in the
+#'   squared values of the data \eqn{y_{ij}^2}, which are needed to estimate the
+#'   residual variance parameters \eqn{s_{ij}^2} for simple variance structures
+#'   (i.e., when \code{var_type} is set to 0, 1, or 2). If calculating
+#'   entries \eqn{y_{ij}^2} from scratch is expensive, supplying an argument
+#'   to \code{Y2_diff} can greatly speed up data updates. If specified, the
+#'   argument should be a scalar
+#'   \eqn{\sum_{i, j} \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+#'   when \code{var_type = 0}; a vector of length \eqn{n} with entries
+#'   \eqn{\sum_{j = 1}^p \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+#'   when \code{var_type = 1}; or a vector of length \eqn{p} with entries
+#'   \eqn{\sum_{i = 1}^n \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+#'   when \code{var_type = 2}. The argument is ignored when any other variance
+#'   structure is used.
+#'
 #' @return The \code{\link{flash}} object from argument \code{flash}, with
 #'   the data modified as specified by \code{newdata}. Residual variances and
 #'   ELBO are also updated.
 #'
 #' @export
 #'
-flash_update_data <- function(flash, newdata) {
+flash_update_data <- function(flash, newdata, Y2_diff = NULL) {
   flash <- get.fit(flash)
   fl.dims <- get.dims(flash)
 
@@ -35,7 +50,14 @@ flash_update_data <- function(flash, newdata) {
   # Update data (Y and Z):
   Z.changed <- identical(get.nonmissing(data), get.nonmissing(flash))
   flash <- set.Y(flash, get.Y(data))
-  flash <- set.Y2(flash, NULL) # Will be recomputed by init.tau().
+  if (is.null(Y2_diff) || is.null(get.Y2(flash))) {
+    flash <- set.Y2(flash, NULL) # Will be recomputed by init.tau().
+  } else {
+    if (length(Y2_diff) != length(get.Y2(flash))) {
+      stop("Argument Y2_diff must have length", length(get.Y))
+    }
+    flash <- set.Y2(flash, get.Y2(flash) + Y2_diff)
+  }
   flash <- set.nonmissing(flash, get.nonmissing(data))
 
   # Update precomputed quantities:
