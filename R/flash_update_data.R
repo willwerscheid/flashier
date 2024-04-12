@@ -54,7 +54,7 @@ flash_update_data <- function(flash, newdata, Y2_diff = NULL) {
     flash <- set.Y2(flash, NULL) # Will be recomputed by init.tau().
   } else {
     if (length(Y2_diff) != length(get.Y2(flash))) {
-      stop("Argument Y2_diff must have length", length(get.Y))
+      stop("Expected argument Y2_diff to have length ", length(get.Y2(flash)), ".")
     }
     flash <- set.Y2(flash, get.Y2(flash) + Y2_diff)
   }
