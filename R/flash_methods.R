@@ -7,10 +7,13 @@
 #'
 #' @param x An object inheriting from class \code{flash}.
 #'
-#' @param include_scree Whether to include a figure ("scree plot") showing the
-#'   proportion of variance explained by each factor/loadings pair.
+#' @param include_scree This parameter has been soft-deprecated; please use
+#'   \code{plot_type} instead.
 #'
-#' @param include_pm Whether to include a figure showing the posterior means for
+#' @param include_pm This parameter has been soft-deprecated; please use
+#'   \code{plot_type} instead.
+#'
+#'   Whether to include a figure showing the posterior means for
 #'   either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
 #'   parameter \code{pm_which}). One plot panel is produced for each
 #'   factor/loadings pair \eqn{k}. If argument \code{pm_groups}
@@ -27,38 +30,60 @@
 #' @param kset A vector of integers specifying the factor/loadings pairs to be
 #'   plotted. If \code{kset = NULL}, then all will be plotted.
 #'
-#' @param pm_which Whether to plot loadings \eqn{L} or factors \eqn{F} in the
-#'   plots of posterior means.
-#'   This parameter is ignored when \code{include_pm = FALSE}.
+#' @param pm_which Whether to plot loadings \eqn{L} or factors \eqn{F}. This
+#'   parameter is ignored when \code{plot_type = "scree"}.
 #'
 #' @param pm_subset A vector of row indices \eqn{i} or column indices
 #'   \eqn{j} (depending on the argument to \code{pm_which})
 #'   specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
-#'   to be shown in the plots of posterior means. If the dataset has row or
-#'   column names, then names rather than indices may be specified. If
-#'   \code{pm_subset = NULL}, then all values will be plotted.
-#'   This parameter is ignored when \code{include_pm = FALSE}.
+#'   to be shown. If the dataset has row or column names, then names rather
+#'   than indices may be specified. If \code{pm_subset = NULL}, then all values
+#'   will be plotted. This parameter is ignored when \code{plot_type = "scree"}.
 #'
 #' @param pm_groups A vector specifying the group to which each row of the data
-#'   \eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs
-#'   (groups may be numeric indices or strings). If \code{pm_groups = NULL},
-#'   then a bar plot of the ungrouped data is produced (see \code{include_pm}
-#'   above). Otherwise, a group must be provided for each plotted row \eqn{i} or
-#'   column \eqn{j}, so that
-#'   the length of \code{pm_groups} is exactly equal to the number of rows or
-#'   columns in the full dataset or, if \code{pm_subset} is specified, in the
-#'   subsetted dataset. When \code{pm_groups} is not \code{NULL}, a set of
-#'   overlapping histograms is produced for each factor/loadings pair, with
-#'   one histogram per group (again see \code{include_pm}).
-#'   This parameter is ignored when \code{include_pm = FALSE}.
+#'   \eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
+#'   numeric indices or strings). A group must be provided for each plotted row
+#'   \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
+#'   exactly equal to the number of rows or columns in the full dataset or, if
+#'   \code{pm_subset} is specified, in the subsetted dataset. For effects, see
+#'   parameter \code{plot_type}.
 #'
-#' @param pm_colors A vector specifying a color for each bar (if
-#'   \code{pm_groups = NULL}) or histogram (if \code{pm_groups} is not
-#'   \code{NULL}). Passed directly to parameter \code{values} in \strong{ggplot2}
-#'   function \code{\link[ggplot2]{scale_color_manual}}.
-#'   This parameter is ignored when \code{include_pm = FALSE}.
+#' @param pm_colors A character vector specifying a color for each unique group
+#'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
+#'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. For
+#'   effects, see parameter \code{plot_type}.
 #'
-#' @param ... Additional parameters are ignored.
+#' @param plot_type The type of plot to return. Options include:
+#'   \describe{
+#'     \item{\code{"scree"}}{A scree plot showing the proportion of variance
+#'       explained per factor/loadings pair.}
+#'     \item{\code{"bar"}}{A simple bar plot of posterior means for loadings or
+#'       factors (depending on argument \code{pm_which}), with one bar per
+#'       row or column. Colors of bars are specified by argument
+#'       \code{pm_colors}. This type of plot is most useful when rows or columns
+#'       are small in number or ordered in a logical fashion (e.g., spatially).}
+#'     \item{\code{"heatmap"}}{A heatmap showing posterior means for loadings or
+#'       factors, with rows or columns grouped according to \code{pm_groups} and
+#'       arranged within groups using the embedding provided by \code{fastTopics}
+#'       function \code{\link[fastTopics]{structure_plot}}. Note that
+#'       heatmaps ignore argument \code{pm_colors}.}
+#'     \item{\code{"histogram"}}{Overlapping semi-transparent histograms of
+#'       posterior means for loadings or factors, with one histogram per group
+#'       specified by \code{pm_groups} (or a single histogram if \code{pm_groups}
+#'       is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.}
+#'     \item{\code{"structure"}}{A "structure plot" (stacked bar plot) produced
+#'       using function \code{\link[fastTopics]{structure_plot}} in package
+#'       \code{fastTopics}. Here \code{pm_colors} specifies the colors of
+#'       different factor/loadings pairs (as specified by \code{kset}) rather
+#'       than different groups (as specified by \code{pm_groups}). Note that
+#'       factors/loadings must be nonnegative for structure plots to make
+#'       sense.}
+#'   }
+#'
+#' @param ... Additional parameters to be passed to function
+#'   \code{\link[fastTopics]{structure_plot}} when \code{plot_type} is
+#'   \code{"heatmap"} or \code{"structure"}. In particular, the \code{gap}
+#'   parameter is useful for establishing visual separation among groups.
 #'
 #' @return If arguments \code{include_scree} and \code{include_pm} specify that
 #'   only one figure be produced, then \code{plot.flash()} returns a
@@ -66,21 +91,6 @@
 #'   \code{plot.flash()} prints both plots but does not return a value.
 #'
 #' @method plot flash
-#'
-#' @importFrom magrittr %>%
-#' @importFrom dplyr mutate left_join
-#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_col
-#' @importFrom ggplot2 geom_histogram geom_vline after_stat
-#' @importFrom ggplot2 scale_x_continuous scale_y_log10
-#' @importFrom ggplot2 scale_fill_manual scale_color_manual
-#' @importFrom ggplot2 scale_fill_brewer scale_color_brewer
-#' @importFrom ggplot2 labs guides facet_wrap
-#' @importFrom ggplot2 theme theme_minimal element_blank
-#' @importFrom tibble rownames_to_column
-#' @importFrom stringr str_remove
-#' @importFrom tidyr pivot_longer
-#' @importFrom stats density
-#' @importFrom grDevices devAskNewPage
 #'
 #' @export
 #'
@@ -93,60 +103,39 @@ plot.flash <- function(x,
                        pm_subset = NULL,
                        pm_groups = NULL,
                        pm_colors = NULL,
+                       plot_type = c("scree",
+                                     "bar",
+                                     "heatmap",
+                                     "histogram",
+                                     "structure"),
                        ...) {
   pm_which <- match.arg(pm_which)
+  plot_type <- match.arg(plot_type)
 
   if (x$n_factors == 0) {
     stop("Flash object has no factors, so there is nothing to plot.")
   }
-  if (!include_scree && !include_pm) {
-    stop("Include either the scree plot (via argument include_scree) or the plot ",
-         " of posterior means (via include_pm).")
-  }
 
-  # Bind variables to get rid of annoying R CMD check note:
-  pve <- k.order <- Name <- k <- grp <- NULL
-
-  # Scree plot:
-  all.plots <- list()
   if (is.null(kset)) {
     kset <- 1:x$n_factors
   } else {
     must.be.valid.kset(get.fit(x), kset)
   }
 
-  pve.df <- data.frame(
-    k = kset,
-    pve = x$pve[kset],
-    k.order = kset
-  )
+  pve <- x$pve[kset]
   if (order_by_pve) {
-    pve.df <- pve.df %>%
-      mutate(k.order = rank(-pve))
+    k_order <- rank(-pve)
+  } else {
+    k_order <- kset
   }
 
-  if (include_scree) {
-    # Include ~4 x-axis ticks with the distance a multiple of 5:
-    K <- length(kset)
-    if (K < 5) {
-      tick_dist <- 1
-    } else if (K < 10) {
-      tick_dist <- 2
-    } else {
-      tick_dist <- max(1, floor(K / 20)) * 5
-    }
-    p1 <- ggplot(pve.df) +
-      geom_line(aes(x = k.order, y = pve), color = "grey") +
-      geom_point(aes(x = k.order, y = pve), color = "dodgerblue") +
-      scale_x_continuous(breaks = seq(tick_dist, K, by = tick_dist)) +
-      scale_y_log10() +
-      labs(title = "Proportion of variance explained per factor") +
-      labs(x = "k", y = "PVE") +
-      theme_minimal()
-    all.plots[["scree"]] <- p1
-  }
-
-  if (include_pm) {
+  if (plot_type == "scree") {
+    df <- data.frame(
+      k = kset,
+      pve = pve,
+      k_order = k_order
+    )
+  } else {
     if (pm_which == "factors") {
       which.dim <- "column"
       val <- ldf(x, type = "i")$F
@@ -156,107 +145,228 @@ plot.flash <- function(x,
       val <- ldf(x, type = "i")$L
       colnames(val) <- 1:x$n_factors
     }
+
     if (is.null(pm_subset)) {
-      val <- val[, kset, drop = FALSE]
-    } else {
-      if (!all(pm_subset %in% 1:nrow(val)) &&
-          !all(pm_subset %in% rownames(val))) {
+      pm_subset <- 1:nrow(val)
+    } else if (!all(pm_subset %in% 1:nrow(val)) &&
+               !all(pm_subset %in% rownames(val))) {
         stop("Argument to pm_subset must be a vector of valid ", which.dim,
              " indices or valid ", which.dim, " names.")
-      }
-      val <- val[pm_subset, kset, drop = FALSE]
     }
+    val <- val[pm_subset, kset, drop = FALSE]
 
-    pm.df <- data.frame(val = val) %>%
-      rownames_to_column(var = "Name")
-    if (length(kset) > 1) {
-      pm.df <- pm.df %>%
-        pivot_longer(-Name, names_to = "k", values_to = "val") %>%
-        mutate(k = as.numeric(str_remove(k, "val.")))
-    } else {
-      pm.df <- pm.df %>%
-        mutate(k = kset)
-    }
-    pm.df <- pm.df %>%
-      left_join(pve.df, by = "k")
-
+    df <- data.frame(
+      name = rep(rownames(val), ncol(val)),
+      val = as.vector(val),
+      k = rep(kset, each = nrow(val)),
+      pve = rep(pve, each = nrow(val)),
+      k_order = rep(k_order, each = nrow(val))
+    )
     if (is.null(pm_groups)) {
-      if (nrow(val) > 100) {
-        warning("Consider setting argument pm_groups to produce a more",
-                " readable plot.")
-      }
-      if (is.null(pm_colors)) {
-        p2 <- ggplot(pm.df, aes(x = Name, y = val)) +
-          geom_col(fill = "dodgerblue")
-      } else {
-        if (length(pm_colors) < nrow(val)) {
-          stop("Argument to pm_colors must be a vector consisting of one ",
-               "color for each ", which.dim, " in the data (or each ",
-               "subsetted ", which.dim, ").")
+      if (!is.null(pm_colors) && plot_type != "structure") {
+        if (length(pm_colors) != nrow(val) || !is.character(pm_colors)) {
+          stop("When 'pm_groups' is NULL, 'pm_colors' must a character vector ",
+               "consisting of one color for each ", which.dim, " in the data ",
+               "(or each subsetted ", which.dim, ").")
         }
-        p2 <- ggplot(pm.df, aes(x = Name, y = val, fill = Name)) +
-          geom_col() +
-          scale_fill_manual(values = pm_colors) +
-          guides(fill = "none")
+        df$color <- rep(pm_colors, ncol(val))
       }
-      p2 <- p2 +
-        facet_wrap(~k.order) +
-        theme_minimal() +
-        theme(axis.text = element_blank()) +
-        labs(title = paste0("Posterior means for ", pm_which)) +
-        labs(x = "", y = "")
     } else {
       if (length(pm_groups) != nrow(val)) {
-        stop("Argument to pm_groups must be a vector with length equal to ",
-             "the number of ", which.dim, "s in the data (or the number of ",
-             "subsetted ", which.dim, "s.")
+        stop("'pm_groups' must be NULL or a vector consisting of one value ",
+             "(numeric or character) for each ", which.dim, " in the data ",
+             "(or each subsetted ", which.dim, ").")
       }
-      pm.df <- pm.df %>%
-        mutate(grp = rep(factor(pm_groups), each = length(kset)))
-      p2 <- ggplot(pm.df,
-                   aes(x = val, y = after_stat(density), color = grp, fill = grp)) +
-        geom_histogram(position = "identity", bins = 20, alpha = 0.5)
-      if (is.null(pm_colors)) {
-        if (length(unique(pm_groups)) > 9) {
-          warning("Consider reducing the number of groups or defining a",
-                  " custom color palette to produce a more readable plot.")
-        } else {
-          p2 <- p2 +
-            scale_color_brewer(palette = "Set1") +
-            scale_fill_brewer(palette = "Set1")
+      df$group <- rep(pm_groups, ncol(val))
+      if (!is.null(pm_colors) && plot_type != "structure") {
+        if (length(pm_colors) != length(unique(pm_groups))
+            || !is.character(pm_colors)) {
+          stop("When 'pm_groups' is set, 'pm_colors' must be a character vector ",
+               "consisting of one color for each unique value in 'pm_groups'.")
         }
-      } else {
-        if (length(pm_colors) < length(unique(pm_groups))) {
-          stop("Argument to pm_colors must be a vector consisting of one ",
-               "color for each unique group in argument pm_groups.")
-        }
-        p2 <- p2 +
-          scale_color_manual(values = pm_colors) +
-          scale_fill_manual(values = pm_colors)
       }
-      p2 <- p2 +
-        facet_wrap(~k.order, scales = "free_y") +
-        geom_vline(xintercept = 0, color = "darkgrey") +
-        theme_minimal() +
-        theme(axis.text = element_blank()) +
-        guides(color = "none") +
-        labs(title = paste0("Posterior means for ", pm_which)) +
-        labs(x = "", y = "", fill = "Group")
+      df$color <- rep(pm_colors[factor(pm_groups)], ncol(val))
     }
-
-    all.plots[["pm"]] <- p2
   }
 
-  if (length(all.plots) == 1) {
-    return(all.plots[[1]])
-  } else {
-    oask <- devAskNewPage(TRUE)
-    print(all.plots[["scree"]])
-    print(all.plots[["pm"]])
-    devAskNewPage(oask)
-    return(invisible())
+  # TODO: use lifecycle package?
+  if (!missing(include_scree) || !missing(include_pm)) {
+    warning("Please note that parameters 'include_scree' and 'include_pm' ",
+            "have been soft-deprecated and will be removed in a future version ",
+            "of flashier. To change the type of plot produced, please specify ",
+            "argument 'plot_type'.")
   }
+
+  if (plot_type == "scree") {
+    p <- plot_scree(df)
+  } else if (plot_type == "bar") {
+    p <- plot_bar(df, pm_which)
+  } else if (plot_type == "heatmap") {
+    p <- plot_heatmap(df, pm_which, ...)
+  } else if (plot_type == "histogram") {
+    p <- plot_histogram(df, pm_which)
+  } else if (plot_type == "structure") {
+    p <- plot_structure(df, pm_which, pm_colors, ...)
+  }
+
+  return(p)
 }
+
+#' @importFrom ggplot2 ggplot aes geom_line geom_point
+#' @importFrom ggplot2 scale_x_continuous scale_y_log10
+#' @importFrom ggplot2 labs theme_minimal
+#'
+plot_scree <- function(df) {
+  # Bind variables to get rid of annoying R CMD check note:
+  pve <- k_order <- NULL
+
+  # Include ~4 x-axis ticks with the distance a multiple of 5:
+  K <- nrow(df)
+  if (K < 5) {
+    tick_dist <- 1
+  } else if (K < 10) {
+    tick_dist <- 2
+  } else {
+    tick_dist <- max(1, floor(K / 20)) * 5
+  }
+  p <- ggplot(df) +
+    geom_line(aes(x = k_order, y = pve), color = "grey") +
+    geom_point(aes(x = k_order, y = pve), color = "dodgerblue") +
+    scale_x_continuous(breaks = seq(tick_dist, K, by = tick_dist)) +
+    scale_y_log10() +
+    labs(title = "Proportion of variance explained per factor") +
+    labs(x = "k", y = "PVE") +
+    theme_minimal()
+  return(p)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_col
+#' @importFrom ggplot2 scale_fill_identity
+#' @importFrom ggplot2 facet_wrap theme_minimal element_blank
+#'
+plot_bar <- function(df, pm_which) {
+  # Bind variables to get rid of annoying R CMD check note:
+  name <- val <- color <- k_order <- NULL
+
+  if (is.null(df$color)) {
+    p <- ggplot(df, aes(x = name, y = val)) +
+      geom_col(fill = "dodgerblue")
+  } else {
+    p <- ggplot(df, aes(x = name, y = val, fill = color)) +
+      geom_col() +
+      scale_fill_identity()
+  }
+  p <- p +
+    facet_wrap(~k_order) +
+    theme_minimal() +
+    theme(axis.text = element_blank()) +
+    labs(title = paste0("Posterior means for ", pm_which)) +
+    labs(x = "", y = "")
+  return(p)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_tile
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 scale_y_continuous labs
+#' @importFrom cowplot theme_cowplot
+#' @importFrom stats density
+#'
+plot_heatmap <- function(df, pm_which, ...) {
+  # Use plot_structure to get embedding:
+  struct_p <- plot_structure(df, pm_which, rep("black", nrow(df)), ...)
+  struct_df <- struct_p$data
+
+  # Retrieve group information:
+  struct_ticks <- struct_p$plot_env$ticks
+
+  # Topics get reversed by plot_structure; re-reverse them:
+  struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
+
+  p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
+    geom_tile(width = 0.8) +
+    scale_fill_gradient2(low = "darkred", mid = "white", high = "darkblue") +
+    scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
+    labs(x = "factor", y = "", fill = "membership") +
+    theme_cowplot(font_size = 10)
+  return(p)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_histogram after_stat
+#' @importFrom ggplot2 scale_fill_brewer scale_color_brewer
+#' @importFrom ggplot2 scale_fill_identity scale_color_identity
+#' @importFrom ggplot2 facet_wrap geom_vline
+#' @importFrom ggplot2 theme theme_minimal element_blank
+#' @importFrom ggplot2 guides labs
+#' @importFrom stats density
+#'
+plot_histogram <- function(df, pm_which) {
+  # Bind variables to get rid of annoying R CMD check note:
+  val <- group <- color <- k_order <- NULL
+
+  if (is.null(df$group)) {
+    p <- ggplot(df, aes(x = val, y = after_stat(density))) +
+      geom_histogram(position = "identity", bins = 20, fill = "dodgerblue")
+  } else {
+    p <- ggplot(df, aes(x = val, y = after_stat(density),
+                        color = color, fill = color)) +
+      geom_histogram(position = "identity", bins = 20, alpha = 0.5)
+
+    if (is.null(df$color)) {
+      if (length(unique(df$group)) > 9) {
+        warning("Consider reducing the number of groups or defining a ",
+                " custom color palette via 'pm_colors' to produce a more readable ",
+                "plot.")
+      } else {
+        p <- p +
+          scale_color_brewer(palette = "Set1") +
+          scale_fill_brewer(palette = "Set1")
+      }
+    } else {
+      p <- p +
+        scale_color_identity() +
+        scale_fill_identity()
+    }
+  }
+
+  p <- p +
+    facet_wrap(~k_order, scales = "free_y") +
+    geom_vline(xintercept = 0, color = "darkgrey") +
+    theme_minimal() +
+    theme(axis.text = element_blank()) +
+    guides(color = "none") +
+    labs(title = paste0("Posterior means for ", pm_which)) +
+    labs(x = "", y = "", fill = "Group")
+  return(p)
+}
+
+#' @importFrom ggplot2 labs
+#' @importFrom fastTopics structure_plot
+#'
+plot_structure <- function(df, pm_which, pm_colors, ...) {
+  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
+  colnames(Lmat) <- paste0("k", unique(df$k))
+  if (!is.null(df$group)) {
+    group <- df$group[1:nrow(Lmat)]
+  } else {
+    group <- rep("", nrow(Lmat))
+  }
+  if (is.null(pm_colors)) {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        ...)
+  } else {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        colors = pm_colors,
+                        ...)
+  }
+  p <- p +
+    labs(y = "membership", color = "factor", fill = "factor")
+  return(p)
+}
+
 
 #' Fitted method for flash objects
 #'

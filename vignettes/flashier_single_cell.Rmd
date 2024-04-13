@@ -29,6 +29,7 @@ library(flashier)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
+library(RColorBrewer)
 set.seed(3)
 ```
 
@@ -155,7 +156,7 @@ Visualizing the memberships
 <!-- Each cell in the single-cell data set is represented as a linear
 combination of the $K$ factors. -->
 
-The estimated "membership levels", or "memberships", are stored in the
+The estimated "membership levels," or "memberships," are stored in the
 ${\bf L}$ matrix. For example:
 
 ```{r membership-example}
@@ -180,41 +181,34 @@ summary(pbmc_facs$samples$subpop)
    
 A structure plot is a stacked bar plot in which each factor is
 represented as a bar of a different color, and the bar heights are
-given by the membership levels. For a more effective visualization, we
-recommend extracting a rescaled version of the memberships using the
-`ldf` function:
+given by the membership levels. 
 
-```{r ldf}
-res <- ldf(fit, type = "i")
+```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
+plot(fit, 
+     pm_which = "loadings", 
+     pm_groups = pbmc_facs$samples$subpop,
+     pm_colors = brewer.pal(8, "Set1"),
+     plot_type = "structure",
+     gap = 20,
+     verbose = FALSE)
 ```
 
-(Note that we can multiply the $k$th column of ${\bf F}$ by any constant
-scalar $c > 0$ while also multiplying the $k$th column of
-${\bf L}$ by $1/c$ without changing the low-rank representation, ${\bf
-L}{\bf F}^{\top}$.)
-
-Now we can visualize the rescaled memberships in a structure plot. To
-do this, we create a simple wrapper function that converts the
-flashier results into an object that is usable by the "structure_plot"
-function in fastTopics:
-
-```{r structure-plot-1, fig.height=2, fig.width=7, results="hide", message=FALSE}
-flashier_structure_plot <- function (ldf, topics, grouping) {
-  class(ldf) <- c("multinom_topic_model_fit", "list")
-  p <- structure_plot(ldf, topics = topics, grouping = grouping, gap = 20) +
-    labs(y = "membership", color = "factor", fill = "factor")
-  return(p)
-}
-flashier_structure_plot(res, c(2:8, 1), pbmc_facs$samples$subpop)
-```
-
-The first factor is present in all cell types, and is likely capturing
-a "baseline" level of expression throughout. To focus on differences
+By default, the order of stacking is determined by the proportion of variance 
+explained by each factor. The bottom factor k1 is present in all cell types, 
+and is likely capturing a "baseline" level of expression throughout. 
+To focus on differences
 between cell types, let's remove this first factor from our
 structure plot:
 
-```{r structure-plot-2, fig.height=2, fig.width=7, results="hide", message=FALSE}
-flashier_structure_plot(res, 2:8, pbmc_facs$samples$subpop)
+```{r structure-plot-2, fig.height=2, fig.width=5, results="hide", message=FALSE}
+plot(fit, 
+     kset = 2:8,
+     pm_which = "loadings", 
+     pm_groups = pbmc_facs$samples$subpop,
+     pm_colors = brewer.pal(8, "Set1")[2:8],
+     plot_type = "structure",
+     gap = 20,
+     verbose = FALSE)
 ```
   
 It is quite clear from this structure plot that factors 2 through 6
@@ -227,34 +221,24 @@ which suggest a function that is intermediate between that of the
 subset of CD34+ cells that are primarily loaded on factors 3 or 6
 (yellow and green); some of these cells may be mislabeled.
 
-Note that factors 7 and 8 are present in very few cells and probably
-offer little insight:
+Also note that factors 7 and 8 are present in very few cells and probably
+offer little insight.
 
-```{r inspect-loadings}
+<!--```{r inspect-loadings}
 colSums(res$L > 0.01)
-```
+```-->
 
 <!-- Others may have a hybrid function. -->
   
 We can also visualize the memberships with a heatmap:
 
 ```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
-flashier_heatmap <- function (L, grouping, gap = 0) {
-  n <- nrow(L)
-  k <- ncol(L)
-  colnames(L) <- paste0("k",1:k)
-  rows <- order(grouping)
-  pdat <- melt(as.data.frame(L[rows,]),variable_name = "factor")
-  pdat <- cbind(pdat,grouping = grouping[rows])
-  pdat <- cbind(pdat,pos = 1:n + gap*as.numeric(pdat$grouping))
-  return(ggplot(pdat,aes(x = factor,y = pos,fill = value)) +
-    geom_tile(width = 0.8) +
-    scale_fill_gradient(low = "white",high = "darkblue") +
-    scale_y_continuous(breaks = tapply(pdat$pos,pdat$grouping,mean)) +
-    labs(y = "",fill = "membership") +
-	theme_cowplot(font_size = 10))
-}
-flashier_heatmap(res$L,pbmc_facs$samples$subpop,gap = 50)
+plot(fit, 
+     pm_which = "loadings", 
+     pm_groups = pbmc_facs$samples$subpop,
+     plot_type = "heatmap",
+     gap = 50,
+     verbose = FALSE)
 ```
 
 Interpreting the factors by looking at changes in expression
@@ -276,7 +260,8 @@ example, many of the genes with the largest expression increases in
 factor 6 are also genes characteristic of B cells:
 
 ```{r top-genes-factor-6}
-F <- with(res,F %*% diag(D))
+res <- ldf(fit, type = "i")
+F <- with(res, F %*% diag(D))
 rownames(F) <- pbmc_facs$genes$symbol
 head(sort(F[,6],decreasing = TRUE),n = 16)
 ```

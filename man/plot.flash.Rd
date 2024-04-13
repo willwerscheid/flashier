@@ -14,24 +14,28 @@
   pm_subset = NULL,
   pm_groups = NULL,
   pm_colors = NULL,
+  plot_type = c("scree", "bar", "heatmap", "histogram", "structure"),
   ...
 )
 }
 \arguments{
 \item{x}{An object inheriting from class \code{flash}.}
 
-\item{include_scree}{Whether to include a figure ("scree plot") showing the
-proportion of variance explained by each factor/loadings pair.}
+\item{include_scree}{This parameter has been soft-deprecated; please use
+\code{plot_type} instead.}
 
-\item{include_pm}{Whether to include a figure showing the posterior means for
-either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
-parameter \code{pm_which}). One plot panel is produced for each
-factor/loadings pair \eqn{k}. If argument \code{pm_groups}
-is left unspecified, then bar plots will be produced, with each bar
-corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
-Otherwise, overlapping histograms will be
-produced, with each histogram corresponding to one of the groups
-specified by \code{pm_groups}.}
+\item{include_pm}{This parameter has been soft-deprecated; please use
+  \code{plot_type} instead.
+
+  Whether to include a figure showing the posterior means for
+  either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
+  parameter \code{pm_which}). One plot panel is produced for each
+  factor/loadings pair \eqn{k}. If argument \code{pm_groups}
+  is left unspecified, then bar plots will be produced, with each bar
+  corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
+  Otherwise, overlapping histograms will be
+  produced, with each histogram corresponding to one of the groups
+  specified by \code{pm_groups}.}
 
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
@@ -40,38 +44,60 @@ highest to lowest).}
 \item{kset}{A vector of integers specifying the factor/loadings pairs to be
 plotted. If \code{kset = NULL}, then all will be plotted.}
 
-\item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F} in the
-plots of posterior means.
-This parameter is ignored when \code{include_pm = FALSE}.}
+\item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F}. This
+parameter is ignored when \code{plot_type = "scree"}.}
 
 \item{pm_subset}{A vector of row indices \eqn{i} or column indices
 \eqn{j} (depending on the argument to \code{pm_which})
 specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
-to be shown in the plots of posterior means. If the dataset has row or
-column names, then names rather than indices may be specified. If
-\code{pm_subset = NULL}, then all values will be plotted.
-This parameter is ignored when \code{include_pm = FALSE}.}
+to be shown. If the dataset has row or column names, then names rather
+than indices may be specified. If \code{pm_subset = NULL}, then all values
+will be plotted. This parameter is ignored when \code{plot_type = "scree"}.}
 
 \item{pm_groups}{A vector specifying the group to which each row of the data
-\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs
-(groups may be numeric indices or strings). If \code{pm_groups = NULL},
-then a bar plot of the ungrouped data is produced (see \code{include_pm}
-above). Otherwise, a group must be provided for each plotted row \eqn{i} or
-column \eqn{j}, so that
-the length of \code{pm_groups} is exactly equal to the number of rows or
-columns in the full dataset or, if \code{pm_subset} is specified, in the
-subsetted dataset. When \code{pm_groups} is not \code{NULL}, a set of
-overlapping histograms is produced for each factor/loadings pair, with
-one histogram per group (again see \code{include_pm}).
-This parameter is ignored when \code{include_pm = FALSE}.}
+\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
+numeric indices or strings). A group must be provided for each plotted row
+\eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
+exactly equal to the number of rows or columns in the full dataset or, if
+\code{pm_subset} is specified, in the subsetted dataset. For effects, see
+parameter \code{plot_type}.}
 
-\item{pm_colors}{A vector specifying a color for each bar (if
-\code{pm_groups = NULL}) or histogram (if \code{pm_groups} is not
-\code{NULL}). Passed directly to parameter \code{values} in \strong{ggplot2}
-function \code{\link[ggplot2]{scale_color_manual}}.
-This parameter is ignored when \code{include_pm = FALSE}.}
+\item{pm_colors}{A character vector specifying a color for each unique group
+specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
+specifying a color for each plotted row \eqn{i} or column \eqn{j}. For
+effects, see parameter \code{plot_type}.}
 
-\item{...}{Additional parameters are ignored.}
+\item{plot_type}{The type of plot to return. Options include:
+\describe{
+  \item{\code{"scree"}}{A scree plot showing the proportion of variance
+    explained per factor/loadings pair.}
+  \item{\code{"bar"}}{A simple bar plot of posterior means for loadings or
+    factors (depending on argument \code{pm_which}), with one bar per
+    row or column. Colors of bars are specified by argument
+    \code{pm_colors}. This type of plot is most useful when rows or columns
+    are small in number or ordered in a logical fashion (e.g., spatially).}
+  \item{\code{"heatmap"}}{A heatmap showing posterior means for loadings or
+    factors, with rows or columns grouped according to \code{pm_groups} and
+    arranged within groups using the embedding provided by \code{fastTopics}
+    function \code{\link[fastTopics]{structure_plot}}. Note that
+    heatmaps ignore argument \code{pm_colors}.}
+  \item{\code{"histogram"}}{Overlapping semi-transparent histograms of
+    posterior means for loadings or factors, with one histogram per group
+    specified by \code{pm_groups} (or a single histogram if \code{pm_groups}
+    is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.}
+  \item{\code{"structure"}}{A "structure plot" (stacked bar plot) produced
+    using function \code{\link[fastTopics]{structure_plot}} in package
+    \code{fastTopics}. Here \code{pm_colors} specifies the colors of
+    different factor/loadings pairs (as specified by \code{kset}) rather
+    than different groups (as specified by \code{pm_groups}). Note that
+    factors/loadings must be nonnegative for structure plots to make
+    sense.}
+}}
+
+\item{...}{Additional parameters to be passed to function
+\code{\link[fastTopics]{structure_plot}} when \code{plot_type} is
+\code{"heatmap"} or \code{"structure"}. In particular, the \code{gap}
+parameter is useful for establishing visual separation among groups.}
 }
 \value{
 If arguments \code{include_scree} and \code{include_pm} specify that
