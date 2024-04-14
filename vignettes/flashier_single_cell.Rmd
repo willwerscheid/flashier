@@ -150,6 +150,17 @@ A few notes about this flash call:
   practice we recommend using a larger value,** but to keep the example
   simple and short we set it to 8 here.
 
+The default `plot` method produces a scree plot showing the proportion of
+variance explained by each of the $K = 8$ fitted factors: 
+
+```{r scree, fig.height=2, fig.width=6, results="hide", message=FALSE}
+plot(fit, order_by_pve = FALSE)
+```
+
+We note that factors 7 and 8 explain a very small proportion of variation and probably
+offer little insight.
+
+
 Visualizing the memberships
 ---------------------------
 
@@ -185,6 +196,7 @@ given by the membership levels.
 
 ```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
+     order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
      pm_colors = brewer.pal(8, "Set1"),
@@ -193,8 +205,7 @@ plot(fit,
      verbose = FALSE)
 ```
 
-By default, the order of stacking is determined by the proportion of variance 
-explained by each factor. The bottom factor k1 is present in all cell types, 
+The bottom factor k1 is present in all cell types, 
 and is likely capturing a "baseline" level of expression throughout. 
 To focus on differences
 between cell types, let's remove this first factor from our
@@ -203,6 +214,7 @@ structure plot:
 ```{r structure-plot-2, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
      kset = 2:8,
+     order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
      pm_colors = brewer.pal(8, "Set1")[2:8],
@@ -211,18 +223,16 @@ plot(fit,
      verbose = FALSE)
 ```
   
-It is quite clear from this structure plot that factors 2 through 6
+It is clear from this plot that factors 2 through 6
 are capturing, respectively, natural killer (NK) cells, CD14+ cells,
 CD34+ cells, T cells and B cells. There is also more subtle structure
 captured by the memberships, such as the subset of T cells with mixed
 memberships (factors 2 and 5, colored blue and orange in the plot),
-which suggest a function that is intermediate between that of the
-"pure" T and the "pure" NK cells. It is also interesting to note the
-subset of CD34+ cells that are primarily loaded on factors 3 or 6
-(yellow and green); some of these cells may be mislabeled.
+which suggest a subpopulation that is intermediate between
+"pure" T and "pure" NK cells. It is also interesting to note the
+subset of CD34+ cells that are primarily loaded on factor 3
+(green); some of these cells may be mislabeled.
 
-Also note that factors 7 and 8 are present in very few cells and probably
-offer little insight.
 
 <!--```{r inspect-loadings}
 colSums(res$L > 0.01)
@@ -234,6 +244,7 @@ We can also visualize the memberships with a heatmap:
 
 ```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
 plot(fit, 
+     order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
      plot_type = "heatmap",

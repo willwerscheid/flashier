@@ -126,7 +126,7 @@ plot.flash <- function(x,
   if (order_by_pve) {
     k_order <- rank(-pve)
   } else {
-    k_order <- kset
+    k_order <- 1:length(kset)
   }
 
   if (plot_type == "scree") {
