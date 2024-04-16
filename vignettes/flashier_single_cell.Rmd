@@ -242,20 +242,23 @@ plot(fit,
      gap = 25)
 ```
 
-Interpreting the factors by looking at changes in expression
-------------------------------------------------------------
+Visualizing the gene matrix
+---------------------------
 
 Above, we used the provided cell labels to interpret five of the
 factors as capturing distinct cell types (B cells, T cells,
 etc). However, one might not always have cell labels, or the existing
 cell labels may not be informative for the factors. We can also look
-to the ${\bf F}$ matrix for interpreting the factors.
+to the ${\bf F}$ matrix—the "gene matrix"—for interpreting the
+factors.
 
-The ${\bf F}$ matrix contains the estimated changes in expression,
-specifically changes in expression on the log scale (multiplicative
-changes). (The exception to this is the first factor, which in this
-example is capturing a "baseline" level of expression.) Intuitively,
-genes that were estimated to have the largest increases in expression
+The gene matrix contains estimates of gene expression changes.
+Because these estimates are based on the shifted log counts, more
+precisely they are *changes in the shifted log-expression.* The first
+factor captures a "baseline" level of expression, so, broadly
+speaking, we interpret these changes relative to this baseline.
+
+Genes that were estimated to have the largest increases in expression
 might give the most helpful clues about the underlying biology. For
 example, many of the genes with the largest expression increases in
 factor 6 are also genes characteristic of B cells:
@@ -296,9 +299,8 @@ types (e.g., GNLY for NK cells, S100A9 for CD14+ cells), although not
 always; for example, some genes show large expression increases more
 than one factor.
 
-We caution that while this simple rule-of-thumb—annotating the factors
-by the genes with the largest increases in expression—worked well
-in this example, it may not always be helpful.
+While selecting genes with the largest expression increases appears to
+work well here, in other settings there may be more effective approaches.
 
 Session info
 ------------
