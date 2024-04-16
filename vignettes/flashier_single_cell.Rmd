@@ -28,6 +28,7 @@ library(reshape)
 library(flashier)
 library(fastTopics)
 library(ggplot2)
+library(ggrepel)
 library(cowplot)
 set.seed(3)
 ```
@@ -301,6 +302,26 @@ than one factor.
 
 While selecting genes with the largest expression increases appears to
 work well here, in other settings there may be more effective approaches.
+
+Plot of mean vs. change for factor 6 ("B cells"), with top 10 genes
+(by largest increase):
+
+```{r plot-change-vs-mean, fig.height=3, fig.width=3}
+mu <- colMeans(shifted_log_counts)
+plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
+  pdat <- data.frame(mean = mu,change = ldf(fit)$F[,k],gene = genes)
+  rows <- order(pdat$change,decreasing = TRUE)
+  rows <- rows[1:n]
+  pdat[-rows,"gene"] <- ""
+  return(ggplot(pdat,aes(x = change,y = mean,label = gene)) +
+         geom_point(color = "dodgerblue") +
+         geom_text_repel(color = "black",size = 2.5,max.overlaps = Inf) +
+		 labs(x = "increase in shifted log-expression",
+		      y = "mean shifted log-expression") +
+	     theme_cowplot(font_size = 10))
+}
+plot_change_vs_mean(fit,mu,pbmc_facs$genes$symbol,k = 6)
+```
 
 Session info
 ------------
