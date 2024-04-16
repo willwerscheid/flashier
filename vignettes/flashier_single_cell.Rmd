@@ -296,7 +296,7 @@ plot_top_genes(F[,2:6])
 ```
 
 Indeed, this approach reveals genes characteristic of the other cell
-types (e.g., GNLY for NK cells, S100A9 for CD14+ cells), although not
+types (e.g., *GNLY* for NK cells, *S100A9* for CD14+ cells), although not
 always; for example, some genes show large expression increases more
 than one factor.
 
@@ -314,7 +314,7 @@ plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
   rows <- rows[1:n]
   pdat[-rows,"gene"] <- ""
   return(ggplot(pdat,aes(x = change,y = mean,label = gene)) +
-         geom_point(color = "dodgerblue") +
+         geom_point(shape = 1,color = "dodgerblue") +
          geom_text_repel(color = "black",size = 2.5,max.overlaps = Inf) +
 		 labs(x = "increase in shifted log-expression",
 		      y = "mean shifted log-expression") +
