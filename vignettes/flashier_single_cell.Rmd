@@ -29,7 +29,6 @@ library(flashier)
 library(fastTopics)
 library(ggplot2)
 library(cowplot)
-library(RColorBrewer)
 set.seed(3)
 ```
 
@@ -47,8 +46,8 @@ counts <- pbmc_facs$counts
 dim(counts)
 ```
 
-(Note that other R packages, for example Seurat, use the convention
-that rows are genes and columns are cells.)
+(Note that other R packages, for example [Seurat][seurat], use the
+convention that rows are genes and columns are cells.)
 
 Since the flashier model, like other linear-model-based methods (e.g.,
 principal components analysis), was not designed for count data, it is
@@ -90,7 +89,7 @@ shifted_log_counts <- log1p(counts / (a * size_factors))
 
 Note that, since the counts are sparse, we could have performed this
 transformation more efficiently using, for example, the "mapSparse"
-function from [the MatrixExtra package][matrixextra].
+function from [MatrixExtra][matrixextra].
 
 Variance regularization
 -----------------------
@@ -139,8 +138,8 @@ A few notes about this flash call:
   generate a non-negative matrix factorization (NMF) of the
   (transformed) counts matrix. Other types of matrix factorizations
   can be produced with different choices of the `ebnm_fn` argument;
-  this is explained in detail in the "Introduction to flashier"
-  vignette.
+  this is explained in detail in the [Introduction to flashier
+  vignette][flashier_intro].
 
 + `var_type = 2` means that we estimate column-wise (here, gene-wise)
   variances; that is, we estimate a different variance for each column
@@ -150,25 +149,25 @@ A few notes about this flash call:
   practice we recommend using a larger value,** but to keep the example
   simple and short we set it to 8 here.
 
-The default `plot` method produces a scree plot showing the proportion of
-variance explained by each of the $K = 8$ fitted factors: 
+The plot method with default settings produces a "scree plot" showing
+the proportion of variance explained by each of the 8 factors:
 
-```{r scree, fig.height=2, fig.width=6, results="hide", message=FALSE}
+```{r scree-plot, fig.height=2, fig.width=3}
 plot(fit, order_by_pve = FALSE)
 ```
 
-We note that factors 7 and 8 explain a very small proportion of variation and probably
-offer little insight.
+Factors 7 and 8 explain a very small proportion of variation (and
+probably offer little insight into the biology of these cells).
 
-
-Visualizing the memberships
+Visualizing the cell matrix
 ---------------------------
 
 <!-- Each cell in the single-cell data set is represented as a linear
 combination of the $K$ factors. -->
 
-The estimated "membership levels," or "memberships," are stored in the
-${\bf L}$ matrix. For example:
+In this non-negative matrix factorization produced by flashier, the
+rows of the ${\bf L}$ matrix contains the estimated "membership
+levels," or "memberships," for each cell. For example:
 
 ```{r membership-example}
 cell_ids <- c("GATATATGTCAGTG-1-b_cells",
@@ -195,61 +194,52 @@ represented as a bar of a different color, and the bar heights are
 given by the membership levels. 
 
 ```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
+factor_colors <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
+                   "#ffff33","#a65628","#f781bf")
 plot(fit, 
      order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     pm_colors = brewer.pal(8, "Set1"),
+     pm_colors = factor_colors,
      plot_type = "structure",
-     gap = 20,
-     verbose = FALSE)
+     gap = 25)
 ```
 
-The bottom factor k1 is present in all cell types, 
-and is likely capturing a "baseline" level of expression throughout. 
-To focus on differences
-between cell types, let's remove this first factor from our
-structure plot:
+Factor 1 ("k1" in the legend) is present in all cell types, and is
+likely capturing a "baseline" level of expression throughout.  To
+focus on differences between cell types, let's remove this first
+factor from our structure plot:
 
 ```{r structure-plot-2, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
      kset = 2:8,
      order_by_pve = FALSE,
+     pm_colors = factor_colors[-1],
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     pm_colors = brewer.pal(8, "Set1")[2:8],
      plot_type = "structure",
-     gap = 20,
-     verbose = FALSE)
+     gap = 25)
 ```
   
-It is clear from this plot that factors 2 through 6
-are capturing, respectively, natural killer (NK) cells, CD14+ cells,
-CD34+ cells, T cells and B cells. There is also more subtle structure
-captured by the memberships, such as the subset of T cells with mixed
-memberships (factors 2 and 5, colored blue and orange in the plot),
-which suggest a subpopulation that is intermediate between
-"pure" T and "pure" NK cells. It is also interesting to note the
-subset of CD34+ cells that are primarily loaded on factor 3
-(green); some of these cells may be mislabeled.
-
-
-<!--```{r inspect-loadings}
-colSums(res$L > 0.01)
-```-->
-
-<!-- Others may have a hybrid function. -->
+It is clear from this plot that factors 2 through 6 ("k2" through "k6"
+in the legend) are capturing, respectively, natural killer (NK) cells,
+CD14+ cells, CD34+ cells, T cells and B cells. There is also more
+subtle structure captured by the memberships, such as the subset of T
+cells with mixed memberships (factors 2 and 5) which suggests a
+subpopulation that is intermediate between "pure" T and "pure" NK
+cells. It is also interesting to note the subset of CD34+ cells that
+are primarily loaded on factor 3; some of these cells may be
+mislabeled.
   
-We can also visualize the memberships with a heatmap:
+We can also visualize the cell matrix with a heatmap:
 
-```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
+```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE, results="hide"}
 plot(fit, 
      order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
      plot_type = "heatmap",
-     gap = 50,
-     verbose = FALSE)
+     gap = 25)
 ```
 
 Interpreting the factors by looking at changes in expression
@@ -320,6 +310,8 @@ these results.
 sessionInfo()
 ```
 
+[flashier_intro]: https://willwerscheid.github.io/flashier/articles/flashier_intro.html
+[seurat]: https://github.com/satijalab/seurat
 [matrixextra]: https://github.com/david-cortes/MatrixExtra
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
 [fasttopics-vignette]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
