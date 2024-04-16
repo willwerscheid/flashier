@@ -317,7 +317,8 @@ plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
          geom_point(shape = 1,color = "dodgerblue") +
          geom_text_repel(color = "black",size = 2.5,max.overlaps = Inf) +
 		 labs(x = "increase in shifted log-expression",
-		      y = "mean shifted log-expression") +
+		      y = "mean shifted log-expression",
+			  title = paste("factor",k)) +
 	     theme_cowplot(font_size = 10))
 }
 plot_change_vs_mean(fit,mu,pbmc_facs$genes$symbol,k = 6)
