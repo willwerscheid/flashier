@@ -1,16 +1,17 @@
 ---
-title: "Empirical Bayes non-negative matrix factorization for scRNA-seq data"
+title: "Empirical Bayes non-negative matrix factorization for single-cell RNA-seq data"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using flashier}
+  %\VignetteIndexEntry{Empirical Bayes non-negative matrix factorization for single-cell RNA-seq data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-The aim of this vignette is show how flashier can be used to analyze
-single-cell RNA-seq data. This vignette is modeled after the
+The aim of this vignette is show how flashier can be used to perform a
+non-negative matrix factorization (NMF) analysis of single-cell
+RNA-seq data. This vignette is modeled after the
 [fastTopics vignette on analyzing single-cell data][fasttopics-vignette].
 
 ```{r knitr-opts, include=FALSE}
@@ -121,8 +122,7 @@ s1 <- sd(log(x + 1))
 Fit a flashier model
 --------------------
 
-Now we can call flash to fit a flashier model to the transformed
-data:
+Now we can call flash to fit an NMF model to the transformed data:
 
 ```{r flash}
 fit <- flash(shifted_log_counts, 
@@ -137,11 +137,12 @@ A few notes about this flash call:
 
 + `ebnm_fn = ebnm_point_exponential` forces both the ${\bf L}$ and
   ${\bf F}$ matrices in flashier to be non-negative, so this call will
-  generate a non-negative matrix factorization (NMF) of the
+  generate a non-negative matrix factorization of the
   (transformed) counts matrix. Other types of matrix factorizations
   can be produced with different choices of the `ebnm_fn` argument;
-  this is explained in detail in the [Introduction to flashier
-  vignette][flashier_intro].
+  this is explained in detail in the
+  [Introduction to flashier vignette][flashier_intro]. See also the
+  notes at the bottom of this vignette.
 
 + `var_type = 2` means that we estimate column-wise (here, gene-wise)
   variances; that is, we estimate a different variance for each column
@@ -172,9 +173,9 @@ Visualizing the cell matrix
 <!-- Each cell in the single-cell data set is represented as a linear
 combination of the $K$ factors. -->
 
-In this non-negative matrix factorization produced by flashier, the
-rows of the ${\bf L}$ matrix contains the estimated "membership
-levels," or "memberships," for each cell. For example:
+In this matrix factorization, the rows of the ${\bf L}$ matrix
+contains the estimated "membership levels," or "memberships," for each
+cell. For example:
 
 ```{r membership-example}
 cell_ids <- c("GATATATGTCAGTG-1-b_cells",
@@ -330,10 +331,27 @@ plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
 plot_change_vs_mean(fit,mu,pbmc_facs$genes$symbol,k = 6)
 ```
 
-Other advice
-------------
+Other notes
+-----------
 
+While we have focussed on NMF, flashier is very flexible, and other
+types of matrix factorizations are possible. One alternative to NMF
+that could potentially reveal other interesting substructures is a
+*semi-non-negative matrix factorization* (semi-NMF). This is achieved
+by assigning different priors to ${\bf L}$ and ${\bf F}$: a prior with
+non-negative support (such as the point-exponential prior) for ${\bf
+L}$; and a prior with support for all real numbers for ${\bf F}$ (such
+as the point-Laplace prior). The call to the "flash" function looks
+the same as above except for the "ebnm_fn" argument:
 
+```{r flash-snmf, eval=FALSE}
+fit_snmf <- flash(shifted_log_counts, 
+                  ebnm_fn = c(ebnm_point_exponential, ebnm_point_laplace),
+                  var_type = 2, 
+                  greedy_Kmax = 8, 
+                  S = s1,
+				  backfit = FALSE)
+```
 
 Session info
 ------------
