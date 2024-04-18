@@ -1,5 +1,5 @@
 ---
-title: "Analysis of single-cell RNA-seq data using flashier"
+title: "Empirical Bayes non-negative matrix factorization for scRNA-seq data"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -129,7 +129,8 @@ fit <- flash(shifted_log_counts,
              ebnm_fn = ebnm_point_exponential,
              var_type = 2, 
              greedy_Kmax = 8, 
-             S = s1)
+             S = s1,
+			 backfit = FALSE)
 ```
 
 A few notes about this flash call:
@@ -149,6 +150,11 @@ A few notes about this flash call:
 + `greedy_Kmax = 8` forces flashier to fit no more than 8 factors. **In
   practice we recommend using a larger value,** but to keep the example
   simple and short we set it to 8 here.
+
++ `backfit = FALSE` skips the backfitting step. Backfitting can often
+  grealy improve the fit, and is generally recommended for better
+  result, but can sometimes take a long time to complete. We have
+  omitted the backfitting step here to shorten the `flash()` call.
 
 The plot method with default settings produces a "scree plot" showing
 the proportion of variance explained by each of the 8 factors:
@@ -323,6 +329,11 @@ plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
 }
 plot_change_vs_mean(fit,mu,pbmc_facs$genes$symbol,k = 6)
 ```
+
+Other advice
+------------
+
+
 
 Session info
 ------------
