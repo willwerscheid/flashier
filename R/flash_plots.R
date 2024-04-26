@@ -375,9 +375,13 @@ flash_plot_heatmap <- function(fl,
                                pm_which = c("factors", "loadings"),
                                pm_subset = NULL,
                                pm_groups = NULL,
-                               pm_colors = c("darkblue", "white", "darkred"),
+                               pm_colors = NULL,
                                gap = 1,
                                ...) {
+  if (is.null(pm_colors)) {
+    pm_colors <- c("darkblue", "white", "darkred")
+  }
+
   # Use flash_plot_structure to get embedding:
   struct_p <- flash_plot_structure(fl = fl,
                                    order_by_pve = order_by_pve,
