@@ -118,6 +118,7 @@ plot.flash <- function(x,
               "have been soft-deprecated and will be removed in a future version ",
               "of flashier. Since 'plot_type' has been specified, 'include_scree' ",
               "and 'include_pm' will be ignored.")
+      plot_type <- match.arg(plot_type)
     } else {
       warning("Please note that parameters 'include_scree' and 'include_pm' ",
               "have been soft-deprecated and will be removed in a future version ",
@@ -131,6 +132,8 @@ plot.flash <- function(x,
         }
       }
     }
+  } else {
+    plot_type <- match.arg(plot_type)
   }
 
   if (plot_type == "scree") {
