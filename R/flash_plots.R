@@ -108,7 +108,7 @@ plot.flash <- function(x,
                                      "heatmap",
                                      "histogram",
                                      "structure",
-                                     "volcano",
+                                     "scatter",
                                      "data.frame"),
                        ...) {
   # TODO: use lifecycle package?
@@ -153,8 +153,8 @@ plot.flash <- function(x,
     ret <- flash_plot_structure(
       x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
-  } else if (plot_type == "volcano") {
-    ret <- flash_plot_volcano(
+  } else if (plot_type == "scatter") {
+    ret <- flash_plot_scatter(
       x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
   } else if (plot_type == "data.frame") {
@@ -410,7 +410,7 @@ flash_plot_heatmap <- function(fl,
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
 #'
-flash_plot_volcano <- function(fl,
+flash_plot_scatter <- function(fl,
                                order_by_pve = FALSE,
                                kset = NULL,
                                pm_which = c("factors", "loadings"),
@@ -460,7 +460,7 @@ flash_plot_volcano <- function(fl,
   }
 
   p <- ggplot(df, aes(x = val, y = mean_exp, color = color)) +
-    geom_point() +
+    geom_point(shape = 1) +
     facet_wrap(~k_order) +
     labs(x = "loading", y = "size factor") +
     theme_cowplot(font_size = 10)
