@@ -8,13 +8,14 @@
   x,
   include_scree = TRUE,
   include_pm = TRUE,
-  order_by_pve = TRUE,
+  order_by_pve = FALSE,
   kset = NULL,
   pm_which = c("factors", "loadings"),
   pm_subset = NULL,
   pm_groups = NULL,
   pm_colors = NULL,
-  plot_type = c("scree", "bar", "heatmap", "histogram", "structure"),
+  plot_type = c("scree", "bar", "heatmap", "histogram", "structure", "volcano",
+    "data.frame"),
   ...
 )
 }

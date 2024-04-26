@@ -97,7 +97,7 @@
 plot.flash <- function(x,
                        include_scree = TRUE,
                        include_pm = TRUE,
-                       order_by_pve = TRUE,
+                       order_by_pve = FALSE,
                        kset = NULL,
                        pm_which = c("factors", "loadings"),
                        pm_subset = NULL,
@@ -107,121 +107,97 @@ plot.flash <- function(x,
                                      "bar",
                                      "heatmap",
                                      "histogram",
-                                     "structure"),
+                                     "structure",
+                                     "volcano",
+                                     "data.frame"),
                        ...) {
-  pm_which <- match.arg(pm_which)
-  plot_type <- match.arg(plot_type)
-
-  if (x$n_factors == 0) {
-    stop("Flash object has no factors, so there is nothing to plot.")
-  }
-
-  if (is.null(kset)) {
-    kset <- 1:x$n_factors
-  } else {
-    must.be.valid.kset(get.fit(x), kset)
-  }
-
-  pve <- x$pve[kset]
-  if (order_by_pve) {
-    k_order <- rank(-pve)
-  } else {
-    k_order <- 1:length(kset)
-  }
-
-  if (plot_type == "scree") {
-    df <- data.frame(
-      k = kset,
-      pve = pve,
-      k_order = k_order
-    )
-  } else {
-    if (pm_which == "factors") {
-      which.dim <- "column"
-      val <- ldf(x, type = "i")$F
-      colnames(val) <- 1:x$n_factors
-    } else {
-      which.dim <- "row"
-      val <- ldf(x, type = "i")$L
-      colnames(val) <- 1:x$n_factors
-    }
-
-    if (is.null(pm_subset)) {
-      pm_subset <- 1:nrow(val)
-    } else if (!all(pm_subset %in% 1:nrow(val)) &&
-               !all(pm_subset %in% rownames(val))) {
-        stop("Argument to pm_subset must be a vector of valid ", which.dim,
-             " indices or valid ", which.dim, " names.")
-    }
-    val <- val[pm_subset, kset, drop = FALSE]
-
-    df <- data.frame(
-      name = rep(rownames(val), ncol(val)),
-      val = as.vector(val),
-      k = rep(kset, each = nrow(val)),
-      pve = rep(pve, each = nrow(val)),
-      k_order = rep(k_order, each = nrow(val))
-    )
-    if (is.null(pm_groups)) {
-      if (!is.null(pm_colors) && plot_type != "structure") {
-        if (length(pm_colors) != nrow(val) || !is.character(pm_colors)) {
-          stop("When 'pm_groups' is NULL, 'pm_colors' must a character vector ",
-               "consisting of one color for each ", which.dim, " in the data ",
-               "(or each subsetted ", which.dim, ").")
-        }
-        df$color <- rep(pm_colors, ncol(val))
-      }
-    } else {
-      if (length(pm_groups) != nrow(val)) {
-        stop("'pm_groups' must be NULL or a vector consisting of one value ",
-             "(numeric or character) for each ", which.dim, " in the data ",
-             "(or each subsetted ", which.dim, ").")
-      }
-      df$group <- rep(pm_groups, ncol(val))
-      if (!is.null(pm_colors) && plot_type != "structure") {
-        if (length(pm_colors) != length(unique(pm_groups))
-            || !is.character(pm_colors)) {
-          stop("When 'pm_groups' is set, 'pm_colors' must be a character vector ",
-               "consisting of one color for each unique value in 'pm_groups'.")
-        }
-      }
-      df$color <- rep(pm_colors[factor(pm_groups)], ncol(val))
-    }
-  }
-
   # TODO: use lifecycle package?
   if (!missing(include_scree) || !missing(include_pm)) {
-    warning("Please note that parameters 'include_scree' and 'include_pm' ",
-            "have been soft-deprecated and will be removed in a future version ",
-            "of flashier. To change the type of plot produced, please specify ",
-            "argument 'plot_type'.")
+    if (!missing(plot_type)) {
+      warning("Please note that parameters 'include_scree' and 'include_pm' ",
+              "have been soft-deprecated and will be removed in a future version ",
+              "of flashier. Since 'plot_type' has been specified, 'include_scree' ",
+              "and 'include_pm' will be ignored.")
+    } else {
+      warning("Please note that parameters 'include_scree' and 'include_pm' ",
+              "have been soft-deprecated and will be removed in a future version ",
+              "of flashier. To change the type of plot produced, please specify ",
+              "argument 'plot_type'.")
+      if (include_pm & !include(include_scree)) {
+        if (is.null(pm_groups)) {
+          plot_type <- "bar"
+        } else {
+          plot_type <- "histogram"
+        }
+      }
+    }
   }
 
   if (plot_type == "scree") {
-    p <- plot_scree(df)
+    ret <- flash_plot_scree(
+      x, order_by_pve, kset
+    )
   } else if (plot_type == "bar") {
-    p <- plot_bar(df, pm_which)
+    ret <- flash_plot_bar(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors
+    )
   } else if (plot_type == "heatmap") {
-    p <- plot_heatmap(df, pm_which, ...)
+    ret <- flash_plot_heatmap(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
+    )
   } else if (plot_type == "histogram") {
-    p <- plot_histogram(df, pm_which)
+    ret <- flash_plot_histogram(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
+    )
   } else if (plot_type == "structure") {
-    p <- plot_structure(df, pm_which, pm_colors, ...)
+    ret <- flash_plot_structure(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
+    )
+  } else if (plot_type == "volcano") {
+    ret <- flash_plot_volcano(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
+    )
+  } else if (plot_type == "data.frame") {
+    ret <- flash_plot_dataframe(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors
+    )
   }
 
-  return(p)
+  return(ret)
 }
 
 #' @importFrom ggplot2 ggplot aes geom_line geom_point
-#' @importFrom ggplot2 scale_x_continuous scale_y_log10
-#' @importFrom ggplot2 labs theme_minimal
+#' @importFrom ggplot2 scale_x_continuous scale_y_log10 labs
+#' @importFrom dplyr group_by summarize
+#' @importFrom cowplot theme_cowplot
 #'
-plot_scree <- function(df) {
+flash_plot_scree <- function(fl,
+                             order_by_pve = FALSE,
+                             kset = NULL) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = "factors",
+                             pm_subset = NULL,
+                             pm_groups = NULL,
+                             pm_colors = NULL)
+  df <- df |>
+    group_by(k_order, pve) |>
+    summarize(.groups = "drop")
+
   # Bind variables to get rid of annoying R CMD check note:
   pve <- k_order <- NULL
 
+  p <- ggplot(df) +
+    geom_line(aes(x = k_order, y = pve), color = "grey") +
+    geom_point(aes(x = k_order, y = pve), color = "dodgerblue") +
+    scale_y_log10() +
+    labs(title = "Scree plot") +
+    labs(x = "k", y = "PVE") +
+    theme_cowplot(font_size = 10)
+
   # Include ~4 x-axis ticks with the distance a multiple of 5:
-  K <- nrow(df)
+  K <- length(unique(df$k_order))
   if (K < 5) {
     tick_dist <- 1
   } else if (K < 10) {
@@ -229,22 +205,33 @@ plot_scree <- function(df) {
   } else {
     tick_dist <- max(1, floor(K / 20)) * 5
   }
-  p <- ggplot(df) +
-    geom_line(aes(x = k_order, y = pve), color = "grey") +
-    geom_point(aes(x = k_order, y = pve), color = "dodgerblue") +
-    scale_x_continuous(breaks = seq(tick_dist, K, by = tick_dist)) +
-    scale_y_log10() +
-    labs(title = "Proportion of variance explained per factor") +
-    labs(x = "k", y = "PVE") +
-    theme_minimal()
+
+  p <- p +
+    scale_x_continuous(breaks = seq(tick_dist, K, by = tick_dist))
+
   return(p)
 }
 
 #' @importFrom ggplot2 ggplot aes geom_col
 #' @importFrom ggplot2 scale_fill_identity
-#' @importFrom ggplot2 facet_wrap theme_minimal element_blank
+#' @importFrom ggplot2 facet_wrap element_blank
+#' @importFrom cowplot theme_cowplot
 #'
-plot_bar <- function(df, pm_which) {
+flash_plot_bar <- function(fl,
+                           order_by_pve = FALSE,
+                           kset = NULL,
+                           pm_which = c("factors", "loadings"),
+                           pm_subset = NULL,
+                           pm_groups = NULL,
+                           pm_colors = NULL) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = pm_which,
+                             pm_subset = pm_subset,
+                             pm_groups = pm_groups,
+                             pm_colors = pm_colors)
+
   # Bind variables to get rid of annoying R CMD check note:
   name <- val <- color <- k_order <- NULL
 
@@ -258,10 +245,118 @@ plot_bar <- function(df, pm_which) {
   }
   p <- p +
     facet_wrap(~k_order) +
-    theme_minimal() +
+    theme_cowplot(font_size = 10) +
     theme(axis.text = element_blank()) +
-    labs(title = paste0("Posterior means for ", pm_which)) +
+    theme(axis.ticks.x = element_blank()) +
+    labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "")
+  return(p)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_histogram after_stat
+#' @importFrom ggplot2 scale_fill_brewer scale_color_brewer
+#' @importFrom ggplot2 scale_fill_identity scale_color_identity
+#' @importFrom ggplot2 facet_wrap geom_vline
+#' @importFrom ggplot2 theme element_blank
+#' @importFrom ggplot2 guides labs
+#' @importFrom cowplot theme_cowplot
+#' @importFrom stats density
+#'
+flash_plot_histogram <- function(fl,
+                                 order_by_pve = FALSE,
+                                 kset = NULL,
+                                 pm_which = c("factors", "loadings"),
+                                 pm_subset = NULL,
+                                 pm_groups = NULL,
+                                 pm_colors = NULL,
+                                 bins = 20,
+                                 alpha = 0.5) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = pm_which,
+                             pm_subset = pm_subset,
+                             pm_groups = pm_groups,
+                             pm_colors = if (is.null(pm_groups)) NULL else pm_colors)
+
+  # Bind variables to get rid of annoying R CMD check note:
+  val <- group <- color <- k_order <- NULL
+
+  if (is.null(df$group)) {
+    p <- ggplot(df, aes(x = val, y = after_stat(density))) +
+      geom_histogram(position = "identity", bins = bins, fill = "dodgerblue")
+  } else {
+    p <- ggplot(df, aes(x = val, y = after_stat(density),
+                        color = color, fill = color)) +
+      geom_histogram(position = "identity", bins = bins, alpha = alpha) +
+      scale_color_identity() +
+      scale_fill_identity()
+  }
+
+  p <- p +
+    facet_wrap(~k_order, scales = "free_y") +
+    geom_vline(xintercept = 0, color = "darkgrey") +
+    theme_cowplot(font_size = 10) +
+    theme(axis.text = element_blank()) +
+    guides(color = "none") +
+    labs(title = paste0("Posterior means (", pm_which, ")")) +
+    labs(x = "", y = "", fill = "Group")
+  return(p)
+}
+
+#' @importFrom ggplot2 labs
+#' @importFrom fastTopics structure_plot
+#'
+flash_plot_structure <- function(fl,
+                                 order_by_pve = FALSE,
+                                 kset = NULL,
+                                 pm_which = c("factors", "loadings"),
+                                 pm_subset = NULL,
+                                 pm_groups = NULL,
+                                 pm_colors = NULL,
+                                 gap = 1,
+                                 ...) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = pm_which,
+                             pm_subset = pm_subset,
+                             pm_groups = pm_groups,
+                             pm_colors = NULL)
+
+  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
+  colnames(Lmat) <- paste0("k", unique(df$k))
+  if (!is.null(df$group)) {
+    group <- df$group[1:nrow(Lmat)]
+  } else {
+    group <- rep("", nrow(Lmat))
+  }
+
+  if (is.null(pm_colors)) {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        gap = gap,
+                        ...)
+  } else {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        colors = pm_colors,
+                        gap = gap,
+                        ...)
+  }
+
+  if (any(df$val < 0) && any(df$val > 0)) {
+    warning("Structure plots were designed to visualize sets of nonnegative ",
+            "memberships or loadings. Structure plots that include negative ",
+            "loadings are often difficult to interpret, so a heatmap should ",
+            "typically be preferred when visualizing a combination of negative ",
+            "and positive loadings.")
+  }
+
+  p <- p +
+    labs(y = "loading", color = "factor", fill = "factor")
   return(p)
 }
 
@@ -271,9 +366,25 @@ plot_bar <- function(df, pm_which) {
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
 #'
-plot_heatmap <- function(df, pm_which, ...) {
-  # Use plot_structure to get embedding:
-  struct_p <- plot_structure(df, pm_which, rep("black", nrow(df)), ...)
+flash_plot_heatmap <- function(fl,
+                               order_by_pve = FALSE,
+                               kset = NULL,
+                               pm_which = c("factors", "loadings"),
+                               pm_subset = NULL,
+                               pm_groups = NULL,
+                               pm_colors = c("darkblue", "white", "darkred"),
+                               gap = 1,
+                               ...) {
+  # Use flash_plot_structure to get embedding:
+  struct_p <- flash_plot_structure(fl = fl,
+                                   order_by_pve = order_by_pve,
+                                   kset = kset,
+                                   pm_which = pm_which,
+                                   pm_subset = pm_subset,
+                                   pm_groups = pm_groups,
+                                   pm_colors = NULL,
+                                   gap = gap,
+                                   ...)
   struct_df <- struct_p$data
 
   # Retrieve group information:
@@ -284,87 +395,189 @@ plot_heatmap <- function(df, pm_which, ...) {
 
   p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
     geom_tile(width = 0.8) +
-    scale_fill_gradient2(low = "darkred", mid = "white", high = "darkblue") +
+    scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
     scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
-    labs(x = "factor", y = "", fill = "membership") +
+    labs(x = "factor", y = "", fill = "loading") +
     theme_cowplot(font_size = 10)
   return(p)
 }
 
-#' @importFrom ggplot2 ggplot aes geom_histogram after_stat
-#' @importFrom ggplot2 scale_fill_brewer scale_color_brewer
-#' @importFrom ggplot2 scale_fill_identity scale_color_identity
-#' @importFrom ggplot2 facet_wrap geom_vline
-#' @importFrom ggplot2 theme theme_minimal element_blank
-#' @importFrom ggplot2 guides labs
+#' @importFrom ggplot2 ggplot aes geom_point
+#' @importFrom ggplot2 scale_color_identity
+#' @importFrom ggplot2 facet_wrap labs
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom dplyr group_by mutate summarize arrange left_join
+#' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
 #'
-plot_histogram <- function(df, pm_which) {
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k_order <- NULL
+flash_plot_volcano <- function(fl,
+                               order_by_pve = FALSE,
+                               kset = NULL,
+                               pm_which = c("factors", "loadings"),
+                               pm_subset = NULL,
+                               pm_groups = NULL,
+                               pm_colors = NULL,
+                               n_labels = 0,
+                               label_size = 3,
+                               ...) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = pm_which,
+                             pm_subset = pm_subset,
+                             pm_groups = pm_groups,
+                             pm_colors = pm_colors)
 
-  if (is.null(df$group)) {
-    p <- ggplot(df, aes(x = val, y = after_stat(density))) +
-      geom_histogram(position = "identity", bins = 20, fill = "dodgerblue")
+  fl <- flash_fit(fl)
+  Y <- get.Y(fl)
+  if (match.arg(pm_which) == "loadings") {
+    n <- 1
+    other_n <- 2
+    which_dim <- "row"
   } else {
-    p <- ggplot(df, aes(x = val, y = after_stat(density),
-                        color = color, fill = color)) +
-      geom_histogram(position = "identity", bins = 20, alpha = 0.5)
+    n <- 2
+    other_n <- 1
+    which_dim <- "column"
+  }
+  dimsums <- nmode.prod.r1(Y, r1.ones(fl), n)
+  dimmeans <- dimsums / get.data.dims(Y)[other_n]
+  mean_df <- data.frame(
+    name = get.data.dimnames(Y)[[n]],
+    mean_exp = dimmeans
+  )
+  df <- df |>
+    left_join(mean_df, by = "name")
 
-    if (is.null(df$color)) {
-      if (length(unique(df$group)) > 9) {
-        warning("Consider reducing the number of groups or defining a ",
-                " custom color palette via 'pm_colors' to produce a more readable ",
-                "plot.")
-      } else {
-        p <- p +
-          scale_color_brewer(palette = "Set1") +
-          scale_fill_brewer(palette = "Set1")
-      }
-    } else {
-      p <- p +
-        scale_color_identity() +
-        scale_fill_identity()
-    }
+  if (is.null(df$color)) {
+    df$color = "black"
   }
 
-  p <- p +
-    facet_wrap(~k_order, scales = "free_y") +
-    geom_vline(xintercept = 0, color = "darkgrey") +
-    theme_minimal() +
-    theme(axis.text = element_blank()) +
-    guides(color = "none") +
-    labs(title = paste0("Posterior means for ", pm_which)) +
-    labs(x = "", y = "", fill = "Group")
+  if (n_labels > 0) {
+    df <- df |>
+      group_by(k_order) |>
+      mutate(label = ifelse(rank(-abs(val)) > n_labels, "", name),
+             color = ifelse(label != "", "dodgerblue", "gray80"))
+  }
+
+  p <- ggplot(df, aes(x = val, y = mean_exp, color = color)) +
+    geom_point() +
+    facet_wrap(~k_order) +
+    labs(x = "loading", y = "size factor") +
+    theme_cowplot(font_size = 10)
+
+  if (is.null(pm_groups)) {
+    p <- p +
+      scale_color_identity()
+  } else {
+    color_df <- df |>
+      group_by(group, color) |>
+      summarize(.groups = "drop") |>
+      arrange(group)
+    p <- p +
+      scale_color_identity(guide = "legend",
+                           name = "",
+                           labels = color_df$group,
+                           breaks = color_df$color)
+  }
+
+  if (n_labels > 0) {
+    p <- p +
+      geom_text_repel(aes(label = label),
+                      size = label_size,
+                      ...)
+  }
+
   return(p)
 }
 
-#' @importFrom ggplot2 labs
-#' @importFrom fastTopics structure_plot
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom Polychrome kelly.colors
 #'
-plot_structure <- function(df, pm_which, pm_colors, ...) {
-  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
-  colnames(Lmat) <- paste0("k", unique(df$k))
-  if (!is.null(df$group)) {
-    group <- df$group[1:nrow(Lmat)]
-  } else {
-    group <- rep("", nrow(Lmat))
+flash_plot_dataframe <- function(fl,
+                                 order_by_pve = FALSE,
+                                 kset = NULL,
+                                 pm_which = c("factors", "loadings"),
+                                 pm_subset = NULL,
+                                 pm_groups = NULL,
+                                 pm_colors = NULL) {
+  if (fl$n_factors == 0) {
+    stop("Flash object has no factors, so there is nothing to plot.")
   }
-  if (is.null(pm_colors)) {
-    p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
-                        grouping = group,
-                        ...)
+
+  pm_which <- match.arg(pm_which)
+
+  if (is.null(kset)) {
+    kset <- 1:fl$n_factors
   } else {
-    p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
-                        grouping = group,
-                        colors = pm_colors,
-                        ...)
+    must.be.valid.kset(get.fit(fl), kset)
   }
-  p <- p +
-    labs(y = "membership", color = "factor", fill = "factor")
-  return(p)
+
+  pve <- fl$pve[kset]
+  if (order_by_pve) {
+    k_order <- rank(-pve)
+  } else {
+    k_order <- 1:length(kset)
+  }
+
+  if (pm_which == "factors") {
+    which.dim <- "column"
+    val <- ldf(fl, type = "i")$F
+    colnames(val) <- 1:fl$n_factors
+  } else {
+    which.dim <- "row"
+    val <- ldf(fl, type = "i")$L
+    colnames(val) <- 1:fl$n_factors
+  }
+
+  if (is.null(pm_subset)) {
+    pm_subset <- 1:nrow(val)
+  } else if (!all(pm_subset %in% 1:nrow(val)) &&
+             !all(pm_subset %in% rownames(val))) {
+    stop("Argument to pm_subset must be a vector of valid ", which.dim,
+         " indices or valid ", which.dim, " names.")
+  }
+  val <- val[pm_subset, kset, drop = FALSE]
+
+  df <- data.frame(
+    name = rep(rownames(val), ncol(val)),
+    val = as.vector(val),
+    k = rep(kset, each = nrow(val)),
+    pve = rep(pve, each = nrow(val)),
+    k_order = rep(k_order, each = nrow(val))
+  )
+  if (is.null(pm_groups)) {
+    if (!is.null(pm_colors)) {
+      if (length(pm_colors) != nrow(val) || !is.character(pm_colors)) {
+        stop("When 'pm_groups' is NULL, 'pm_colors' must a character vector ",
+             "consisting of one color for each ", which.dim, " in the data ",
+             "(or each subsetted ", which.dim, ").")
+      }
+      df$color <- rep(pm_colors, ncol(val))
+    }
+  } else {
+    if (length(pm_groups) != nrow(val)) {
+      stop("'pm_groups' must be NULL or a vector consisting of one value ",
+           "(numeric or character) for each ", which.dim, " in the data ",
+           "(or each subsetted ", which.dim, ").")
+    }
+    df$group <- rep(pm_groups, ncol(val))
+    n_colors <- length(unique(pm_groups))
+    if (!is.null(pm_colors)) {
+      if (length(pm_colors) != n_colors || !is.character(pm_colors)) {
+        stop("When 'pm_groups' is set, 'pm_colors' must be a character vector ",
+             "consisting of one color for each unique value in 'pm_groups'.")
+      }
+    } else {
+      if (n_colors < 10) {
+        pm_colors <- brewer.pal(n_colors, "Set1")
+      } else {
+        pm_colors <- rep(kelly.colors(22)[-1], length.out = n_colors)
+      }
+    }
+    df$color <- rep(pm_colors[factor(pm_groups)], ncol(val))
+  }
+
+  return(df)
 }
 
 
