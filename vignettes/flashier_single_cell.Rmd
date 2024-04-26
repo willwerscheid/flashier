@@ -1,16 +1,17 @@
 ---
-title: "Analysis of single-cell RNA-seq data using flashier"
+title: "Empirical Bayes non-negative matrix factorization for single-cell RNA-seq data"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Analysis of single-cell RNA-seq data using flashier}
+  %\VignetteIndexEntry{Empirical Bayes non-negative matrix factorization for single-cell RNA-seq data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-The aim of this vignette is show how flashier can be used to analyze
-single-cell RNA-seq data. This vignette is modeled after the
+The aim of this vignette is show how flashier can be used to perform a
+non-negative matrix factorization (NMF) analysis of single-cell
+RNA-seq data. This vignette is modeled after the
 [fastTopics vignette on analyzing single-cell data][fasttopics-vignette].
 
 ```{r knitr-opts, include=FALSE}
@@ -28,8 +29,8 @@ library(reshape)
 library(flashier)
 library(fastTopics)
 library(ggplot2)
+library(ggrepel)
 library(cowplot)
-library(RColorBrewer)
 set.seed(3)
 ```
 
@@ -47,8 +48,8 @@ counts <- pbmc_facs$counts
 dim(counts)
 ```
 
-(Note that other R packages, for example Seurat, use the convention
-that rows are genes and columns are cells.)
+(Note that other R packages, for example [Seurat][seurat], use the
+convention that rows are genes and columns are cells.)
 
 Since the flashier model, like other linear-model-based methods (e.g.,
 principal components analysis), was not designed for count data, it is
@@ -90,7 +91,7 @@ shifted_log_counts <- log1p(counts / (a * size_factors))
 
 Note that, since the counts are sparse, we could have performed this
 transformation more efficiently using, for example, the "mapSparse"
-function from [the MatrixExtra package][matrixextra].
+function from [MatrixExtra][matrixextra].
 
 Variance regularization
 -----------------------
@@ -121,26 +122,27 @@ s1 <- sd(log(x + 1))
 Fit a flashier model
 --------------------
 
-Now we can call flash to fit a flashier model to the transformed
-data:
+Now we can call flash to fit an NMF model to the transformed data:
 
 ```{r flash}
 fit <- flash(shifted_log_counts, 
              ebnm_fn = ebnm_point_exponential,
              var_type = 2, 
              greedy_Kmax = 8, 
-             S = s1)
+             S = s1,
+			 backfit = FALSE)
 ```
 
 A few notes about this flash call:
 
 + `ebnm_fn = ebnm_point_exponential` forces both the ${\bf L}$ and
   ${\bf F}$ matrices in flashier to be non-negative, so this call will
-  generate a non-negative matrix factorization (NMF) of the
+  generate a non-negative matrix factorization of the
   (transformed) counts matrix. Other types of matrix factorizations
   can be produced with different choices of the `ebnm_fn` argument;
-  this is explained in detail in the "Introduction to flashier"
-  vignette.
+  this is explained in detail in the
+  [Introduction to flashier vignette][flashier_intro]. See also the
+  notes at the bottom of this vignette.
 
 + `var_type = 2` means that we estimate column-wise (here, gene-wise)
   variances; that is, we estimate a different variance for each column
@@ -150,25 +152,32 @@ A few notes about this flash call:
   practice we recommend using a larger value,** but to keep the example
   simple and short we set it to 8 here.
 
-The default `plot` method produces a scree plot showing the proportion of
-variance explained by each of the $K = 8$ fitted factors: 
++ `backfit = FALSE` skips the backfitting step. Backfitting can often
+  grealy improve the fit, and is generally recommended for better
+  result. (And indeed backfitting noticeably improves the fit for
+  these data.) On the other hand, backfitting can sometimes take a
+  long time to complete, so have omitted the backfitting step here to
+  shorten the computational effort involved.
 
-```{r scree, fig.height=2, fig.width=6, results="hide", message=FALSE}
+The plot method with default settings produces a "scree plot" showing
+the proportion of variance explained by each of the 8 factors:
+
+```{r scree-plot, fig.height=2, fig.width=3}
 plot(fit, order_by_pve = FALSE)
 ```
 
-We note that factors 7 and 8 explain a very small proportion of variation and probably
-offer little insight.
+Factors 7 and 8 explain a very small proportion of variation (and
+probably offer little insight into the biology of these cells).
 
-
-Visualizing the memberships
+Visualizing the cell matrix
 ---------------------------
 
 <!-- Each cell in the single-cell data set is represented as a linear
 combination of the $K$ factors. -->
 
-The estimated "membership levels," or "memberships," are stored in the
-${\bf L}$ matrix. For example:
+In this matrix factorization, the rows of the ${\bf L}$ matrix
+contains the estimated "membership levels," or "memberships," for each
+cell. For example:
 
 ```{r membership-example}
 cell_ids <- c("GATATATGTCAGTG-1-b_cells",
@@ -195,77 +204,71 @@ represented as a bar of a different color, and the bar heights are
 given by the membership levels. 
 
 ```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
+factor_colors <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
+                   "#ffff33","#a65628","#f781bf")
 plot(fit, 
      order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     pm_colors = brewer.pal(8, "Set1"),
+     pm_colors = factor_colors,
      plot_type = "structure",
-     gap = 20,
-     verbose = FALSE)
+     gap = 25)
 ```
 
-The bottom factor k1 is present in all cell types, 
-and is likely capturing a "baseline" level of expression throughout. 
-To focus on differences
-between cell types, let's remove this first factor from our
-structure plot:
+Factor 1 ("k1" in the legend) is present in all cell types, and is
+likely capturing a "baseline" level of expression throughout.  To
+focus on differences between cell types, let's remove this first
+factor from our structure plot:
 
 ```{r structure-plot-2, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
      kset = 2:8,
      order_by_pve = FALSE,
+     pm_colors = factor_colors[-1],
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     pm_colors = brewer.pal(8, "Set1")[2:8],
      plot_type = "structure",
-     gap = 20,
-     verbose = FALSE)
+     gap = 25)
 ```
   
-It is clear from this plot that factors 2 through 6
-are capturing, respectively, natural killer (NK) cells, CD14+ cells,
-CD34+ cells, T cells and B cells. There is also more subtle structure
-captured by the memberships, such as the subset of T cells with mixed
-memberships (factors 2 and 5, colored blue and orange in the plot),
-which suggest a subpopulation that is intermediate between
-"pure" T and "pure" NK cells. It is also interesting to note the
-subset of CD34+ cells that are primarily loaded on factor 3
-(green); some of these cells may be mislabeled.
-
-
-<!--```{r inspect-loadings}
-colSums(res$L > 0.01)
-```-->
-
-<!-- Others may have a hybrid function. -->
+It is clear from this plot that factors 2 through 6 ("k2" through "k6"
+in the legend) are capturing, respectively, natural killer (NK) cells,
+CD14+ cells, CD34+ cells, T cells and B cells. There is also more
+subtle structure captured by the memberships, such as the subset of T
+cells with mixed memberships (factors 2 and 5) which suggests a
+subpopulation that is intermediate between "pure" T and "pure" NK
+cells. It is also interesting to note the subset of CD34+ cells that
+are primarily loaded on factor 3; some of these cells may be
+mislabeled.
   
-We can also visualize the memberships with a heatmap:
+We can also visualize the cell matrix with a heatmap:
 
-```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE}
+```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE, results="hide"}
 plot(fit, 
      order_by_pve = FALSE,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
      plot_type = "heatmap",
-     gap = 50,
-     verbose = FALSE)
+     gap = 25)
 ```
 
-Interpreting the factors by looking at changes in expression
-------------------------------------------------------------
+Visualizing the gene matrix
+---------------------------
 
 Above, we used the provided cell labels to interpret five of the
 factors as capturing distinct cell types (B cells, T cells,
 etc). However, one might not always have cell labels, or the existing
 cell labels may not be informative for the factors. We can also look
-to the ${\bf F}$ matrix for interpreting the factors.
+to the ${\bf F}$ matrix—the "gene matrix"—for interpreting the
+factors.
 
-The ${\bf F}$ matrix contains the estimated changes in expression,
-specifically changes in expression on the log scale (multiplicative
-changes). (The exception to this is the first factor, which in this
-example is capturing a "baseline" level of expression.) Intuitively,
-genes that were estimated to have the largest increases in expression
+The gene matrix contains estimates of gene expression changes.
+Because these estimates are based on the shifted log counts, more
+precisely they are *changes in the shifted log-expression.* The first
+factor captures a "baseline" level of expression, so, broadly
+speaking, we interpret these changes relative to this baseline.
+
+Genes that were estimated to have the largest increases in expression
 might give the most helpful clues about the underlying biology. For
 example, many of the genes with the largest expression increases in
 factor 6 are also genes characteristic of B cells:
@@ -302,13 +305,55 @@ plot_top_genes(F[,2:6])
 ```
 
 Indeed, this approach reveals genes characteristic of the other cell
-types (e.g., GNLY for NK cells, S100A9 for CD14+ cells), although not
+types (e.g., *GNLY* for NK cells, *S100A9* for CD14+ cells), although not
 always; for example, some genes show large expression increases more
 than one factor.
 
-We caution that while this simple rule-of-thumb—annotating the factors
-by the genes with the largest increases in expression—worked well
-in this example, it may not always be helpful.
+While selecting genes with the largest expression increases appears to
+work well here, in other settings there may be more effective approaches.
+
+Plot of mean vs. change for factor 6 ("B cells"), with top 10 genes
+(by largest increase):
+
+```{r plot-change-vs-mean, fig.height=3, fig.width=3}
+mu <- colMeans(shifted_log_counts)
+plot_change_vs_mean <- function (fit, mu, genes, k = 1, n = 10) {
+  pdat <- data.frame(mean = mu,change = ldf(fit)$F[,k],gene = genes)
+  rows <- order(pdat$change,decreasing = TRUE)
+  rows <- rows[1:n]
+  pdat[-rows,"gene"] <- ""
+  return(ggplot(pdat,aes(x = change,y = mean,label = gene)) +
+         geom_point(shape = 1,color = "dodgerblue") +
+         geom_text_repel(color = "black",size = 2.5,max.overlaps = Inf) +
+		 labs(x = "increase in shifted log-expression",
+		      y = "mean shifted log-expression",
+			  title = paste("factor",k)) +
+	     theme_cowplot(font_size = 10))
+}
+plot_change_vs_mean(fit,mu,pbmc_facs$genes$symbol,k = 6)
+```
+
+Other notes
+-----------
+
+While we have focussed on NMF, flashier is very flexible, and other
+types of matrix factorizations are possible. One alternative to NMF
+that could potentially reveal other interesting substructures is a
+*semi-non-negative matrix factorization* (semi-NMF). This is achieved
+by assigning different priors to ${\bf L}$ and ${\bf F}$: a prior with
+non-negative support (such as the point-exponential prior) for ${\bf
+L}$; and a prior with support for all real numbers for ${\bf F}$ (such
+as the point-Laplace prior). The call to the "flash" function looks
+the same as above except for the "ebnm_fn" argument:
+
+```{r flash-snmf, eval=FALSE}
+fit_snmf <- flash(shifted_log_counts, 
+                  ebnm_fn = c(ebnm_point_exponential, ebnm_point_laplace),
+                  var_type = 2, 
+                  greedy_Kmax = 8, 
+                  S = s1,
+				  backfit = FALSE)
+```
 
 Session info
 ------------
@@ -320,6 +365,8 @@ these results.
 sessionInfo()
 ```
 
+[flashier_intro]: https://willwerscheid.github.io/flashier/articles/flashier_intro.html
+[seurat]: https://github.com/satijalab/seurat
 [matrixextra]: https://github.com/david-cortes/MatrixExtra
 [zheng-2017]: https://doi.org/10.1038/ncomms14049
 [fasttopics-vignette]: https://stephenslab.github.io/fastTopics/articles/single_cell_rnaseq_basic.html
