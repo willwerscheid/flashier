@@ -2,7 +2,7 @@ Package: flashier
 Type: Package
 Date: 2024-04-27
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.31
+Version: 1.0.32
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -16,7 +16,7 @@ BugReports: https://github.com/willwerscheid/flashier/issues
 Description: Methods for matrix factorization based on Wang and Stephens (2021) 
     <https://jmlr.org/papers/v22/20-589.html>.
 Depends: 
-    R (>= 3.4),
+    R (>= 4.1),
     ebnm (>= 0.1-21),    
     magrittr
 Imports:
