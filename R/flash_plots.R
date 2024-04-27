@@ -379,7 +379,7 @@ flash_plot_heatmap <- function(fl,
                                gap = 1,
                                ...) {
   if (is.null(pm_colors)) {
-    pm_colors <- c("darkblue", "white", "darkred")
+    pm_colors <- c("darkred", "white", "darkblue")
   }
 
   # Use flash_plot_structure to get embedding:
@@ -468,9 +468,15 @@ flash_plot_scatter <- function(fl,
 
   p <- ggplot(df, aes(x = val, y = mean_exp, color = color)) +
     geom_point(shape = 1) +
-    facet_wrap(~k_order) +
-    labs(x = "loading", y = "size factor") +
+    labs(x = "loading", y = paste(which_dim, "mean")) +
     theme_cowplot(font_size = 10)
+
+  if (length(kset) > 1) {
+    # TODO: fix labels
+    p <- p +
+      facet_wrap(~k_order)
+  }
+
 
   if (is.null(pm_groups)) {
     p <- p +
