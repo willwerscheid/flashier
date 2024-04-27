@@ -13,16 +13,6 @@
 #' @param include_pm This parameter has been soft-deprecated; please use
 #'   \code{plot_type} instead.
 #'
-#'   Whether to include a figure showing the posterior means for
-#'   either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
-#'   parameter \code{pm_which}). One plot panel is produced for each
-#'   factor/loadings pair \eqn{k}. If argument \code{pm_groups}
-#'   is left unspecified, then bar plots will be produced, with each bar
-#'   corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
-#'   Otherwise, overlapping histograms will be
-#'   produced, with each histogram corresponding to one of the groups
-#'   specified by \code{pm_groups}.
-#'
 #' @param order_by_pve If \code{TRUE}, then the factor/loadings pairs will be
 #'   re-ordered according to proportion of variance explained (from
 #'   highest to lowest).
@@ -80,10 +70,8 @@
 #'       sense.}
 #'   }
 #'
-#' @param ... Additional parameters to be passed to function
-#'   \code{\link[fastTopics]{structure_plot}} when \code{plot_type} is
-#'   \code{"heatmap"} or \code{"structure"}. In particular, the \code{gap}
-#'   parameter is useful for establishing visual separation among groups.
+#' @param ... Additional parameters to be passed to particular
+#'   \code{flash_plot_xxx} functions. See individual functions for details.
 #'
 #' @return If arguments \code{include_scree} and \code{include_pm} specify that
 #'   only one figure be produced, then \code{plot.flash()} returns a
@@ -138,7 +126,7 @@ plot.flash <- function(x,
 
   if (plot_type == "scree") {
     ret <- flash_plot_scree(
-      x, order_by_pve, kset
+      x, order_by_pve, kset, ...
     )
   } else if (plot_type == "bar") {
     ret <- flash_plot_bar(
@@ -169,14 +157,39 @@ plot.flash <- function(x,
   return(ret)
 }
 
+#' Create a scree plot for a flash fit
+#'
+#' A scree plot is a line plot showing the proportion of variance explained by
+#'   each factor/loadings pair in a flash fit. Note that since EBMF does not
+#'   require factors and loadings to be orthogonal, "PVE" should be
+#'   interpreted loosely: for example, the total proportion of variance
+#'   explained could be larger than 1.
+#'
+#' Unlike scree plots for PCA, a scree plot for a flash fit is not in general
+#'   monotonically decreasing. To ensure a monotonically decreasing scree
+#'   plot, set \code{order_by_pve = TRUE}. Note, however, that if this is done
+#'   then the numbers on the \eqn{x}-axis will no longer match the indices of
+#'   the components in the flash fit. This can also be true if argument
+#'   \code{kset} has been specified. Thus one should consider setting
+#'   \code{labels = TRUE} when \code{order_by_pve = TRUE} or when \code{kset}
+#'   has been specified.
+#'
+#' @inheritParams plot.flash
+#'
+#' @param labels Whether to label the points in the scree plot with the
+#'   indices of the factor/loading pairs they correspond to. Labels appear
+#'   as "k1", "k2", "k3", etc.
+#'
+#' @importFrom dplyr group_by summarize
 #' @importFrom ggplot2 ggplot aes geom_line geom_point
 #' @importFrom ggplot2 scale_x_continuous scale_y_log10 labs
-#' @importFrom dplyr group_by summarize
 #' @importFrom cowplot theme_cowplot
+#' @importFrom ggrepel geom_text_repel
 #'
 flash_plot_scree <- function(fl,
                              order_by_pve = FALSE,
-                             kset = NULL) {
+                             kset = NULL,
+                             labels = FALSE) {
   df <- flash_plot_dataframe(fl = fl,
                              order_by_pve = order_by_pve,
                              kset = kset,
@@ -185,18 +198,17 @@ flash_plot_scree <- function(fl,
                              pm_groups = NULL,
                              pm_colors = NULL)
   df <- df |>
-    group_by(k_order, pve) |>
+    group_by(k_order, pve, k) |>
     summarize(.groups = "drop")
 
   # Bind variables to get rid of annoying R CMD check note:
-  pve <- k_order <- NULL
+  k_order <- pve <- k <- NULL
 
-  p <- ggplot(df) +
-    geom_line(aes(x = k_order, y = pve), color = "grey") +
-    geom_point(aes(x = k_order, y = pve), color = "dodgerblue") +
+  p <- ggplot(df, aes(x = k_order, y = pve)) +
+    geom_line(color = "grey") +
+    geom_point(color = "dodgerblue") +
     scale_y_log10() +
-    labs(title = "Scree plot") +
-    labs(x = "k", y = "PVE") +
+    labs(title = "Scree plot", x = "k", y = "PVE") +
     theme_cowplot(font_size = 10)
 
   # Include ~4 x-axis ticks with the distance a multiple of 5:
@@ -208,9 +220,14 @@ flash_plot_scree <- function(fl,
   } else {
     tick_dist <- max(1, floor(K / 20)) * 5
   }
-
   p <- p +
     scale_x_continuous(breaks = seq(tick_dist, K, by = tick_dist))
+
+  if (labels) {
+    p <- p +
+      geom_text_repel(aes(label = paste0("k", k))) +
+      theme(axis.text.x = element_blank())
+  }
 
   return(p)
 }

@@ -26,17 +26,7 @@
 \code{plot_type} instead.}
 
 \item{include_pm}{This parameter has been soft-deprecated; please use
-  \code{plot_type} instead.
-
-  Whether to include a figure showing the posterior means for
-  either loadings \eqn{L} or factors \eqn{F} (depending on the argument to
-  parameter \code{pm_which}). One plot panel is produced for each
-  factor/loadings pair \eqn{k}. If argument \code{pm_groups}
-  is left unspecified, then bar plots will be produced, with each bar
-  corresponding to a single value \eqn{\ell_{ik}} or \eqn{f_{jk}}.
-  Otherwise, overlapping histograms will be
-  produced, with each histogram corresponding to one of the groups
-  specified by \code{pm_groups}.}
+\code{plot_type} instead.}
 
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
@@ -95,10 +85,8 @@ effects, see parameter \code{plot_type}.}
     sense.}
 }}
 
-\item{...}{Additional parameters to be passed to function
-\code{\link[fastTopics]{structure_plot}} when \code{plot_type} is
-\code{"heatmap"} or \code{"structure"}. In particular, the \code{gap}
-parameter is useful for establishing visual separation among groups.}
+\item{...}{Additional parameters to be passed to particular
+\code{flash_plot_xxx} functions. See individual functions for details.}
 }
 \value{
 If arguments \code{include_scree} and \code{include_pm} specify that
