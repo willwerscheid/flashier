@@ -18,6 +18,9 @@ plotted. If \code{kset = NULL}, then all will be plotted.}
 indices of the factor/loading pairs they correspond to. Labels appear
 as "k1", "k2", "k3", etc.}
 }
+\value{
+A \code{ggplot2} object.
+}
 \description{
 A scree plot is a line plot showing the proportion of variance explained by
   each factor/loadings pair in a flash fit. Note that since EBMF does not

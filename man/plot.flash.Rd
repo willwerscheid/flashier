@@ -35,23 +35,21 @@ highest to lowest).}
 \item{kset}{A vector of integers specifying the factor/loadings pairs to be
 plotted. If \code{kset = NULL}, then all will be plotted.}
 
-\item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F}. This
-parameter is ignored when \code{plot_type = "scree"}.}
+\item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F}.}
 
 \item{pm_subset}{A vector of row indices \eqn{i} or column indices
 \eqn{j} (depending on the argument to \code{pm_which})
 specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
 to be shown. If the dataset has row or column names, then names rather
 than indices may be specified. If \code{pm_subset = NULL}, then all values
-will be plotted. This parameter is ignored when \code{plot_type = "scree"}.}
+will be plotted.}
 
 \item{pm_groups}{A vector specifying the group to which each row of the data
 \eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
 numeric indices or strings). A group must be provided for each plotted row
 \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
 exactly equal to the number of rows or columns in the full dataset or, if
-\code{pm_subset} is specified, in the subsetted dataset. For effects, see
-parameter \code{plot_type}.}
+\code{pm_subset} is specified, in the subsetted dataset.}
 
 \item{pm_colors}{A character vector specifying a color for each unique group
 specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector

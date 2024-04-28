@@ -20,23 +20,21 @@
 #' @param kset A vector of integers specifying the factor/loadings pairs to be
 #'   plotted. If \code{kset = NULL}, then all will be plotted.
 #'
-#' @param pm_which Whether to plot loadings \eqn{L} or factors \eqn{F}. This
-#'   parameter is ignored when \code{plot_type = "scree"}.
+#' @param pm_which Whether to plot loadings \eqn{L} or factors \eqn{F}.
 #'
 #' @param pm_subset A vector of row indices \eqn{i} or column indices
 #'   \eqn{j} (depending on the argument to \code{pm_which})
 #'   specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
 #'   to be shown. If the dataset has row or column names, then names rather
 #'   than indices may be specified. If \code{pm_subset = NULL}, then all values
-#'   will be plotted. This parameter is ignored when \code{plot_type = "scree"}.
+#'   will be plotted.
 #'
 #' @param pm_groups A vector specifying the group to which each row of the data
 #'   \eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
 #'   numeric indices or strings). A group must be provided for each plotted row
 #'   \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
 #'   exactly equal to the number of rows or columns in the full dataset or, if
-#'   \code{pm_subset} is specified, in the subsetted dataset. For effects, see
-#'   parameter \code{plot_type}.
+#'   \code{pm_subset} is specified, in the subsetted dataset.
 #'
 #' @param pm_colors A character vector specifying a color for each unique group
 #'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
@@ -180,6 +178,8 @@ plot.flash <- function(x,
 #'   indices of the factor/loading pairs they correspond to. Labels appear
 #'   as "k1", "k2", "k3", etc.
 #'
+#' @return A \code{ggplot2} object.
+#'
 #' @importFrom dplyr group_by summarize
 #' @importFrom ggplot2 ggplot aes geom_line geom_point
 #' @importFrom ggplot2 scale_x_continuous scale_y_log10 labs
@@ -197,12 +197,12 @@ flash_plot_scree <- function(fl,
                              pm_subset = NULL,
                              pm_groups = NULL,
                              pm_colors = NULL)
-  df <- df |>
-    group_by(k_order, pve, k) |>
-    summarize(.groups = "drop")
-
   # Bind variables to get rid of annoying R CMD check note:
   k_order <- pve <- k <- NULL
+
+  df <- df |>
+    group_by(k_order, pve, k_factor) |>
+    summarize(.groups = "drop")
 
   p <- ggplot(df, aes(x = k_order, y = pve)) +
     geom_line(color = "grey") +
@@ -225,17 +225,55 @@ flash_plot_scree <- function(fl,
 
   if (labels) {
     p <- p +
-      geom_text_repel(aes(label = paste0("k", k))) +
+      geom_text_repel(aes(label = k_factor)) +
       theme(axis.text.x = element_blank())
   }
 
   return(p)
 }
 
+#' Create bar plots of factors or loadings for a flash fit
+#'
+#' Creates a bar plot or sequence of bar plots, one for each value of \eqn{k} in
+#'   \code{kset}, with bars corresponding to individual posterior means for factors
+#'   \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Values are normalized so that the
+#'   maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+#'   loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+#'   This type of plot is most useful when rows \eqn{i = 1, \ldots, n} or columns
+#'   \eqn{j = 1, \ldots, p} are small in number or ordered in a logical fashion
+#'   (e.g., spatially).
+#'
+#' When there is more than one value of \eqn{k} in \code{kset}, a sequence of
+#'   panels is created using the \code{\link[ggplot2]{facet_wrap}} function from
+#'   the \code{ggplot2} package. In each panel, the order of bars is determined
+#'   by the order of the corresponding rows or columns in the data matrix;
+#'   they can be re-arranged using the \code{pm_subset} argument.
+#'
+#' @inheritParams plot.flash
+#'
+#' @param labels Whether to label the bars along the \eqn{x}-axis. The
+#'   appearance of the labels (size, angle, etc.) can be adjusted using
+#'   \code{ggplot2}'s theme system; see below for an example.
+#'
+#' @param ... Additional arguments to be passed to
+#'   \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).
+#'
+#' @return A \code{ggplot2} object.
+#'
 #' @importFrom ggplot2 ggplot aes geom_col
-#' @importFrom ggplot2 scale_fill_identity
-#' @importFrom ggplot2 facet_wrap element_blank
+#' @importFrom ggplot2 scale_fill_identity labs facet_wrap
+#' @importFrom ggplot2 theme element_text element_blank
 #' @importFrom cowplot theme_cowplot
+#'
+#' @examples
+#' data(gtex)
+#' fl <- flash(gtex, greedy_Kmax = 4L, backfit = FALSE)
+#' flash_plot_bar(fl, pm_colors = gtex_colors)
+#'
+#' # Tweaks are often required to get x-axis labels to look good:
+#' library(ggplot2)
+#' flash_plot_bar(fl, pm_colors = gtex_colors, labels = TRUE, ncol = 1) +
+#'   theme(axis.text.x = element_text(size = 8, angle = 60))
 #'
 flash_plot_bar <- function(fl,
                            order_by_pve = FALSE,
@@ -243,7 +281,9 @@ flash_plot_bar <- function(fl,
                            pm_which = c("factors", "loadings"),
                            pm_subset = NULL,
                            pm_groups = NULL,
-                           pm_colors = NULL) {
+                           pm_colors = NULL,
+                           labels = FALSE,
+                           ...) {
   df <- flash_plot_dataframe(fl = fl,
                              order_by_pve = order_by_pve,
                              kset = kset,
@@ -253,7 +293,7 @@ flash_plot_bar <- function(fl,
                              pm_colors = pm_colors)
 
   # Bind variables to get rid of annoying R CMD check note:
-  name <- val <- color <- k_order <- NULL
+  name <- val <- color <- k_factor <- NULL
 
   if (is.null(df$color)) {
     p <- ggplot(df, aes(x = name, y = val)) +
@@ -264,12 +304,26 @@ flash_plot_bar <- function(fl,
       scale_fill_identity()
   }
   p <- p +
-    facet_wrap(~k_order) +
     theme_cowplot(font_size = 10) +
-    theme(axis.text = element_blank()) +
-    theme(axis.ticks.x = element_blank()) +
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "")
+
+  if (length(unique(df$k)) > 1) {
+    p <- p +
+      facet_wrap(~k_factor, ...)
+  }
+
+  if (labels) {
+    p <- p +
+      theme(axis.text.x = element_text(
+        angle = 80, hjust = 1, size = 8
+      ))
+  } else {
+    p <- p +
+      theme(axis.text.x = element_blank()) +
+      theme(axis.ticks.x = element_blank())
+  }
+
   return(p)
 }
 
@@ -548,6 +602,8 @@ flash_plot_dataframe <- function(fl,
   } else {
     k_order <- 1:length(kset)
   }
+  k_factor <- factor(paste0("k", kset),
+                     levels = paste0("k", kset[k_order]))
 
   if (pm_which == "factors") {
     which.dim <- "column"
@@ -573,7 +629,8 @@ flash_plot_dataframe <- function(fl,
     val = as.vector(val),
     k = rep(kset, each = nrow(val)),
     pve = rep(pve, each = nrow(val)),
-    k_order = rep(k_order, each = nrow(val))
+    k_order = rep(k_order, each = nrow(val)),
+    k_factor = rep(k_factor, each = nrow(val))
   )
   if (is.null(pm_groups)) {
     if (!is.null(pm_colors)) {
