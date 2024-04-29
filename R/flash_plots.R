@@ -567,8 +567,34 @@ flash_plot_scatter <- function(fl,
   return(p)
 }
 
-#' @importFrom ggplot2 labs
+#' Create structure plot of factors or loadings for a flash fit
+#'
+#' Creates a "structure plot" (stacked bar plot) of posterior means for factors
+#'   \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Different "topics" or components
+#'   (that is, the different factor/loadings pairs, as specified by \code{kset})
+#'   are represented by different colors. Values are normalized so that the
+#'   maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+#'   loadings \eqn{\ell_{\cdot k}} is equal to 1 and then stacked (see
+#'   \code{\link{ldf.flash}}). Note that structure plots were designed for
+#'   nonnegative loadings or "memberships"; if posterior means are not
+#'   nonnegative then a different type of plot should be used (e.g.,
+#'   \code{\link{flash_plot_heatmap}}).
+#'
+#' @inheritParams plot.flash
+#'
+#' @param pm_colors The colors of the "topics" or components (factor/loadings
+#'   pairs).
+#'
+#' @param gap The horizontal spacing between groups. Ignored if \code{pm_groups}
+#'   is not provided.
+#'
+#' @param ... Additional parameters to be passed to
+#'   \code{\link[fastTopics]{structure_plot}}.
+#'
+#' @return A \code{ggplot2} object.
+#'
 #' @importFrom fastTopics structure_plot
+#' @importFrom ggplot2 labs
 #'
 flash_plot_structure <- function(fl,
                                  order_by_pve = FALSE,
