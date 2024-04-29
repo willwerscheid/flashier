@@ -186,6 +186,8 @@ plot.flash <- function(x,
 #' @importFrom cowplot theme_cowplot
 #' @importFrom ggrepel geom_text_repel
 #'
+#' @export
+#'
 flash_plot_scree <- function(fl,
                              order_by_pve = FALSE,
                              kset = NULL,
@@ -280,6 +282,8 @@ flash_plot_scree <- function(fl,
 #' flash_plot_bar(fl, pm_colors = gtex_colors, labels = TRUE, ncol = 1) +
 #'   theme(axis.text.x = element_text(size = 8, angle = 60))
 #'
+#' @export
+#'
 flash_plot_bar <- function(fl,
                            order_by_pve = FALSE,
                            kset = NULL,
@@ -366,6 +370,8 @@ flash_plot_bar <- function(fl,
 #' @importFrom ggplot2 theme element_blank
 #' @importFrom ggplot2 guides labs
 #' @importFrom cowplot theme_cowplot
+#'
+#' @export
 #'
 flash_plot_histogram <- function(fl,
                                  order_by_pve = FALSE,
@@ -468,6 +474,8 @@ flash_plot_histogram <- function(fl,
 #' @importFrom dplyr group_by mutate summarize arrange left_join
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#'
+#' @export
 #'
 flash_plot_scatter <- function(fl,
                                order_by_pve = FALSE,
@@ -599,6 +607,8 @@ flash_plot_scatter <- function(fl,
 #' @importFrom fastTopics structure_plot
 #' @importFrom ggplot2 labs
 #'
+#' @export
+#'
 flash_plot_structure <- function(fl,
                                  order_by_pve = FALSE,
                                  kset = NULL,
@@ -689,6 +699,8 @@ flash_plot_structure <- function(fl,
 #' @importFrom ggplot2 scale_y_continuous labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#'
+#' @export
 #'
 flash_plot_heatmap <- function(fl,
                                order_by_pve = FALSE,
