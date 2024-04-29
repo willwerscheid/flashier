@@ -212,7 +212,7 @@ flash_plot_scree <- function(fl,
     theme_cowplot(font_size = 10)
 
   # Include ~4 x-axis ticks with the distance a multiple of 5:
-  K <- length(unique(df$k_order))
+  K <- length(levels(df$k_factor))
   if (K < 5) {
     tick_dist <- 1
   } else if (K < 10) {
@@ -308,7 +308,7 @@ flash_plot_bar <- function(fl,
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "")
 
-  if (length(unique(df$k)) > 1) {
+  if (length(levels(df$k_factor)) > 1) {
     p <- p +
       facet_wrap(~k_factor, ...)
   }
@@ -410,7 +410,7 @@ flash_plot_histogram <- function(fl,
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "", fill = "Group")
 
-  if (length(unique(df$k)) > 1) {
+  if (length(levels(df$k_factor)) > 1) {
     p <- p +
       facet_wrap(~k_factor, scales = "free_y", ...)
   }
@@ -510,6 +510,8 @@ flash_plot_heatmap <- function(fl,
   # Topics get reversed by plot_structure; re-reverse them:
   struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
 
+  # TODO: fix gap when 1 per group
+
   p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
     geom_tile(width = 0.8) +
     scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
@@ -519,6 +521,42 @@ flash_plot_heatmap <- function(fl,
   return(p)
 }
 
+#' Create scatter plots of factors or loadings for a flash fit
+#'
+#' Creates a scatter plot or sequence of scatter plots, with position along the
+#'   \eqn{x}-axis defined by posterior means for factors \eqn{f_{jk}} or loadings
+#'   \eqn{\ell_{ik}} and position along the \eqn{y}-axis defined by a
+#'   user-supplied covariate. If a covariate is not supplied, then plots will
+#'   use data column or row means, \eqn{\frac{1}{n} \sum_{i = 1}^n y_{ij}} or
+#'   \eqn{\frac{1}{p} \sum_{j = 1}^p y_{ij}}. One plot is created for
+#'   each value of \eqn{k} in \code{kset}. Values are normalized so that the
+#'   maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+#'   loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+#'
+#' @inheritParams plot.flash
+#'
+#' @param pm_colors A character vector specifying a color for each unique group
+#'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
+#'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
+#'   the colors of the points in the scatter plot.
+#'
+#' @param covariate A numeric vector with one value for each plotted row \eqn{i}
+#'   or column \eqn{j}. These values are mapped onto the plots' \eqn{y}-axis.
+#'
+#' @param shape The symbol used for the plots' points. See
+#'   \code{\link[ggplot2]{aes_linetype_size_shape}}.
+#'
+#' @param n_labels A (nonnegative) integer. If \code{n_labels > 0}, then the
+#'   points with the \code{n_labels} largest (absolute) posterior means will be
+#'   labelled using \code{\link[ggrepel]{geom_text_repel}}.
+#'
+#' @param label_size The size of the label text (in millimeters).
+#'
+#' @param ... Additional arguments to be passed to
+#'   \code{\link[ggrepel]{geom_text_repel}}.
+#'
+#' @return A \code{ggplot2} object.
+#'
 #' @importFrom ggplot2 ggplot aes geom_point
 #' @importFrom ggplot2 scale_color_identity
 #' @importFrom ggplot2 facet_wrap labs
@@ -534,6 +572,8 @@ flash_plot_scatter <- function(fl,
                                pm_subset = NULL,
                                pm_groups = NULL,
                                pm_colors = NULL,
+                               covariate = NULL,
+                               shape = 1,
                                n_labels = 0,
                                label_size = 3,
                                ...) {
@@ -545,25 +585,37 @@ flash_plot_scatter <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
 
-  fl <- flash_fit(fl)
-  Y <- get.Y(fl)
-  if (match.arg(pm_which) == "loadings") {
-    n <- 1
-    other_n <- 2
-    which_dim <- "row"
+  if (!is.null(covariate)) {
+    df$covariate <- rep(covariate, length.out = nrow(df))
+    ylab <- "covariate"
   } else {
-    n <- 2
-    other_n <- 1
-    which_dim <- "column"
+    # Use row/column data means as the default covariate.
+    if (match.arg(pm_which) == "loadings") {
+      n <- 1
+      other_n <- 2
+      which_dim <- "row"
+    } else {
+      n <- 2
+      other_n <- 1
+      which_dim <- "column"
+    }
+
+    fl <- flash_fit(fl)
+    Y <- get.Y(fl)
+    dimsums <- nmode.prod.r1(Y, r1.ones(fl), n)
+    dimmeans <- dimsums / get.data.dims(Y)[other_n]
+    covariate_df <- data.frame(
+      name = get.data.dimnames(Y)[[n]],
+      covariate = dimmeans
+    )
+    df <- df |>
+      left_join(covariate_df, by = "name")
+
+    ylab <- paste("data", which_dim, "mean")
   }
-  dimsums <- nmode.prod.r1(Y, r1.ones(fl), n)
-  dimmeans <- dimsums / get.data.dims(Y)[other_n]
-  mean_df <- data.frame(
-    name = get.data.dimnames(Y)[[n]],
-    mean_exp = dimmeans
-  )
-  df <- df |>
-    left_join(mean_df, by = "name")
+
+  # Bind variables to get rid of annoying R CMD check note:
+  val <- group <- color <- k_factor <- NULL
 
   if (is.null(df$color)) {
     df$color = "black"
@@ -571,20 +623,19 @@ flash_plot_scatter <- function(fl,
 
   if (n_labels > 0) {
     df <- df |>
-      group_by(k_order) |>
+      group_by(k_factor) |>
       mutate(label = ifelse(rank(-abs(val)) > n_labels, "", name),
              color = ifelse(label != "", "dodgerblue", "gray80"))
   }
 
-  p <- ggplot(df, aes(x = val, y = mean_exp, color = color)) +
-    geom_point(shape = 1) +
-    labs(x = "loading", y = paste(which_dim, "mean")) +
+  p <- ggplot(df, aes(x = val, y = covariate, color = color)) +
+    geom_point(shape = shape) +
+    labs(x = "loading", y = ylab) +
     theme_cowplot(font_size = 10)
 
-  if (length(kset) > 1) {
-    # TODO: fix labels
+  if (length(levels(df$k_factor)) > 1) {
     p <- p +
-      facet_wrap(~k_order)
+      facet_wrap(~k_factor)
   }
 
   if (is.null(pm_groups)) {
