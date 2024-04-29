@@ -417,110 +417,6 @@ flash_plot_histogram <- function(fl,
   return(p)
 }
 
-#' @importFrom ggplot2 labs
-#' @importFrom fastTopics structure_plot
-#'
-flash_plot_structure <- function(fl,
-                                 order_by_pve = FALSE,
-                                 kset = NULL,
-                                 pm_which = c("factors", "loadings"),
-                                 pm_subset = NULL,
-                                 pm_groups = NULL,
-                                 pm_colors = NULL,
-                                 gap = 1,
-                                 ...) {
-  df <- flash_plot_dataframe(fl = fl,
-                             order_by_pve = order_by_pve,
-                             kset = kset,
-                             pm_which = pm_which,
-                             pm_subset = pm_subset,
-                             pm_groups = pm_groups,
-                             pm_colors = NULL)
-
-  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
-  colnames(Lmat) <- paste0("k", unique(df$k))
-  if (!is.null(df$group)) {
-    group <- df$group[1:nrow(Lmat)]
-  } else {
-    group <- rep("", nrow(Lmat))
-  }
-
-  if (is.null(pm_colors)) {
-    p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
-                        grouping = group,
-                        gap = gap,
-                        ...)
-  } else {
-    p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
-                        grouping = group,
-                        colors = pm_colors,
-                        gap = gap,
-                        ...)
-  }
-
-  if (any(df$val < 0) && any(df$val > 0)) {
-    warning("Structure plots were designed to visualize sets of nonnegative ",
-            "memberships or loadings. Structure plots that include negative ",
-            "loadings are often difficult to interpret, so a heatmap should ",
-            "typically be preferred when visualizing a combination of negative ",
-            "and positive loadings.")
-  }
-
-  p <- p +
-    labs(y = "loading", color = "factor", fill = "factor")
-  return(p)
-}
-
-#' @importFrom ggplot2 ggplot aes geom_tile
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 scale_y_continuous labs
-#' @importFrom cowplot theme_cowplot
-#' @importFrom stats density
-#'
-flash_plot_heatmap <- function(fl,
-                               order_by_pve = FALSE,
-                               kset = NULL,
-                               pm_which = c("factors", "loadings"),
-                               pm_subset = NULL,
-                               pm_groups = NULL,
-                               pm_colors = NULL,
-                               gap = 1,
-                               ...) {
-  if (is.null(pm_colors)) {
-    pm_colors <- c("darkred", "white", "darkblue")
-  }
-
-  # Use flash_plot_structure to get embedding:
-  struct_p <- flash_plot_structure(fl = fl,
-                                   order_by_pve = order_by_pve,
-                                   kset = kset,
-                                   pm_which = pm_which,
-                                   pm_subset = pm_subset,
-                                   pm_groups = pm_groups,
-                                   pm_colors = NULL,
-                                   gap = gap,
-                                   ...)
-  struct_df <- struct_p$data
-
-  # Retrieve group information:
-  struct_ticks <- struct_p$plot_env$ticks
-
-  # Topics get reversed by plot_structure; re-reverse them:
-  struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
-
-  # TODO: fix gap when 1 per group
-
-  p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
-    geom_tile(width = 0.8) +
-    scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
-    scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
-    labs(x = "factor", y = "", fill = "loading") +
-    theme_cowplot(font_size = 10)
-  return(p)
-}
-
 #' Create scatter plots of factors or loadings for a flash fit
 #'
 #' Creates a scatter plot or sequence of scatter plots, with position along the
@@ -660,6 +556,110 @@ flash_plot_scatter <- function(fl,
                       ...)
   }
 
+  return(p)
+}
+
+#' @importFrom ggplot2 labs
+#' @importFrom fastTopics structure_plot
+#'
+flash_plot_structure <- function(fl,
+                                 order_by_pve = FALSE,
+                                 kset = NULL,
+                                 pm_which = c("factors", "loadings"),
+                                 pm_subset = NULL,
+                                 pm_groups = NULL,
+                                 pm_colors = NULL,
+                                 gap = 1,
+                                 ...) {
+  df <- flash_plot_dataframe(fl = fl,
+                             order_by_pve = order_by_pve,
+                             kset = kset,
+                             pm_which = pm_which,
+                             pm_subset = pm_subset,
+                             pm_groups = pm_groups,
+                             pm_colors = NULL)
+
+  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
+  colnames(Lmat) <- paste0("k", unique(df$k))
+  if (!is.null(df$group)) {
+    group <- df$group[1:nrow(Lmat)]
+  } else {
+    group <- rep("", nrow(Lmat))
+  }
+
+  if (is.null(pm_colors)) {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        gap = gap,
+                        ...)
+  } else {
+    p <- structure_plot(Lmat,
+                        topics = rev(unique(df$k_order)),
+                        grouping = group,
+                        colors = pm_colors,
+                        gap = gap,
+                        ...)
+  }
+
+  if (any(df$val < 0) && any(df$val > 0)) {
+    warning("Structure plots were designed to visualize sets of nonnegative ",
+            "memberships or loadings. Structure plots that include negative ",
+            "loadings are often difficult to interpret, so a heatmap should ",
+            "typically be preferred when visualizing a combination of negative ",
+            "and positive loadings.")
+  }
+
+  p <- p +
+    labs(y = "loading", color = "factor", fill = "factor")
+  return(p)
+}
+
+#' @importFrom ggplot2 ggplot aes geom_tile
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 scale_y_continuous labs
+#' @importFrom cowplot theme_cowplot
+#' @importFrom stats density
+#'
+flash_plot_heatmap <- function(fl,
+                               order_by_pve = FALSE,
+                               kset = NULL,
+                               pm_which = c("factors", "loadings"),
+                               pm_subset = NULL,
+                               pm_groups = NULL,
+                               pm_colors = NULL,
+                               gap = 1,
+                               ...) {
+  if (is.null(pm_colors)) {
+    pm_colors <- c("darkred", "white", "darkblue")
+  }
+
+  # Use flash_plot_structure to get embedding:
+  struct_p <- flash_plot_structure(fl = fl,
+                                   order_by_pve = order_by_pve,
+                                   kset = kset,
+                                   pm_which = pm_which,
+                                   pm_subset = pm_subset,
+                                   pm_groups = pm_groups,
+                                   pm_colors = NULL,
+                                   gap = gap,
+                                   ...)
+  struct_df <- struct_p$data
+
+  # Retrieve group information:
+  struct_ticks <- struct_p$plot_env$ticks
+
+  # Topics get reversed by plot_structure; re-reverse them:
+  struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
+
+  # TODO: fix gap when 1 per group
+
+  p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
+    geom_tile(width = 0.8) +
+    scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
+    scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
+    labs(x = "factor", y = "", fill = "loading") +
+    theme_cowplot(font_size = 10)
   return(p)
 }
 
