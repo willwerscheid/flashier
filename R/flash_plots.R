@@ -200,13 +200,14 @@ flash_plot_scree <- function(fl,
                              pm_groups = NULL,
                              pm_colors = NULL)
   # Bind variables to get rid of annoying R CMD check note:
-  k_order <- pve <- k_factor <- NULL
+  pve <- k <- k_numeric <- NULL
 
   df <- df |>
-    group_by(k_order, pve, k_factor) |>
-    summarize(.groups = "drop")
+    group_by(pve, k) |>
+    summarize(.groups = "drop") |>
+    mutate(k_numeric = as.numeric(k))
 
-  p <- ggplot(df, aes(x = k_order, y = pve)) +
+  p <- ggplot(df, aes(x = k_numeric, y = pve)) +
     geom_line(color = "grey") +
     geom_point(color = "dodgerblue") +
     scale_y_log10() +
@@ -214,7 +215,7 @@ flash_plot_scree <- function(fl,
     theme_cowplot(font_size = 10)
 
   # Include ~4 x-axis ticks with the distance a multiple of 5:
-  K <- length(levels(df$k_factor))
+  K <- length(levels(df$k))
   if (K < 5) {
     tick_dist <- 1
   } else if (K < 10) {
@@ -227,7 +228,7 @@ flash_plot_scree <- function(fl,
 
   if (labels) {
     p <- p +
-      geom_text_repel(aes(label = k_factor)) +
+      geom_text_repel(aes(label = k)) +
       theme(axis.text.x = element_blank())
   }
 
@@ -302,7 +303,7 @@ flash_plot_bar <- function(fl,
                              pm_colors = pm_colors)
 
   # Bind variables to get rid of annoying R CMD check note:
-  name <- val <- color <- k_factor <- NULL
+  name <- val <- color <- k <- NULL
 
   if (is.null(df$color)) {
     p <- ggplot(df, aes(x = name, y = val)) +
@@ -317,9 +318,9 @@ flash_plot_bar <- function(fl,
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "")
 
-  if (length(levels(df$k_factor)) > 1) {
+  if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k_factor, ...)
+      facet_wrap(~k, ...)
   }
 
   if (labels) {
@@ -393,7 +394,7 @@ flash_plot_histogram <- function(fl,
                              pm_colors = if (is.null(pm_groups)) NULL else pm_colors)
 
   # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k_order <- NULL
+  val <- group <- color <- k <- NULL
 
   if (is.null(pm_groups)) {
     p <- ggplot(df, aes(x = val, y = after_stat(density))) +
@@ -424,9 +425,9 @@ flash_plot_histogram <- function(fl,
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "", fill = "Group")
 
-  if (length(levels(df$k_factor)) > 1) {
+  if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k_factor, scales = "free_y", ...)
+      facet_wrap(~k, scales = "free_y", ...)
   }
   return(p)
 }
@@ -497,6 +498,9 @@ flash_plot_scatter <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
 
+  # Bind variables to get rid of annoying R CMD check note:
+  val <- group <- color <- k <- NULL
+
   if (!is.null(covariate)) {
     df$covariate <- rep(covariate, length.out = nrow(df))
     ylab <- "covariate"
@@ -526,16 +530,13 @@ flash_plot_scatter <- function(fl,
     ylab <- paste("data", which_dim, "mean")
   }
 
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k_factor <- NULL
-
   if (is.null(df$color)) {
     df$color = "black"
   }
 
   if (n_labels > 0) {
     df <- df |>
-      group_by(k_factor) |>
+      group_by(k) |>
       mutate(label = ifelse(rank(-abs(val)) > n_labels, "", name),
              color = ifelse(label != "", "dodgerblue", "gray80"))
   }
@@ -545,9 +546,9 @@ flash_plot_scatter <- function(fl,
     labs(x = "loading", y = ylab) +
     theme_cowplot(font_size = 10)
 
-  if (length(levels(df$k_factor)) > 1) {
+  if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k_factor)
+      facet_wrap(~k)
   }
 
   if (is.null(pm_groups)) {
@@ -626,8 +627,8 @@ flash_plot_structure <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = NULL)
 
-  Lmat <- matrix(df$val, ncol = length(unique(df$k)))
-  colnames(Lmat) <- paste0("k", unique(df$k))
+  Lmat <- matrix(df$val, ncol = length(levels(df$k)))
+  colnames(Lmat) <- levels(df$k)
   if (!is.null(df$group)) {
     group <- df$group[1:nrow(Lmat)]
   } else {
@@ -636,13 +637,13 @@ flash_plot_structure <- function(fl,
 
   if (is.null(pm_colors)) {
     p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
+                        topics = rev(levels(df$k)),
                         grouping = group,
                         gap = gap,
                         ...)
   } else {
     p <- structure_plot(Lmat,
-                        topics = rev(unique(df$k_order)),
+                        topics = rev(levels(df$k)),
                         grouping = group,
                         colors = pm_colors,
                         gap = gap,
@@ -711,6 +712,8 @@ flash_plot_heatmap <- function(fl,
                                pm_colors = NULL,
                                gap = 1,
                                ...) {
+  # Bind variables to get rid of annoying R CMD check note:
+  topic <- prop <- NULL
 
   if (is.null(pm_colors)) {
     pm_colors <- c("darkred", "white", "darkblue")
@@ -753,6 +756,8 @@ flash_plot_heatmap <- function(fl,
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom Polychrome kelly.colors
 #'
+#' @export
+#'
 flash_plot_dataframe <- function(fl,
                                  order_by_pve = FALSE,
                                  kset = NULL,
@@ -774,11 +779,11 @@ flash_plot_dataframe <- function(fl,
 
   pve <- fl$pve[kset]
   if (order_by_pve) {
-    k_order <- rank(-pve)
+    k_order <- order(-pve)
   } else {
     k_order <- 1:length(kset)
   }
-  k_factor <- factor(paste0("k", kset),
+  k <- factor(paste0("k", kset),
                      levels = paste0("k", kset[k_order]))
 
   if (pm_which == "factors") {
@@ -802,11 +807,9 @@ flash_plot_dataframe <- function(fl,
 
   df <- data.frame(
     name = rep(rownames(val), ncol(val)),
+    k = rep(k, each = nrow(val)),
     val = as.vector(val),
-    k = rep(kset, each = nrow(val)),
-    pve = rep(pve, each = nrow(val)),
-    k_order = rep(k_order, each = nrow(val)),
-    k_factor = rep(k_factor, each = nrow(val))
+    pve = rep(pve, each = nrow(val))
   )
   if (is.null(pm_groups)) {
     if (!is.null(pm_colors)) {
