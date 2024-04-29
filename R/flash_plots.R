@@ -198,7 +198,7 @@ flash_plot_scree <- function(fl,
                              pm_groups = NULL,
                              pm_colors = NULL)
   # Bind variables to get rid of annoying R CMD check note:
-  k_order <- pve <- k <- NULL
+  k_order <- pve <- k_factor <- NULL
 
   df <- df |>
     group_by(k_order, pve, k_factor) |>
