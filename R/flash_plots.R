@@ -327,14 +327,37 @@ flash_plot_bar <- function(fl,
   return(p)
 }
 
+#' Create histograms of factors or loadings for a flash fit
+#'
+#' Creates a histogram or sequence of histograms of posterior means for factors
+#'   \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. One plot is created for each
+#'   value of \eqn{k} in \code{kset}. Values are normalized so that the
+#'   maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+#'   loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+#'   If \code{pm_groups} is specified, then overlapping semi-transparent
+#'   histograms are created, with one histogram per group specified by
+#'   \code{pm_groups}. This option works best when the number of groups is small
+#'   or when groups are well separated across components.
+#'
+#' @inheritParams flash_plot_bar
+#'
+#' @param binwidth The width of the bins (a numeric value). The default is to
+#'   use the number of bins in \code{bins}, covering the range of the data.
+#'
+#' @param bins Number of bins. Overriden by \code{binwidth}. Defaults to 30.
+#'
+#' @param alpha A transparency value between 0 (transparent) and 1 (opaque).
+#'
+#' @return A \code{ggplot2} object.
+#'
+#' @importFrom stats density
+#' @importFrom dplyr group_by summarize
 #' @importFrom ggplot2 ggplot aes geom_histogram after_stat
-#' @importFrom ggplot2 scale_fill_brewer scale_color_brewer
 #' @importFrom ggplot2 scale_fill_identity scale_color_identity
 #' @importFrom ggplot2 facet_wrap geom_vline
 #' @importFrom ggplot2 theme element_blank
 #' @importFrom ggplot2 guides labs
 #' @importFrom cowplot theme_cowplot
-#' @importFrom stats density
 #'
 flash_plot_histogram <- function(fl,
                                  order_by_pve = FALSE,
@@ -343,8 +366,10 @@ flash_plot_histogram <- function(fl,
                                  pm_subset = NULL,
                                  pm_groups = NULL,
                                  pm_colors = NULL,
-                                 bins = 20,
-                                 alpha = 0.5) {
+                                 binwidth = NULL,
+                                 bins = NULL,
+                                 alpha = 0.5,
+                                 ...) {
   df <- flash_plot_dataframe(fl = fl,
                              order_by_pve = order_by_pve,
                              kset = kset,
@@ -356,25 +381,39 @@ flash_plot_histogram <- function(fl,
   # Bind variables to get rid of annoying R CMD check note:
   val <- group <- color <- k_order <- NULL
 
-  if (is.null(df$group)) {
+  if (is.null(pm_groups)) {
     p <- ggplot(df, aes(x = val, y = after_stat(density))) +
       geom_histogram(position = "identity", bins = bins, fill = "dodgerblue")
   } else {
+    color_df <- df |>
+      group_by(group, color) |>
+      summarize(.groups = "drop") |>
+      arrange(group)
+
     p <- ggplot(df, aes(x = val, y = after_stat(density),
                         color = color, fill = color)) +
       geom_histogram(position = "identity", bins = bins, alpha = alpha) +
-      scale_color_identity() +
-      scale_fill_identity()
+      scale_color_identity(guide = "legend",
+                           name = "",
+                           labels = color_df$group,
+                           breaks = color_df$color) +
+      scale_fill_identity(guide = "legend",
+                          name = "",
+                          labels = color_df$group,
+                          breaks = color_df$color)
   }
 
   p <- p +
-    facet_wrap(~k_order, scales = "free_y") +
     geom_vline(xintercept = 0, color = "darkgrey") +
     theme_cowplot(font_size = 10) +
-    theme(axis.text = element_blank()) +
-    guides(color = "none") +
+    theme(axis.text.y = element_blank()) +
     labs(title = paste0("Posterior means (", pm_which, ")")) +
     labs(x = "", y = "", fill = "Group")
+
+  if (length(unique(df$k)) > 1) {
+    p <- p +
+      facet_wrap(~k_factor, scales = "free_y", ...)
+  }
   return(p)
 }
 
@@ -547,7 +586,6 @@ flash_plot_scatter <- function(fl,
     p <- p +
       facet_wrap(~k_order)
   }
-
 
   if (is.null(pm_groups)) {
     p <- p +
