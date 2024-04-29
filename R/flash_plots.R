@@ -1,16 +1,17 @@
 #' Plot method for flash objects
 #'
-#' Given a \code{\link{flash}} object, produces up to two figures: one showing
-#'   the proportion of variance explained per factor/loadings pair, and one that
-#'   plots posterior means for either factors or loadings (depending on the
-#'   argument to parameter \code{pm_which}).
+#' Plots a \code{\link{flash}} object. Several types of plot are possible:
+#'   see parameter \code{plot_type} below as well as functions
+#'   \code{\link{flash_plot_scree}}, \code{\link{flash_plot_bar}},
+#'   \code{\link{flash_plot_heatmap}}, \code{\link{flash_plot_histogram}},
+#'   \code{\link{flash_plot_scatter}}, and \code{\link{flash_plot_structure}}.
 #'
 #' @param x An object inheriting from class \code{flash}.
 #'
-#' @param include_scree This parameter has been soft-deprecated; please use
+#' @param include_scree This parameter has been deprecated; please use
 #'   \code{plot_type} instead.
 #'
-#' @param include_pm This parameter has been soft-deprecated; please use
+#' @param include_pm This parameter has been deprecated; please use
 #'   \code{plot_type} instead.
 #'
 #' @param order_by_pve If \code{TRUE}, then the factor/loadings pairs will be
@@ -44,37 +45,45 @@
 #' @param plot_type The type of plot to return. Options include:
 #'   \describe{
 #'     \item{\code{"scree"}}{A scree plot showing the proportion of variance
-#'       explained per factor/loadings pair.}
-#'     \item{\code{"bar"}}{A simple bar plot of posterior means for loadings or
+#'       explained per factor/loadings pair. See
+#'       \code{\link{flash_plot_scree}}.}
+#'     \item{\code{"bar"}}{A bar plot of posterior means for loadings or
 #'       factors (depending on argument \code{pm_which}), with one bar per
 #'       row or column. Colors of bars are specified by argument
 #'       \code{pm_colors}. This type of plot is most useful when rows or columns
-#'       are small in number or ordered in a logical fashion (e.g., spatially).}
+#'       are small in number or ordered in a logical fashion (e.g., spatially).
+#'       See \code{\link{flash_plot_bar}}.}
 #'     \item{\code{"heatmap"}}{A heatmap showing posterior means for loadings or
-#'       factors, with rows or columns grouped according to \code{pm_groups} and
-#'       arranged within groups using the embedding provided by \code{fastTopics}
-#'       function \code{\link[fastTopics]{structure_plot}}. Note that
-#'       heatmaps ignore argument \code{pm_colors}.}
+#'       factors, with rows or columns grouped using a 1-d embedding. Here
+#'       \code{pm_color} specifies the diverging color gradient (low-mid-high).
+#'       See \code{\link{flash_plot_heatmap}}.}
 #'     \item{\code{"histogram"}}{Overlapping semi-transparent histograms of
 #'       posterior means for loadings or factors, with one histogram per group
 #'       specified by \code{pm_groups} (or a single histogram if \code{pm_groups}
-#'       is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.}
+#'       is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.
+#'       See \code{\link{flash_plot_histogram}}.}
+#'     \item{\code{"scatter"}}{A scatter plot showing the relationship between
+#'       posterior means for loadings or factors and a user-supplied covariate.
+#'       If a covariate is not supplied, then data column or row means will be
+#'       used. Colors of points are specified by \code{pm_colors}. See
+#'       \code{\link{flash_plot_scatter}}.}
 #'     \item{\code{"structure"}}{A "structure plot" (stacked bar plot) produced
 #'       using function \code{\link[fastTopics]{structure_plot}} in package
 #'       \code{fastTopics}. Here \code{pm_colors} specifies the colors of
 #'       different factor/loadings pairs (as specified by \code{kset}) rather
 #'       than different groups (as specified by \code{pm_groups}). Note that
 #'       factors/loadings must be nonnegative for structure plots to make
-#'       sense.}
+#'       sense. See \code{\link{flash_plot_structure}}.}
 #'   }
 #'
-#' @param ... Additional parameters to be passed to particular
-#'   \code{flash_plot_xxx} functions. See individual functions for details.
+#' @param ... Additional parameters to be passed to respective
+#'   \code{flash_plot_xxx} functions. See
+#'   \code{\link{flash_plot_scree}}, \code{\link{flash_plot_bar}},
+#'   \code{\link{flash_plot_heatmap}}, \code{\link{flash_plot_histogram}},
+#'   \code{\link{flash_plot_scatter}}, and \code{\link{flash_plot_structure}}
+#'   for details.
 #'
-#' @return If arguments \code{include_scree} and \code{include_pm} specify that
-#'   only one figure be produced, then \code{plot.flash()} returns a
-#'   \code{ggplot2} object. If both figures are to be produced, then
-#'   \code{plot.flash()} prints both plots but does not return a value.
+#' @return A \code{ggplot2} object.
 #'
 #' @method plot flash
 #'
@@ -93,8 +102,8 @@ plot.flash <- function(x,
                                      "bar",
                                      "heatmap",
                                      "histogram",
-                                     "structure",
                                      "scatter",
+                                     "structure",
                                      "data.frame"),
                        ...) {
   # TODO: use lifecycle package?
@@ -110,12 +119,14 @@ plot.flash <- function(x,
               "have been soft-deprecated and will be removed in a future version ",
               "of flashier. To change the type of plot produced, please specify ",
               "argument 'plot_type'.")
-      if (include_pm & !include(include_scree)) {
+      if (include_pm && (missing(include_scree) || !include_scree)) {
         if (is.null(pm_groups)) {
           plot_type <- "bar"
         } else {
           plot_type <- "histogram"
         }
+      } else {
+        plot_type <- "scree"
       }
     }
   } else {
@@ -128,7 +139,7 @@ plot.flash <- function(x,
     )
   } else if (plot_type == "bar") {
     ret <- flash_plot_bar(
-      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
   } else if (plot_type == "heatmap") {
     ret <- flash_plot_heatmap(
@@ -138,12 +149,12 @@ plot.flash <- function(x,
     ret <- flash_plot_histogram(
       x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
-  } else if (plot_type == "structure") {
-    ret <- flash_plot_structure(
-      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
-    )
   } else if (plot_type == "scatter") {
     ret <- flash_plot_scatter(
+      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
+    )
+  } else if (plot_type == "structure") {
+    ret <- flash_plot_structure(
       x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
   } else if (plot_type == "data.frame") {
@@ -755,8 +766,6 @@ flash_plot_heatmap <- function(fl,
 
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom Polychrome kelly.colors
-#'
-#' @export
 #'
 flash_plot_dataframe <- function(fl,
                                  order_by_pve = FALSE,

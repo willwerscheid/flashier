@@ -2,14 +2,14 @@ Package: flashier
 Type: Package
 Date: 2024-04-29
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.38
+Version: 1.0.39
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
              person("Wei", "Wang", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
              person("Eric", "Weine", role = "ctb"),
-	     person("Annie", "Xie", role = "ctb"),
+	           person("Annie", "Xie", role = "ctb"),
              person("Gao", "Wang", role = "ctb"))
 URL: https://github.com/willwerscheid/flashier
 BugReports: https://github.com/willwerscheid/flashier/issues
