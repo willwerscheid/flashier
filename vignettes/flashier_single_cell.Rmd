@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The aim of this vignette is show how flashier can be used to perform a
+The aim of this vignette is show how `flashier` can be used to perform a
 non-negative matrix factorization (NMF) analysis of single-cell
 RNA-seq data. This vignette is modeled after the
 [fastTopics vignette on analyzing single-cell data][fasttopics-vignette].
@@ -24,13 +24,10 @@ We begin by loading the required packages. We also set the seed so that results
 can be fully reproduced.
 
 ```{r load-pkgs, message=FALSE}
-library(Matrix)
-library(reshape)
 library(flashier)
+library(Matrix)
 library(fastTopics)
 library(ggplot2)
-library(ggrepel)
-library(cowplot)
 set.seed(3)
 ```
 
@@ -52,10 +49,10 @@ dim(counts)
 (Note that other R packages, for example [Seurat][seurat], use the
 convention that rows are genes and columns are cells.)
 
-Since the flashier model, like other linear-model-based methods (e.g.,
+Since the `flashier` model, like other linear-model-based methods (e.g.,
 principal components analysis), was not designed for count data, it is
 recommended to first transform the data in a way that makes them more
-suitable for flashier. A widely used approach is to divide the counts
+suitable. A widely-used approach is to divide the counts
 by a "size factor," add a "pseudocount," then take the log. We call
 this transformation the "shifted logarithm," following
 [this paper][ahlmann-eltze-huber-2023], and we refer to the
@@ -91,13 +88,13 @@ shifted_log_counts <- log1p(counts / (a * size_factors))
 ```
 
 Note that, since the counts are sparse, we could have performed this
-transformation more efficiently using, for example, the "mapSparse"
-function from [MatrixExtra][matrixextra].
+transformation more efficiently using, for example, the `mapSparse`
+function from the [MatrixExtra][matrixextra] package.
 
 Variance regularization
 -----------------------
 
-Before we run flashier, one issue we need to confront is that flashier
+Before we fit the model, one issue we need to confront is that `flashier`
 may automatically estimate the variances to be too small, which can
 especially be an issue for genes with low expression. We can avoid
 this issue by setting a sensible lower bound on the variance
@@ -131,7 +128,7 @@ fit <- flash(shifted_log_counts,
              var_type = 2, 
              greedy_Kmax = 8, 
              S = s1,
-			 backfit = FALSE)
+             backfit = FALSE)
 ```
 
 A few notes about this flash call:
@@ -154,11 +151,11 @@ A few notes about this flash call:
   simple and short we set it to 8 here.
 
 + `backfit = FALSE` skips the backfitting step. Backfitting can often
-  grealy improve the fit, and is generally recommended for better
-  result. (And indeed backfitting noticeably improves the fit for
+  greatly improve the fit, and is generally recommended for better
+  results. (And indeed, backfitting noticeably improves the fit for
   these data.) On the other hand, backfitting can sometimes take a
   long time to complete, so have omitted the backfitting step here to
-  shorten the computational effort involved.
+  reduce the computational effort involved.
 
 The plot method with default settings produces a "scree plot" showing
 the proportion of variance explained by each of the 8 factors:
@@ -274,7 +271,7 @@ rownames(F) <- pbmc_facs$genes$symbol
 head(sort(F[,6], decreasing = TRUE), n = 16)
 ```
 
-Let's now apply this simple rule-of-thumb and examine the top 4 genes
+Let's now apply this simple rule of thumb and examine the top 4 genes
 (by expression increase) for factors 2 through 6:
 
 ```{r top-genes-all, fig.height=4, fig.width=2.5, message=FALSE}
@@ -306,10 +303,9 @@ plot(fit,
      pm_which = "factors",
      plot_type = "scatter",
      n_labels = 10,
-     label_size = 2,
-     max.overlaps = Inf) +
- labs(x = "increase in shifted log-expression",
-      y = "mean shifted log-expression") 
+     label_size = 2) +
+ labs(x = "increase in shifted log expression",
+      y = "mean shifted log expression") 
 ```
 
 Other notes
@@ -331,7 +327,7 @@ fit_snmf <- flash(shifted_log_counts,
                   var_type = 2, 
                   greedy_Kmax = 8, 
                   S = s1,
-				  backfit = FALSE)
+                  backfit = FALSE)
 ```
 
 Session info
