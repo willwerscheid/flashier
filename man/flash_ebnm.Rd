@@ -27,10 +27,19 @@ arguments to parameter \code{ebnm_fn} in functions \code{\link{flash}},
 \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}} (see
 \strong{Examples} below). It is also possible to write a custom function
 from scratch: see \strong{Details} below for a simple example. A more
-involved example can be found in the "Advanced flashier" vignette.
+involved example can be found in the "Extending ebnm with custom ebnm-style
+functions" vignette in the \code{\link[ebnm]{ebnm}} package.
 }
 \details{
-
+As input to parameter \code{ebnm_fn} in functions \code{\link{flash}},
+\code{\link{flash_greedy}}, and \code{\link{flash_factors_init}},
+it should suffice for many purposes to
+provide functions from package \code{ebnm} as is (for example, one might
+set \code{ebnm_fn = ebnm_point_laplace}). To use non-default
+arguments, function \code{flash_ebnm} may be used (see \strong{Examples}).
+Custom functions may also be written; for details, see the "Extending
+ebnm with custom ebnm-style functions" vignette in the
+\code{\link[ebnm]{ebnm}} package.
 }
 \examples{
 # A custom EBNM function might be written as follows:
