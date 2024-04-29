@@ -286,7 +286,7 @@ plot(fit,
      pm_subset = top_genes,
      pm_groups = factor(top_genes, levels = rev(top_genes)),
      plot_type = "heatmap",
-     loadings_order = 1:length(top_genes))
+     gap = 0.2)
 ```
 
 Indeed, this approach reveals genes characteristic of the other cell
