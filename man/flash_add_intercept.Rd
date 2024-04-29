@@ -20,29 +20,29 @@ used to estimate that prior; see \code{\link{flash}} for details.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with an
-  "intercept" added.
+"intercept" added.
 }
 \description{
 Adds an all-ones vector as a fixed set of loadings (if \code{rowwise = TRUE})
-  or fixed factor (if \code{rowwise = FALSE}). Assuming (without loss of
-  generality) that the fixed factor/loadings is indexed as \eqn{k = 1},
-  a fixed set of loadings gives:
-  \deqn{\mathbf{y}_{i \cdot} \approx \mathbf{f}_1 + \sum_{k = 2}^K \ell_{i k}
+or fixed factor (if \code{rowwise = FALSE}). Assuming (without loss of
+generality) that the fixed factor/loadings is indexed as \eqn{k = 1},
+a fixed set of loadings gives:
+\deqn{\mathbf{y}_{i \cdot} \approx \mathbf{f}_1 + \sum_{k = 2}^K \ell_{i k}
   \mathbf{f}_k,}
-  so that the (estimated) factor \eqn{\mathbf{f}_1 \in \mathbf{R}^p} is shared
-  by all row-wise observations \eqn{\mathbf{y}_{i \cdot} \in \mathbf{R}^p}.
-  A fixed factor gives:
-  \deqn{\mathbf{y}_{\cdot j} \approx \boldsymbol{\ell}_1 + \sum_{k = 2}^K f_{j k}
+so that the (estimated) factor \eqn{\mathbf{f}_1 \in \mathbf{R}^p} is shared
+by all row-wise observations \eqn{\mathbf{y}_{i \cdot} \in \mathbf{R}^p}.
+A fixed factor gives:
+\deqn{\mathbf{y}_{\cdot j} \approx \boldsymbol{\ell}_1 + \sum_{k = 2}^K f_{j k}
   \boldsymbol{\ell}_k,}
-  so that the (estimated) set of loadings \eqn{\ell_1 \in \mathbf{R}^n} is
-  shared by all column-wise observations \eqn{y_{\cdot j} \in \mathbf{R}^n}.
+so that the (estimated) set of loadings \eqn{\ell_1 \in \mathbf{R}^n} is
+shared by all column-wise observations \eqn{y_{\cdot j} \in \mathbf{R}^n}.
 }
 \details{
 The estimated factor (if \code{rowwise = TRUE}) or set of loadings
-  (if \code{rowwise = FALSE}) is initialized at the column-
-  or row-wise means of the data (or, if factor/loadings pairs have previously
-  been added, at the column- or row-wise means of the matrix of residuals)
-  and then backfit via function \code{\link{flash_backfit}}.
+(if \code{rowwise = FALSE}) is initialized at the column-
+or row-wise means of the data (or, if factor/loadings pairs have previously
+been added, at the column- or row-wise means of the matrix of residuals)
+and then backfit via function \code{\link{flash_backfit}}.
 }
 \examples{
 # The following are equivalent:

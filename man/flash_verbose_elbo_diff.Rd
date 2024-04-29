@@ -20,15 +20,15 @@ A character string, suitable for printing progress updates.
 }
 \description{
 Displays the difference in the variational lower bound (ELBO) from one
-  iteration to the next.
+iteration to the next.
 }
 \details{
 This function is an example of a function that may be passed to
-  parameter \code{fns} in function \code{\link{flash_set_verbose}} to
-  customize the output that is printed after each greedy or backfitting
-  iteration. See \code{\link{flash_set_verbose}} for details and examples.
+parameter \code{fns} in function \code{\link{flash_set_verbose}} to
+customize the output that is printed after each greedy or backfitting
+iteration. See \code{\link{flash_set_verbose}} for details and examples.
 }
 \seealso{
 \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_max_chg}},
-  \code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
+\code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
 }

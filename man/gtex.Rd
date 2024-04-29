@@ -6,23 +6,23 @@
 \title{GTEx data}
 \format{
 \code{gtex} is a matrix with 1000 rows and 44 columns, with rows
-  corresponding to SNP-gene pairs and columns corresponding to tissues.
+corresponding to SNP-gene pairs and columns corresponding to tissues.
 }
 \source{
-<https://github.com/stephenslab/gtexresults/blob/master/data/MatrixEQTLSumStats.Portable.Z.rds>
+\url{https://github.com/stephenslab/gtexresults/blob/master/data/MatrixEQTLSumStats.Portable.Z.rds}
 }
 \description{
 Derived from data made available by the Genotype Tissue
-  Expression (GTEx) project (Lonsdale et al. 2013),
-  which provides \eqn{z}-scores for assessing the significance of effects of
-  genetic variants (single nucleotide polymorphisms, or SNPs) on gene
-  expression across 44 human tissues. To reduce the data to a more manageable
-  size, Urbut et al. (2019) chose the "top" SNP for
-  each gene --- that is, the SNP associated with the largest (absolute)
-  \eqn{z}-score over all 44 tissues. This yields a \eqn{16,069 \times 44} matrix
-  of \eqn{z}-scores, with rows corresponding to SNP-gene pairs and columns
-  corresponding to tissues. The dataset included here
-  is further subsampled down to 1000 rows.
+Expression (GTEx) project (Lonsdale et al. 2013),
+which provides \eqn{z}-scores for assessing the significance of effects of
+genetic variants (single nucleotide polymorphisms, or SNPs) on gene
+expression across 44 human tissues. To reduce the data to a more manageable
+size, Urbut et al. (2019) chose the "top" SNP for
+each gene --- that is, the SNP associated with the largest (absolute)
+\eqn{z}-score over all 44 tissues. This yields a \eqn{16,069 \times 44} matrix
+of \eqn{z}-scores, with rows corresponding to SNP-gene pairs and columns
+corresponding to tissues. The dataset included here
+is further subsampled down to 1000 rows.
 }
 \examples{
 data(gtex)
@@ -31,12 +31,12 @@ summary(gtex)
 }
 \references{
 Lonsdale et al. (2013).
-  "The Genotype-Tissue Expression (GTEx) project." \emph{Nature Genetics}
-  45(6), 580--585.
+"The Genotype-Tissue Expression (GTEx) project." \emph{Nature Genetics}
+45(6), 580--585.
 
 Urbut, Wang, Carbonetto, and Stephens (2019).
-  "Flexible statistical methods for estimating and testing effects in
-  genomic studies with multiple conditions." \emph{Nature Genetics}
-  51(1), 187--195.
+"Flexible statistical methods for estimating and testing effects in
+genomic studies with multiple conditions." \emph{Nature Genetics}
+51(1), 187--195.
 }
 \keyword{data}

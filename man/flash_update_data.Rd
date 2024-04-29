@@ -29,10 +29,10 @@ structure is used.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  the data modified as specified by \code{newdata}. Residual variances and
-  ELBO are also updated.
+the data modified as specified by \code{newdata}. Residual variances and
+ELBO are also updated.
 }
 \description{
 Replaces the data in a flash object with a new set of observations. Estimates
-  of residual variances and the ELBO are also updated.
+of residual variances and the ELBO are also updated.
 }

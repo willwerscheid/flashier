@@ -17,18 +17,18 @@ takes the index of the factor/loadings pair currently being optimized.}
 }
 \value{
 A scalar, which is compared against the tolerance parameter
-  \code{tol} to determine whether a fit has converged.
+\code{tol} to determine whether a fit has converged.
 }
 \description{
 An alternative objective function that can be used to determine
-  convergence when fitting a \code{\link{flash}} object. Calculates the
-  maximum (absolute) change over all (posterior expected values for)
-  loadings \eqn{\ell_{ik}} and factors \eqn{f_{jk}}. At each iteration, the
-  loadings vectors \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} and factors
-  \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
+convergence when fitting a \code{\link{flash}} object. Calculates the
+maximum (absolute) change over all (posterior expected values for)
+loadings \eqn{\ell_{ik}} and factors \eqn{f_{jk}}. At each iteration, the
+loadings vectors \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} and factors
+\eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
 }
 \seealso{
 \code{\link{flash_conv_crit_elbo_diff}},
-  \code{\link{flash_conv_crit_max_chg_L}}
-  \code{\link{flash_conv_crit_max_chg_F}}
+\code{\link{flash_conv_crit_max_chg_L}}
+\code{\link{flash_conv_crit_max_chg_F}}
 }

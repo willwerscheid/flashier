@@ -60,12 +60,12 @@ A \code{ggplot2} object.
 }
 \description{
 Creates a histogram or sequence of histograms of posterior means for factors
-  \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. One plot is created for each
-  value of \eqn{k} in \code{kset}. Values are normalized so that the
-  maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-  loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
-  If \code{pm_groups} is specified, then overlapping semi-transparent
-  histograms are created, with one histogram per group specified by
-  \code{pm_groups}. This option works best when the number of groups is small
-  or when groups are well separated across components.
+\eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. One plot is created for each
+value of \eqn{k} in \code{kset}. Values are normalized so that the
+maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+If \code{pm_groups} is specified, then overlapping semi-transparent
+histograms are created, with one histogram per group specified by
+\code{pm_groups}. This option works best when the number of groups is small
+or when groups are well separated across components.
 }

@@ -68,12 +68,12 @@ A \code{ggplot2} object.
 }
 \description{
 Creates a scatter plot or sequence of scatter plots, with position along the
-  \eqn{x}-axis defined by posterior means for factors \eqn{f_{jk}} or loadings
-  \eqn{\ell_{ik}} and position along the \eqn{y}-axis defined by a
-  user-supplied covariate. If a covariate is not supplied, then plots will
-  use data column or row means, \eqn{\frac{1}{n} \sum_{i = 1}^n y_{ij}} or
-  \eqn{\frac{1}{p} \sum_{j = 1}^p y_{ij}}. One plot is created for
-  each value of \eqn{k} in \code{kset}. Values are normalized so that the
-  maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-  loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+\eqn{x}-axis defined by posterior means for factors \eqn{f_{jk}} or loadings
+\eqn{\ell_{ik}} and position along the \eqn{y}-axis defined by a
+user-supplied covariate. If a covariate is not supplied, then plots will
+use data column or row means, \eqn{\frac{1}{n} \sum_{i = 1}^n y_{ij}} or
+\eqn{\frac{1}{p} \sum_{j = 1}^p y_{ij}}. One plot is created for
+each value of \eqn{k} in \code{kset}. Values are normalized so that the
+maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
 }

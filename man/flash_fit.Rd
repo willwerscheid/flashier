@@ -43,33 +43,33 @@ See function descriptions below.
 }
 \description{
 \code{flash_fit} objects are the "internal" objects used by \code{flash}
-  functions to fit an EBMF model. Whereas \code{flash} objects
-  (the end results of the fitting process) include user-friendly fields and
-  methods, \code{flash_fit} objects were not designed for public
-  consumption and can be unwieldy. Nonetheless, some advanced
-  \code{flash} functionality requires the wielding of
-  \code{flash_fit} objects. In particular, initialization, convergence,
-  and "verbose" display functions all take one or more \code{flash_fit}
-  objects as input (see parameter \code{init_fn} in function
-  \code{\link{flash_greedy}}; parameter \code{fn} in
-  \code{\link{flash_set_conv_crit}};
-  and parameter \code{fns} in \code{\link{flash_set_verbose}}).
-  For users who would like to write custom functions, the accessor functions
-  and methods enumerated below may prove useful. See
-  \code{\link{flash_set_verbose}} for an example.
+functions to fit an EBMF model. Whereas \code{flash} objects
+(the end results of the fitting process) include user-friendly fields and
+methods, \code{flash_fit} objects were not designed for public
+consumption and can be unwieldy. Nonetheless, some advanced
+\code{flash} functionality requires the wielding of
+\code{flash_fit} objects. In particular, initialization, convergence,
+and "verbose" display functions all take one or more \code{flash_fit}
+objects as input (see parameter \code{init_fn} in function
+\code{\link{flash_greedy}}; parameter \code{fn} in
+\code{\link{flash_set_conv_crit}};
+and parameter \code{fns} in \code{\link{flash_set_verbose}}).
+For users who would like to write custom functions, the accessor functions
+and methods enumerated below may prove useful. See
+\code{\link{flash_set_verbose}} for an example.
 }
 \details{
 The following S3 methods are available for \code{flash_fit} objects at all
-  times except while optimizing new factor/loadings pairs as part of a
-  "greedy" fit:
-  \describe{
-    \item{\code{\link{fitted.flash_fit}}}{Returns the "fitted values"
-      \eqn{E(LF') = E(L) E(F)'}.}
-    \item{\code{\link{residuals.flash_fit}}}{Returns the expected residuals
-      \eqn{Y - E(LF') = Y - E(L) E(F)'}.}
-    \item{\code{\link{ldf.flash_fit}}}{Returns an \eqn{LDF} decomposition,
-      with columns of \eqn{L} and \eqn{F} scaled as specified by the user.}
-  }
+times except while optimizing new factor/loadings pairs as part of a
+"greedy" fit:
+\describe{
+\item{\code{\link{fitted.flash_fit}}}{Returns the "fitted values"
+\eqn{E(LF') = E(L) E(F)'}.}
+\item{\code{\link{residuals.flash_fit}}}{Returns the expected residuals
+\eqn{Y - E(LF') = Y - E(L) E(F)'}.}
+\item{\code{\link{ldf.flash_fit}}}{Returns an \eqn{LDF} decomposition,
+with columns of \eqn{L} and \eqn{F} scaled as specified by the user.}
+}
 }
 \section{Functions}{
 \itemize{

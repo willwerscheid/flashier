@@ -54,16 +54,16 @@ A \code{ggplot2} object.
 }
 \description{
 Creates a "structure plot" (stacked bar plot) of posterior means for factors
-  \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Different "topics" or components
-  (that is, the different factor/loadings pairs, as specified by \code{kset})
-  are represented by different colors. Values are normalized so that the
-  maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-  loadings \eqn{\ell_{\cdot k}} is equal to 1 and then stacked (see
-  \code{\link{ldf.flash}}). Note that structure plots were designed for
-  nonnegative loadings or "memberships"; if posterior means are not
-  nonnegative then a different type of plot should be used (e.g.,
-  \code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
-  arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential
-  to creating a readable structure plot; for details, see
-  \code{\link[fastTopic]{structure_plot}}.
+\eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Different "topics" or components
+(that is, the different factor/loadings pairs, as specified by \code{kset})
+are represented by different colors. Values are normalized so that the
+maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+loadings \eqn{\ell_{\cdot k}} is equal to 1 and then stacked (see
+\code{\link{ldf.flash}}). Note that structure plots were designed for
+nonnegative loadings or "memberships"; if posterior means are not
+nonnegative then a different type of plot should be used (e.g.,
+\code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
+arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential
+to creating a readable structure plot; for details, see
+\code{\link[fastTopic]{structure_plot}}.
 }

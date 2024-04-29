@@ -14,12 +14,12 @@ set to zero.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with the
-  factors specified by \code{kset} set to zero.
+factors specified by \code{kset} set to zero.
 }
 \description{
 Sets factor/loadings pairs to zero but does not remove them from the
-  \code{\link{flash}} object (so as to keep the indices of existing pairs
-  the same).
+\code{\link{flash}} object (so as to keep the indices of existing pairs
+the same).
 }
 \seealso{
 \code{\link{flash_factors_remove}}

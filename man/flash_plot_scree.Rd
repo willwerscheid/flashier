@@ -23,18 +23,18 @@ A \code{ggplot2} object.
 }
 \description{
 A scree plot is a line plot showing the proportion of variance explained by
-  each factor/loadings pair in a flash fit. Note that since EBMF does not
-  require factors and loadings to be orthogonal, "PVE" should be
-  interpreted loosely: for example, the total proportion of variance
-  explained could be larger than 1.
+each factor/loadings pair in a flash fit. Note that since EBMF does not
+require factors and loadings to be orthogonal, "PVE" should be
+interpreted loosely: for example, the total proportion of variance
+explained could be larger than 1.
 }
 \details{
 Unlike scree plots for PCA, a scree plot for a flash fit is not in general
-  monotonically decreasing. To ensure a monotonically decreasing scree
-  plot, set \code{order_by_pve = TRUE}. Note, however, that if this is done
-  then the numbers on the \eqn{x}-axis will no longer match the indices of
-  the components in the flash fit. This can also be true if argument
-  \code{kset} has been specified. Thus one should consider setting
-  \code{labels = TRUE} when \code{order_by_pve = TRUE} or when \code{kset}
-  has been specified.
+monotonically decreasing. To ensure a monotonically decreasing scree
+plot, set \code{order_by_pve = TRUE}. Note, however, that if this is done
+then the numbers on the \eqn{x}-axis will no longer match the indices of
+the components in the flash fit. This can also be true if argument
+\code{kset} has been specified. Thus one should consider setting
+\code{labels = TRUE} when \code{order_by_pve = TRUE} or when \code{kset}
+has been specified.
 }

@@ -2,7 +2,7 @@ Package: flashier
 Type: Package
 Date: 2024-04-29
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.39
+Version: 1.0.40
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -23,16 +23,17 @@ Imports:
     Matrix,
     parallel,
     dplyr,
-    stringr,
-    tibble,
-    tidyr,
     softImpute,
     irlba,
-    ggplot2
+    ggplot2,
+    ggrepel,
+    fastTopics,
+    cowplot,
+    Polychrome,
+    RColorBrewer,
+    lifecycle
 Suggests:
     ashr,
-    ggrepel,
-    cowplot,
     testthat,
     knitr,
     rmarkdown,
@@ -46,3 +47,4 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)

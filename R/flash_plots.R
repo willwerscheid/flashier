@@ -8,10 +8,10 @@
 #'
 #' @param x An object inheriting from class \code{flash}.
 #'
-#' @param include_scree This parameter has been deprecated; please use
+#' @param include_scree `r lifecycle::badge("deprecated")` This parameter has been deprecated; please use
 #'   \code{plot_type} instead.
 #'
-#' @param include_pm This parameter has been deprecated; please use
+#' @param include_pm `r lifecycle::badge("deprecated")` This parameter has been deprecated; please use
 #'   \code{plot_type} instead.
 #'
 #' @param order_by_pve If \code{TRUE}, then the factor/loadings pairs will be
@@ -87,6 +87,8 @@
 #'
 #' @method plot flash
 #'
+#' @importFrom lifecycle deprecate_warn
+#'
 #' @export
 #'
 plot.flash <- function(x,
@@ -106,19 +108,30 @@ plot.flash <- function(x,
                                      "structure",
                                      "data.frame"),
                        ...) {
-  # TODO: use lifecycle package?
+  deprecation_details <- paste(
+    "Parameters 'include_scree' and 'include_pm' will be removed in a future",
+    "release. To change the type of plot produced, please specify 'plot_type'",
+    "instead."
+  )
+  if (!missing(include_scree)) {
+    deprecate_warn(
+      when = "1.0.28",
+      what = "plot.flash(include_scree)",
+      details = deprecation_details
+    )
+  }
+  if (!missing(include_pm)) {
+    deprecate_warn(
+      when = "1.0.28",
+      what = "plot.flash(include_scree)",
+      details = deprecation_details
+    )
+  }
+
   if (!missing(include_scree) || !missing(include_pm)) {
     if (!missing(plot_type)) {
-      warning("Please note that parameters 'include_scree' and 'include_pm' ",
-              "have been soft-deprecated and will be removed in a future version ",
-              "of flashier. Since 'plot_type' has been specified, 'include_scree' ",
-              "and 'include_pm' will be ignored.")
       plot_type <- match.arg(plot_type)
     } else {
-      warning("Please note that parameters 'include_scree' and 'include_pm' ",
-              "have been soft-deprecated and will be removed in a future version ",
-              "of flashier. To change the type of plot produced, please specify ",
-              "argument 'plot_type'.")
       if (include_pm && (missing(include_scree) || !include_scree)) {
         if (is.null(pm_groups)) {
           plot_type <- "bar"

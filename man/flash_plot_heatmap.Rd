@@ -64,13 +64,13 @@ A \code{ggplot2} object.
 }
 \description{
 Creates a heatmap of posterior means for factors \eqn{f_{jk}} or loadings
-  \eqn{\ell_{ik}}. Values are normalized so that the maximum absolute value
-  for each factor \eqn{f_{\cdot k}} or set of loadings \eqn{\ell_{\cdot k}}
-  is equal to 1 (see \code{\link{ldf.flash}}).
+\eqn{\ell_{ik}}. Values are normalized so that the maximum absolute value
+for each factor \eqn{f_{\cdot k}} or set of loadings \eqn{\ell_{\cdot k}}
+is equal to 1 (see \code{\link{ldf.flash}}).
 }
 \details{
 By default, a 1-d embedding is used to arrange the rows \eqn{i} or columns
-  \eqn{j} in a "smart" manner. This behavior can be overridden via argument
-  \code{loadings_order}, which is passed to function
-  \code{\link[fastTopics]{structure_plot}}.
+\eqn{j} in a "smart" manner. This behavior can be overridden via argument
+\code{loadings_order}, which is passed to function
+\code{\link[fastTopics]{structure_plot}}.
 }

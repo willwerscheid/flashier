@@ -22,10 +22,10 @@
 \arguments{
 \item{x}{An object inheriting from class \code{flash}.}
 
-\item{include_scree}{This parameter has been deprecated; please use
+\item{include_scree}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This parameter has been deprecated; please use
 \code{plot_type} instead.}
 
-\item{include_pm}{This parameter has been deprecated; please use
+\item{include_pm}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This parameter has been deprecated; please use
 \code{plot_type} instead.}
 
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
@@ -58,36 +58,36 @@ effects, see parameter \code{plot_type}.}
 
 \item{plot_type}{The type of plot to return. Options include:
 \describe{
-  \item{\code{"scree"}}{A scree plot showing the proportion of variance
-    explained per factor/loadings pair. See
-    \code{\link{flash_plot_scree}}.}
-  \item{\code{"bar"}}{A bar plot of posterior means for loadings or
-    factors (depending on argument \code{pm_which}), with one bar per
-    row or column. Colors of bars are specified by argument
-    \code{pm_colors}. This type of plot is most useful when rows or columns
-    are small in number or ordered in a logical fashion (e.g., spatially).
-    See \code{\link{flash_plot_bar}}.}
-  \item{\code{"heatmap"}}{A heatmap showing posterior means for loadings or
-    factors, with rows or columns grouped using a 1-d embedding. Here
-    \code{pm_color} specifies the diverging color gradient (low-mid-high).
-    See \code{\link{flash_plot_heatmap}}.}
-  \item{\code{"histogram"}}{Overlapping semi-transparent histograms of
-    posterior means for loadings or factors, with one histogram per group
-    specified by \code{pm_groups} (or a single histogram if \code{pm_groups}
-    is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.
-    See \code{\link{flash_plot_histogram}}.}
-  \item{\code{"scatter"}}{A scatter plot showing the relationship between
-    posterior means for loadings or factors and a user-supplied covariate.
-    If a covariate is not supplied, then data column or row means will be
-    used. Colors of points are specified by \code{pm_colors}. See
-    \code{\link{flash_plot_scatter}}.}
-  \item{\code{"structure"}}{A "structure plot" (stacked bar plot) produced
-    using function \code{\link[fastTopics]{structure_plot}} in package
-    \code{fastTopics}. Here \code{pm_colors} specifies the colors of
-    different factor/loadings pairs (as specified by \code{kset}) rather
-    than different groups (as specified by \code{pm_groups}). Note that
-    factors/loadings must be nonnegative for structure plots to make
-    sense. See \code{\link{flash_plot_structure}}.}
+\item{\code{"scree"}}{A scree plot showing the proportion of variance
+explained per factor/loadings pair. See
+\code{\link{flash_plot_scree}}.}
+\item{\code{"bar"}}{A bar plot of posterior means for loadings or
+factors (depending on argument \code{pm_which}), with one bar per
+row or column. Colors of bars are specified by argument
+\code{pm_colors}. This type of plot is most useful when rows or columns
+are small in number or ordered in a logical fashion (e.g., spatially).
+See \code{\link{flash_plot_bar}}.}
+\item{\code{"heatmap"}}{A heatmap showing posterior means for loadings or
+factors, with rows or columns grouped using a 1-d embedding. Here
+\code{pm_color} specifies the diverging color gradient (low-mid-high).
+See \code{\link{flash_plot_heatmap}}.}
+\item{\code{"histogram"}}{Overlapping semi-transparent histograms of
+posterior means for loadings or factors, with one histogram per group
+specified by \code{pm_groups} (or a single histogram if \code{pm_groups}
+is \code{NULL}). Colors of histograms are specified by \code{pm_colors}.
+See \code{\link{flash_plot_histogram}}.}
+\item{\code{"scatter"}}{A scatter plot showing the relationship between
+posterior means for loadings or factors and a user-supplied covariate.
+If a covariate is not supplied, then data column or row means will be
+used. Colors of points are specified by \code{pm_colors}. See
+\code{\link{flash_plot_scatter}}.}
+\item{\code{"structure"}}{A "structure plot" (stacked bar plot) produced
+using function \code{\link[fastTopics]{structure_plot}} in package
+\code{fastTopics}. Here \code{pm_colors} specifies the colors of
+different factor/loadings pairs (as specified by \code{kset}) rather
+than different groups (as specified by \code{pm_groups}). Note that
+factors/loadings must be nonnegative for structure plots to make
+sense. See \code{\link{flash_plot_structure}}.}
 }}
 
 \item{...}{Additional parameters to be passed to respective
@@ -102,8 +102,8 @@ A \code{ggplot2} object.
 }
 \description{
 Plots a \code{\link{flash}} object. Several types of plot are possible:
-  see parameter \code{plot_type} below as well as functions
-  \code{\link{flash_plot_scree}}, \code{\link{flash_plot_bar}},
-  \code{\link{flash_plot_heatmap}}, \code{\link{flash_plot_histogram}},
-  \code{\link{flash_plot_scatter}}, and \code{\link{flash_plot_structure}}.
+see parameter \code{plot_type} below as well as functions
+\code{\link{flash_plot_scree}}, \code{\link{flash_plot_bar}},
+\code{\link{flash_plot_heatmap}}, \code{\link{flash_plot_histogram}},
+\code{\link{flash_plot_scatter}}, and \code{\link{flash_plot_structure}}.
 }

@@ -57,20 +57,20 @@ A \code{ggplot2} object.
 }
 \description{
 Creates a bar plot or sequence of bar plots, one for each value of \eqn{k} in
-  \code{kset}, with bars corresponding to individual posterior means for factors
-  \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Values are normalized so that the
-  maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-  loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
-  This type of plot is most useful when rows \eqn{i = 1, \ldots, n} or columns
-  \eqn{j = 1, \ldots, p} are small in number or ordered in a logical fashion
-  (e.g., spatially).
+\code{kset}, with bars corresponding to individual posterior means for factors
+\eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Values are normalized so that the
+maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
+loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+This type of plot is most useful when rows \eqn{i = 1, \ldots, n} or columns
+\eqn{j = 1, \ldots, p} are small in number or ordered in a logical fashion
+(e.g., spatially).
 }
 \details{
 When there is more than one value of \eqn{k} in \code{kset}, a sequence of
-  panels is created using the \code{\link[ggplot2]{facet_wrap}} function from
-  the \code{ggplot2} package. In each panel, the order of bars is determined
-  by the order of the corresponding rows or columns in the data matrix;
-  they can be re-arranged using the \code{pm_subset} argument.
+panels is created using the \code{\link[ggplot2]{facet_wrap}} function from
+the \code{ggplot2} package. In each panel, the order of bars is determined
+by the order of the corresponding rows or columns in the data matrix;
+they can be re-arranged using the \code{pm_subset} argument.
 }
 \examples{
 data(gtex)

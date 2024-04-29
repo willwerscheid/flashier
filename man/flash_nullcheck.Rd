@@ -30,14 +30,14 @@ updates are only displayed when \code{verbose} > 0.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  factors that do not improve the ELBO by at least \code{tol} either set
-  to zero or removed (depending on the argument to parameter \code{remove}).
+factors that do not improve the ELBO by at least \code{tol} either set
+to zero or removed (depending on the argument to parameter \code{remove}).
 }
 \description{
 Sets factor/loadings pairs to zero if doing so improves the variational
-  lower bound (ELBO). See \code{\link{flash}} for examples of usage.
+lower bound (ELBO). See \code{\link{flash}} for examples of usage.
 }
 \seealso{
 \code{\link{flash_factors_remove}},
-  \code{\link{flash_factors_set_to_zero}}
+\code{\link{flash_factors_set_to_zero}}
 }

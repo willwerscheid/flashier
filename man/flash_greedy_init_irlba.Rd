@@ -16,17 +16,17 @@ reproducibility.}
 }
 \value{
 A list of length two consisting of, respectively, the vector of
-  initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
-  factor values \eqn{f_{\cdot k}}.
+initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
+factor values \eqn{f_{\cdot k}}.
 }
 \description{
 Initializes a new ("greedy") flash factor using \code{\link[irlba]{irlba}}. This
-  can be somewhat faster than \code{\link{flash_greedy_init_default}} for large,
-  dense data matrices. For sparse matrices of class \code{Matrix}, the
-  default initialization should generally be preferred.
+can be somewhat faster than \code{\link{flash_greedy_init_default}} for large,
+dense data matrices. For sparse matrices of class \code{Matrix}, the
+default initialization should generally be preferred.
 }
 \seealso{
 \code{\link{flash_greedy}},
-  \code{\link{flash_greedy_init_default}},
-  \code{\link{flash_greedy_init_softImpute}}
+\code{\link{flash_greedy_init_default}},
+\code{\link{flash_greedy_init_softImpute}}
 }

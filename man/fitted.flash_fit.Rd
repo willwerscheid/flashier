@@ -16,5 +16,5 @@ The matrix of "fitted values."
 }
 \description{
 Given a \code{\link{flash_fit}} object, returns the "fitted values"
-  \eqn{E(LF') = E(L) E(F)'}.
+\eqn{E(LF') = E(L) E(F)'}.
 }
