@@ -251,6 +251,11 @@ flash_plot_scree <- function(fl,
 #'
 #' @inheritParams plot.flash
 #'
+#' @param pm_colors A character vector specifying a color for each unique group
+#'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
+#'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
+#'   the color (fill) of the bars.
+#'
 #' @param labels Whether to label the bars along the \eqn{x}-axis. The
 #'   appearance of the labels (size, angle, etc.) can be adjusted using
 #'   \code{ggplot2}'s theme system; see below for an example.
@@ -340,6 +345,9 @@ flash_plot_bar <- function(fl,
 #'   or when groups are well separated across components.
 #'
 #' @inheritParams flash_plot_bar
+#'
+#' @param pm_colors A character vector specifying a color for each unique group
+#'   specified by \code{pm_groups}. Defines the color and fill of the histograms.
 #'
 #' @param binwidth The width of the bins (a numeric value). The default is to
 #'   use the number of bins in \code{bins}, covering the range of the data.
@@ -434,7 +442,7 @@ flash_plot_histogram <- function(fl,
 #' @param pm_colors A character vector specifying a color for each unique group
 #'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
 #'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
-#'   the colors of the points in the scatter plot.
+#'   the colors of the points.
 #'
 #' @param covariate A numeric vector with one value for each plotted row \eqn{i}
 #'   or column \eqn{j}. These values are mapped onto the plots' \eqn{y}-axis.

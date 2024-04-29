@@ -43,9 +43,7 @@ exactly equal to the number of rows or columns in the full dataset or, if
 \code{pm_subset} is specified, in the subsetted dataset.}
 
 \item{pm_colors}{A character vector specifying a color for each unique group
-specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
-specifying a color for each plotted row \eqn{i} or column \eqn{j}. For
-effects, see parameter \code{plot_type}.}
+specified by \code{pm_groups}. Defines the color and fill of the histograms.}
 
 \item{binwidth}{The width of the bins (a numeric value). The default is to
 use the number of bins in \code{bins}, covering the range of the data.}

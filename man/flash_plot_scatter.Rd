@@ -46,7 +46,7 @@ exactly equal to the number of rows or columns in the full dataset or, if
 \item{pm_colors}{A character vector specifying a color for each unique group
 specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
 specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
-the colors of the points in the scatter plot.}
+the colors of the points.}
 
 \item{covariate}{A numeric vector with one value for each plotted row \eqn{i}
 or column \eqn{j}. These values are mapped onto the plots' \eqn{y}-axis.}

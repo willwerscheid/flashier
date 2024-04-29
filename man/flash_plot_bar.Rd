@@ -42,8 +42,8 @@ exactly equal to the number of rows or columns in the full dataset or, if
 
 \item{pm_colors}{A character vector specifying a color for each unique group
 specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
-specifying a color for each plotted row \eqn{i} or column \eqn{j}. For
-effects, see parameter \code{plot_type}.}
+specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
+the color (fill) of the bars.}
 
 \item{labels}{Whether to label the bars along the \eqn{x}-axis. The
 appearance of the labels (size, angle, etc.) can be adjusted using
