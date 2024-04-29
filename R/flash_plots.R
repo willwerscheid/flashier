@@ -578,7 +578,10 @@ flash_plot_scatter <- function(fl,
 #'   \code{\link{ldf.flash}}). Note that structure plots were designed for
 #'   nonnegative loadings or "memberships"; if posterior means are not
 #'   nonnegative then a different type of plot should be used (e.g.,
-#'   \code{\link{flash_plot_heatmap}}).
+#'   \code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
+#'   arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential
+#'   to creating a readable structure plot; for details, see
+#'   \code{\link[fastTopic]{structure_plot}}.
 #'
 #' @inheritParams plot.flash
 #'
@@ -649,6 +652,38 @@ flash_plot_structure <- function(fl,
   return(p)
 }
 
+#' Create heatmap of factors or loadings for a flash fit
+#'
+#' Creates a heatmap of posterior means for factors \eqn{f_{jk}} or loadings
+#'   \eqn{\ell_{ik}}. Values are normalized so that the maximum absolute value
+#'   for each factor \eqn{f_{\cdot k}} or set of loadings \eqn{\ell_{\cdot k}}
+#'   is equal to 1 (see \code{\link{ldf.flash}}).
+#'
+#' By default, a 1-d embedding is used to arrange the rows \eqn{i} or columns
+#'   \eqn{j} in a "smart" manner. This behavior can be overridden via argument
+#'   \code{loadings_order}, which is passed to function
+#'   \code{\link[fastTopics]{structure_plot}}.
+#'
+#' @inheritParams flash_plot_structure
+#'
+#' @param pm_colors A character vector of length 1, 2, or 3 defining the
+#'   diverging color gradient (low-mid-high) to be used by the heatmap. The
+#'   midpoint is set at zero. If one or two colors are supplied, then the
+#'   "mid" color will be set to white. If one color is supplied, then the "low"
+#'   and "high" colors (used for, respectively, negative and positive posterior
+#'   means) will be the same. If two are supplied, then the "low" color should
+#'   be provided first, followed by the "high" color. If all three are supplied,
+#'   then the "low" color should be provided first, followed by the "mid" color,
+#'   followed by the "high" color provided. The default color gradient is
+#'   \code{darkblue} for "low" (negative posterior means), white for "mid"
+#'   (zero), and \code{darkred} for "high" (positive posterior means).
+#'
+#' @param ... Additional parameters to be passed to
+#'   \code{\link[fastTopics]{structure_plot}} (which is primarily used to
+#'   arrange the rows \eqn{i} or columns \eqn{j}).
+#'
+#' @return A \code{ggplot2} object.
+#'
 #' @importFrom ggplot2 ggplot aes geom_tile
 #' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 scale_y_continuous labs
@@ -664,8 +699,16 @@ flash_plot_heatmap <- function(fl,
                                pm_colors = NULL,
                                gap = 1,
                                ...) {
+
   if (is.null(pm_colors)) {
     pm_colors <- c("darkred", "white", "darkblue")
+  } else if (length(pm_colors) == 1) {
+    pm_colors <- c(pm_colors, "white", pm_colors)
+  } else if (length(pm_colors == 2)) {
+    pm_colors <- c(pm_colors[1], "white", pm_colors[2])
+  } else if (length(pm_colors) != 3) {
+    stop("When creating a heatmap, pm_colors must be NULL or a vector of",
+         "length 1, 2, or 3.")
   }
 
   # Use flash_plot_structure to get embedding:
@@ -686,10 +729,8 @@ flash_plot_heatmap <- function(fl,
   # Topics get reversed by plot_structure; re-reverse them:
   struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
 
-  # TODO: fix gap when 1 per group
-
   p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
-    geom_tile(width = 0.8) +
+    geom_tile(width = 0.8, height = 1) +
     scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
     scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
     labs(x = "factor", y = "", fill = "loading") +
