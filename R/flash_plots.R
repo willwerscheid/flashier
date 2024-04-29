@@ -763,7 +763,7 @@ flash_plot_heatmap <- function(fl,
   struct_df <- struct_p$data
 
   # Retrieve group information:
-  struct_ticks <- struct_p$plot_env$ticks
+  struct_ticks <- struct_p$plot_env$ticks + 0.5
 
   # Topics get reversed by plot_structure; re-reverse them:
   struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
