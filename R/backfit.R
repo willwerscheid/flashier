@@ -1,3 +1,4 @@
+#' @exportS3Method NULL
 update.factors.in.kset <- function(flash, kset) {
   for (k in kset) {
     factor <- extract.factor(flash, k)
@@ -17,6 +18,7 @@ update.factors.in.kset <- function(flash, kset) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.one.factor <- function(flash, k, iter, verbose.lvl) {
   old.factor <- extract.factor(flash, k)
 

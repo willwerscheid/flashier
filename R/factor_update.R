@@ -1,3 +1,4 @@
+#' @exportS3Method NULL
 update.factor <- function(factor, flash, update.tau = TRUE) {
   if (is.zero(factor))
     return(factor)
@@ -12,6 +13,7 @@ update.factor <- function(factor, flash, update.tau = TRUE) {
   return(factor)
 }
 
+#' @exportS3Method NULL
 update.factor.one.n <- function(factor, n, flash) {
   nonmissing.thresh <- get.nonmissing.thresh(flash, n)
   if (nonmissing.thresh > 0) {
@@ -49,6 +51,7 @@ update.factor.one.n <- function(factor, n, flash) {
   return(factor)
 }
 
+#' @exportS3Method NULL
 update.R2.tau.and.obj <- function(factor, flash) {
   factor <- update.tau(factor, flash)
   factor <- set.obj(factor, calc.obj(flash, factor))
@@ -62,6 +65,7 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
+#' @exportS3Method NULL
 solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))

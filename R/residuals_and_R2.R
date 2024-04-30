@@ -1,3 +1,4 @@
+#' @exportS3Method NULL
 update.R <- function(flash, factor) {
   R <- get.R(factor)
   if (is.null(R))

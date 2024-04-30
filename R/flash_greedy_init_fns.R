@@ -80,6 +80,7 @@ flash_greedy_init_default <- function(flash,
   return(EF)
 }
 
+#' @exportS3Method NULL
 update.init.EF <- function(EF, flash, update.order, sign_constraints) {
   if (is.null(sign_constraints))
     sign_constraints <- rep(0, get.dim(flash))
@@ -92,6 +93,7 @@ update.init.EF <- function(EF, flash, update.order, sign_constraints) {
   return(EF)
 }
 
+#' @exportS3Method NULL
 update.init.EF.one.n <- function(EF, n, flash, sign) {
   R        <- get.R(flash)
   Y        <- get.Y(flash)
@@ -119,6 +121,7 @@ update.init.EF.one.n <- function(EF, n, flash, sign) {
   return(EF)
 }
 
+#' @exportS3Method NULL
 scale.EF <- function(EF) {
   norms <- lapply(EF, function(x) {sqrt(sum(x^2))})
 
