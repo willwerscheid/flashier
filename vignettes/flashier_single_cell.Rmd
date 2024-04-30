@@ -160,7 +160,7 @@ A few notes about this flash call:
 The plot method with default settings produces a "scree plot" showing
 the proportion of variance explained by each of the 8 factors:
 
-```{r scree-plot, fig.height=2, fig.width=3}
+```{r scree-plot, fig.height=2.25, fig.width=2.5}
 plot(fit)
 ```
 
@@ -303,7 +303,7 @@ plot(fit,
      pm_which = "factors",
 	 kset = 6,
      n_labels = 10,
-	 label_size = 2) +
+	 label_size = 2.5) +
  labs(x = "increase in shifted log expression",
       y = "mean shifted log expression") 
 ```
