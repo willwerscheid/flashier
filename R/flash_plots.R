@@ -614,7 +614,7 @@ flash_plot_scatter <- function(fl,
 #'   \code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
 #'   arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential
 #'   to creating a readable structure plot; for details, see
-#'   \code{\link[fastTopic]{structure_plot}}.
+#'   \code{\link[fastTopics]{structure_plot}}.
 #'
 #' @inheritParams plot.flash
 #'
