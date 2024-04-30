@@ -23,7 +23,7 @@ are shades of pink or red; etc.
 }
 \examples{
 fl <- flash(gtex, greedy_Kmax = 4)
-plot(fl, incl_scree = FALSE, pm_colors = gtex_colors)
+plot(fl, pm_colors = gtex_colors)
 }
 \references{
 Wei Wang and Matthew Stephens (2021).

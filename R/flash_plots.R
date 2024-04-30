@@ -766,7 +766,8 @@ flash_plot_heatmap <- function(fl,
   struct_ticks <- struct_p$plot_env$ticks + 0.5
 
   # Topics get reversed by plot_structure; re-reverse them:
-  struct_df$topic <- factor(struct_df$topic, level = rev(levels(struct_df$topic)))
+  struct_df$topic <- factor(struct_df$topic,
+                            levels = rev(levels(struct_df$topic)))
 
   p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
     geom_tile(width = 0.8, height = 1) +
