@@ -79,14 +79,17 @@ nmode.prod.lowrank <- function(x, ...) {
 
 # DEFAULT METHODS -----
 
+#' @export
 as.fullrank.default <- function(x, ...) {
   return(x)
 }
 
+#' @export
 get.data.dims.default <- function(x, ...) {
   return(dim(x))
 }
 
+#' @export
 get.data.dimnames.default <- function(x, ...) {
   return(dimnames(x))
 }
@@ -96,7 +99,7 @@ nmode.ops.error <- paste("N-mode products are not yet implemented for",
 
 # Imports needed for sparse matrices:
 #' @importFrom Matrix colSums rowSums t crossprod tcrossprod
-#'
+#' @export
 nmode.prod.vec.default <- function(x, v, n, ...) {
   if (length(get.data.dims(x)) == 2) {
     if (n == 1 && identical(v, 1))
@@ -125,6 +128,7 @@ nmode.prod.vec.default <- function(x, v, n, ...) {
   }
 }
 
+#' @export
 nmode.prod.r1.default <- function(x, r1, n, ...) {
   if (is.null(x)) {
     return(0)
@@ -141,10 +145,12 @@ nmode.prod.r1.default <- function(x, r1, n, ...) {
   }
 }
 
+#' @export
 sq.nmode.prod.r1.default <- function(x, r1, n, ...) {
   return(nmode.prod.r1(x^2, r1, n))
 }
 
+#' @export
 premult.nmode.prod.r1.default <- function(x, lr, r1, n, ...) {
   if (is.null(lr))
     return(0)
@@ -193,7 +199,7 @@ premult.nmode.prod.r1.default <- function(x, lr, r1, n, ...) {
 # Not currently used -----
 
 # Only needed for parallel backfits:
-#
+#' @export
 nmode.prod.lowrank.default <- function(x, Y, n, ...) {
   if (length(get.data.dims(x)) == 2) {
     if (n == 1)
