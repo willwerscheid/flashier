@@ -28,19 +28,19 @@ plotted. If \code{kset = NULL}, then all will be plotted.}
 
 \item{pm_subset}{A vector of row indices \eqn{i} or column indices
 \eqn{j} (depending on the argument to \code{pm_which})
-specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
+specifying which values \eqn{\ell_{i \cdot}}{l_{i.}} or \eqn{f_{j \cdot}}{f_{j.}} are
 to be shown. If the dataset has row or column names, then names rather
 than indices may be specified. If \code{pm_subset = NULL}, then all values
 will be plotted.}
 
 \item{pm_groups}{A vector specifying the group to which each row of the data
-\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
+\eqn{y_{i \cdot}}{y_{i.}} or column \eqn{y_{\cdot j}}{y_{.j}} belongs (groups may be
 numeric indices or strings). A group must be provided for each plotted row
 \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
 exactly equal to the number of rows or columns in the full dataset or, if
 \code{pm_subset} is specified, in the subsetted dataset.}
 
-\item{pm_colors}{The colors of the "topics" or components (factor/loadings
+\item{pm_colors}{The colors of the \dQuote{topics} or components (factor/loadings
 pairs).}
 
 \item{gap}{The horizontal spacing between groups. Ignored if \code{pm_groups}
@@ -53,14 +53,14 @@ is not provided.}
 A \code{ggplot2} object.
 }
 \description{
-Creates a "structure plot" (stacked bar plot) of posterior means for factors
-\eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Different "topics" or components
+Creates a \dQuote{structure plot} (stacked bar plot) of posterior means for factors
+\eqn{f_{jk}} or loadings \eqn{\ell_{ik}}{l_{ik}}. Different \dQuote{topics} or components
 (that is, the different factor/loadings pairs, as specified by \code{kset})
 are represented by different colors. Values are normalized so that the
-maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-loadings \eqn{\ell_{\cdot k}} is equal to 1 and then stacked (see
+maximum absolute value for each factor \eqn{f_{\cdot k}}{f_{.k}} or set of
+loadings \eqn{\ell_{\cdot k}}{l_{.k}} is equal to 1 and then stacked (see
 \code{\link{ldf.flash}}). Note that structure plots were designed for
-nonnegative loadings or "memberships"; if posterior means are not
+nonnegative loadings or \dQuote{memberships}; if posterior means are not
 nonnegative then a different type of plot should be used (e.g.,
 \code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
 arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential

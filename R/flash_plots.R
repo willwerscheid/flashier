@@ -25,13 +25,13 @@
 #'
 #' @param pm_subset A vector of row indices \eqn{i} or column indices
 #'   \eqn{j} (depending on the argument to \code{pm_which})
-#'   specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
+#'   specifying which values \eqn{\ell_{i \cdot}}{l_{i.}} or \eqn{f_{j \cdot}}{f_{j.}} are
 #'   to be shown. If the dataset has row or column names, then names rather
 #'   than indices may be specified. If \code{pm_subset = NULL}, then all values
 #'   will be plotted.
 #'
 #' @param pm_groups A vector specifying the group to which each row of the data
-#'   \eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
+#'   \eqn{y_{i \cdot}}{y_{i.}} or column \eqn{y_{\cdot j}}{y_{.j}} belongs (groups may be
 #'   numeric indices or strings). A group must be provided for each plotted row
 #'   \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
 #'   exactly equal to the number of rows or columns in the full dataset or, if
@@ -602,14 +602,14 @@ flash_plot_scatter <- function(fl,
 
 #' Create structure plot of factors or loadings for a flash fit
 #'
-#' Creates a "structure plot" (stacked bar plot) of posterior means for factors
-#'   \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}. Different "topics" or components
+#' Creates a \dQuote{structure plot} (stacked bar plot) of posterior means for factors
+#'   \eqn{f_{jk}} or loadings \eqn{\ell_{ik}}{l_{ik}}. Different \dQuote{topics} or components
 #'   (that is, the different factor/loadings pairs, as specified by \code{kset})
 #'   are represented by different colors. Values are normalized so that the
-#'   maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
-#'   loadings \eqn{\ell_{\cdot k}} is equal to 1 and then stacked (see
+#'   maximum absolute value for each factor \eqn{f_{\cdot k}}{f_{.k}} or set of
+#'   loadings \eqn{\ell_{\cdot k}}{l_{.k}} is equal to 1 and then stacked (see
 #'   \code{\link{ldf.flash}}). Note that structure plots were designed for
-#'   nonnegative loadings or "memberships"; if posterior means are not
+#'   nonnegative loadings or \dQuote{memberships}; if posterior means are not
 #'   nonnegative then a different type of plot should be used (e.g.,
 #'   \code{\link{flash_plot_heatmap}}). By default, a 1-d embedding is used to
 #'   arrange the rows \eqn{i} or columns \eqn{j}. This step is usually essential
@@ -618,7 +618,7 @@ flash_plot_scatter <- function(fl,
 #'
 #' @inheritParams plot.flash
 #'
-#' @param pm_colors The colors of the "topics" or components (factor/loadings
+#' @param pm_colors The colors of the \dQuote{topics} or components (factor/loadings
 #'   pairs).
 #'
 #' @param gap The horizontal spacing between groups. Ignored if \code{pm_groups}
@@ -690,8 +690,8 @@ flash_plot_structure <- function(fl,
 #' Create heatmap of factors or loadings for a flash fit
 #'
 #' Creates a heatmap of posterior means for factors \eqn{f_{jk}} or loadings
-#'   \eqn{\ell_{ik}}. Values are normalized so that the maximum absolute value
-#'   for each factor \eqn{f_{\cdot k}} or set of loadings \eqn{\ell_{\cdot k}}
+#'   \eqn{\ell_{ik}}{l_{ik}}. Values are normalized so that the maximum absolute value
+#'   for each factor \eqn{f_{\cdot k}}{f_{.k}} or set of loadings \eqn{\ell_{\cdot k}}{l_{.k}}
 #'   is equal to 1 (see \code{\link{ldf.flash}}).
 #'
 #' By default, a 1-d embedding is used to arrange the rows \eqn{i} or columns

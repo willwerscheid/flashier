@@ -30,13 +30,13 @@ plotted. If \code{kset = NULL}, then all will be plotted.}
 
 \item{pm_subset}{A vector of row indices \eqn{i} or column indices
 \eqn{j} (depending on the argument to \code{pm_which})
-specifying which values \eqn{\ell_{i \cdot}} or \eqn{f_{j \cdot}} are
+specifying which values \eqn{\ell_{i \cdot}}{l_{i.}} or \eqn{f_{j \cdot}}{f_{j.}} are
 to be shown. If the dataset has row or column names, then names rather
 than indices may be specified. If \code{pm_subset = NULL}, then all values
 will be plotted.}
 
 \item{pm_groups}{A vector specifying the group to which each row of the data
-\eqn{y_{i \cdot}} or column \eqn{y_{\cdot j}} belongs (groups may be
+\eqn{y_{i \cdot}}{y_{i.}} or column \eqn{y_{\cdot j}}{y_{.j}} belongs (groups may be
 numeric indices or strings). A group must be provided for each plotted row
 \eqn{i} or column \eqn{j}, so that the length of \code{pm_groups} is
 exactly equal to the number of rows or columns in the full dataset or, if
