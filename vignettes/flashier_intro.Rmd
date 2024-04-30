@@ -52,7 +52,7 @@ pdat <- data.frame(d1 = out$Y[, 1],
                    tissue = colnames(gtex))
 ggplot(pdat,aes(x = d1, y = d2, label = tissue)) +
   geom_point(size = 3, color = gtex_colors) +
-  geom_text_repel(size = 2.5, max.overlaps = Inf) +
+  geom_text_repel(size = 2, max.overlaps = Inf) +
   labs(x = "t-SNE [1]", y = "t-SNE [2]") +
   theme_classic() +
   theme(axis.ticks = element_blank(),
@@ -145,7 +145,7 @@ estimated matrix ${\bf L}$. Adding color to distinguish among tissues
 yields an effective visualization that aids interpretation of factors:
 
 ```{r plot-flash-normal, fig.width=5, fig.height=5}
-plot(flash_n, include_scree = FALSE, pm_colors = gtex_colors)
+plot(flash_n, pm_which = "factors", pm_colors = gtex_colors, plot_type = "bar")
 ```
 
 The first factor sets the "baseline" z-score for each tissue. Other
@@ -167,7 +167,7 @@ priors by simply modifying the "ebnm_fn" argument:
 
 ```{r flash-point-normal, fig.width=6, fig.height=5.5}
 flash_pn <- flash(gtex, ebnm_fn = ebnm_point_normal, backfit = TRUE)
-plot(flash_pn, include_scree = FALSE, pm_colors = gtex_colors)
+plot(flash_pn, pm_which = "factors", pm_colors = gtex_colors, plot_type = "bar")
 ```
 
 The point-normal priors require estimation of slightly more parameters
@@ -207,7 +207,7 @@ second the prior family for ${\bf F}$:
 flash_snn <- flash(gtex, 
                    ebnm_fn = c(ebnm_point_normal, ebnm_point_exponential), 
                    backfit = TRUE)
-plot(flash_snn, include_scree = FALSE, pm_colors = gtex_colors)
+plot(flash_snn, pm_which = "factors", pm_colors = gtex_colors, plot_type = "bar")
 ```
 
 This code returned results in less than 3 seconds on our MacBook
