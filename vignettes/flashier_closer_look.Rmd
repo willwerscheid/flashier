@@ -67,10 +67,30 @@ fit_default$elbo
 
 Additionally, a few class methods have been implemented, including `fitted()`, which returns $\mathbb{E} (LF')$; `residuals()`, which yields the matrix of expected residuals $Y - \mathbb{E} (LF')$; and `ldf()`, which gives the LDF factorization with the scaling of loadings and factors determined by argument `type`.
 
-Finally, `flashier` provides a convenient `plot()` method. By default, `plot()` returns two figures: a "scree plot" showing the proportion of variance explained by each factor/loadings pair; and plots of posterior means of either factors or loadings (depending on the argument to `pm_which`). Here, we supply colors for the posterior means plots in order to match the figures included in Wang and Stephens (2021):
+Finally, `flashier` provides a convenient `plot()` method. The type of plot is controlled by the `plot_type` argument. The default option is a "scree plot," which shows the proportion of variance explained by each factor/loadings pair:
 
-```{r plot.fn}
-plot(fit_default, pw_which = "factors", pm_colors = gtex_colors)
+```{r plot.scree}
+plot(fit_default)
+```
+
+Other plot types, including bar plots, histograms, scatter plots, heatmaps, and "structure" plots, can provide a more detailed overview of posterior means for either factors or loadings (depending on the argument to `pm_which`). Here, supply colors for the individual bars in a bar plot in order to match the figures included in Wang and Stephens (2021):
+
+```{r plot.bar}
+plot(fit_default, 
+     pm_which = "factors", 
+     pm_colors = gtex_colors,
+     plot_type = "bar")
+```
+
+All of the plot types are available via a dual interface. In addition to being able to specify the `plot_type` argument in the `plot` method, each plot type has its own `flash_plot_xxx` function, which typically exposes a few more arguments. Further, since a `ggplot2` object is returned by all plotting functions, additional customization is straightforward:
+
+```{r plot.bar.custom}
+flash_plot_bar(fit_default, 
+               pm_which = "factors", 
+               pm_colors = gtex_colors,
+               labels = TRUE,
+               ncol = 1) +
+  theme(axis.text.x = element_text(size = 6, angle = 60, color = gtex_colors))
 ```
 
 Most of the large values for factor 2 above correspond to brain tissues (yellow), but the factor is not very "clean" in the sense that many other tissues have medium to large values as well. Factor 3 is primarily confined to whole blood, but there again appears to be a lot of noise, which makes biological interpretation difficult. 
@@ -107,16 +127,14 @@ p1 <- plot(
   fit_var_bycol, 
   pm_which = "factors", 
   pm_colors = gtex_colors, 
-  order_by_pve = FALSE,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("By-column variance assumption")
 
 p2 <- plot(
   fit_var_kronecker, 
   pm_which = "factors", 
   pm_colors = gtex_colors, 
-  order_by_pve = FALSE,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("Kronecker variance assumption")
 
 plot_grid(p1, p2, nrow = 2)
@@ -207,12 +225,13 @@ fit_seminonnegative <- flash(
 The result is a "semi-nonnegative" factorization, which in the scenario under consideration yields sparse, interpretable factors (especially in comparison to the factors produced using all default arguments to `flash()`; see above). Here, factor 2 represents sharing among brain, pituitary, and testis tissues; factor 3, among whole blood, spleen tissue, lung tissue, and lymphocytes; and factor 5, among heart and muscle tissues. Factor 4 represents effects uniquely expressed in testis tissue:
 
 ```{r}
-plot(
-  fit_seminonnegative,
-  pm_which = "factors", 
-  pm_colors = gtex_colors, 
-  include_scree = FALSE
-)
+plot(fit_seminonnegative,
+     pm_which = "factors", 
+     pm_colors = gtex_colors,
+     labels = TRUE,
+     ncol = 1,
+     plot_type = "bar") +
+  theme(axis.text.x = element_text(size = 6, angle = 60, color = gtex_colors))
 ```
 
 
@@ -264,15 +283,13 @@ p1 <- plot(
   fit_greedy, 
   pm_which = "factors",
   pm_colors = gtex_colors, 
-  order_by_pve = FALSE,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("Greedy fit")
 p2 <- plot(
   fit_backfit, 
   pm_which = "factors",
   pm_colors = gtex_colors, 
-  order_by_pve = FALSE,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("Backfit")
 
 plot_grid(p1, p2, nrow = 2)
@@ -314,7 +331,7 @@ factor3_ci <- apply(factor3_samp, 1, quantile, c(0.025, 0.975))
 Since the `plot` method returns a `ggplot2` object, it can be customized using `ggplot` syntax, making the addition of error bars a simple task:
 
 ```{r final.bf.ci.plot}
-plot(fit_backfit, kset = 3, pm_colors = gtex_colors, include_scree = FALSE) +
+plot(fit_backfit, kset = 3, pm_colors = gtex_colors, plot_type = "bar") +
   geom_errorbar(aes(ymin = factor3_ci[1, ], ymax = factor3_ci[2, ]))
 ```
 
