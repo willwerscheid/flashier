@@ -127,13 +127,13 @@ p1 <- plot(
   fit_backfit, 
   pm_which = "factors", 
   pm_colors = gtex_colors,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("No intercept")
 p2 <- plot(
   fit_with_intercept, 
   pm_which = "factors", 
   pm_colors = gtex_colors,
-  include_scree = FALSE
+  plot_type = "bar"
 ) + ggtitle("With intercept")
 plot_grid(p1, p2, nrow = 2)
 ```
@@ -176,8 +176,7 @@ plot(
   fit_fixed_pattern, 
   pm_which = "factors",
   pm_colors = gtex_colors, 
-  include_scree = FALSE,
-  order_by_pve = FALSE
+  plot_type = "bar"
 )
 ```
 
