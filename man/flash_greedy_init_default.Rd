@@ -9,7 +9,6 @@ flash_greedy_init_default(
   sign_constraints = NULL,
   tol = NULL,
   maxiter = 100,
-  maxtrials = 10,
   seed = 666
 )
 }

@@ -160,7 +160,7 @@ A few notes about this flash call:
 The plot method with default settings produces a "scree plot" showing
 the proportion of variance explained by each of the 8 factors:
 
-```{r scree-plot, fig.height=2, fig.width=3}
+```{r scree-plot, fig.height=2.25, fig.width=2.5}
 plot(fit)
 ```
 
@@ -203,9 +203,9 @@ given by the membership levels.
 
 ```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
+     plot_type = "structure",
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     plot_type = "structure",
      gap = 25)
 ```
 
@@ -216,10 +216,10 @@ factor from our structure plot:
 
 ```{r structure-plot-2, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
+     plot_type = "structure",
      kset = 2:8,
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     plot_type = "structure",
      gap = 25)
 ```
   
@@ -233,13 +233,13 @@ cells. It is also interesting to note the subset of CD34+ cells that
 are primarily loaded on factor 3; some of these cells may be
 mislabeled.
   
-We can also visualize the cell matrix with a heatmap:
+We can also visualize the cell matrix in a heatmap:
 
 ```{r heatmap, fig.height=3.5, fig.width=3.25, message=FALSE, results="hide"}
 plot(fit, 
+     plot_type = "heatmap",
      pm_which = "loadings", 
      pm_groups = pbmc_facs$samples$subpop,
-     plot_type = "heatmap",
      gap = 25)
 ```
 
@@ -278,11 +278,11 @@ Let's now apply this simple rule of thumb and examine the top 4 genes
 top_genes <- apply(F, 2, order, decreasing = TRUE)[1:4, 2:6]
 top_genes <- rownames(fit$F_pm)[top_genes]
 plot(fit,
-     kset = 2:6,
+     plot_type = "heatmap",
      pm_which = "factors",
      pm_subset = top_genes,
      pm_groups = factor(top_genes, levels = rev(top_genes)),
-     plot_type = "heatmap",
+     kset = 2:6,
      gap = 0.2)
 ```
 
@@ -299,11 +299,11 @@ Plot of mean vs. change for factor 6 ("B cells"), with top 10 genes
 
 ```{r plot-change-vs-mean, fig.height=3, fig.width=3}
 plot(fit,
-     kset = 6,
-     pm_which = "factors",
      plot_type = "scatter",
+     pm_which = "factors",
+	 kset = 6,
      n_labels = 10,
-     label_size = 2) +
+	 label_size = 2.5) +
  labs(x = "increase in shifted log expression",
       y = "mean shifted log expression") 
 ```
