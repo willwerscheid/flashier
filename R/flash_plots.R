@@ -222,6 +222,7 @@ plot.flash <- function(x,
 #' @importFrom ggplot2 scale_x_continuous scale_y_log10 labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom ggrepel geom_text_repel
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -238,15 +239,12 @@ flash_plot_scree <- function(fl,
                              pm_subset = NULL,
                              pm_groups = NULL,
                              pm_colors = NULL)
-  # Bind variables to get rid of annoying R CMD check note:
-  pve <- k <- k_numeric <- NULL
-
   df <- df |>
-    group_by(pve, k) |>
+    group_by(.data$pve, .data$k) |>
     summarize(.groups = "drop") |>
-    mutate(k_numeric = as.numeric(k))
+    mutate(k_numeric = as.numeric(.data$k))
 
-  p <- ggplot(df, aes(x = k_numeric, y = pve, label = k)) +
+  p <- ggplot(df, aes(x = .data$k_numeric, y = .data$pve, label = .data$k)) +
     geom_line(color = "grey") +
     geom_point(color = "dodgerblue") +
     scale_y_log10() +
@@ -324,6 +322,7 @@ flash_plot_scree <- function(fl,
 #' @importFrom ggplot2 scale_fill_identity labs facet_wrap
 #' @importFrom ggplot2 theme element_text element_blank
 #' @importFrom cowplot theme_cowplot
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -344,14 +343,11 @@ flash_plot_bar <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
 
-  # Bind variables to get rid of annoying R CMD check note:
-  name <- val <- color <- k <- NULL
-
   if (is.null(df$color)) {
-    p <- ggplot(df, aes(x = name, y = val)) +
+    p <- ggplot(df, aes(x = .data$name, y = .data$val)) +
       geom_col(fill = "dodgerblue")
   } else {
-    p <- ggplot(df, aes(x = name, y = val, fill = color)) +
+    p <- ggplot(df, aes(x = .data$name, y = .data$val, fill = .data$color)) +
       geom_col() +
       scale_fill_identity()
   }
@@ -362,7 +358,7 @@ flash_plot_bar <- function(fl,
 
   if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k, ...)
+      facet_wrap(~.data$k, ...)
   }
 
   if (labels) {
@@ -416,6 +412,7 @@ flash_plot_bar <- function(fl,
 #' @importFrom ggplot2 theme element_blank
 #' @importFrom ggplot2 guides labs
 #' @importFrom cowplot theme_cowplot
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -438,20 +435,17 @@ flash_plot_histogram <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = if (is.null(pm_groups)) NULL else pm_colors)
 
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k <- NULL
-
   if (is.null(pm_groups)) {
-    p <- ggplot(df, aes(x = val, y = after_stat(density))) +
+    p <- ggplot(df, aes(x = .data$val, y = after_stat(density))) +
       geom_histogram(position = "identity", bins = bins, fill = "dodgerblue")
   } else {
     color_df <- df |>
-      group_by(group, color) |>
+      group_by(.data$group, .data$color) |>
       summarize(.groups = "drop") |>
-      arrange(group)
+      arrange(.data$group)
 
-    p <- ggplot(df, aes(x = val, y = after_stat(density),
-                        color = color, fill = color)) +
+    p <- ggplot(df, aes(x = .data$val, y = after_stat(density),
+                        color = .data$color, fill = .data$color)) +
       geom_histogram(position = "identity", bins = bins, alpha = alpha) +
       scale_color_identity(guide = "legend",
                            name = "",
@@ -472,7 +466,7 @@ flash_plot_histogram <- function(fl,
 
   if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k, scales = "free_y", ...)
+      facet_wrap(~.data$k, scales = "free_y", ...)
   }
   return(p)
 }
@@ -545,6 +539,7 @@ flash_plot_histogram <- function(fl,
 #' @importFrom dplyr group_by mutate summarize arrange left_join
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -575,9 +570,6 @@ flash_plot_scatter <- function(fl,
                              pm_subset = pm_subset,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
-
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k <- NULL
 
   if (!is.null(covariate)) {
     df$covariate <- rep(covariate, length.out = nrow(df))
@@ -614,14 +606,15 @@ flash_plot_scatter <- function(fl,
 
   if (n_labels > 0) {
     df <- df |>
-      group_by(k) |>
-      mutate(label = ifelse(rank(-abs(val)) > n_labels, "", name)) |>
-      mutate(color = ifelse(label != "", "dodgerblue", "gray80"))
+      group_by(.data$k) |>
+      mutate(label = ifelse(rank(-abs(.data$val)) > n_labels, "", .data$name)) |>
+      mutate(color = ifelse(.data$label != "", "dodgerblue", "gray80"))
   } else {
     df$label = ""
   }
 
-  p <- ggplot(df, aes(x = val, y = covariate, color = color, label = label)) +
+  p <- ggplot(df, aes(x = .data$val, y = .data$covariate,
+                      color = .data$color, label = .data$label)) +
     geom_point(shape = shape) +
     labs(x = paste(sub("s", "", pm_which), "posterior mean"),
          y = ylab) +
@@ -637,9 +630,9 @@ flash_plot_scatter <- function(fl,
       scale_color_identity()
   } else {
     color_df <- df |>
-      group_by(group, color) |>
+      group_by(.data$group, .data$color) |>
       summarize(.groups = "drop") |>
-      arrange(group)
+      arrange(.data$group)
     p <- p +
       scale_color_identity(guide = "legend",
                            name = "",
@@ -782,6 +775,7 @@ flash_plot_structure <- function(fl,
 #' @importFrom ggplot2 scale_y_continuous labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -794,9 +788,6 @@ flash_plot_heatmap <- function(fl,
                                pm_colors = NULL,
                                gap = 1,
                                ...) {
-  # Bind variables to get rid of annoying R CMD check note:
-  topic <- prop <- NULL
-
   if (is.null(pm_colors)) {
     pm_colors <- c("darkred", "white", "darkblue")
   } else if (length(pm_colors) == 1) {
@@ -827,11 +818,11 @@ flash_plot_heatmap <- function(fl,
   struct_df$topic <- factor(struct_df$topic,
                             levels = rev(levels(struct_df$topic)))
 
-  p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
+  p <- ggplot(struct_df, aes(x = .data$topic, y = .data$sample, fill = .data$prop)) +
     geom_tile(width = 0.8, height = 1) +
     scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
     scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
-    labs(x = "component", y = "", fill = "posterior mean") +
+    labs(x = "component", y = "", fill = "posterior\n mean") +
     theme_cowplot(font_size = 10)
   return(p)
 }
