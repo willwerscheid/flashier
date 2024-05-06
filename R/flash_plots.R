@@ -448,8 +448,8 @@ flash_plot_histogram <- function(fl,
       arrange(.data$group)
 
     p <- ggplot(df, aes(x = .data$val, y = after_stat(density),
-                        color = .data$color, fill = .data$color)) +
-      geom_histogram(position = "identity", bins = bins, alpha = alpha) +
+                        fill = .data$color)) +
+      geom_histogram(position = "identity", bins = bins, color = "white") +
       scale_color_identity(guide = "legend",
                            name = "",
                            labels = color_df$group,
@@ -461,7 +461,7 @@ flash_plot_histogram <- function(fl,
   }
 
   p <- p +
-    geom_vline(xintercept = 0, color = "darkgrey") +
+    # geom_vline(xintercept = 0, color = "darkgrey") +
     theme_cowplot(font_size = 10) +
     theme(axis.text.y = element_blank()) +
     labs(title = paste0("Posterior means (", pm_which, ")")) +
