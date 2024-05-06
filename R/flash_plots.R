@@ -623,7 +623,8 @@ flash_plot_scatter <- function(fl,
 
   p <- ggplot(df, aes(x = val, y = covariate, color = color, label = label)) +
     geom_point(shape = shape) +
-    labs(x = "loading", y = ylab) +
+    labs(x = paste(sub("s", "", pm_which), "posterior mean"),
+         y = ylab) +
     theme_cowplot(font_size = 10)
 
   if (length(levels(df$k)) > 1) {
@@ -734,13 +735,13 @@ flash_plot_structure <- function(fl,
   if (any(df$val < 0) && any(df$val > 0)) {
     warning("Structure plots were designed to visualize sets of nonnegative ",
             "memberships or loadings. Structure plots that include negative ",
-            "loadings are often difficult to interpret, so a heatmap should ",
+            "values are often difficult to interpret, so a heatmap should ",
             "typically be preferred when visualizing a combination of negative ",
-            "and positive loadings.")
+            "and positive values.")
   }
 
   p <- p +
-    labs(y = "loading", color = "factor", fill = "factor")
+    labs(y = "posterior mean", color = "component", fill = "component")
   return(p)
 }
 
@@ -830,7 +831,7 @@ flash_plot_heatmap <- function(fl,
     geom_tile(width = 0.8, height = 1) +
     scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
     scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
-    labs(x = "factor", y = "", fill = "loading") +
+    labs(x = "component", y = "", fill = "posterior mean") +
     theme_cowplot(font_size = 10)
   return(p)
 }
