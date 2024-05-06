@@ -301,11 +301,12 @@ Plot of mean vs. change for factor 6 ("B cells"), with top 10 genes
 plot(fit,
      plot_type = "scatter",
      pm_which = "factors",
-	 kset = 6,
+     kset = 6,
+     labels = TRUE,
      n_labels = 10,
-	 label_size = 2.5) +
- labs(x = "increase in shifted log expression",
-      y = "mean shifted log expression") 
+     label_size = 2.5) +
+  labs(x = "increase in shifted log expression",
+       y = "mean shifted log expression") 
 ```
 
 Other notes
