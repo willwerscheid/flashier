@@ -14,8 +14,7 @@
   pm_subset = NULL,
   pm_groups = NULL,
   pm_colors = NULL,
-  plot_type = c("scree", "bar", "heatmap", "histogram", "scatter", "structure",
-    "data.frame"),
+  plot_type = c("scree", "bar", "heatmap", "histogram", "scatter", "structure"),
   ...
 )
 }
@@ -98,7 +97,7 @@ sense. See \code{\link{flash_plot_structure}}.}
 for details.}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Plots a \code{\link{flash}} object. Several types of plot are possible:

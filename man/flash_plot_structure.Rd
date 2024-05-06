@@ -17,6 +17,8 @@ flash_plot_structure(
 )
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -50,7 +52,7 @@ is not provided.}
 \code{\link[fastTopics]{structure_plot}}.}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Creates a \dQuote{structure plot} (stacked bar plot) of posterior means for factors

@@ -17,6 +17,8 @@ flash_plot_heatmap(
 )
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -60,7 +62,7 @@ is not provided.}
 arrange the rows \eqn{i} or columns \eqn{j}).}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Creates a heatmap of posterior means for factors \eqn{f_{jk}} or loadings

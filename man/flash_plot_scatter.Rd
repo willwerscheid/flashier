@@ -14,12 +14,16 @@ flash_plot_scatter(
   pm_colors = NULL,
   covariate = NULL,
   shape = 1,
+  labels = FALSE,
   n_labels = 0,
   label_size = 3,
+  max_overlaps = Inf,
   ...
 )
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -54,17 +58,28 @@ or column \eqn{j}. These values are mapped onto the plots' \eqn{y}-axis.}
 \item{shape}{The symbol used for the plots' points. See
 \code{\link[ggplot2]{aes_linetype_size_shape}}.}
 
-\item{n_labels}{A (nonnegative) integer. If \code{n_labels > 0}, then the
-points with the \code{n_labels} largest (absolute) posterior means will be
-labelled using \code{\link[ggrepel]{geom_text_repel}}.}
+\item{labels}{Whether to label the points with the largest (absolute)
+posterior means. If \code{labels = TRUE}, then \code{n_labels} points will
+be labelled using \code{\link[ggrepel]{geom_text_repel}}.}
+
+\item{n_labels}{A (nonnegative) integer. The number of points to label. If
+\code{n_labels} is set to a positive integer but \code{labels = FALSE},
+then the \code{n_labels} points with the largest (absolute) posterior
+means will be highlighted in blue but not labelled. This can be useful for
+tweaking labels using the full range of options provided by
+\code{\link[ggrepel]{geom_text_repel}}. For an example, see below.}
 
 \item{label_size}{The size of the label text (in millimeters).}
 
+\item{max_overlaps}{A (nonnegative) integer. For each text label, the number
+of overlaps with other text labels or other data points are counted, and
+the text label is excluded if it has too many overlaps.}
+
 \item{...}{Additional arguments to be passed to
-\code{\link[ggrepel]{geom_text_repel}}.}
+\code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Creates a scatter plot or sequence of scatter plots, with position along the
@@ -76,4 +91,21 @@ use data column or row means, \eqn{\frac{1}{n} \sum_{i = 1}^n y_{ij}} or
 each value of \eqn{k} in \code{kset}. Values are normalized so that the
 maximum absolute value for each factor \eqn{f_{\cdot k}} or set of
 loadings \eqn{\ell_{\cdot k}} is equal to 1 (see \code{\link{ldf.flash}}).
+}
+\examples{
+data(gtex)
+fl <- flash(gtex, greedy_Kmax = 4L, backfit = FALSE)
+flash_plot_scatter(fl)
+
+# Label axes and points:
+library(ggplot2)
+flash_plot_scatter(fl, labels = TRUE, n_labels = 3) +
+  labs(y = "mean z-score across all SNPs")
+
+# For the full range of labelling options provided by the ggrepel package, set
+#   labels = FALSE (the default setting) and add geom_text_repel() manually:
+library(ggrepel)
+flash_plot_scatter(fl, labels = FALSE, n_labels = 3) +
+  geom_text_repel(size = 2.5, min.segment.length = 0)
+
 }

@@ -19,6 +19,8 @@ flash_plot_histogram(
 )
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -56,7 +58,7 @@ use the number of bins in \code{bins}, covering the range of the data.}
 \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Creates a histogram or sequence of histograms of posterior means for factors

@@ -4,9 +4,18 @@
 \alias{flash_plot_scree}
 \title{Create a scree plot for a flash fit}
 \usage{
-flash_plot_scree(fl, order_by_pve = FALSE, kset = NULL, labels = FALSE)
+flash_plot_scree(
+  fl,
+  order_by_pve = FALSE,
+  kset = NULL,
+  labels = FALSE,
+  label_size = 3,
+  max_overlaps = Inf
+)
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -17,9 +26,15 @@ plotted. If \code{kset = NULL}, then all will be plotted.}
 \item{labels}{Whether to label the points in the scree plot with the
 indices of the factor/loading pairs they correspond to. Labels appear
 as "k1", "k2", "k3", etc.}
+
+\item{label_size}{The size of the label text (in millimeters).}
+
+\item{max_overlaps}{A (nonnegative) integer. For each text label, the number
+of overlaps with other text labels or other data points are counted, and
+the text label is excluded if it has too many overlaps.}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 A scree plot is a line plot showing the proportion of variance explained by
@@ -37,4 +52,15 @@ the components in the flash fit. This can also be true if argument
 \code{kset} has been specified. Thus one should consider setting
 \code{labels = TRUE} when \code{order_by_pve = TRUE} or when \code{kset}
 has been specified.
+}
+\examples{
+data(gtex)
+fl <- flash(gtex, greedy_Kmax = 4L, backfit = FALSE)
+flash_plot_scree(fl)
+
+# For the full range of labelling options provided by the ggrepel package, set
+#   labels = FALSE (the default setting) and add geom_text_repel() manually:
+library(ggrepel)
+flash_plot_scree(fl) + geom_text_repel(min.segment.length = 0)
+
 }

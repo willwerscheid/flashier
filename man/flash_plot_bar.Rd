@@ -17,6 +17,8 @@ flash_plot_bar(
 )
 }
 \arguments{
+\item{fl}{An object inheriting from class \code{flash}.}
+
 \item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
 re-ordered according to proportion of variance explained (from
 highest to lowest).}
@@ -53,7 +55,7 @@ appearance of the labels (size, angle, etc.) can be adjusted using
 \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot} object.
 }
 \description{
 Creates a bar plot or sequence of bar plots, one for each value of \eqn{k} in
