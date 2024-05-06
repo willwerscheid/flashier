@@ -175,9 +175,9 @@
 #' fl <- flash(gtex, greedy_Kmax = 3L, backfit = TRUE)
 #'
 #' # This is equivalent to the series of calls:
-#' fl <- flash_init(gtex) %>%
-#'   flash_greedy(Kmax = 3L) %>%
-#'   flash_backfit() %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_greedy(Kmax = 3L) |>
+#'   flash_backfit() |>
 #'   flash_nullcheck()
 #'
 #' # Fit a unimodal distribution with mean zero to each set of loadings
@@ -211,7 +211,6 @@
 #'   \code{\link{fitted.flash}}, \code{\link{residuals.flash}}, and
 #'   \code{\link{ldf.flash}}.
 #'
-#' @importFrom magrittr %>%
 #' @importFrom ebnm ebnm_point_normal
 #'
 #' @export

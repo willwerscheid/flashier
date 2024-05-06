@@ -26,23 +26,23 @@ necessarily be the total number of factors added by
 increase the ELBO.}
 
 \item{ebnm_fn}{The function or functions used to solve the empirical Bayes
-  normal means (EBNM) subproblems. Most importantly, these functions specify
-  the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
-  priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
-  assumed to belong. If the same function is to be used for both loadings
-  \eqn{L} and factors \eqn{F}, then \code{ebnm_fn} can be a single function.
-  If one function is to be used for loadings and a second for factors,
-  then \code{ebnm_fn} should be a list of length two, with the first
-  element giving the function for loadings and the second the function
-  for factors. If different functions are to be used for different values of
-  \eqn{k}, then factor/loadings pairs must be added successively using
-  multiple calls to either \code{\link{flash_greedy}} or
-  \code{\link{flash_factors_init}}.
+normal means (EBNM) subproblems. Most importantly, these functions specify
+the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+assumed to belong. If the same function is to be used for both loadings
+\eqn{L} and factors \eqn{F}, then \code{ebnm_fn} can be a single function.
+If one function is to be used for loadings and a second for factors,
+then \code{ebnm_fn} should be a list of length two, with the first
+element giving the function for loadings and the second the function
+for factors. If different functions are to be used for different values of
+\eqn{k}, then factor/loadings pairs must be added successively using
+multiple calls to either \code{\link{flash_greedy}} or
+\code{\link{flash_factors_init}}.
 
-  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
-  used as input. Non-default arguments to parameters can be supplied using
-  the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
-  also be used: for details, see \code{\link{flash_ebnm}}.}
+Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+used as input. Non-default arguments to parameters can be supplied using
+the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
+also be used: for details, see \code{\link{flash_ebnm}}.}
 
 \item{init_fn}{The function used to initialize factor/loadings pairs. Functions
 \code{\link{flash_greedy_init_default}}, \code{\link{flash_greedy_init_softImpute}}, and
@@ -109,15 +109,15 @@ using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with up
-  to \code{Kmax} new factor/loadings pairs "greedily" added.
+to \code{Kmax} new factor/loadings pairs "greedily" added.
 }
 \description{
 Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
-  \code{Kmax} pairs are added one at a time. At each step, \code{flash_greedy}
-  attempts to find an optimal additional (rank-one) factor given all
-  previously added factors. The additional factor is retained if it
-  increases the variational lower bound (ELBO); otherwise, fitting terminates.
-  See \code{\link{flash}} for examples of usage.
+\code{Kmax} pairs are added one at a time. At each step, \code{flash_greedy}
+attempts to find an optimal additional (rank-one) factor given all
+previously added factors. The additional factor is retained if it
+increases the variational lower bound (ELBO); otherwise, fitting terminates.
+See \code{\link{flash}} for examples of usage.
 }
 \examples{
 # The following are examples of advanced usage. See ?flash for basic usage.
@@ -125,7 +125,7 @@ Adds factor/loadings pairs to a flash object in a "greedy" manner. Up to
 # Increase the maximum number of iterations in the default initialization
 #   method.
 my_init_fn <- function(f) flash_greedy_init_default(f, maxiter = 500)
-fl <- flash_init(gtex) \%>\%
+fl <- flash_init(gtex) |>
   flash_greedy(init_fn = my_init_fn)
 
 # Use a custom initialization function that wraps function nmf from
@@ -134,13 +134,13 @@ nmf_init_fn <- function(f) {
   nmf_res <- RcppML::nmf(resid(f), k = 1, verbose = FALSE)
   return(list(as.vector(nmf_res$w), as.vector(nmf_res$h)))
 }
-fl.nmf <- flash_init(gtex) \%>\%
+fl.nmf <- flash_init(gtex) |>
   flash_greedy(ebnm_fn = ebnm_unimodal_nonnegative,
                init_fn = nmf_init_fn)
 
 }
 \seealso{
 \code{\link{flash_greedy_init_default}},
-  \code{\link{flash_greedy_init_softImpute}},
-  \code{\link{flash_greedy_init_irlba}}
+\code{\link{flash_greedy_init_softImpute}},
+\code{\link{flash_greedy_init_irlba}}
 }

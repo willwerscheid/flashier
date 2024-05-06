@@ -18,7 +18,7 @@ test_that("constant S + constant estimation works", {
 
 test_that("by column S + by column estimation works", {
   tau = c(rep(50, 10), rep(250, p - 10))
-  f <- flash_init(M, S = 1 / sqrt(tau), S_dim = 2, var_type = 2) %>%
+  f <- flash_init(M, S = 1 / sqrt(tau), S_dim = 2, var_type = 2) |>
     flash_greedy(1, verbose = 0)
   expect_equal(f$flash_fit$tau[1:10], rep(50, 10))
   expect_equal(f$flash_fit$tau[-(1:10)], f$flash_fit$est.tau[-(1:10)])

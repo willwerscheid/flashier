@@ -1,3 +1,4 @@
+#' @exportS3Method NULL
 update.factor <- function(factor, flash, update.tau = TRUE) {
   if (is.zero(factor))
     return(factor)
@@ -12,6 +13,7 @@ update.factor <- function(factor, flash, update.tau = TRUE) {
   return(factor)
 }
 
+#' @exportS3Method NULL
 update.factor.one.n <- function(factor, n, flash) {
   nonmissing.thresh <- get.nonmissing.thresh(flash, n)
   if (nonmissing.thresh > 0) {
@@ -49,6 +51,7 @@ update.factor.one.n <- function(factor, n, flash) {
   return(factor)
 }
 
+#' @exportS3Method NULL
 update.R2.tau.and.obj <- function(factor, flash) {
   factor <- update.tau(factor, flash)
   factor <- set.obj(factor, calc.obj(flash, factor))
@@ -62,6 +65,7 @@ calc.prop.nonmissing <- function(factor, n, flash) {
   return(nmode.prod.r1(Z, EF2, n) / r1.sum(EF2))
 }
 
+#' @exportS3Method NULL
 solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
   fix.dim <- get.fix.dim(factor)
   if (use.subsetted.flash.data(factor, n))
@@ -99,20 +103,44 @@ solve.ebnm <- function(factor, n, flash, output = default.ebnm.output) {
     }
   }
 
-  withCallingHandlers(
-    ebnm.res <- ebnm.fn(
-      x = ebnm.args$x,
-      s = ebnm.args$s,
-      g_init = g,
-      fix_g = fixg,
-      output = output
-    ),
-    warning = function(w) {
-      if (!is.null(ignored.warnings)
-          && any(startsWith(conditionMessage(w), ignored.warnings)))
-        invokeRestart("muffleWarning")
+  ebnm.fn.ignore.warn <- function(g) {
+    withCallingHandlers(
+      ebnm.fn(
+        x = ebnm.args$x,
+        s = ebnm.args$s,
+        g_init = g,
+        fix_g = fixg,
+        output = output
+      ),
+      warning = function(w) {
+        if (!is.null(ignored.warnings)
+            && any(startsWith(conditionMessage(w), ignored.warnings)))
+          invokeRestart("muffleWarning")
+      }
+    )
+  }
+
+  # First attempt, possibly with warmstart.
+  ebnm.res <- tryCatch(
+    ebnm.fn.ignore.warn(g = g),
+    error = function (cnd) {
+      if (fixg | is.null(g)) {
+        stop(paste("EBNM solver (no warmstart) threw error:", cnd))
+      } else {
+        NULL
+      }
     }
   )
+
+  # If warmstart failed, try again.
+  if (is.null(ebnm.res)) {
+    ebnm.res <- tryCatch(
+      ebnm.fn.ignore.warn(g = NULL),
+      error = function (cnd) {
+        stop(paste("EBNM solver (after failed warmstart) threw error:", cnd))
+      }
+    )
+  }
 
   if (identical(output, default.ebnm.output)) {
     ebnm.res$KL <- (ebnm.res$log_likelihood

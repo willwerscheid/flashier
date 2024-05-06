@@ -20,17 +20,17 @@ A character string, suitable for printing progress updates.
 }
 \description{
 Displays the maximum (absolute) change over all (posterior expected values for)
-  loadings \eqn{\ell_{ik}} and factors \eqn{f_{jk}}. At each iteration, the
-  loadings vectors \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} and factors
-  \eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
+loadings \eqn{\ell_{ik}} and factors \eqn{f_{jk}}. At each iteration, the
+loadings vectors \eqn{\ell_{\cdot 1}, \ldots, \ell_{\cdot K}} and factors
+\eqn{f_{\cdot 1}, \ldots, f_{\cdot K}} are \eqn{L^2}-normalized.
 }
 \details{
 This function is an example of a function that may be passed to
-  parameter \code{fns} in function \code{\link{flash_set_verbose}} to
-  customize the output that is printed after each greedy or backfitting
-  iteration. See \code{\link{flash_set_verbose}} for details and examples.
+parameter \code{fns} in function \code{\link{flash_set_verbose}} to
+customize the output that is printed after each greedy or backfitting
+iteration. See \code{\link{flash_set_verbose}} for details and examples.
 }
 \seealso{
 \code{\link{flash_verbose_elbo}}, \code{\link{flash_verbose_elbo_diff}},
-  \code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
+\code{\link{flash_verbose_max_chg_L}}, \code{\link{flash_verbose_max_chg_F}}
 }

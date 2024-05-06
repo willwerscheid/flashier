@@ -23,26 +23,26 @@ the infinity norm (maximum norm).}
 }
 \value{
 A list with fields \code{L}, \code{D}, and \code{F}, each of which
-  corresponds to one of the matrices in the decomposition \eqn{Y \approx LDF'}
-  (with the columns of \eqn{L} and \eqn{F} scaled according to
-  argument \code{type}). Note that \code{D} is returned as a vector rather
-  than a matrix (the vector of diagonal entries in \eqn{D}). Thus, "fitted
-  values" \eqn{LDF'} can be recovered as \code{L \%*\% diag(D) \%*\% t(F)}.
+corresponds to one of the matrices in the decomposition \eqn{Y \approx LDF'}
+(with the columns of \eqn{L} and \eqn{F} scaled according to
+argument \code{type}). Note that \code{D} is returned as a vector rather
+than a matrix (the vector of diagonal entries in \eqn{D}). Thus, "fitted
+values" \eqn{LDF'} can be recovered as \code{L \%*\% diag(D) \%*\% t(F)}.
 }
 \description{
 Given a \code{\link{flash}} or \code{\link{flash_fit}} object, returns the LDF
-  decomposition \eqn{Y \approx LDF'}.
+decomposition \eqn{Y \approx LDF'}.
 }
 \details{
 When the prior families \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} are closed
-  under scaling (as is typically the case), then the EBMF model (as
-  described in the documention to function \code{\link{flash}}) is only
-  identifiable up to scaling by a diagonal matrix \eqn{D}:
-  \deqn{Y = LDF' + E.}
+under scaling (as is typically the case), then the EBMF model (as
+described in the documention to function \code{\link{flash}}) is only
+identifiable up to scaling by a diagonal matrix \eqn{D}:
+\deqn{Y = LDF' + E.}
 
 Method \code{ldf} scales columns \eqn{\ell_k} and \eqn{f_k}
-  so that, depending on the argument to parameter \code{type}, their
-  1-norms, 2-norms, or infinity norms are equal to 1.
+so that, depending on the argument to parameter \code{type}, their
+1-norms, 2-norms, or infinity norms are equal to 1.
 }
 \section{Methods (by class)}{
 \itemize{

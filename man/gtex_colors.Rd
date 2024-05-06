@@ -6,28 +6,28 @@
 \title{Colors for plotting GTEx data}
 \format{
 \code{gtex_colors} is a named vector of length 44, with names corresponding
-  to tissues (columns) in the \code{\link{gtex}} dataset and values
-  giving hexadecimal color codes.
+to tissues (columns) in the \code{\link{gtex}} dataset and values
+giving hexadecimal color codes.
 }
 \source{
-<https://github.com/stephenslab/gtexresults/blob/master/data/GTExColors.txt>
+\url{https://github.com/stephenslab/gtexresults/blob/master/data/GTExColors.txt}
 }
 \description{
 A custom palette used by Wang and Stephens (2021) to plot an
-  empirical Bayes matrix factorization of data from the GTEx project
-  (of which the \code{\link{gtex}} data in package \strong{flashier} is a
-  subsample).
-  The palette is designed to link similar tissues together visually. For
-  example, brain tissues all have the same color (yellow); arterial tissues
-  are shades of pink or red; etc.
+empirical Bayes matrix factorization of data from the GTEx project
+(of which the \code{\link{gtex}} data in package \strong{flashier} is a
+subsample).
+The palette is designed to link similar tissues together visually. For
+example, brain tissues all have the same color (yellow); arterial tissues
+are shades of pink or red; etc.
 }
 \examples{
 fl <- flash(gtex, greedy_Kmax = 4)
-plot(fl, incl_scree = FALSE, pm_colors = gtex_colors)
+plot(fl, pm_colors = gtex_colors)
 }
 \references{
 Wei Wang and Matthew Stephens (2021).
-  "Empirical Bayes matrix factorization." \emph{Journal of Machine Learning
-  Research} 22, 1--40.
+"Empirical Bayes matrix factorization." \emph{Journal of Machine Learning
+Research} 22, 1--40.
 }
 \keyword{data}

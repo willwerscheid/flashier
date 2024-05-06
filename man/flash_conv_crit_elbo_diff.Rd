@@ -17,21 +17,21 @@ takes the index of the factor/loadings pair currently being optimized.}
 }
 \value{
 A scalar, which is compared against the tolerance parameter
-  \code{tol} to determine whether a fit has converged.
+\code{tol} to determine whether a fit has converged.
 }
 \description{
 The default objective function used to determine convergence when fitting
-  a \code{\link{flash}} object. Calculates the difference in the
-  variational lower bound ("ELBO") from one iteration to the next.
+a \code{\link{flash}} object. Calculates the difference in the
+variational lower bound ("ELBO") from one iteration to the next.
 }
 \details{
 This function is an example of a function that may be passed to
-  parameter \code{fn} in function \code{\link{flash_set_conv_crit}} to set
-  the convergence criterion for a flash pipeline. See
-  \code{\link{flash_set_conv_crit}} for details and examples.
+parameter \code{fn} in function \code{\link{flash_set_conv_crit}} to set
+the convergence criterion for a flash pipeline. See
+\code{\link{flash_set_conv_crit}} for details and examples.
 }
 \seealso{
 \code{\link{flash_conv_crit_max_chg}}
-  \code{\link{flash_conv_crit_max_chg_L}},
-  \code{\link{flash_conv_crit_max_chg_F}}
+\code{\link{flash_conv_crit_max_chg_L}},
+\code{\link{flash_conv_crit_max_chg_F}}
 }

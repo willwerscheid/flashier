@@ -17,74 +17,29 @@ than \code{g_init}.}
 }
 \value{
 A function that can be passed as argument to parameter
-  \code{ebnm_fn} in functions \code{\link{flash}},
-  \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}}.
+\code{ebnm_fn} in functions \code{\link{flash}},
+\code{\link{flash_greedy}}, and \code{\link{flash_factors_init}}.
 }
 \description{
 \code{flash_ebnm} is a helper function that provides readable syntax for
-  constructing \code{\link[ebnm]{ebnm}} functions that can serve as
-  arguments to parameter \code{ebnm_fn} in functions \code{\link{flash}},
-  \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}} (see
-  \strong{Examples} below). It is also possible to write a custom function
-  from scratch: see \strong{Details} below for a simple example. A more
-  involved example can be found in the "Advanced flashier" vignette.
+constructing \code{\link[ebnm]{ebnm}} functions that can serve as
+arguments to parameter \code{ebnm_fn} in functions \code{\link{flash}},
+\code{\link{flash_greedy}}, and \code{\link{flash_factors_init}} (see
+\strong{Examples} below). It is also possible to write a custom function
+from scratch: see \strong{Details} below for a simple example. A more
+involved example can be found in the "Extending ebnm with custom ebnm-style
+functions" vignette in the \code{\link[ebnm]{ebnm}} package.
 }
 \details{
 As input to parameter \code{ebnm_fn} in functions \code{\link{flash}},
-  \code{\link{flash_greedy}}, and \code{\link{flash_factors_init}},
-  it should suffice for many purposes to
-  provide functions from package \code{ebnm} as is (for example, one might
-  set \code{ebnm_fn = ebnm_point_laplace}). To use non-default
-  arguments, function \code{flash_ebnm} may be used (see \strong{Examples}).
-  Custom functions may also be written. In general, any function that is
-  used as an argument to \code{ebnm_fn} must accept parameters:
-  \describe{
-  \item{\code{x}}{A vector of observations.}
-  \item{\code{s}}{A vector of standard errors, or a scalar if all standard
-    errors are equal.}
-  \item{\code{g_init}}{The prior \eqn{g}. Usually, this is left unspecified
-    (\code{NULL}) and estimated from the data. If it is supplied and
-    \code{fix_g = TRUE}, then the prior is fixed at \code{g_init}; if
-    \code{fix_g = FALSE}, then \code{g_init} gives the
-    initial value of \eqn{g} used during optimization.
-
-    In \code{flashier},
-    \eqn{g} is fixed during the wrap-up phase when estimating local false
-    sign rates and constructing a sampler; and \code{g_init} is used
-    with \code{fix_g = FALSE} to "warmstart" backfits
-    (see \code{\link{flash_backfit}}). If none of these features (local
-    false sign rates, samplers, or warmstarts) are needed,
-    then both \code{g_init} and \code{fix_g} can be ignored (the EBNM
-    function must still accept them as parameters, but it need not do
-    anything with their arguments).}
-  \item{\code{fix_g}}{If \code{TRUE}, the prior is fixed at \code{g_init}
-    instead of estimated. See the description of \code{g_init} above.}
-  \item{\code{output}}{A character vector indicating which values are to be
-    returned. Custom EBNM functions can safely ignore this parameter (again,
-    they must accept it as a parameter, but they do not need to do anything
-    with its argument).}
-  }
-  The return object must be a list that includes fields:
-  \describe{
-  \item{\code{posterior}}{A data frame that includes columns \code{mean}
-    and \code{second_moment} (the first and second moments for each
-    posterior distribution
-    \eqn{p(\theta_i \mid s_i, \hat{g}), i = 1, ..., n}). Optionally,
-    a column \code{lfsr} giving local false sign rates may also be
-    included.}
-  \item{\code{fitted_g}}{The estimated prior \eqn{\hat{g}}. Within
-    \code{flashier}, \code{fitted_g} is only ever used as an argument to
-    \code{g_init} in subsequent calls to the same EBNM function, so the
-    manner in which it is represented is unimportant.}
-  \item{\code{log_likelihood}}{The optimal log likelihood
-    \eqn{L(\hat{g}) := \sum_i \log p(x_i \mid \hat{g}, s_i)}.}
-  \item{\code{posterior_sampler}}{An optional field containing a function
-    that samples from the posterior distributions of the "means"
-    \eqn{\theta_i}. If included, the function should take a single parameter
-    \code{nsamp} and return a matrix where rows correspond to samples and
-    columns correspond to observations (that is, there should be
-    \code{nsamp} rows and \eqn{n} columns).}
-  }
+\code{\link{flash_greedy}}, and \code{\link{flash_factors_init}},
+it should suffice for many purposes to
+provide functions from package \code{ebnm} as is (for example, one might
+set \code{ebnm_fn = ebnm_point_laplace}). To use non-default
+arguments, function \code{flash_ebnm} may be used (see \strong{Examples}).
+Custom functions may also be written; for details, see the "Extending
+ebnm with custom ebnm-style functions" vignette in the
+\code{\link[ebnm]{ebnm}} package.
 }
 \examples{
 # A custom EBNM function might be written as follows:

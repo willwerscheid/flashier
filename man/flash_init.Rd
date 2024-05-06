@@ -26,23 +26,23 @@ data matrix is square, then the sense must be specified using parameter
 \code{S_dim} in function \code{\link{flash_init}}).}
 
 \item{var_type}{Describes the structure of the estimated residual variance.
-  Can be \code{NULL}, \code{0}, \code{1}, \code{2}, or \code{c(1, 2)}. If
-  \code{NULL}, then \code{S} accounts for all residual variance. If
-  \code{var_type = 0}, then the estimated residual variance (which is added
-  to any variance given by \code{S}) is assumed to be constant
-  across all observations. Setting \code{var_type = 1} estimates a single
-  variance parameter for each row; \code{var_type = 2} estimates one
-  parameter for each column; and \code{var_type = c(1, 2)} optimizes over
-  all rank-one matrices (that is, it assumes that the residual variance
-  parameter \eqn{s_{ij}} can be written \eqn{s_{ij} = a_i b_j}, where the
-  \eqn{n}-vector \eqn{a} and the \eqn{p}-vector \eqn{b} are to be
-  estimated).
+Can be \code{NULL}, \code{0}, \code{1}, \code{2}, or \code{c(1, 2)}. If
+\code{NULL}, then \code{S} accounts for all residual variance. If
+\code{var_type = 0}, then the estimated residual variance (which is added
+to any variance given by \code{S}) is assumed to be constant
+across all observations. Setting \code{var_type = 1} estimates a single
+variance parameter for each row; \code{var_type = 2} estimates one
+parameter for each column; and \code{var_type = c(1, 2)} optimizes over
+all rank-one matrices (that is, it assumes that the residual variance
+parameter \eqn{s_{ij}} can be written \eqn{s_{ij} = a_i b_j}, where the
+\eqn{n}-vector \eqn{a} and the \eqn{p}-vector \eqn{b} are to be
+estimated).
 
-  Note that if any portion of the residual variance is to be estimated, then
-  it is usually faster to set \code{S = NULL} and to let \code{flash}
-  estimate all of the residual variance. Further, \code{var_type = c(1, 2)}
-  is typically much slower than other options, so it should be used with
-  care.}
+Note that if any portion of the residual variance is to be estimated, then
+it is usually faster to set \code{S = NULL} and to let \code{flash}
+estimate all of the residual variance. Further, \code{var_type = c(1, 2)}
+is typically much slower than other options, so it should be used with
+care.}
 
 \item{S_dim}{If the argument to \code{S} is a vector and the data matrix is
 square, then \code{S_dim} must specify whether \code{S} encodes row-wise or

@@ -19,6 +19,7 @@ init.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.tau <- function(factor, flash) {
   if (is.tau.simple(flash)) {
     factor <- update.simple.tau(factor, flash)
@@ -50,6 +51,7 @@ init.simple.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.simple.tau <- function(factor, flash) {
   delta.R2 <- calc.delta.R2(factor, flash)
   est.tau  <- estimate.simple.tau(flash, delta.R2)
@@ -68,6 +70,7 @@ init.zero.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.zero.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))
@@ -90,6 +93,7 @@ init.kronecker.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.kronecker.tau <- function(factor, flash) {
   factor <- set.tau(factor, estimate.kronecker.tau(flash, factor))
 
@@ -104,6 +108,7 @@ init.noisy.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.noisy.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))
@@ -127,6 +132,7 @@ init.noisy.kron.tau <- function(flash) {
   return(flash)
 }
 
+#' @exportS3Method NULL
 update.noisy.kron.tau <- function(factor, flash) {
   if (uses.R(flash))
     factor <- set.R(factor, calc.residuals(flash, factor))

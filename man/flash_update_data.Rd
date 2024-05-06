@@ -4,20 +4,35 @@
 \alias{flash_update_data}
 \title{Update data in a flash object}
 \usage{
-flash_update_data(flash, newdata)
+flash_update_data(flash, newdata, Y2_diff = NULL)
 }
 \arguments{
 \item{flash}{A \code{flash} or \code{flash_fit} object.}
 
 \item{newdata}{The new observations. Can be a matrix, a sparse matrix of
 class \code{\link[Matrix]{Matrix}}, or a low-rank matrix representation.}
+
+\item{Y2_diff}{Optionally, users can supply the (summed) changes in the
+squared values of the data \eqn{y_{ij}^2}, which are needed to estimate the
+residual variance parameters \eqn{s_{ij}^2} for simple variance structures
+(i.e., when \code{var_type} is set to 0, 1, or 2). If calculating
+entries \eqn{y_{ij}^2} from scratch is expensive, supplying an argument
+to \code{Y2_diff} can greatly speed up data updates. If specified, the
+argument should be a scalar
+\eqn{\sum_{i, j} \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+when \code{var_type = 0}; a vector of length \eqn{n} with entries
+\eqn{\sum_{j = 1}^p \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+when \code{var_type = 1}; or a vector of length \eqn{p} with entries
+\eqn{\sum_{i = 1}^n \left( y_{ij}^{2 \text{(new)}} - y_{ij}^{2 \text{(old)}} \right)}
+when \code{var_type = 2}. The argument is ignored when any other variance
+structure is used.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  the data modified as specified by \code{newdata}. Residual variances and
-  ELBO are also updated.
+the data modified as specified by \code{newdata}. Residual variances and
+ELBO are also updated.
 }
 \description{
 Replaces the data in a flash object with a new set of observations. Estimates
-  of residual variances and the ELBO are also updated.
+of residual variances and the ELBO are also updated.
 }

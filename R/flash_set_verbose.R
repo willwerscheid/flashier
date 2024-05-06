@@ -74,8 +74,8 @@
 #'
 #' @examples
 #' # Suppress all verbose output.
-#' fl <- flash_init(gtex) %>%
-#'   flash_set_verbose(0) %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_set_verbose(0) |>
 #'   flash_greedy(Kmax = 5)
 #'
 #' # Set custom verbose output.
@@ -87,20 +87,20 @@
 #' verbose_fns <- c(flash_verbose_elbo, flash_verbose_max_chg_F, sparsity_F)
 #' colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
 #' colwidths <- c(12, 18, 18)
-#' fl <- flash_init(gtex) %>%
+#' fl <- flash_init(gtex) |>
 #'   flash_set_verbose(
 #'     verbose = 3,
 #'     fns = verbose_fns,
 #'     colnames = colnames,
 #'     colwidths = colwidths
-#'   ) %>%
+#'   ) |>
 #'   flash_greedy(Kmax = 3)
 #'
 #' # Output can be changed as needed.
-#' fl <- flash_init(gtex) %>%
-#'   flash_set_verbose(verbose = 1) %>%
-#'   flash_greedy(Kmax = 5L) %>%
-#'   flash_backfit(verbose = 3) %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_set_verbose(verbose = 1) |>
+#'   flash_greedy(Kmax = 5L) |>
+#'   flash_backfit(verbose = 3) |>
 #'   flash_greedy(Kmax = 1L)
 #'
 #' @export

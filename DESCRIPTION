@@ -1,43 +1,49 @@
 Package: flashier
 Type: Package
-Date: 2023-12-13
+Date: 2024-05-06
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.20
+Version: 1.0.47
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
              person("Wei", "Wang", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
              person("Eric", "Weine", role = "ctb"),
+	           person("Annie", "Xie", role = "ctb"),
              person("Gao", "Wang", role = "ctb"))
 URL: https://github.com/willwerscheid/flashier
 BugReports: https://github.com/willwerscheid/flashier/issues
 Description: Methods for matrix factorization based on Wang and Stephens (2021) 
     <https://jmlr.org/papers/v22/20-589.html>.
 Depends: 
-    R (>= 3.4),
-    ebnm (>= 0.1-21),    
-    magrittr
+    R (>= 4.1),
+    ebnm (>= 0.1-21)
 Imports:
     Matrix,
     parallel,
     dplyr,
-    stringr,
-    tibble,
-    tidyr,
     softImpute,
     irlba,
-    ggplot2
+    ggplot2,
+    ggrepel,
+    fastTopics,
+    cowplot,
+    Polychrome,
+    RColorBrewer,
+    lifecycle
 Suggests:
     ashr,
-    cowplot,
     testthat,
     knitr,
     rmarkdown,
     RcppML,
-    rsvd
+    rsvd,
+    Rtsne
+Remotes: 
+    stephenslab/ebnm
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)

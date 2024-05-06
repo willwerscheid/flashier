@@ -38,22 +38,22 @@ reproducibility.}
 }
 \value{
 A list of length two consisting of, respectively, the vector of
-  initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
-  factor values \eqn{f_{\cdot k}}.
+initial values for loadings \eqn{\ell_{\cdot k}} and the vector of initial
+factor values \eqn{f_{\cdot k}}.
 }
 \description{
 The default method for initializing the loadings \eqn{\ell_{\cdot k}} and
-  factor values \eqn{f_{\cdot k}} of a new ("greedy") flash factor. It is
-  essentially an implementation of the power method, but unlike many existing
-  implementations, it can handle missing data and sign constraints. For details,
-  see Chapter 2.2.3 in the reference below.
+factor values \eqn{f_{\cdot k}} of a new ("greedy") flash factor. It is
+essentially an implementation of the power method, but unlike many existing
+implementations, it can handle missing data and sign constraints. For details,
+see Chapter 2.2.3 in the reference below.
 }
 \references{
 Jason Willwerscheid (2021), \emph{Empirical Bayes Matrix Factorization:
-  Methods and Applications}. Ph.D. thesis, University of Chicago.
+Methods and Applications}. Ph.D. thesis, University of Chicago.
 }
 \seealso{
 \code{\link{flash_greedy}},
-  \code{\link{flash_greedy_init_softImpute}},
-  \code{\link{flash_greedy_init_irlba}}
+\code{\link{flash_greedy_init_softImpute}},
+\code{\link{flash_greedy_init_irlba}}
 }

@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
       </span>
     </div>
 
@@ -31,13 +31,10 @@
   <a href="../index.html">Home</a>
 </li>
 <li>
+  <a href="../articles/index.html">Vignettes</a>
+</li>
+<li>
   <a href="../reference/index.html">Functions</a>
-</li>
-<li>
-  <a href="../articles/intro.html">Getting Started</a>
-</li>
-<li>
-  <a href="../articles/advanced.html">Advanced flashier</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/willwerscheid/flashier" class="external-link">Source</a>
@@ -66,17 +63,17 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_greedy</span><span class="op">(</span></span>
-<span>  <span class="va">flash</span>,</span>
-<span>  Kmax <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  ebnm_fn <span class="op">=</span> <span class="va">ebnm_point_normal</span>,</span>
-<span>  init_fn <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  extrapolate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  warmstart <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  maxiter <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  tol <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_greedy</span><span class="op">(</span>
+  <span class="va">flash</span>,
+  Kmax <span class="op">=</span> <span class="fl">1</span>,
+  ebnm_fn <span class="op">=</span> <span class="va">ebnm_point_normal</span>,
+  init_fn <span class="op">=</span> <span class="cn">NULL</span>,
+  extrapolate <span class="op">=</span> <span class="cn">FALSE</span>,
+  warmstart <span class="op">=</span> <span class="cn">FALSE</span>,
+  maxiter <span class="op">=</span> <span class="fl">500</span>,
+  tol <span class="op">=</span> <span class="cn">NULL</span>,
+  verbose <span class="op">=</span> <span class="cn">NULL</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -204,30 +201,30 @@ using function <code><a href="flash_set_verbose.html">flash_set_verbose</a></cod
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The following are examples of advanced usage. See ?flash for basic usage.</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Increase the maximum number of iterations in the default initialization</span></span></span>
-<span class="r-in"><span><span class="co">#   method.</span></span></span>
-<span class="r-in"><span><span class="va">my_init_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="fu"><a href="flash_greedy_init_default.html">flash_greedy_init_default</a></span><span class="op">(</span><span class="va">f</span>, maxiter <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_greedy</span><span class="op">(</span>init_fn <span class="op">=</span> <span class="va">my_init_fn</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># The following are examples of advanced usage. See ?flash for basic usage.</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># Increase the maximum number of iterations in the default initialization</span></span>
+<span class="r-in"><span class="co">#   method.</span></span>
+<span class="r-in"><span class="va">my_init_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="fu"><a href="flash_greedy_init_default.html">flash_greedy_init_default</a></span><span class="op">(</span><span class="va">f</span>, maxiter <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu">flash_greedy</span><span class="op">(</span>init_fn <span class="op">=</span> <span class="va">my_init_fn</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 1 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use a custom initialization function that wraps function nmf from</span></span></span>
-<span class="r-in"><span><span class="co">#   package RcppML.</span></span></span>
-<span class="r-in"><span><span class="va">nmf_init_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">nmf_res</span> <span class="op">&lt;-</span> <span class="fu">RcppML</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RcppML/man/nmf.html" class="external-link">nmf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">resid</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span>, k <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">nmf_res</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">nmf_res</span><span class="op">$</span><span class="va">h</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="va">fl.nmf</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">flash_greedy</span><span class="op">(</span>ebnm_fn <span class="op">=</span> <span class="va">ebnm_unimodal_nonnegative</span>,</span></span>
-<span class="r-in"><span>               init_fn <span class="op">=</span> <span class="va">nmf_init_fn</span><span class="op">)</span></span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># Use a custom initialization function that wraps function nmf from</span></span>
+<span class="r-in"><span class="co">#   package RcppML.</span></span>
+<span class="r-in"><span class="va">nmf_init_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span class="r-in">  <span class="va">nmf_res</span> <span class="op">&lt;-</span> <span class="fu">RcppML</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RcppML/man/nmf.html" class="external-link">nmf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">resid</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span>, k <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span class="r-in">  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">nmf_res</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">nmf_res</span><span class="op">$</span><span class="va">h</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">}</span></span>
+<span class="r-in"><span class="va">fl.nmf</span> <span class="op">&lt;-</span> <span class="fu"><a href="flash_init.html">flash_init</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span class="r-in">  <span class="fu">flash_greedy</span><span class="op">(</span>ebnm_fn <span class="op">=</span> <span class="va">ebnm_unimodal_nonnegative</span>,</span>
+<span class="r-in">               init_fn <span class="op">=</span> <span class="va">nmf_init_fn</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adding factor 1 to flash object...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Wrapping up...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Done.</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>

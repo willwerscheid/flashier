@@ -16,20 +16,20 @@ flash_set_verbose(
 \item{flash}{A \code{flash} or \code{flash_fit} object.}
 
 \item{verbose}{When and how to display progress updates. Set to \code{0}
-  for no updates; \code{1} for updates after a "greedy" factor is added or
-  a backfit is completed; \code{2} for additional notifications about the
-  variational lower bound (ELBO); and \code{3} for updates after every
-  iteration. By default, per-iteration update information includes the
-  change in ELBO and the maximum (absolute) change over all L2-normalized
-  loadings \eqn{\ell_1, \ldots, \ell_K} and factors \eqn{f_1, \ldots, f_K}.
-  Update information is customizable via parameters \code{fns},
-  \code{colnames}, and \code{colwidths}.
+for no updates; \code{1} for updates after a "greedy" factor is added or
+a backfit is completed; \code{2} for additional notifications about the
+variational lower bound (ELBO); and \code{3} for updates after every
+iteration. By default, per-iteration update information includes the
+change in ELBO and the maximum (absolute) change over all L2-normalized
+loadings \eqn{\ell_1, \ldots, \ell_K} and factors \eqn{f_1, \ldots, f_K}.
+Update information is customizable via parameters \code{fns},
+\code{colnames}, and \code{colwidths}.
 
 A single tab-delimited table of values may also be output using
-  option \code{verbose = -1}. This format is especially convenient for
-  downstream analysis of the fitting history. For example, it may be used
-  to plot the value of the ELBO after each iteration (see the "Advanced
-  Flashier" vignette for an illustration).}
+option \code{verbose = -1}. This format is especially convenient for
+downstream analysis of the fitting history. For example, it may be used
+to plot the value of the ELBO after each iteration (see the "Advanced
+Flashier" vignette for an illustration).}
 
 \item{fns}{A vector of functions. Used to calculate values to display
 after each greedy/backfit iteration when \code{verbose} is either -1 or 3
@@ -43,55 +43,55 @@ after each greedy/backfit iteration when \code{verbose} is either -1 or 3
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with the
-  new verbose settings reflected in updates to the "internal"
-  \code{flash_fit} object. These settings will persist across
-  all subsequent calls to \code{flash_xxx} functions until they are modified
-  by another call to \code{flash_set_verbose}.
+new verbose settings reflected in updates to the "internal"
+\code{flash_fit} object. These settings will persist across
+all subsequent calls to \code{flash_xxx} functions until they are modified
+by another call to \code{flash_set_verbose}.
 }
 \description{
 Used in a \code{\link{flash}} pipeline to set the output that will be printed
-  after each greedy or backfitting iteration.
+after each greedy or backfitting iteration.
 }
 \details{
 Function \code{flash_set_verbose} can be used to customize
-  the output that is printed to console while fitting a \code{flash} object.
-  After each greedy or backfitting iteration (see, respectively,
-  \code{\link{flash_greedy}} and \code{\link{flash_backfit}}), each
-  function in argument \code{fns} is successively evaluated and the
-  result is printed to console in a table with column names defined by
-  argument \code{colnames} and column widths defined by argument
-  \code{colwidths}.
+the output that is printed to console while fitting a \code{flash} object.
+After each greedy or backfitting iteration (see, respectively,
+\code{\link{flash_greedy}} and \code{\link{flash_backfit}}), each
+function in argument \code{fns} is successively evaluated and the
+result is printed to console in a table with column names defined by
+argument \code{colnames} and column widths defined by argument
+\code{colwidths}.
 
-  Each function in \code{fns} must accept exactly three parameters,
-  \code{curr}, \code{prev}, and \code{k}: \code{curr} refers to the
-  \code{\link{flash_fit}} object from the current iteration; \code{prev},
-  to the \code{flash_fit} object from the previous iteration;
-  and, if the iteration is a sequential backfitting iteration (that is, a
-  \code{\link{flash_backfit}} iteration with argument
-  \code{extrapolate = FALSE}), \code{k} identifies the factor/loadings pair
-  that is currently being updated (in all other cases, \code{k} is
-  \code{NULL}). Package \code{flashier} provides a number of functions that
-  may be used to customize output: see
-  \code{\link{flash_verbose_elbo}},
-  \code{\link{flash_verbose_elbo_diff}},
-  \code{\link{flash_verbose_max_chg}},
-  \code{\link{flash_verbose_max_chg_L}}, and
-  \code{\link{flash_verbose_max_chg_F}}. Custom functions may also be
-  defined. They might inspect the current \code{flash_fit} object
-  via argument \code{curr}; compare the fit in \code{curr} to the fit from the
-  previous iteration (provided by argument \code{prev}); or
-  ignore both \code{flash_fit} objects entirely (for example, to
-  track progress over time, one might simply call \code{\link{Sys.time}}).
-  To facilitate working with \code{flash_fit} objects, package
-  \code{flashier} provides a number of accessors, which are enumerated in
-  the documentation for object \code{\link{flash_fit}}. Custom functions
-  should return a character string that contains the output exactly as it is
-  to displayed; see \strong{Examples} below.
+Each function in \code{fns} must accept exactly three parameters,
+\code{curr}, \code{prev}, and \code{k}: \code{curr} refers to the
+\code{\link{flash_fit}} object from the current iteration; \code{prev},
+to the \code{flash_fit} object from the previous iteration;
+and, if the iteration is a sequential backfitting iteration (that is, a
+\code{\link{flash_backfit}} iteration with argument
+\code{extrapolate = FALSE}), \code{k} identifies the factor/loadings pair
+that is currently being updated (in all other cases, \code{k} is
+\code{NULL}). Package \code{flashier} provides a number of functions that
+may be used to customize output: see
+\code{\link{flash_verbose_elbo}},
+\code{\link{flash_verbose_elbo_diff}},
+\code{\link{flash_verbose_max_chg}},
+\code{\link{flash_verbose_max_chg_L}}, and
+\code{\link{flash_verbose_max_chg_F}}. Custom functions may also be
+defined. They might inspect the current \code{flash_fit} object
+via argument \code{curr}; compare the fit in \code{curr} to the fit from the
+previous iteration (provided by argument \code{prev}); or
+ignore both \code{flash_fit} objects entirely (for example, to
+track progress over time, one might simply call \code{\link{Sys.time}}).
+To facilitate working with \code{flash_fit} objects, package
+\code{flashier} provides a number of accessors, which are enumerated in
+the documentation for object \code{\link{flash_fit}}. Custom functions
+should return a character string that contains the output exactly as it is
+to displayed; see \strong{Examples} below.
 }
 \examples{
 # Suppress all verbose output.
-fl <- flash_init(gtex) \%>\%
-  flash_set_verbose(0) \%>\%
+fl <- flash_init(gtex) |>
+  flash_set_verbose(0) |>
   flash_greedy(Kmax = 5)
 
 # Set custom verbose output.
@@ -103,20 +103,20 @@ sparsity_F <- function(curr, prev, k) {
 verbose_fns <- c(flash_verbose_elbo, flash_verbose_max_chg_F, sparsity_F)
 colnames <- c("ELBO", "Max Chg (Tiss)", "Sparsity (Tiss)")
 colwidths <- c(12, 18, 18)
-fl <- flash_init(gtex) \%>\%
+fl <- flash_init(gtex) |>
   flash_set_verbose(
     verbose = 3,
     fns = verbose_fns,
     colnames = colnames,
     colwidths = colwidths
-  ) \%>\%
+  ) |>
   flash_greedy(Kmax = 3)
 
 # Output can be changed as needed.
-fl <- flash_init(gtex) \%>\%
-  flash_set_verbose(verbose = 1) \%>\%
-  flash_greedy(Kmax = 5L) \%>\%
-  flash_backfit(verbose = 3) \%>\%
+fl <- flash_init(gtex) |>
+  flash_set_verbose(verbose = 1) |>
+  flash_greedy(Kmax = 5L) |>
+  flash_backfit(verbose = 3) |>
   flash_greedy(Kmax = 1L)
 
 }

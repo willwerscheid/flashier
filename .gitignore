@@ -3,5 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
+vignettes/*.R
+vignettes/*.html
 
 

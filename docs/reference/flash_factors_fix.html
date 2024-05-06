@@ -22,7 +22,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
       </span>
     </div>
 
@@ -31,13 +31,10 @@
   <a href="../index.html">Home</a>
 </li>
 <li>
+  <a href="../articles/index.html">Vignettes</a>
+</li>
+<li>
   <a href="../reference/index.html">Functions</a>
-</li>
-<li>
-  <a href="../articles/intro.html">Getting Started</a>
-</li>
-<li>
-  <a href="../articles/advanced.html">Advanced flashier</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/willwerscheid/flashier" class="external-link">Source</a>
@@ -66,13 +63,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_factors_fix</span><span class="op">(</span></span>
-<span>  <span class="va">flash</span>,</span>
-<span>  <span class="va">kset</span>,</span>
-<span>  which_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factors"</span>, <span class="st">"loadings"</span><span class="op">)</span>,</span>
-<span>  fixed_idx <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  use_fixed_in_ebnm <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_factors_fix</span><span class="op">(</span>
+  <span class="va">flash</span>,
+  <span class="va">kset</span>,
+  which_dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factors"</span>, <span class="st">"loadings"</span><span class="op">)</span>,
+  fixed_idx <span class="op">=</span> <span class="cn">NULL</span>,
+  use_fixed_in_ebnm <span class="op">=</span> <span class="cn">NULL</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">

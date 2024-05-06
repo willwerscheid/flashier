@@ -11,9 +11,9 @@ flash_clear_timeout(flash)
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  timeout settings cleared.
+timeout settings cleared.
 }
 \description{
 Used in a \code{\link{flash}} pipeline to clear timeout conditions set using
-  \code{\link{flash_set_timeout}}.
+\code{\link{flash_set_timeout}}.
 }

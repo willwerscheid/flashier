@@ -2,22 +2,10 @@ navbar:
   left:
     - text: "Home"
       href: index.html
+    - text: "Vignettes"
+      href: articles/index.html
     - text: "Functions"
       href: reference/index.html
-    - text: "Getting Started"
-      href: articles/intro.html
-    - text: "Advanced flashier"
-      href: articles/advanced.html
   right:
     - text: "Source"
       href: https://github.com/willwerscheid/flashier
-
-articles:
-- title: Introduction to flashier
-  navbar: ~
-  contents:
-  - intro
-- title: Advanced flashier
-  navbar: ~
-  contents:
-  - advanced

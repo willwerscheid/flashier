@@ -14,11 +14,11 @@ values are to be unfixed.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  values for the factor/loadings pairs specified by \code{kset} unfixed.
+values for the factor/loadings pairs specified by \code{kset} unfixed.
 }
 \description{
 If loadings \eqn{\ell_{\cdot k}} or factors \eqn{f_{\cdot k}} for one or
-  more factor/loadings pairs have been "fixed" using function
-  \code{\link{flash_factors_fix}}, then they can be unfixed using
-  function \code{flash_factors_unfix}.
+more factor/loadings pairs have been "fixed" using function
+\code{\link{flash_factors_fix}}, then they can be unfixed using
+function \code{flash_factors_unfix}.
 }

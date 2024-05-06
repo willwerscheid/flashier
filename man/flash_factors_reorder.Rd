@@ -15,7 +15,7 @@ factor/loadings pairs. All existing factors must be included in
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with the
-  factors reordered according to argument \code{kset}.
+factors reordered according to argument \code{kset}.
 }
 \description{
 Reorders the factor/loadings pairs in a \code{\link{flash}} object.

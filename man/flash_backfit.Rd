@@ -70,11 +70,11 @@ using function \code{\link{flash_set_verbose}} with \code{verbose = -1}.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, backfitted
-  as specified.
+as specified.
 }
 \description{
 Backfits existing flash factor/loadings pairs. Whereas a "greedy" fit optimizes
-  each newly added factor/loadings pair in one go without returning to optimize
-  previously added pairs, a "backfit" updates all existing pairs in a cyclical
-  fashion. See \code{\link{flash}} for examples of usage.
+each newly added factor/loadings pair in one go without returning to optimize
+previously added pairs, a "backfit" updates all existing pairs in a cyclical
+fashion. See \code{\link{flash}} for examples of usage.
 }

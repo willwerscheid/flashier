@@ -36,13 +36,13 @@ behavior cannot vary from one factor/loadings pair to another.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  factors or loadings fixed as specified.
+factors or loadings fixed as specified.
 }
 \description{
 Fixes loadings \eqn{\ell_{\cdot k}} or factors \eqn{f_{\cdot k}}
-  for one or more factor/loadings pairs, so that their values are not
-  updated during subsequent backfits. For a given pair, either the loadings
-  or factor can be fixed, but not both, and either all entries or a subset
-  can be fixed. To unfix, use function \code{\link{flash_factors_unfix}}. See
-  \code{\link{flash_factors_init}} for an example of usage.
+for one or more factor/loadings pairs, so that their values are not
+updated during subsequent backfits. For a given pair, either the loadings
+or factor can be fixed, but not both, and either all entries or a subset
+can be fixed. To unfix, use function \code{\link{flash_factors_unfix}}. See
+\code{\link{flash_factors_init}} for an example of usage.
 }

@@ -24,43 +24,43 @@ initialized as the squared values of the first moments. Missing entries
 are not allowed.}
 
 \item{ebnm_fn}{The function or functions used to solve the empirical Bayes
-  normal means (EBNM) subproblems. Most importantly, these functions specify
-  the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
-  priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
-  assumed to belong. If the same function is to be used for both loadings
-  \eqn{L} and factors \eqn{F}, then \code{ebnm_fn} can be a single function.
-  If one function is to be used for loadings and a second for factors,
-  then \code{ebnm_fn} should be a list of length two, with the first
-  element giving the function for loadings and the second the function
-  for factors. If different functions are to be used for different values of
-  \eqn{k}, then factor/loadings pairs must be added successively using
-  multiple calls to either \code{\link{flash_greedy}} or
-  \code{\link{flash_factors_init}}.
+normal means (EBNM) subproblems. Most importantly, these functions specify
+the families of distributions \eqn{G_\ell^{(k)}} and \eqn{G_f^{(k)}} to which the
+priors on loadings and factors \eqn{g_\ell^{(k)}} and \eqn{g_f^{(k)}} are
+assumed to belong. If the same function is to be used for both loadings
+\eqn{L} and factors \eqn{F}, then \code{ebnm_fn} can be a single function.
+If one function is to be used for loadings and a second for factors,
+then \code{ebnm_fn} should be a list of length two, with the first
+element giving the function for loadings and the second the function
+for factors. If different functions are to be used for different values of
+\eqn{k}, then factor/loadings pairs must be added successively using
+multiple calls to either \code{\link{flash_greedy}} or
+\code{\link{flash_factors_init}}.
 
-  Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
-  used as input. Non-default arguments to parameters can be supplied using
-  the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
-  also be used: for details, see \code{\link{flash_ebnm}}.}
+Any EBNM function provided by package \code{\link[ebnm]{ebnm}} can be
+used as input. Non-default arguments to parameters can be supplied using
+the helper function \code{\link{flash_ebnm}}. Custom EBNM functions can
+also be used: for details, see \code{\link{flash_ebnm}}.}
 }
 \value{
 The \code{\link{flash}} object from argument \code{flash}, with
-  factors and loadings initialized as specified.
+factors and loadings initialized as specified.
 }
 \description{
 Initializes factor/loadings pairs at values specified by \code{init}. This
-  function has two primary uses: 1. One can initialize multiple
-  factor/loadings pairs at once using an SVD-like function and then optimize
-  them via function \code{\link{flash_backfit}}. Sometimes this results in
-  a better fit than adding them one at a time via
-  \code{\link{flash_greedy}}. 2. One can initialize factor/loadings pairs
-  and then fix the factor (or loadings) via function
-  \code{\link{flash_factors_fix}} to incorporate "known" factors into a
-  \code{\link{flash}} object. See below for examples of both use cases.
+function has two primary uses: 1. One can initialize multiple
+factor/loadings pairs at once using an SVD-like function and then optimize
+them via function \code{\link{flash_backfit}}. Sometimes this results in
+a better fit than adding them one at a time via
+\code{\link{flash_greedy}}. 2. One can initialize factor/loadings pairs
+and then fix the factor (or loadings) via function
+\code{\link{flash_factors_fix}} to incorporate "known" factors into a
+\code{\link{flash}} object. See below for examples of both use cases.
 }
 \examples{
 # Initialize several factors at once and backfit.
-fl <- flash_init(gtex) \%>\%
-  flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) \%>\%
+fl <- flash_init(gtex) |>
+  flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) |>
   flash_backfit()
 
 # Add fixed loadings with \ell_i identically equal to one. This can be
@@ -69,10 +69,10 @@ fl <- flash_init(gtex) \%>\%
 ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 # Initialize the factor at the least squares solution.
 ls_soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
-fl <- flash_init(gtex) \%>\%
-  flash_factors_init(init = list(ones, ls_soln)) \%>\%
-  flash_factors_fix(kset = 1, which_dim = "loadings") \%>\%
-  flash_backfit() \%>\%
+fl <- flash_init(gtex) |>
+  flash_factors_init(init = list(ones, ls_soln)) |>
+  flash_factors_fix(kset = 1, which_dim = "loadings") |>
+  flash_backfit() |>
   flash_greedy(Kmax = 5L)
 
 }
