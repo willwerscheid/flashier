@@ -37,11 +37,11 @@ conditions must be cleared using function \code{\link{flash_clear_timeout}}
 before any re-fitting is attempted.
 }
 \examples{
-fl <- flash_init(gtex) \%>\%
-  flash_set_timeout(1, "secs") \%>\%
-  flash_greedy(Kmax = 30) \%>\%
-  flash_backfit() \%>\%
-  flash_nullcheck() \%>\%
+fl <- flash_init(gtex) |>
+  flash_set_timeout(1, "secs") |>
+  flash_greedy(Kmax = 30) |>
+  flash_backfit() |>
+  flash_nullcheck() |>
   flash_clear_timeout() # Always clear timeout at the end of a pipeline.
 
 }

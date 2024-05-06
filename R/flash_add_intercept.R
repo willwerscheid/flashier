@@ -35,12 +35,12 @@
 #' # The following are equivalent:
 #' init <- list(matrix(rowMeans(gtex), ncol = 1),
 #'              matrix(1, nrow = ncol(gtex)))
-#' fl <- flash_init(gtex) %>%
-#'   flash_factors_init(init) %>%
-#'   flash_factors_fix(kset = 1, which_dim = "factors") %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_factors_init(init) |>
+#'   flash_factors_fix(kset = 1, which_dim = "factors") |>
 #'   flash_backfit(kset = 1)
 #'
-#' fl <- flash_init(gtex) %>%
+#' fl <- flash_init(gtex) |>
 #'   flash_add_intercept(rowwise = FALSE)
 #'
 #' @return The \code{\link{flash}} object from argument \code{flash}, with an
@@ -75,9 +75,9 @@ flash_add_intercept <- function(flash,
     init <- list(matrix(init.L, ncol = 1), ones)
   }
 
-  flash <- flash %>%
-    flash_factors_init(init, ebnm_fn = ebnm_fn) %>%
-    flash_factors_fix(kset = get.n.factors(fit) + 1, which_dim = fixed_dim) %>%
+  flash <- flash |>
+    flash_factors_init(init, ebnm_fn = ebnm_fn) |>
+    flash_factors_fix(kset = get.n.factors(fit) + 1, which_dim = fixed_dim) |>
     flash_backfit(kset = get.n.factors(fit) + 1)
 
   return(flash)

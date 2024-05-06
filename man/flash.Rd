@@ -194,9 +194,9 @@ data(gtex)
 fl <- flash(gtex, greedy_Kmax = 3L, backfit = TRUE)
 
 # This is equivalent to the series of calls:
-fl <- flash_init(gtex) \%>\%
-  flash_greedy(Kmax = 3L) \%>\%
-  flash_backfit() \%>\%
+fl <- flash_init(gtex) |>
+  flash_greedy(Kmax = 3L) |>
+  flash_backfit() |>
   flash_nullcheck()
 
 # Fit a unimodal distribution with mean zero to each set of loadings

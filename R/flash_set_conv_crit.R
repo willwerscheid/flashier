@@ -79,14 +79,14 @@
 #'   again called within the same pipeline).
 #'
 #' @examples
-#' fl <- flash_init(gtex) %>%
-#'   flash_set_conv_crit(flash_conv_crit_max_chg, tol = 1e-3) %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_set_conv_crit(flash_conv_crit_max_chg, tol = 1e-3) |>
 #'   flash_set_verbose(
 #'     verbose = 3,
 #'     fns = flash_verbose_max_chg,
 #'     colnames = "Max Chg",
 #'     colwidths = 20
-#'   ) %>%
+#'   ) |>
 #'   flash_greedy(Kmax = 3)
 #'
 #' @export

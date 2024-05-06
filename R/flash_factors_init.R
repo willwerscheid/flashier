@@ -33,8 +33,8 @@
 #'
 #' @examples
 #' # Initialize several factors at once and backfit.
-#' fl <- flash_init(gtex) %>%
-#'   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_factors_init(init = svd(gtex, nu = 5, nv = 5)) |>
 #'   flash_backfit()
 #'
 #' # Add fixed loadings with \ell_i identically equal to one. This can be
@@ -43,10 +43,10 @@
 #' ones <- matrix(1, nrow = nrow(gtex), ncol = 1)
 #' # Initialize the factor at the least squares solution.
 #' ls_soln <- t(solve(crossprod(ones), crossprod(ones, gtex)))
-#' fl <- flash_init(gtex) %>%
-#'   flash_factors_init(init = list(ones, ls_soln)) %>%
-#'   flash_factors_fix(kset = 1, which_dim = "loadings") %>%
-#'   flash_backfit() %>%
+#' fl <- flash_init(gtex) |>
+#'   flash_factors_init(init = list(ones, ls_soln)) |>
+#'   flash_factors_fix(kset = 1, which_dim = "loadings") |>
+#'   flash_backfit() |>
 #'   flash_greedy(Kmax = 5L)
 #'
 #' @importFrom ebnm ebnm_point_normal

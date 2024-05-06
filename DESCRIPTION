@@ -1,8 +1,8 @@
 Package: flashier
 Type: Package
-Date: 2024-04-29
+Date: 2024-05-06
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.41
+Version: 1.0.42
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -17,8 +17,7 @@ Description: Methods for matrix factorization based on Wang and Stephens (2021)
     <https://jmlr.org/papers/v22/20-589.html>.
 Depends: 
     R (>= 4.1),
-    ebnm (>= 0.1-21),    
-    magrittr
+    ebnm (>= 0.1-21)
 Imports:
     Matrix,
     parallel,

@@ -48,12 +48,12 @@ and then backfit via function \code{\link{flash_backfit}}.
 # The following are equivalent:
 init <- list(matrix(rowMeans(gtex), ncol = 1),
              matrix(1, nrow = ncol(gtex)))
-fl <- flash_init(gtex) \%>\%
-  flash_factors_init(init) \%>\%
-  flash_factors_fix(kset = 1, which_dim = "factors") \%>\%
+fl <- flash_init(gtex) |>
+  flash_factors_init(init) |>
+  flash_factors_fix(kset = 1, which_dim = "factors") |>
   flash_backfit(kset = 1)
 
-fl <- flash_init(gtex) \%>\%
+fl <- flash_init(gtex) |>
   flash_add_intercept(rowwise = FALSE)
 
 }
