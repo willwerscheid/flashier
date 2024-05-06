@@ -27,12 +27,15 @@
 \item{include_pm}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} This parameter has been deprecated; please use
 \code{plot_type} instead.}
 
-\item{order_by_pve}{If \code{TRUE}, then the factor/loadings pairs will be
-re-ordered according to proportion of variance explained (from
-highest to lowest).}
+\item{order_by_pve}{If \code{order_by_pve = TRUE}, then factor/loadings pairs
+will be ordered according to proportion of variance explained, from
+highest to lowest. (By default, they are plotted in the same order as
+\code{kset}; or, if \code{kset} is \code{NULL}, then they are plotted in
+the same order as they are found in \code{fl}.)}
 
 \item{kset}{A vector of integers specifying the factor/loadings pairs to be
-plotted. If \code{kset = NULL}, then all will be plotted.}
+plotted. If \code{order_by_pve = FALSE}, then \code{kset} also specifies the
+\emph{order} in which they are to be plotted.}
 
 \item{pm_which}{Whether to plot loadings \eqn{L} or factors \eqn{F}.}
 
