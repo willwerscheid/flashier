@@ -157,7 +157,7 @@ A few notes about this flash call:
   long time to complete, so have omitted the backfitting step here to
   reduce the computational effort involved.
 
-The plot method with default settings produces a "scree plot" showing
+The `plot` method with default settings produces a "scree plot" showing
 the proportion of variance explained by each of the 8 factors:
 
 ```{r scree-plot, fig.height=2.25, fig.width=2.5}
@@ -188,7 +188,7 @@ The first and third cells mainly have membership in factors 1 and 6,
 whereas the second cell mostly has membership in factors 1 and 5.
 Most of the memberships are zero.
 
-We can use a "structure plot" to visualize the relationship between
+We can use plotting functions provided by `flashier` to visualize the relationship between
 the memberships and the cell labels, and possibly get some clues about
 the biological meaning of the factors. The cell labels are the
 "sorted" cell subpopulations:
@@ -196,10 +196,25 @@ the biological meaning of the factors. The cell labels are the
 ```{r cell-samples}
 summary(pbmc_facs$samples$subpop)
 ```
-   
-A structure plot is a stacked bar plot in which each factor is
+
+We can produce different types of plots by specifying the `plot_type` argument 
+to the `plot` method. For example, plotting overlapping histograms makes it 
+immediately clear that each component 2 through 6 is primarily capturing a 
+single cell type.
+
+```{r histograms, fig.height=3.5, fig.width=5}
+plot(fit, 
+     plot_type = "histogram",
+     pm_which = "loadings", 
+     pm_groups = pbmc_facs$samples$subpop,
+     bins = 20)
+```
+
+Other plot types can capture more subtle structure. An especially useful plot type
+for visualizing nonnegative factorizations is the
+"structure plot" --- a stacked bar plot in which each component is
 represented as a bar of a different color, and the bar heights are
-given by the membership levels. 
+given by the loadings on each component.
 
 ```{r structure-plot-1, fig.height=2, fig.width=5, results="hide", message=FALSE}
 plot(fit, 
