@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.46</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.53</span>
       </span>
     </div>
 
@@ -208,8 +208,9 @@ improves the fit for these data.) On the other hand, backfitting can
 sometimes take a long time to complete, so have omitted the backfitting
 step here to reduce the computational effort involved.</p></li>
 </ul>
-<p>The plot method with default settings produces a “scree plot” showing
-the proportion of variance explained by each of the 8 factors:</p>
+<p>The <code>plot</code> method with default settings produces a “scree
+plot” showing the proportion of variance explained by each of the 8
+factors:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_single_cell_files/figure-html/scree-plot-1.png" width="300" style="display: block; margin: auto;"></p>
@@ -235,18 +236,32 @@ combination of the $K$ factors. -->
 <p>The first and third cells mainly have membership in factors 1 and 6,
 whereas the second cell mostly has membership in factors 1 and 5. Most
 of the memberships are zero.</p>
-<p>We can use a “structure plot” to visualize the relationship between
-the memberships and the cell labels, and possibly get some clues about
-the biological meaning of the factors. The cell labels are the “sorted”
-cell subpopulations:</p>
+<p>We can use plotting functions provided by <code>flashier</code> to
+visualize the relationship between the memberships and the cell labels,
+and possibly get some clues about the biological meaning of the factors.
+The cell labels are the “sorted” cell subpopulations:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  B cell   CD14+   CD34+ NK cell  T cell </span></span>
 <span><span class="co">#&gt;     767     163     687     673    1484</span></span></code></pre></div>
-<p>A structure plot is a stacked bar plot in which each factor is
-represented as a bar of a different color, and the bar heights are given
-by the membership levels.</p>
+<p>We can produce different types of plots by specifying the
+<code>plot_type</code> argument to the <code>plot</code> method. For
+example, plotting overlapping histograms makes it immediately clear that
+each component 2 through 6 is primarily capturing a single cell
+type.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, </span>
+<span>     plot_type <span class="op">=</span> <span class="st">"histogram"</span>,</span>
+<span>     pm_which <span class="op">=</span> <span class="st">"loadings"</span>, </span>
+<span>     pm_groups <span class="op">=</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">samples</span><span class="op">$</span><span class="va">subpop</span>,</span>
+<span>     bins <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_single_cell_files/figure-html/histograms-1.png" width="600" style="display: block; margin: auto;"></p>
+<p>Other plot types can capture more subtle structure. An especially
+useful plot type for visualizing nonnegative factorizations is the
+“structure plot” — a stacked bar plot in which each component is
+represented as a bar of a different color, and the bar heights are given
+by the loadings on each component.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>     plot_type <span class="op">=</span> <span class="st">"structure"</span>,</span>
 <span>     pm_which <span class="op">=</span> <span class="st">"loadings"</span>, </span>
@@ -257,7 +272,7 @@ by the membership levels.</p>
 likely capturing a “baseline” level of expression throughout. To focus
 on differences between cell types, let’s remove this first factor from
 our structure plot:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>     plot_type <span class="op">=</span> <span class="st">"structure"</span>,</span>
 <span>     kset <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">8</span>,</span>
@@ -274,7 +289,7 @@ subpopulation that is intermediate between “pure” T and “pure” NK cells.
 It is also interesting to note the subset of CD34+ cells that are
 primarily loaded on factor 3; some of these cells may be mislabeled.</p>
 <p>We can also visualize the cell matrix in a heatmap:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>     plot_type <span class="op">=</span> <span class="st">"heatmap"</span>,</span>
 <span>     pm_which <span class="op">=</span> <span class="st">"loadings"</span>, </span>
@@ -300,7 +315,7 @@ speaking, we interpret these changes relative to this baseline.</p>
 might give the most helpful clues about the underlying biology. For
 example, many of the genes with the largest expression increases in
 factor 6 are also genes characteristic of B cells:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span>
 <span><span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">res</span>, <span class="cn">F</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">D</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="cn">F</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">pbmc_facs</span><span class="op">$</span><span class="va">genes</span><span class="op">$</span><span class="va">symbol</span></span>
@@ -311,7 +326,7 @@ factor 6 are also genes characteristic of B cells:</p>
 <span><span class="co">#&gt; 1.6019631 1.4980763 1.3626036 1.1202287 1.1135809 1.0048497 0.9848164 0.9128516</span></span></code></pre></div>
 <p>Let’s now apply this simple rule of thumb and examine the top 4 genes
 (by expression increase) for factors 2 through 6:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="cn">F</span>, <span class="fl">2</span>, <span class="va">order</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
 <span><span class="va">top_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">F_pm</span><span class="op">)</span><span class="op">[</span><span class="va">top_genes</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,</span>
@@ -331,15 +346,16 @@ to work well here, in other settings there may be more effective
 approaches.</p>
 <p>Plot of mean vs. change for factor 6 (“B cells”), with top 10 genes
 (by largest increase):</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,</span>
 <span>     plot_type <span class="op">=</span> <span class="st">"scatter"</span>,</span>
 <span>     pm_which <span class="op">=</span> <span class="st">"factors"</span>,</span>
 <span>     kset <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>     labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>     n_labels <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>     label_size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"increase in shifted log expression"</span>,</span>
-<span>      y <span class="op">=</span> <span class="st">"mean shifted log expression"</span><span class="op">)</span> </span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"increase in shifted log expression"</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"mean shifted log expression"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="flashier_single_cell_files/figure-html/plot-change-vs-mean-1.png" width="360" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -354,7 +370,7 @@ support (such as the point-exponential prior) for <span class="math inline">\({\
 real numbers for <span class="math inline">\({\bf F}\)</span> (such as
 the point-Laplace prior). The call to the “flash” function looks the
 same as above except for the “ebnm_fn” argument:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_snmf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">shifted_log_counts</span>, </span>
 <span>                  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_exponential</span>, <span class="va">ebnm_point_laplace</span><span class="op">)</span>,</span>
 <span>                  var_type <span class="op">=</span> <span class="fl">2</span>, </span>
@@ -367,7 +383,7 @@ same as above except for the “ebnm_fn” argument:</p>
 </h2>
 <p>This is the version of R and the packages that were used to generate
 these results.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20 (64-bit)</span></span>
@@ -387,38 +403,38 @@ these results.</p>
 <span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_3.5.0      fastTopics_0.6-165 Matrix_1.6-5       flashier_1.0.41   </span></span>
-<span><span class="co">#&gt; [5] magrittr_2.0.3     ebnm_1.1-25       </span></span>
+<span><span class="co">#&gt; [1] ggplot2_3.5.0      fastTopics_0.6-165 Matrix_1.6-5       flashier_1.0.53   </span></span>
+<span><span class="co">#&gt; [5] ebnm_1.1-25       </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyselect_1.2.0     viridisLite_0.4.2    dplyr_1.1.4         </span></span>
 <span><span class="co">#&gt;  [4] farver_2.1.1         fastmap_1.1.1        lazyeval_0.2.2      </span></span>
 <span><span class="co">#&gt;  [7] digest_0.6.34        lifecycle_1.0.4      invgamma_1.1        </span></span>
-<span><span class="co">#&gt; [10] compiler_4.3.3       rlang_1.1.3          sass_0.4.8          </span></span>
-<span><span class="co">#&gt; [13] progress_1.2.3       tools_4.3.3          utf8_1.2.4          </span></span>
-<span><span class="co">#&gt; [16] yaml_2.3.8           data.table_1.15.2    knitr_1.45          </span></span>
-<span><span class="co">#&gt; [19] prettyunits_1.2.0    labeling_0.4.3       htmlwidgets_1.6.4   </span></span>
-<span><span class="co">#&gt; [22] scatterplot3d_0.3-44 RColorBrewer_1.1-3   Rtsne_0.17          </span></span>
-<span><span class="co">#&gt; [25] withr_3.0.0          purrr_1.0.2          desc_1.4.3          </span></span>
-<span><span class="co">#&gt; [28] grid_4.3.3           fansi_1.0.6          colorspace_2.1-0    </span></span>
-<span><span class="co">#&gt; [31] scales_1.3.0         gtools_3.9.5         cli_3.6.2           </span></span>
-<span><span class="co">#&gt; [34] rmarkdown_2.26       crayon_1.5.2         ragg_1.2.7          </span></span>
-<span><span class="co">#&gt; [37] generics_0.1.3       RcppParallel_5.1.7   httr_1.4.7          </span></span>
-<span><span class="co">#&gt; [40] pbapply_1.7-2        cachem_1.0.8         splines_4.3.3       </span></span>
-<span><span class="co">#&gt; [43] parallel_4.3.3       softImpute_1.4-1     vctrs_0.6.5         </span></span>
-<span><span class="co">#&gt; [46] jsonlite_1.8.8       hms_1.1.3            mixsqp_0.3-54       </span></span>
-<span><span class="co">#&gt; [49] ggrepel_0.9.5        irlba_2.3.5.1        horseshoe_0.2.0     </span></span>
-<span><span class="co">#&gt; [52] systemfonts_1.0.6    trust_0.1-8          plotly_4.10.4       </span></span>
-<span><span class="co">#&gt; [55] jquerylib_0.1.4      tidyr_1.3.1          glue_1.7.0          </span></span>
-<span><span class="co">#&gt; [58] pkgdown_2.0.7        cowplot_1.1.3        uwot_0.1.16         </span></span>
-<span><span class="co">#&gt; [61] Polychrome_1.5.1     gtable_0.3.4         quadprog_1.5-8      </span></span>
-<span><span class="co">#&gt; [64] munsell_0.5.0        tibble_3.2.1         pillar_1.9.0        </span></span>
-<span><span class="co">#&gt; [67] htmltools_0.5.7      truncnorm_1.0-9      R6_2.5.1            </span></span>
-<span><span class="co">#&gt; [70] textshaping_0.3.7    evaluate_0.23        lattice_0.22-5      </span></span>
-<span><span class="co">#&gt; [73] highr_0.10           memoise_2.0.1        SQUAREM_2021.1      </span></span>
-<span><span class="co">#&gt; [76] ashr_2.2-64          bslib_0.6.1          Rcpp_1.0.12         </span></span>
-<span><span class="co">#&gt; [79] deconvolveR_1.2-1    xfun_0.42            fs_1.6.3            </span></span>
-<span><span class="co">#&gt; [82] pkgconfig_2.0.3</span></span></code></pre></div>
+<span><span class="co">#&gt; [10] magrittr_2.0.3       compiler_4.3.3       rlang_1.1.3         </span></span>
+<span><span class="co">#&gt; [13] sass_0.4.8           progress_1.2.3       tools_4.3.3         </span></span>
+<span><span class="co">#&gt; [16] utf8_1.2.4           yaml_2.3.8           data.table_1.15.2   </span></span>
+<span><span class="co">#&gt; [19] knitr_1.45           prettyunits_1.2.0    labeling_0.4.3      </span></span>
+<span><span class="co">#&gt; [22] htmlwidgets_1.6.4    scatterplot3d_0.3-44 RColorBrewer_1.1-3  </span></span>
+<span><span class="co">#&gt; [25] Rtsne_0.17           withr_3.0.0          purrr_1.0.2         </span></span>
+<span><span class="co">#&gt; [28] desc_1.4.3           grid_4.3.3           fansi_1.0.6         </span></span>
+<span><span class="co">#&gt; [31] colorspace_2.1-0     scales_1.3.0         gtools_3.9.5        </span></span>
+<span><span class="co">#&gt; [34] cli_3.6.2            rmarkdown_2.26       crayon_1.5.2        </span></span>
+<span><span class="co">#&gt; [37] ragg_1.2.7           generics_0.1.3       RcppParallel_5.1.7  </span></span>
+<span><span class="co">#&gt; [40] httr_1.4.7           pbapply_1.7-2        cachem_1.0.8        </span></span>
+<span><span class="co">#&gt; [43] splines_4.3.3        parallel_4.3.3       softImpute_1.4-1    </span></span>
+<span><span class="co">#&gt; [46] vctrs_0.6.5          jsonlite_1.8.8       hms_1.1.3           </span></span>
+<span><span class="co">#&gt; [49] mixsqp_0.3-54        ggrepel_0.9.5        irlba_2.3.5.1       </span></span>
+<span><span class="co">#&gt; [52] horseshoe_0.2.0      systemfonts_1.0.6    trust_0.1-8         </span></span>
+<span><span class="co">#&gt; [55] plotly_4.10.4        jquerylib_0.1.4      tidyr_1.3.1         </span></span>
+<span><span class="co">#&gt; [58] glue_1.7.0           pkgdown_2.0.7        cowplot_1.1.3       </span></span>
+<span><span class="co">#&gt; [61] uwot_0.1.16          Polychrome_1.5.1     gtable_0.3.4        </span></span>
+<span><span class="co">#&gt; [64] quadprog_1.5-8       munsell_0.5.0        tibble_3.2.1        </span></span>
+<span><span class="co">#&gt; [67] pillar_1.9.0         htmltools_0.5.7      truncnorm_1.0-9     </span></span>
+<span><span class="co">#&gt; [70] R6_2.5.1             textshaping_0.3.7    evaluate_0.23       </span></span>
+<span><span class="co">#&gt; [73] lattice_0.22-5       highr_0.10           memoise_2.0.1       </span></span>
+<span><span class="co">#&gt; [76] SQUAREM_2021.1       ashr_2.2-64          bslib_0.6.1         </span></span>
+<span><span class="co">#&gt; [79] Rcpp_1.0.12          deconvolveR_1.2-1    xfun_0.42           </span></span>
+<span><span class="co">#&gt; [82] fs_1.6.3             pkgconfig_2.0.3</span></span></code></pre></div>
 </div>
   </div>
 

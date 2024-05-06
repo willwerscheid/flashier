@@ -202,7 +202,7 @@ to the `plot` method. For example, plotting overlapping histograms makes it
 immediately clear that each component 2 through 6 is primarily capturing a 
 single cell type.
 
-```{r histograms, fig.height=3.5, fig.width=5}
+```{r histograms, fig.height=4, fig.width=5}
 plot(fit, 
      plot_type = "histogram",
      pm_which = "loadings", 
