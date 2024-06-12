@@ -22,8 +22,11 @@
 #'
 #' @export
 #'
-flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL) {
+flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL, Y2val = NULL) {
   flash <- set.flash.data(data, S = S, S.dim = S_dim, var.type = var_type)
+  if(!is.null(Y2val)) {
+    flash <- set.Y2(flash, Y2val)
+  }
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {
     flash$R <- flash$Y
