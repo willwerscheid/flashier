@@ -1,9 +1,10 @@
-pandoc: 2.17.1.1
+pandoc: 3.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   advanced_flashier: advanced_flashier.html
   flashier_closer_look: flashier_closer_look.html
   flashier_intro: flashier_intro.html
-last_built: 2024-02-21T17:49Z
+  flashier_single_cell: flashier_single_cell.html
+last_built: 2024-07-25T11:19Z
 

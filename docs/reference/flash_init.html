@@ -20,7 +20,7 @@ in any flash pipeline. See flash for examples of usage."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.53</span>
       </span>
     </div>
 
@@ -59,7 +59,7 @@ in any <code>flash</code> pipeline. See <code><a href="flash.html">flash</a></co
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">flash_init</span><span class="op">(</span><span class="va">data</span>, S <span class="op">=</span> <span class="cn">NULL</span>, var_type <span class="op">=</span> <span class="fl">0L</span>, S_dim <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">flash_init</span><span class="op">(</span><span class="va">data</span>, S <span class="op">=</span> <span class="cn">NULL</span>, var_type <span class="op">=</span> <span class="fl">0L</span>, S_dim <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -88,22 +88,22 @@ data matrix is square, then the sense must be specified using parameter
 
 <dt>var_type</dt>
 <dd><p>Describes the structure of the estimated residual variance.
-  Can be <code>NULL</code>, <code>0</code>, <code>1</code>, <code>2</code>, or <code>c(1, 2)</code>. If
-  <code>NULL</code>, then <code>S</code> accounts for all residual variance. If
-  <code>var_type = 0</code>, then the estimated residual variance (which is added
-  to any variance given by <code>S</code>) is assumed to be constant
-  across all observations. Setting <code>var_type = 1</code> estimates a single
-  variance parameter for each row; <code>var_type = 2</code> estimates one
-  parameter for each column; and <code>var_type = c(1, 2)</code> optimizes over
-  all rank-one matrices (that is, it assumes that the residual variance
-  parameter \(s_{ij}\) can be written \(s_{ij} = a_i b_j\), where the
-  \(n\)-vector \(a\) and the \(p\)-vector \(b\) are to be
-  estimated).</p>
+Can be <code>NULL</code>, <code>0</code>, <code>1</code>, <code>2</code>, or <code>c(1, 2)</code>. If
+<code>NULL</code>, then <code>S</code> accounts for all residual variance. If
+<code>var_type = 0</code>, then the estimated residual variance (which is added
+to any variance given by <code>S</code>) is assumed to be constant
+across all observations. Setting <code>var_type = 1</code> estimates a single
+variance parameter for each row; <code>var_type = 2</code> estimates one
+parameter for each column; and <code>var_type = c(1, 2)</code> optimizes over
+all rank-one matrices (that is, it assumes that the residual variance
+parameter \(s_{ij}\) can be written \(s_{ij} = a_i b_j\), where the
+\(n\)-vector \(a\) and the \(p\)-vector \(b\) are to be
+estimated).</p>
 <p>Note that if any portion of the residual variance is to be estimated, then
-  it is usually faster to set <code>S = NULL</code> and to let <code>flash</code>
-  estimate all of the residual variance. Further, <code>var_type = c(1, 2)</code>
-  is typically much slower than other options, so it should be used with
-  care.</p></dd>
+it is usually faster to set <code>S = NULL</code> and to let <code>flash</code>
+estimate all of the residual variance. Further, <code>var_type = c(1, 2)</code>
+is typically much slower than other options, so it should be used with
+care.</p></dd>
 
 
 <dt>S_dim</dt>

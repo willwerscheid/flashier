@@ -19,6 +19,9 @@
     <loc>/articles/flashier_intro.html</loc>
   </url>
   <url>
+    <loc>/articles/flashier_single_cell.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
@@ -98,6 +101,24 @@
   </url>
   <url>
     <loc>/reference/flash_nullcheck.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_bar.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_heatmap.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_histogram.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_scatter.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_scree.html</loc>
+  </url>
+  <url>
+    <loc>/reference/flash_plot_structure.html</loc>
   </url>
   <url>
     <loc>/reference/flash_set_conv_crit.html</loc>

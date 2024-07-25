@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">flashier</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.23</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.53</span>
       </span>
     </div>
 
@@ -80,11 +80,10 @@
 will make use of package <code>cowplot</code> below in order to arrange
 plots into grids:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span>
-<span class="co">#&gt; Loading required package: ebnm</span>
-<span class="co">#&gt; Loading required package: magrittr</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/willwerscheid/flashier" class="external-link">flashier</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: ebnm</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="the-ebmf-model">The EBMF Model<a class="anchor" aria-label="anchor" href="#the-ebmf-model"></a>
 </h2>
@@ -164,17 +163,17 @@ practically manageable (the default is <code>greedy_Kmax = 50</code>).
 Here, however, we will restrict the number of factor/loadings pairs in
 order to ensure that the vignette can be run quickly:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gtex</span>, <span class="va">gtex_colors</span><span class="op">)</span>
-<span class="va">fit_default</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
-<span class="co">#&gt; Adding factor 1 to flash object...</span>
-<span class="co">#&gt; Adding factor 2 to flash object...</span>
-<span class="co">#&gt; Adding factor 3 to flash object...</span>
-<span class="co">#&gt; Adding factor 4 to flash object...</span>
-<span class="co">#&gt; Adding factor 5 to flash object...</span>
-<span class="co">#&gt; Wrapping up...</span>
-<span class="co">#&gt; Done.</span>
-<span class="co">#&gt; Nullchecking 5 factors...</span>
-<span class="co">#&gt; Done.</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gtex</span>, <span class="va">gtex_colors</span><span class="op">)</span></span>
+<span><span class="va">fit_default</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Adding factor 1 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 2 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 3 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 4 to flash object...</span></span>
+<span><span class="co">#&gt; Adding factor 5 to flash object...</span></span>
+<span><span class="co">#&gt; Wrapping up...</span></span>
+<span><span class="co">#&gt; Done.</span></span>
+<span><span class="co">#&gt; Nullchecking 5 factors...</span></span>
+<span><span class="co">#&gt; Done.</span></span></code></pre></div>
 <p>By default, <code><a href="../reference/flash.html">flash()</a></code> performs a “nullcheck” after the
 greedy algorithm terminates: that is, it loops over each greedily added
 factor/loadings pair and checks that removing it does not produce an
@@ -184,8 +183,8 @@ factor/loadings pair is removed from the final fit.</p>
 <code>flash</code>. Useful information about the fit can be accessed as
 list elements. For example, the ELBO can be accessed as:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span>
-<span class="co">#&gt; [1] -83131.69</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span></span>
+<span><span class="co">#&gt; [1] -83131.69</span></span></code></pre></div>
 <p>Additionally, a few class methods have been implemented, including
 <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, which returns <span class="math inline">\(\mathbb{E} (LF')\)</span>;
 <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, which yields the matrix of expected residuals
@@ -193,16 +192,39 @@ list elements. For example, the ELBO can be accessed as:</p>
 <code><a href="../reference/ldf.html">ldf()</a></code>, which gives the LDF factorization with the scaling
 of loadings and factors determined by argument <code>type</code>.</p>
 <p>Finally, <code>flashier</code> provides a convenient
-<code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> method. By default, <code><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot()</a></code> returns two
-figures: a “scree plot” showing the proportion of variance explained by
-each factor/loadings pair; and plots of posterior means of either
-factors or loadings (depending on the argument to
-<code>pm_which</code>). Here, we supply colors for the posterior means
-plots in order to match the figures included in Wang and Stephens
-(2021):</p>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method. The type of plot is controlled by the
+<code>plot_type</code> argument. The default option is a “scree plot,”
+which shows the proportion of variance explained by each factor/loadings
+pair:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_default</span>, pw_which <span class="op">=</span> <span class="st">"factors"</span>, pm_colors <span class="op">=</span> <span class="va">gtex_colors</span><span class="op">)</span></code></pre></div>
-<p><img src="flashier_closer_look_files/figure-html/plot.fn-1.png" width="576"><img src="flashier_closer_look_files/figure-html/plot.fn-2.png" width="576"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_default</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_closer_look_files/figure-html/plot.scree-1.png" width="576"></p>
+<p>Other plot types, including bar plots, histograms, scatter plots,
+heatmaps, and “structure” plots, can provide a more detailed overview of
+posterior means for either factors or loadings (depending on the
+argument to <code>pm_which</code>). Here, supply colors for the
+individual bars in a bar plot in order to match the figures included in
+Wang and Stephens (2021):</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_default</span>, </span>
+<span>     pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>     pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,</span>
+<span>     plot_type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_closer_look_files/figure-html/plot.bar-1.png" width="576"></p>
+<p>All of the plot types are available via a dual interface. In addition
+to being able to specify the <code>plot_type</code> argument in the
+<code>plot</code> method, each plot type has its own
+<code>flash_plot_xxx</code> function, which typically exposes a few more
+arguments. Further, since a <code>ggplot2</code> object is returned by
+all plotting functions, additional customization is straightforward:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/flash_plot_bar.html">flash_plot_bar</a></span><span class="op">(</span><span class="va">fit_default</span>, </span>
+<span>               pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>               pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,</span>
+<span>               labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>               ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">6</span>, angle <span class="op">=</span> <span class="fl">60</span>, color <span class="op">=</span> <span class="va">gtex_colors</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="flashier_closer_look_files/figure-html/plot.bar.custom-1.png" width="576"></p>
 <p>Most of the large values for factor 2 above correspond to brain
 tissues (yellow), but the factor is not very “clean” in the sense that
 many other tissues have medium to large values as well. Factor 3 is
@@ -234,11 +256,11 @@ from column to column but is constant within each column. Note that this
 a higher ELBO (we write “typically” rather than “always” because the
 optimization surface is in general non-convex, so there is no guarantee
 that the global optimum will be found):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_var_bycol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>const_elbo <span class="op">=</span> <span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span>, bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt; const_elbo bycol_elbo </span>
-<span class="co">#&gt;  -83131.69  -80490.27</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_var_bycol</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>const_elbo <span class="op">=</span> <span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span>, bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt; const_elbo bycol_elbo </span></span>
+<span><span class="co">#&gt;  -83131.69  -80490.27</span></span></code></pre></div>
 <p>The most general possible assumption allowed by <code>flashier</code>
 is that the matrix of precision parameters <span class="math inline">\(\tau_{ij}\)</span> is an arbitrary rank-one
 matrix. That is, for each <span class="math inline">\(i\)</span> and
@@ -253,11 +275,11 @@ constants: <span class="math display">\[ \text{diag} (\tau^{(1)}) Y
 <p>Just as the by-column assumption usually yields an increase in ELBO
 relative to the constant variance assumption, the Kronecker assumption
 will generally yield a higher ELBO than the by-column assumption:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_var_kronecker</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span>, kron_elbo <span class="op">=</span> <span class="va">fit_var_kronecker</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt; bycol_elbo  kron_elbo </span>
-<span class="co">#&gt;  -80490.27  -78636.44</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_var_kronecker</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span>, kron_elbo <span class="op">=</span> <span class="va">fit_var_kronecker</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt; bycol_elbo  kron_elbo </span></span>
+<span><span class="co">#&gt;  -80490.27  -78636.44</span></span></code></pre></div>
 <p>Although the Kronecker assumption can yield large increases in ELBO,
 one should be careful using it with very large datasets, as the
 precision parameters must be estimated at each iteration via an
@@ -267,24 +289,22 @@ constant, by-row, or by-column variance assumption. Note also that
 despite the large increase in ELBO from the by-column to the Kronecker
 variance assumption, there are not obvious differences in the plotted
 posterior means:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_var_bycol</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>, 
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"By-column variance assumption"</span><span class="op">)</span>
-
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_var_kronecker</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>, 
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Kronecker variance assumption"</span><span class="op">)</span>
-
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_var_bycol</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, </span>
+<span>  plot_type <span class="op">=</span> <span class="st">"bar"</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"By-column variance assumption"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_var_kronecker</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, </span>
+<span>  plot_type <span class="op">=</span> <span class="st">"bar"</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Kronecker variance assumption"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/gtex.bycol.plot-1.png" width="576"></p>
 <p>To compare the fits more directly, we can use function
 <code><a href="../reference/ldf.html">ldf()</a></code> to extract factor values, with argument
@@ -295,18 +315,18 @@ maximum norm; setting <code>type = "m"</code> scales the columns of
 value over each column is equal to 1). A scatterplot confirms that
 estimates are very similar, with minor differences in factors 2, 4, and
 5:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">comparison_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  var_by_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_var_bycol</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,
-  var_kronecker <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_var_kronecker</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,
-  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">var_by_col</span>, y <span class="op">=</span> <span class="va">var_kronecker</span>, col <span class="op">=</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"By-column variance assumption"</span>, y <span class="op">=</span> <span class="st">"Kronecker variance assumption"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> </code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comparison_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  var_by_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_var_bycol</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,</span>
+<span>  var_kronecker <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_var_kronecker</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,</span>
+<span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">var_by_col</span>, y <span class="op">=</span> <span class="va">var_kronecker</span>, col <span class="op">=</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"By-column variance assumption"</span>, y <span class="op">=</span> <span class="st">"Kronecker variance assumption"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/var.compare-1.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -335,11 +355,11 @@ should yield a lower ELBO than the model with arbitrary column-specific
 variances (again, we write “should” because it is not guaranteed that
 <code><a href="../reference/flash.html">flash()</a></code> will converge to a global optimum), but it is
 arguably the more correct model.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_with_meas_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, S <span class="op">=</span> <span class="fl">1</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span>, meas_err_elbo <span class="op">=</span> <span class="va">fit_with_meas_err</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt;    bycol_elbo meas_err_elbo </span>
-<span class="co">#&gt;     -80490.27     -80491.84</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_with_meas_err</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span><span class="va">gtex</span>, S <span class="op">=</span> <span class="fl">1</span>, greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, var_type <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bycol_elbo <span class="op">=</span> <span class="va">fit_var_bycol</span><span class="op">$</span><span class="va">elbo</span>, meas_err_elbo <span class="op">=</span> <span class="va">fit_with_meas_err</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    bycol_elbo meas_err_elbo </span></span>
+<span><span class="co">#&gt;     -80490.27     -80491.84</span></span></code></pre></div>
 <p>We note here that it is also possible to pass a matrix of standard
 errors <span class="math inline">\(s_{ij}\)</span> as argument to
 <code>S</code>. If these standard errors are to account for all residual
@@ -390,24 +410,24 @@ symmetric distributions that are unimodal at zero
 families are nested, so that the unimodal family should yield a higher
 ELBO than scale mixtures of normals, which should in turn yield a higher
 ELBO than the family of point-normals:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_normalmix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span>
-  <span class="va">gtex</span>, 
-  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, 
-  ebnm_fn <span class="op">=</span> <span class="va">ebnm_normal_scale_mixture</span>, 
-  verbose <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span>
-<span class="va">fit_unimodal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span>
-  <span class="va">gtex</span>, 
-  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, 
-  ebnm_fn <span class="op">=</span> <span class="va">ebnm_unimodal_symmetric</span>, 
-  verbose <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>pn_elbo <span class="op">=</span> <span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span>, 
-  normalmix_elbo <span class="op">=</span> <span class="va">fit_normalmix</span><span class="op">$</span><span class="va">elbo</span>, 
-  unimodal_elbo <span class="op">=</span> <span class="va">fit_unimodal</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt;        pn_elbo normalmix_elbo  unimodal_elbo </span>
-<span class="co">#&gt;      -83131.69      -82981.84      -82978.90</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_normalmix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span></span>
+<span>  <span class="va">gtex</span>, </span>
+<span>  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>  ebnm_fn <span class="op">=</span> <span class="va">ebnm_normal_scale_mixture</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">fit_unimodal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span></span>
+<span>  <span class="va">gtex</span>, </span>
+<span>  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>  ebnm_fn <span class="op">=</span> <span class="va">ebnm_unimodal_symmetric</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>pn_elbo <span class="op">=</span> <span class="va">fit_default</span><span class="op">$</span><span class="va">elbo</span>, </span>
+<span>  normalmix_elbo <span class="op">=</span> <span class="va">fit_normalmix</span><span class="op">$</span><span class="va">elbo</span>, </span>
+<span>  unimodal_elbo <span class="op">=</span> <span class="va">fit_unimodal</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        pn_elbo normalmix_elbo  unimodal_elbo </span></span>
+<span><span class="co">#&gt;      -83131.69      -82981.84      -82978.90</span></span></code></pre></div>
 <p>It is also possible to introduce sign constraints via the choice of
 prior family; for example, to constrain factors to be nonnegative, we
 need only choose a prior family with nonnegative support such as the
@@ -421,14 +441,14 @@ either increases or decreases across a number of related tissues, but
 does not increase in some and simultaneously decrease in others). We can
 constrain factors while allowing loadings to remain unconstrained by
 passing a list as argument to <code>ebnm_fn</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_seminonnegative</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span>
-  <span class="va">gtex</span>,
-  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, 
-  var_type <span class="op">=</span> <span class="fl">2</span>,
-  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, 
-  verbose <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_seminonnegative</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span></span>
+<span>  <span class="va">gtex</span>,</span>
+<span>  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>  var_type <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The result is a “semi-nonnegative” factorization, which in the
 scenario under consideration yields sparse, interpretable factors
 (especially in comparison to the factors produced using all default
@@ -437,13 +457,14 @@ sharing among brain, pituitary, and testis tissues; factor 3, among
 whole blood, spleen tissue, lung tissue, and lymphocytes; and factor 5,
 among heart and muscle tissues. Factor 4 represents effects uniquely
 expressed in testis tissue:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_seminonnegative</span>,
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>, 
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_seminonnegative</span>,</span>
+<span>     pm_which <span class="op">=</span> <span class="st">"factors"</span>, </span>
+<span>     pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>,</span>
+<span>     labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>     ncol <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>     plot_type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">6</span>, angle <span class="op">=</span> <span class="fl">60</span>, color <span class="op">=</span> <span class="va">gtex_colors</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/unnamed-chunk-1-1.png" width="576"></p>
 <!-- TODO move to advanced -->
 <!-- To pass non-default arguments to functions in package `ebnm`, `flashier` provides the convenience function `flash_ebnm`, which simply passes its arguments to `ebnm`. For example, to fit a normal prior with both mean and variance to be estimated, -->
@@ -474,27 +495,27 @@ use information contained in subsequent factors and loadings to improve
 the overall model fit. Since, by default, a backfit takes the greedy fit
 as its starting point, it is guaranteed to produce an increase in
 ELBO:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_greedy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span>
-  <span class="va">gtex</span>, 
-  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, 
-  var_type <span class="op">=</span> <span class="fl">2</span>,
-  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, 
-  backfit <span class="op">=</span> <span class="cn">FALSE</span>, 
-  verbose <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span>
-<span class="va">fit_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span>
-  <span class="va">gtex</span>, 
-  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, 
-  var_type <span class="op">=</span> <span class="fl">2</span>,
-  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, 
-  backfit <span class="op">=</span> <span class="cn">TRUE</span>, 
-  verbose <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>greedy_elbo <span class="op">=</span> <span class="va">fit_greedy</span><span class="op">$</span><span class="va">elbo</span>, bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span>
-<span class="co">#&gt; greedy_elbo     bf_elbo </span>
-<span class="co">#&gt;   -81194.23   -80893.79</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_greedy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span></span>
+<span>  <span class="va">gtex</span>, </span>
+<span>  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>  var_type <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, </span>
+<span>  backfit <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">fit_backfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/flash.html">flash</a></span><span class="op">(</span></span>
+<span>  <span class="va">gtex</span>, </span>
+<span>  greedy_Kmax <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>  var_type <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ebnm_fn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ebnm_point_normal</span>, <span class="va">ebnm_point_exponential</span><span class="op">)</span>, </span>
+<span>  backfit <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>  verbose <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>greedy_elbo <span class="op">=</span> <span class="va">fit_greedy</span><span class="op">$</span><span class="va">elbo</span>, bf_elbo <span class="op">=</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="va">elbo</span><span class="op">)</span></span>
+<span><span class="co">#&gt; greedy_elbo     bf_elbo </span></span>
+<span><span class="co">#&gt;   -81194.23   -80893.79</span></span></code></pre></div>
 <p>Qualitatively, results can vary: for large, complex fits, the
 improvement can be considerable; for smaller fits, there might be few
 obvious differences. Interestingly, backfitting the semi-nonnegative fit
@@ -502,40 +523,38 @@ from above produces a <em>less</em> visually appealing fit. We suspect
 that this occurs because 5 factor/loadings pairs is not enough to
 account for the structure in the data; if one increases
 <code>greedy_Kmax</code>, one obtains a more satisfying backfit.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_greedy</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>,
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Greedy fit"</span><span class="op">)</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span>
-  <span class="va">fit_backfit</span>, 
-  pm_which <span class="op">=</span> <span class="st">"factors"</span>,
-  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, 
-  order_by_pve <span class="op">=</span> <span class="cn">FALSE</span>,
-  include_scree <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Backfit"</span><span class="op">)</span>
-
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_greedy</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>,</span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, </span>
+<span>  plot_type <span class="op">=</span> <span class="st">"bar"</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Greedy fit"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_backfit</span>, </span>
+<span>  pm_which <span class="op">=</span> <span class="st">"factors"</span>,</span>
+<span>  pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, </span>
+<span>  plot_type <span class="op">=</span> <span class="st">"bar"</span></span>
+<span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Backfit"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/backfit.plot-1.png" width="576"></p>
 <p>We again obtain a more direct comparison of fits using function
 <code><a href="../reference/ldf.html">ldf()</a></code>. Here it is apparent that backfitting makes factor 2
 less sparse by “borrowing” from factor 1. Other factors remain very
 similar:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">comparison_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  fit_greedy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_greedy</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,
-  fit_backfit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_backfit</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,
-  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">fit_greedy</span>, y <span class="op">=</span> <span class="va">fit_backfit</span>, col <span class="op">=</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Greedy fit"</span>, y <span class="op">=</span> <span class="st">"Backfit"</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> </code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comparison_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  fit_greedy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_greedy</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,</span>
+<span>  fit_backfit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="../reference/ldf.html">ldf</a></span><span class="op">(</span><span class="va">fit_backfit</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span><span class="op">$</span><span class="cn">F</span><span class="op">)</span>,</span>
+<span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">gtex</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">fit_greedy</span>, y <span class="op">=</span> <span class="va">fit_backfit</span>, col <span class="op">=</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>slope <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Greedy fit"</span>, y <span class="op">=</span> <span class="st">"Backfit"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/bf.compare-1.png" width="576"></p>
 </div>
 <div class="section level2">
@@ -548,23 +567,23 @@ which tissues are bound up with whole blood effects, we might like
 confidence intervals for the third factor. We construct 95% confidence
 intervals using 200 samples and then finding 2.5% and 97.5% quantiles as
 follows:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Set seed for reproducibility.</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="co"># Use returned sampler to sample from posterior.</span>
-<span class="va">samp</span> <span class="op">&lt;-</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="fu">sampler</span><span class="op">(</span>nsamp <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>
-<span class="co"># Only keep factor 3.</span>
-<span class="va">factor3_samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span><span class="op">)</span>
-<span class="co"># Normalize the loadings.</span>
-<span class="va">factor3_samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">factor3_samp</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co"># Get 95% confidence intervals.</span>
-<span class="va">factor3_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">factor3_samp</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Set seed for reproducibility.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co"># Use returned sampler to sample from posterior.</span></span>
+<span><span class="va">samp</span> <span class="op">&lt;-</span> <span class="va">fit_backfit</span><span class="op">$</span><span class="fu">sampler</span><span class="op">(</span>nsamp <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="co"># Only keep factor 3.</span></span>
+<span><span class="va">factor3_samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># Normalize the loadings.</span></span>
+<span><span class="va">factor3_samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">factor3_samp</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Get 95% confidence intervals.</span></span>
+<span><span class="va">factor3_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">factor3_samp</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Since the <code>plot</code> method returns a <code>ggplot2</code>
 object, it can be customized using <code>ggplot</code> syntax, making
 the addition of error bars a simple task:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_backfit</span>, kset <span class="op">=</span> <span class="fl">3</span>, pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, include_scree <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">factor3_ci</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, ymax <span class="op">=</span> <span class="va">factor3_ci</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_backfit</span>, kset <span class="op">=</span> <span class="fl">3</span>, pm_colors <span class="op">=</span> <span class="va">gtex_colors</span>, plot_type <span class="op">=</span> <span class="st">"bar"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">factor3_ci</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, ymax <span class="op">=</span> <span class="va">factor3_ci</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="flashier_closer_look_files/figure-html/final.bf.ci.plot-1.png" width="576"></p>
 <p>Confidence intervals for spleen tissue, lung tissue, and lymphocytes
 do not contain zero, so we can be reasonably confident that this pattern
@@ -579,44 +598,58 @@ offer this last conclusion with a large grain of salt.</p>
 </h2>
 <p>The following R version and packages were used to generate this
 vignette:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 3.6.2 (2019-12-12)</span>
-<span class="co">#&gt; Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
-<span class="co">#&gt; Running under: macOS Catalina 10.15.7</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Matrix products: default</span>
-<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib</span>
-<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; locale:</span>
-<span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attached base packages:</span>
-<span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] cowplot_1.1.1   ggplot2_3.3.6   flashier_1.0.23 magrittr_2.0.1 </span>
-<span class="co">#&gt; [5] ebnm_1.1-3     </span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] Rcpp_1.0.8         horseshoe_0.2.0    invgamma_1.1       lattice_0.20-38   </span>
-<span class="co">#&gt;  [5] tidyr_1.1.3        assertthat_0.2.1   rprojroot_2.0.3    digest_0.6.23     </span>
-<span class="co">#&gt;  [9] utf8_1.1.4         truncnorm_1.0-8    R6_2.4.1           evaluate_0.14     </span>
-<span class="co">#&gt; [13] highr_0.8          pillar_1.6.2       rlang_1.0.6        irlba_2.3.3       </span>
-<span class="co">#&gt; [17] jquerylib_0.1.4    Matrix_1.3-4       rmarkdown_2.21     pkgdown_2.0.7     </span>
-<span class="co">#&gt; [21] labeling_0.3       desc_1.2.0         splines_3.6.2      stringr_1.4.0     </span>
-<span class="co">#&gt; [25] munsell_0.5.0      mixsqp_0.3-48      compiler_3.6.2     xfun_0.36         </span>
-<span class="co">#&gt; [29] pkgconfig_2.0.3    systemfonts_1.0.2  SQUAREM_2017.10-1  htmltools_0.5.4   </span>
-<span class="co">#&gt; [33] tidyselect_1.1.1   tibble_3.1.3       fansi_0.4.0        withr_2.5.0       </span>
-<span class="co">#&gt; [37] crayon_1.4.1       dplyr_1.0.7        grid_3.6.2         jsonlite_1.7.2    </span>
-<span class="co">#&gt; [41] gtable_0.3.0       lifecycle_1.0.3    DBI_1.1.0          scales_1.1.0      </span>
-<span class="co">#&gt; [45] cli_3.5.0          stringi_1.4.3      farver_2.0.1       fs_1.5.2          </span>
-<span class="co">#&gt; [49] bslib_0.3.1        ellipsis_0.3.2     ragg_0.3.1         generics_0.0.2    </span>
-<span class="co">#&gt; [53] vctrs_0.3.8        trust_0.1-8        RColorBrewer_1.1-2 tools_3.6.2       </span>
-<span class="co">#&gt; [57] glue_1.4.2         softImpute_1.4     purrr_0.3.4        parallel_3.6.2    </span>
-<span class="co">#&gt; [61] fastmap_1.1.0      yaml_2.2.0         colorspace_1.4-1   ashr_2.2-57       </span>
-<span class="co">#&gt; [65] memoise_1.1.0      deconvolveR_1.2-1  knitr_1.37         sass_0.4.0</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
+<span><span class="co">#&gt; Platform: aarch64-apple-darwin20 (64-bit)</span></span>
+<span><span class="co">#&gt; Running under: macOS Sonoma 14.5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib </span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; time zone: America/Chicago</span></span>
+<span><span class="co">#&gt; tzcode source: internal</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt; [1] cowplot_1.1.3   ggplot2_3.5.0   flashier_1.0.53 ebnm_1.1-34    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;  [1] tidyselect_1.2.1     viridisLite_0.4.2    dplyr_1.1.4         </span></span>
+<span><span class="co">#&gt;  [4] farver_2.1.1         fastmap_1.1.1        lazyeval_0.2.2      </span></span>
+<span><span class="co">#&gt;  [7] digest_0.6.34        lifecycle_1.0.4      invgamma_1.1        </span></span>
+<span><span class="co">#&gt; [10] magrittr_2.0.3       compiler_4.3.3       rlang_1.1.3         </span></span>
+<span><span class="co">#&gt; [13] sass_0.4.8           progress_1.2.3       tools_4.3.3         </span></span>
+<span><span class="co">#&gt; [16] utf8_1.2.4           yaml_2.3.8           data.table_1.15.2   </span></span>
+<span><span class="co">#&gt; [19] knitr_1.45           prettyunits_1.2.0    labeling_0.4.3      </span></span>
+<span><span class="co">#&gt; [22] htmlwidgets_1.6.4    scatterplot3d_0.3-44 RColorBrewer_1.1-3  </span></span>
+<span><span class="co">#&gt; [25] Rtsne_0.17           withr_3.0.0          purrr_1.0.2         </span></span>
+<span><span class="co">#&gt; [28] desc_1.4.3           grid_4.3.3           fansi_1.0.6         </span></span>
+<span><span class="co">#&gt; [31] fastTopics_0.6-184   colorspace_2.1-0     scales_1.3.0        </span></span>
+<span><span class="co">#&gt; [34] gtools_3.9.5         cli_3.6.2            rmarkdown_2.26      </span></span>
+<span><span class="co">#&gt; [37] crayon_1.5.2         ragg_1.2.7           generics_0.1.3      </span></span>
+<span><span class="co">#&gt; [40] RcppParallel_5.1.7   httr_1.4.7           pbapply_1.7-2       </span></span>
+<span><span class="co">#&gt; [43] cachem_1.0.8         splines_4.3.3        parallel_4.3.3      </span></span>
+<span><span class="co">#&gt; [46] softImpute_1.4-1     vctrs_0.6.5          Matrix_1.6-5        </span></span>
+<span><span class="co">#&gt; [49] jsonlite_1.8.8       hms_1.1.3            mixsqp_0.3-54       </span></span>
+<span><span class="co">#&gt; [52] ggrepel_0.9.5        irlba_2.3.5.1        horseshoe_0.2.0     </span></span>
+<span><span class="co">#&gt; [55] systemfonts_1.0.6    trust_0.1-8          plotly_4.10.4       </span></span>
+<span><span class="co">#&gt; [58] jquerylib_0.1.4      tidyr_1.3.1          glue_1.7.0          </span></span>
+<span><span class="co">#&gt; [61] pkgdown_2.0.7        uwot_0.1.16          Polychrome_1.5.1    </span></span>
+<span><span class="co">#&gt; [64] gtable_0.3.4         quadprog_1.5-8       munsell_0.5.0       </span></span>
+<span><span class="co">#&gt; [67] tibble_3.2.1         pillar_1.9.0         htmltools_0.5.7     </span></span>
+<span><span class="co">#&gt; [70] truncnorm_1.0-9      R6_2.5.1             textshaping_0.3.7   </span></span>
+<span><span class="co">#&gt; [73] evaluate_0.23        lattice_0.22-5       highr_0.10          </span></span>
+<span><span class="co">#&gt; [76] RhpcBLASctl_0.23-42  memoise_2.0.1        SQUAREM_2021.1      </span></span>
+<span><span class="co">#&gt; [79] ashr_2.2-66          bslib_0.6.1          Rcpp_1.0.12         </span></span>
+<span><span class="co">#&gt; [82] deconvolveR_1.2-1    xfun_0.42            fs_1.6.3            </span></span>
+<span><span class="co">#&gt; [85] pkgconfig_2.0.3</span></span></code></pre></div>
 </div>
   </div>
 
