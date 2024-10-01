@@ -13,8 +13,12 @@ set.extrapolate.param <- function(control) {
   return(par)
 }
 
-extrapolate <- function(new, old, beta) {
-  return(new + beta * (new - old))
+extrapolate <- function(new, old, beta, zero.k = NULL) {
+  res <- new + beta * (new - old)
+  if (!is.null(zero.k) && any(zero.k)) {
+    res[, which(zero.k)] <- 0
+  }
+  return(res)
 }
 
 # Works for both factor and flash objects.
@@ -23,9 +27,11 @@ extrapolate.f <- function(f, old.f, par) {
   epsilon <- 1e-10
 
   EF  <- mapply(extrapolate, get.EF(f), get.EF(old.f),
-                MoreArgs = list(beta = beta), SIMPLIFY = FALSE)
+                MoreArgs = list(beta = beta, zero.k = is.zero(f)),
+                SIMPLIFY = FALSE)
   EF2 <- mapply(extrapolate, get.EF2(f), get.EF2(old.f),
-                MoreArgs = list(beta = beta), SIMPLIFY = FALSE)
+                MoreArgs = list(beta = beta, zero.k = is.zero(f)),
+                SIMPLIFY = FALSE)
 
   # Ensure that EF2 > EF^2.
   EF2 <- mapply(function(EF, EF2) pmax(EF2, EF^2 + epsilon), EF, EF2,
