@@ -13,10 +13,10 @@ set.extrapolate.param <- function(control) {
   return(par)
 }
 
-extrapolate <- function(new, old, beta, zero.k = NULL) {
+extrapolate <- function(new, old, beta, skip.cols = NULL) {
   res <- new + beta * (new - old)
-  if (!is.null(zero.k) && any(zero.k)) {
-    res[, which(zero.k)] <- 0
+  if (!is.null(skip.cols) && any(skip.cols)) {
+    res[, which(skip.cols)] <- new[, which(skip.cols)]
   }
   return(res)
 }
@@ -26,11 +26,12 @@ extrapolate.f <- function(f, old.f, par) {
   beta <- par$beta
   epsilon <- 1e-10
 
+  skip.cols <- is.zero(f)
   EF  <- mapply(extrapolate, get.EF(f), get.EF(old.f),
-                MoreArgs = list(beta = beta, zero.k = is.zero(f)),
+                MoreArgs = list(beta = beta, skip.cols = skip.cols),
                 SIMPLIFY = FALSE)
   EF2 <- mapply(extrapolate, get.EF2(f), get.EF2(old.f),
-                MoreArgs = list(beta = beta, zero.k = is.zero(f)),
+                MoreArgs = list(beta = beta, skip.cols = skip.cols),
                 SIMPLIFY = FALSE)
 
   # Ensure that EF2 > EF^2.
