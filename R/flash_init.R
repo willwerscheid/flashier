@@ -18,19 +18,30 @@
 #'   matrix is not square, then \code{S_dim} should be left unspecified
 #'   (\code{NULL}).
 #'
-#' @param Y2 Optionally, users can supply \code{Y2}, the summed squared values
-#'   of the data \eqn{y_{ij}^2}, which is needed to estimate the residual
-#'   variance parameters \eqn{s_{ij}^2} for simple variance structures
-#'   (i.e., when \code{var_type} is set to 0, 1, or 2). This can be 
-#'   particularly useful when \eqn{Y} has a low-rank matrix representation,
-#'   e.g., \eqn{Y = XX^T} where \eqn{X} is a $n \times p$ sparse matrix
-#'   and \eqn{p} is much smaller than \eqn{n}. In this case, users can 
-#'   directly supply \code{Y2} which can be calculated using the summed 
-#'   squared values of \eqn{X^TX}, rather than having \code{flashier} 
-#'   compute \code{Y2}, which involves explicitly forming the $n \times n$  
-#'   dense matrix \eqn{Y} and can cause memory issues.
+#' @param Y2 Optionally, users can supply a scalar \code{Y2} \eqn{=\sum_{i,j} y_{ij}^2},
+#'   where \eqn{Y} is a data matrix for \code{data}. \code{Y2} is needed to  
+#'   estimate the residual variance parameters \eqn{s_{ij}^2} when \code{var_type} 
+#'   is set to 0. This can be particularly useful when \eqn{Y} has a low-rank 
+#'   matrix representation, e.g., \eqn{Y = \frac{1}{p}XX'}, where \eqn{X} is a 
+#'   \eqn{n \times p} sparse matrix and \eqn{p} is much smaller than \eqn{n}.
+#'   In this case, users can directly supply \code{Y2} which can be calculated
+#'   using the summed squared values of \eqn{\frac{1}{p}X'X} (see the example below), 
+#'   rather than having \code{flashier} compute \code{Y2}, which involves explicitly
+#'   forming the \eqn{n \times n} dense matrix \eqn{Y} and can be much slower and 
+#'   even cause memory issues. 
 #'
 #' @return An initialized \code{\link{flash}} object (with no factors).
+#'
+#' @examples
+#' Create \eqn{n \times p} sparse matrix \eqn{X}, where \eqn{p} is much smaller than \eqn{n}.
+#' X <- Matrix::Matrix(rbinom(1e8, 1, 0.1), ncol = 1e3, sparse = TRUE)
+#' 
+#' Provide a low-rank matrix representation for the input \code{data}.
+#' dat <- list(U = X, D = rep(1 / ncol(X), ncol(X)), V = X)
+#'
+#' Calculate \code{Y2} externally and supply it to \code{flash_init}.
+#' Y2_val <- sum((Matrix::crossprod(X) / ncol(X))^2)
+#' fit.init <- flash_init(dat, var_type = 0, Y2 = Y2_val)
 #'
 #' @export
 #'
