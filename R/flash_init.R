@@ -18,14 +18,26 @@
 #'   matrix is not square, then \code{S_dim} should be left unspecified
 #'   (\code{NULL}).
 #'
+@param Y2 Optionally, users can supply the summed squared values of 
+#'   the data \eqn{y_{ij}^2}, which is needed to estimate the residual
+#'   variance parameters \eqn{s_{ij}^2} for simple variance structures
+#'   (i.e., when \code{var_type} is set to 0, 1, or 2). This can be 
+#'   particularly useful when \eqn{Y} has a low-rank matrix representation,
+#'   e.g., \eqn{Y = XX^T} where \eqn{X} is a $n \times p$ sparse matrix
+#'   and \eqn{p} is much smaller than \eqn{n}. In this case, users can 
+#'   directly provide Y2 which can be calculated using the summed squared
+#'   values of \eqn{X^TX}, rather than having \code{flashier} compute it 
+#'   which involves explicitly forming the $n \times n$ dense matrix 
+#'   \eqn{Y} and can cause memory issues.
+#'
 #' @return An initialized \code{\link{flash}} object (with no factors).
 #'
 #' @export
 #'
-flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL, Y2val = NULL) {
+flash_init <- function(data, S = NULL, var_type = 0L, S_dim = NULL, Y2 = NULL) {
   flash <- set.flash.data(data, S = S, S.dim = S_dim, var.type = var_type)
-  if(!is.null(Y2val)) {
-    flash <- set.Y2(flash, Y2val)
+  if(!is.null(Y2)) {
+    flash <- set.Y2(flash, Y2)
   }
 
   if (is.var.type.zero(flash) && !is.tau.simple(flash)) {
