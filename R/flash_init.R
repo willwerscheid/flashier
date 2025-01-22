@@ -25,10 +25,10 @@
 #'   particularly useful when \eqn{Y} has a low-rank matrix representation,
 #'   e.g., \eqn{Y = XX^T} where \eqn{X} is a $n \times p$ sparse matrix
 #'   and \eqn{p} is much smaller than \eqn{n}. In this case, users can 
-#'   directly provide Y2 which can be calculated using the summed squared
-#'   values of \eqn{X^TX}, rather than having \code{flashier} compute it 
-#'   which involves explicitly forming the $n \times n$ dense matrix 
-#'   \eqn{Y} and can cause memory issues.
+#'   directly supply \code{Y2} which can be calculated using the summed 
+#'   squared values of \eqn{X^TX}, rather than having \code{flashier} 
+#'   compute \code{Y2}, which involves explicitly forming the $n \times n$  
+#'   dense matrix \eqn{Y} and can cause memory issues.
 #'
 #' @return An initialized \code{\link{flash}} object (with no factors).
 #'
