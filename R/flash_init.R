@@ -18,7 +18,7 @@
 #'   matrix is not square, then \code{S_dim} should be left unspecified
 #'   (\code{NULL}).
 #'
-@param Y2 Optionally, users can supply the summed squared values of 
+#' @param Y2 Optionally, users can supply the summed squared values of 
 #'   the data \eqn{y_{ij}^2}, which is needed to estimate the residual
 #'   variance parameters \eqn{s_{ij}^2} for simple variance structures
 #'   (i.e., when \code{var_type} is set to 0, 1, or 2). This can be 
