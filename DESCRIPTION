@@ -1,8 +1,8 @@
 Package: flashier
 Type: Package
-Date: 2024-11-14
+Date: 2025-01-27
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.55
+Version: 1.0.56
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
@@ -45,6 +45,6 @@ Remotes:
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)

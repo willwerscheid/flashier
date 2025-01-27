@@ -76,6 +76,13 @@ sq.nmode.prod.r1.lowrank <- function(x, r1, n, ...) {
   return(premult.nmode.prod.r1(x, x, r1, n))
 }
 
+#' @export
+sumsq.lowrank <- function(x, ...) {
+  if (length(x) == 2 && ncol(x[[1]])^2 < prod(get.data.dims(x)))
+    return(sum(crossprod(x[[1]]) * crossprod(x[[2]])))
+  return(sumsq.default(x, ...))
+}
+
 # Not currently used -----
 
 # Only needed for parallel backfits:

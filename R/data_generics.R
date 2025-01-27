@@ -57,6 +57,11 @@ sq.nmode.prod.r1 <- function(x, ...) {
   UseMethod("sq.nmode.prod.r1", x)
 }
 
+# Calculates the sum of squares of a data object X.
+sumsq <- function(x, ...) {
+  UseMethod("sumsq", x)
+}
+
 # Takes four arguments: X, lr, r1, and n.
 # The following calculates the n-mode product between the matrix or tensor
 #   X * LF (where LF is stored as the "lowrank" object lr and multiplication
@@ -148,6 +153,14 @@ nmode.prod.r1.default <- function(x, r1, n, ...) {
 #' @export
 sq.nmode.prod.r1.default <- function(x, r1, n, ...) {
   return(nmode.prod.r1(x^2, r1, n))
+}
+
+#' @export
+sumsq.default <- function(x, ...) {
+  n <- which.min(get.data.dims(x))
+  r1 <- as.list(rep(1, length(get.data.dims(x)) - 1))
+  class(r1) <- "r1"
+  return(sum(sq.nmode.prod.r1(x, r1, n, ...)))
 }
 
 #' @export
