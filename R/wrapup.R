@@ -31,8 +31,8 @@ wrapup.flash <- function(flash, output.lvl) {
     if (get.dim(flash) == 2) {
       flash.object$L_pm  <- get.EF(flash)[[1]]
       flash.object$F_pm  <- get.EF(flash)[[2]]
-      flash.object$L_psd <- get.EF2(flash)[[1]] - get.EF(flash)[[1]]^2
-      flash.object$F_psd <- get.EF2(flash)[[2]] - get.EF(flash)[[2]]^2
+      flash.object$L_psd <- sqrt(pmax(get.EF2(flash)[[1]] - get.EF(flash)[[1]]^2, 0))
+      flash.object$F_psd <- sqrt(pmax(get.EF2(flash)[[2]] - get.EF(flash)[[2]]^2, 0))
       if (all.valid) {
         lfsr <- calc.lfsr(flash)
         if (is.matrix(lfsr[[1]])) {
