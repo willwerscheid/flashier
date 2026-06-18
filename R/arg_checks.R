@@ -71,27 +71,27 @@ must.be.valid.var.type <- function(x, data.dim, allow.null = TRUE) {
     stop(error.msg)
 }
 
-must.not.have.zero.slices <- function(Y) {
-  # Skip this test for non-standard data structures.
-  if (!(is.matrix(Y) || inherits(Y, "Matrix") || inherits(Y, "lowrank")))
+must.not.have.zero.slices <- function(Y, S, var.type) {
+  # Skip this test for non-matrix data structures.
+  if (!(is.matrix(Y) || inherits(Y, "Matrix")))
+    return()
+
+  # The purpose of the check is to prevent precision estimates from going to
+  #   zero, so we can skip it if S > 0 or if var.type = 0.
+  if (!is.null(S) && all(S > 0))
+    return()
+  if (!is.null(var.type) && length(var.type) == 1 && var.type == 0)
     return()
 
   error.msg <- paste("The data matrix must not have any rows or",
                      "columns whose entries are either identically zero",
                      "or all missing.")
-  if (inherits(Y, "lowrank")) {
-    for (n in 1:length(Y)) {
-      nz <- (Y[[n]] != 0)
-      if (any(rowSums(nz) == 0) || any(colSums(nz) == 0))
-        stop(error.msg)
-    }
-  } else {
-    nz <- (Y != 0)
-    for (n in 1:length(dim(Y))) {
-      n.nonzero <- nmode.prod.vec(nz, 1, n)
-      if (any(n.nonzero == 0))
-        stop(error.msg)
-    }
+
+  nz <- (Y != 0)
+  for (n in 1:length(dim(Y))) {
+    n.nonzero <- nmode.prod.vec(nz, 1, n)
+    if (any(n.nonzero == 0) && (is.null(var.type) || n %in% var.type))
+      stop(error.msg)
   }
 }
 

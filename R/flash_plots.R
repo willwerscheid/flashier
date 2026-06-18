@@ -14,12 +14,15 @@
 #' @param include_pm `r lifecycle::badge("deprecated")` This parameter has been deprecated; please use
 #'   \code{plot_type} instead.
 #'
-#' @param order_by_pve If \code{TRUE}, then the factor/loadings pairs will be
-#'   re-ordered according to proportion of variance explained (from
-#'   highest to lowest).
+#' @param order_by_pve If \code{order_by_pve = TRUE}, then factor/loadings pairs
+#'   will be ordered according to proportion of variance explained, from
+#'   highest to lowest. (By default, they are plotted in the same order as
+#'   \code{kset}; or, if \code{kset} is \code{NULL}, then they are plotted in
+#'   the same order as they are found in \code{fl}.)
 #'
 #' @param kset A vector of integers specifying the factor/loadings pairs to be
-#'   plotted. If \code{kset = NULL}, then all will be plotted.
+#'   plotted. If \code{order_by_pve = FALSE}, then \code{kset} also specifies the
+#'   \emph{order} in which they are to be plotted.
 #'
 #' @param pm_which Whether to plot loadings \eqn{L} or factors \eqn{F}.
 #'
@@ -83,7 +86,7 @@
 #'   \code{\link{flash_plot_scatter}}, and \code{\link{flash_plot_structure}}
 #'   for details.
 #'
-#' @return A \code{ggplot2} object.
+#' @return A \code{ggplot} object.
 #'
 #' @method plot flash
 #'
@@ -105,8 +108,7 @@ plot.flash <- function(x,
                                      "heatmap",
                                      "histogram",
                                      "scatter",
-                                     "structure",
-                                     "data.frame"),
+                                     "structure"),
                        ...) {
   deprecation_details <- paste(
     "Parameters 'include_scree' and 'include_pm' will be removed in a future",
@@ -170,10 +172,6 @@ plot.flash <- function(x,
     ret <- flash_plot_structure(
       x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors, ...
     )
-  } else if (plot_type == "data.frame") {
-    ret <- flash_plot_dataframe(
-      x, order_by_pve, kset, pm_which, pm_subset, pm_groups, pm_colors
-    )
   }
 
   return(ret)
@@ -198,24 +196,45 @@ plot.flash <- function(x,
 #'
 #' @inheritParams plot.flash
 #'
+#' @param fl An object inheriting from class \code{flash}.
+#'
 #' @param labels Whether to label the points in the scree plot with the
 #'   indices of the factor/loading pairs they correspond to. Labels appear
 #'   as "k1", "k2", "k3", etc.
 #'
-#' @return A \code{ggplot2} object.
+#' @param label_size The size of the label text (in millimeters).
+#'
+#' @param max_overlaps A (nonnegative) integer. For each text label, the number
+#'   of overlaps with other text labels or other data points are counted, and
+#'   the text label is excluded if it has too many overlaps.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' data(gtex)
+#' fl <- flash(gtex, greedy_Kmax = 4L, backfit = FALSE)
+#' flash_plot_scree(fl)
+#'
+#' # For the full range of labelling options provided by the ggrepel package, set
+#' #   labels = FALSE (the default setting) and add geom_text_repel() manually:
+#' library(ggrepel)
+#' flash_plot_scree(fl) + geom_text_repel(min.segment.length = 0)
 #'
 #' @importFrom dplyr group_by summarize
 #' @importFrom ggplot2 ggplot aes geom_line geom_point
 #' @importFrom ggplot2 scale_x_continuous scale_y_log10 labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom ggrepel geom_text_repel
+#' @importFrom rlang .data
 #'
 #' @export
 #'
 flash_plot_scree <- function(fl,
                              order_by_pve = FALSE,
                              kset = NULL,
-                             labels = FALSE) {
+                             labels = FALSE,
+                             label_size = 3,
+                             max_overlaps = Inf) {
   df <- flash_plot_dataframe(fl = fl,
                              order_by_pve = order_by_pve,
                              kset = kset,
@@ -223,19 +242,16 @@ flash_plot_scree <- function(fl,
                              pm_subset = NULL,
                              pm_groups = NULL,
                              pm_colors = NULL)
-  # Bind variables to get rid of annoying R CMD check note:
-  pve <- k <- k_numeric <- NULL
-
   df <- df |>
-    group_by(pve, k) |>
+    group_by(.data$pve, .data$k) |>
     summarize(.groups = "drop") |>
-    mutate(k_numeric = as.numeric(k))
+    mutate(k_numeric = as.numeric(.data$k))
 
-  p <- ggplot(df, aes(x = k_numeric, y = pve)) +
+  p <- ggplot(df, aes(x = .data$k_numeric, y = .data$pve, label = .data$k)) +
     geom_line(color = "grey") +
     geom_point(color = "dodgerblue") +
     scale_y_log10() +
-    labs(title = "Scree plot", x = "k", y = "PVE") +
+    labs(x = "k", y = "PVE") +
     theme_cowplot(font_size = 10)
 
   # Include ~4 x-axis ticks with the distance a multiple of 5:
@@ -252,7 +268,8 @@ flash_plot_scree <- function(fl,
 
   if (labels) {
     p <- p +
-      geom_text_repel(aes(label = k)) +
+      geom_text_repel(size = label_size,
+                      max.overlaps = max_overlaps) +
       theme(axis.text.x = element_blank())
   }
 
@@ -278,6 +295,8 @@ flash_plot_scree <- function(fl,
 #'
 #' @inheritParams plot.flash
 #'
+#' @inheritParams flash_plot_scree
+#'
 #' @param pm_colors A character vector specifying a color for each unique group
 #'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
 #'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
@@ -290,12 +309,7 @@ flash_plot_scree <- function(fl,
 #' @param ... Additional arguments to be passed to
 #'   \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).
 #'
-#' @return A \code{ggplot2} object.
-#'
-#' @importFrom ggplot2 ggplot aes geom_col
-#' @importFrom ggplot2 scale_fill_identity labs facet_wrap
-#' @importFrom ggplot2 theme element_text element_blank
-#' @importFrom cowplot theme_cowplot
+#' @return A \code{ggplot} object.
 #'
 #' @examples
 #' data(gtex)
@@ -306,6 +320,12 @@ flash_plot_scree <- function(fl,
 #' library(ggplot2)
 #' flash_plot_bar(fl, pm_colors = gtex_colors, labels = TRUE, ncol = 1) +
 #'   theme(axis.text.x = element_text(size = 8, angle = 60))
+#'
+#' @importFrom ggplot2 ggplot aes geom_col
+#' @importFrom ggplot2 scale_fill_identity labs facet_wrap
+#' @importFrom ggplot2 theme element_text element_blank
+#' @importFrom cowplot theme_cowplot
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -326,14 +346,11 @@ flash_plot_bar <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
 
-  # Bind variables to get rid of annoying R CMD check note:
-  name <- val <- color <- k <- NULL
-
   if (is.null(df$color)) {
-    p <- ggplot(df, aes(x = name, y = val)) +
+    p <- ggplot(df, aes(x = .data$name, y = .data$val)) +
       geom_col(fill = "dodgerblue")
   } else {
-    p <- ggplot(df, aes(x = name, y = val, fill = color)) +
+    p <- ggplot(df, aes(x = .data$name, y = .data$val, fill = .data$color)) +
       geom_col() +
       scale_fill_identity()
   }
@@ -344,7 +361,7 @@ flash_plot_bar <- function(fl,
 
   if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k, ...)
+      facet_wrap(~.data$k, ...)
   }
 
   if (labels) {
@@ -385,7 +402,10 @@ flash_plot_bar <- function(fl,
 #'
 #' @param alpha A transparency value between 0 (transparent) and 1 (opaque).
 #'
-#' @return A \code{ggplot2} object.
+#' @param ... Additional arguments to be passed to
+#'   \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).
+#'
+#' @return A \code{ggplot} object.
 #'
 #' @importFrom stats density
 #' @importFrom dplyr group_by summarize
@@ -395,6 +415,7 @@ flash_plot_bar <- function(fl,
 #' @importFrom ggplot2 theme element_blank
 #' @importFrom ggplot2 guides labs
 #' @importFrom cowplot theme_cowplot
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -417,21 +438,18 @@ flash_plot_histogram <- function(fl,
                              pm_groups = pm_groups,
                              pm_colors = if (is.null(pm_groups)) NULL else pm_colors)
 
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k <- NULL
-
   if (is.null(pm_groups)) {
-    p <- ggplot(df, aes(x = val, y = after_stat(density))) +
+    p <- ggplot(df, aes(x = .data$val, y = after_stat(density))) +
       geom_histogram(position = "identity", bins = bins, fill = "dodgerblue")
   } else {
     color_df <- df |>
-      group_by(group, color) |>
+      group_by(.data$group, .data$color) |>
       summarize(.groups = "drop") |>
-      arrange(group)
+      arrange(.data$group)
 
-    p <- ggplot(df, aes(x = val, y = after_stat(density),
-                        color = color, fill = color)) +
-      geom_histogram(position = "identity", bins = bins, alpha = alpha) +
+    p <- ggplot(df, aes(x = .data$val, y = after_stat(density),
+                        fill = .data$color)) +
+      geom_histogram(position = "identity", bins = bins, color = "white") +
       scale_color_identity(guide = "legend",
                            name = "",
                            labels = color_df$group,
@@ -443,7 +461,7 @@ flash_plot_histogram <- function(fl,
   }
 
   p <- p +
-    geom_vline(xintercept = 0, color = "darkgrey") +
+    # geom_vline(xintercept = 0, color = "darkgrey") +
     theme_cowplot(font_size = 10) +
     theme(axis.text.y = element_blank()) +
     labs(title = paste0("Posterior means (", pm_which, ")")) +
@@ -451,7 +469,7 @@ flash_plot_histogram <- function(fl,
 
   if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k, scales = "free_y", ...)
+      facet_wrap(~.data$k, scales = "free_y", ...)
   }
   return(p)
 }
@@ -470,6 +488,10 @@ flash_plot_histogram <- function(fl,
 #'
 #' @inheritParams plot.flash
 #'
+#' @inheritParams flash_plot_scree
+#'
+#' @inheritParams flash_plot_bar
+#'
 #' @param pm_colors A character vector specifying a color for each unique group
 #'   specified by \code{pm_groups}, or, if \code{pm_groups = NULL}, a vector
 #'   specifying a color for each plotted row \eqn{i} or column \eqn{j}. Defines
@@ -481,16 +503,37 @@ flash_plot_histogram <- function(fl,
 #' @param shape The symbol used for the plots' points. See
 #'   \code{\link[ggplot2]{aes_linetype_size_shape}}.
 #'
-#' @param n_labels A (nonnegative) integer. If \code{n_labels > 0}, then the
-#'   points with the \code{n_labels} largest (absolute) posterior means will be
-#'   labelled using \code{\link[ggrepel]{geom_text_repel}}.
+#' @param labels Whether to label the points with the largest (absolute)
+#'   posterior means. If \code{labels = TRUE}, then \code{n_labels} points will
+#'   be labelled using \code{\link[ggrepel]{geom_text_repel}}.
 #'
-#' @param label_size The size of the label text (in millimeters).
+#' @param n_labels A (nonnegative) integer. The number of points to label. If
+#'   \code{n_labels} is set to a positive integer but \code{labels = FALSE},
+#'   then the \code{n_labels} points with the largest (absolute) posterior
+#'   means will be highlighted in blue but not labelled. This can be useful for
+#'   tweaking labels using the full range of options provided by
+#'   \code{\link[ggrepel]{geom_text_repel}}. For an example, see below.
 #'
 #' @param ... Additional arguments to be passed to
-#'   \code{\link[ggrepel]{geom_text_repel}}.
+#'   \code{\link[ggplot2]{facet_wrap}} (e.g., \code{nrow} or \code{ncol}).
 #'
-#' @return A \code{ggplot2} object.
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' data(gtex)
+#' fl <- flash(gtex, greedy_Kmax = 4L, backfit = FALSE)
+#' flash_plot_scatter(fl)
+#'
+#' # Label axes and points:
+#' library(ggplot2)
+#' flash_plot_scatter(fl, labels = TRUE, n_labels = 3) +
+#'   labs(y = "mean z-score across all SNPs")
+#'
+#' # For the full range of labelling options provided by the ggrepel package, set
+#' #   labels = FALSE (the default setting) and add geom_text_repel() manually:
+#' library(ggrepel)
+#' flash_plot_scatter(fl, labels = FALSE, n_labels = 3) +
+#'   geom_text_repel(size = 2.5, min.segment.length = 0)
 #'
 #' @importFrom ggplot2 ggplot aes geom_point
 #' @importFrom ggplot2 scale_color_identity
@@ -499,6 +542,7 @@ flash_plot_histogram <- function(fl,
 #' @importFrom dplyr group_by mutate summarize arrange left_join
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -511,9 +555,17 @@ flash_plot_scatter <- function(fl,
                                pm_colors = NULL,
                                covariate = NULL,
                                shape = 1,
+                               labels = FALSE,
                                n_labels = 0,
                                label_size = 3,
+                               max_overlaps = Inf,
                                ...) {
+  if (labels && missing(n_labels)) {
+    n_labels <- 10
+    message("The number of labels has been set to 10. To change this setting ",
+            "and suppress this message, please set argument 'n_labels'.")
+  }
+
   df <- flash_plot_dataframe(fl = fl,
                              order_by_pve = order_by_pve,
                              kset = kset,
@@ -521,9 +573,6 @@ flash_plot_scatter <- function(fl,
                              pm_subset = pm_subset,
                              pm_groups = pm_groups,
                              pm_colors = pm_colors)
-
-  # Bind variables to get rid of annoying R CMD check note:
-  val <- group <- color <- k <- NULL
 
   if (!is.null(covariate)) {
     df$covariate <- rep(covariate, length.out = nrow(df))
@@ -560,19 +609,23 @@ flash_plot_scatter <- function(fl,
 
   if (n_labels > 0) {
     df <- df |>
-      group_by(k) |>
-      mutate(label = ifelse(rank(-abs(val)) > n_labels, "", name),
-             color = ifelse(label != "", "dodgerblue", "gray80"))
+      group_by(.data$k) |>
+      mutate(label = ifelse(rank(-abs(.data$val)) > n_labels, "", .data$name)) |>
+      mutate(color = ifelse(.data$label != "", "dodgerblue", "gray80"))
+  } else {
+    df$label = ""
   }
 
-  p <- ggplot(df, aes(x = val, y = covariate, color = color)) +
+  p <- ggplot(df, aes(x = .data$val, y = .data$covariate,
+                      color = .data$color, label = .data$label)) +
     geom_point(shape = shape) +
-    labs(x = "loading", y = ylab) +
+    labs(x = paste(sub("s", "", pm_which), "posterior mean"),
+         y = ylab) +
     theme_cowplot(font_size = 10)
 
   if (length(levels(df$k)) > 1) {
     p <- p +
-      facet_wrap(~k)
+      facet_wrap(~k, ...)
   }
 
   if (is.null(pm_groups)) {
@@ -580,9 +633,9 @@ flash_plot_scatter <- function(fl,
       scale_color_identity()
   } else {
     color_df <- df |>
-      group_by(group, color) |>
+      group_by(.data$group, .data$color) |>
       summarize(.groups = "drop") |>
-      arrange(group)
+      arrange(.data$group)
     p <- p +
       scale_color_identity(guide = "legend",
                            name = "",
@@ -590,11 +643,10 @@ flash_plot_scatter <- function(fl,
                            breaks = color_df$color)
   }
 
-  if (n_labels > 0) {
+  if (labels) {
     p <- p +
-      geom_text_repel(aes(label = label),
-                      size = label_size,
-                      ...)
+      geom_text_repel(size = label_size,
+                      max.overlaps = max_overlaps)
   }
 
   return(p)
@@ -618,6 +670,8 @@ flash_plot_scatter <- function(fl,
 #'
 #' @inheritParams plot.flash
 #'
+#' @inheritParams flash_plot_scree
+#'
 #' @param pm_colors The colors of the \dQuote{topics} or components (factor/loadings
 #'   pairs).
 #'
@@ -627,7 +681,7 @@ flash_plot_scatter <- function(fl,
 #' @param ... Additional parameters to be passed to
 #'   \code{\link[fastTopics]{structure_plot}}.
 #'
-#' @return A \code{ggplot2} object.
+#' @return A \code{ggplot} object.
 #'
 #' @importFrom fastTopics structure_plot
 #' @importFrom ggplot2 labs
@@ -677,13 +731,13 @@ flash_plot_structure <- function(fl,
   if (any(df$val < 0) && any(df$val > 0)) {
     warning("Structure plots were designed to visualize sets of nonnegative ",
             "memberships or loadings. Structure plots that include negative ",
-            "loadings are often difficult to interpret, so a heatmap should ",
+            "values are often difficult to interpret, so a heatmap should ",
             "typically be preferred when visualizing a combination of negative ",
-            "and positive loadings.")
+            "and positive values.")
   }
 
   p <- p +
-    labs(y = "loading", color = "factor", fill = "factor")
+    labs(y = "posterior mean", color = "component", fill = "component")
   return(p)
 }
 
@@ -717,13 +771,14 @@ flash_plot_structure <- function(fl,
 #'   \code{\link[fastTopics]{structure_plot}} (which is primarily used to
 #'   arrange the rows \eqn{i} or columns \eqn{j}).
 #'
-#' @return A \code{ggplot2} object.
+#' @return A \code{ggplot} object.
 #'
 #' @importFrom ggplot2 ggplot aes geom_tile
 #' @importFrom ggplot2 scale_fill_gradient2
 #' @importFrom ggplot2 scale_y_continuous labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom stats density
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -736,9 +791,6 @@ flash_plot_heatmap <- function(fl,
                                pm_colors = NULL,
                                gap = 1,
                                ...) {
-  # Bind variables to get rid of annoying R CMD check note:
-  topic <- prop <- NULL
-
   if (is.null(pm_colors)) {
     pm_colors <- c("darkred", "white", "darkblue")
   } else if (length(pm_colors) == 1) {
@@ -769,11 +821,11 @@ flash_plot_heatmap <- function(fl,
   struct_df$topic <- factor(struct_df$topic,
                             levels = rev(levels(struct_df$topic)))
 
-  p <- ggplot(struct_df, aes(x = topic, y = sample, fill = prop)) +
+  p <- ggplot(struct_df, aes(x = .data$topic, y = .data$sample, fill = .data$prop)) +
     geom_tile(width = 0.8, height = 1) +
     scale_fill_gradient2(low = pm_colors[3], mid = pm_colors[2], high = pm_colors[1]) +
     scale_y_continuous(breaks = struct_ticks, labels = names(struct_ticks)) +
-    labs(x = "factor", y = "", fill = "loading") +
+    labs(x = "component", y = "", fill = "posterior\n mean") +
     theme_cowplot(font_size = 10)
   return(p)
 }

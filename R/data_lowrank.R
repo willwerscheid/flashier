@@ -44,6 +44,8 @@ nmode.prod.vec.lowrank <- function(x, v, n, ...) {
   }
 }
 
+#' @importFrom Matrix rowSums
+#' 
 #' @export
 premult.nmode.prod.r1.lowrank <- function(x, lr, r1, n, ...) {
   if (is.null(lr))
@@ -53,9 +55,9 @@ premult.nmode.prod.r1.lowrank <- function(x, lr, r1, n, ...) {
     if (length(lr) == 2) {
       u <- unlist(r1) * lr[[-n]]
       if (n == 1)
-        return(rowSums(lr[[1]] * (x[[1]] %*% crossprod(x[[2]], u))))
+        return(Matrix::rowSums(lr[[1]] * (x[[1]] %*% crossprod(x[[2]], u))))
       if (n == 2)
-        return(rowSums(lr[[2]] * (x[[2]] %*% t(crossprod(u, x[[1]])))))
+        return(Matrix::rowSums(lr[[2]] * (x[[2]] %*% t(crossprod(u, x[[1]])))))
     } else if (length(lr) == 3) {
       return(premult.nmode.prod.r1.default(x, lr, r1, n, ...))
     } else {
@@ -72,6 +74,13 @@ sq.nmode.prod.r1.lowrank <- function(x, r1, n, ...) {
   if (length(x) == 2 && ncol(x[[1]])^2 > prod(get.data.dims(x)))
     return(nmode.prod.r1(lowrank.expand(x)^2, r1, n))
   return(premult.nmode.prod.r1(x, x, r1, n))
+}
+
+#' @export
+sumsq.lowrank <- function(x, ...) {
+  if (length(x) == 2 && ncol(x[[1]])^2 < prod(get.data.dims(x)))
+    return(sum(crossprod(x[[1]]) * crossprod(x[[2]])))
+  return(sumsq.default(x, ...))
 }
 
 # Not currently used -----
