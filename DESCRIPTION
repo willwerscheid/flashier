@@ -1,20 +1,28 @@
 Package: flashier
 Type: Package
-Date: 2026-05-08
+Date: 2026-06-30
 Title: Empirical Bayes Matrix Factorization
-Version: 1.0.59
+Version: 1.0.60
 Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
                     email = "jwillwer@providence.edu"),
              person("Peter", "Carbonetto", role = "aut"),
              person("Wei", "Wang", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
              person("Eric", "Weine", role = "ctb"),
-	           person("Annie", "Xie", role = "ctb"),
+	     person("Annie", "Xie", role = "ctb"),
              person("Gao", "Wang", role = "ctb"))
 URL: https://github.com/willwerscheid/flashier
 BugReports: https://github.com/willwerscheid/flashier/issues
-Description: Methods for matrix factorization based on Wang and Stephens (2021) 
-    <https://jmlr.org/papers/v22/20-589.html>.
+
+Description: Implements empirical Bayes matrix factorization (EBMF), a
+    flexible modeling framework for matrix factorization based on Wang
+    and Stephens (2021) <https://jmlr.org/papers/v22/20-589.html>. 
+    Includes many popular matrix factorization methods such as SVD,
+    sparse factor analysis (SFA), non-negative matrix factorization
+    (NMF) and semi-non-negative matrix factorization (semi-NMF) as
+    special cases. The model fitting algorithms are implemented using
+    a modular computational framework that efficiently handles a
+    variety of data types.
 Depends: 
     R (>= 4.1),
     ebnm (>= 0.1-21)
