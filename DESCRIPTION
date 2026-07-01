@@ -13,7 +13,6 @@ Authors@R: c(person("Jason", "Willwerscheid", role = c("aut", "cre"),
              person("Gao", "Wang", role = "ctb"))
 URL: https://github.com/willwerscheid/flashier
 BugReports: https://github.com/willwerscheid/flashier/issues
-
 Description: Implements empirical Bayes matrix factorization (EBMF), a
     flexible modeling framework for matrix factorization based on Wang
     and Stephens (2021) <https://jmlr.org/papers/v22/20-589.html>. 
